@@ -1,0 +1,49 @@
+\initial {%}
+\entry {\code {%foreign-funcall}}{7}
+\entry {\code {%foreign-funcall-pointer}}{7}
+\entry {\code {%foreign-type-alignment}}{3}
+\entry {\code {%foreign-type-size}}{3}
+\entry {\code {%load-foreign-library}}{8}
+\entry {\code {%mem-ref}}{6}
+\initial {:}
+\entry {\code {:char}}{2}
+\entry {\code {:double}}{2}
+\entry {\code {:float}}{2}
+\entry {\code {:int}}{2}
+\entry {\code {:int16}}{2}
+\entry {\code {:int32}}{2}
+\entry {\code {:int64}}{2}
+\entry {\code {:int8}}{2}
+\entry {\code {:long}}{2}
+\entry {\code {:long-long}}{2}
+\entry {\code {:pointer}}{2}
+\entry {\code {:ptrdiff}}{2}
+\entry {\code {:short}}{2}
+\entry {\code {:size}}{2}
+\entry {\code {:ssize}}{2}
+\entry {\code {:time}}{2}
+\entry {\code {:uint16}}{2}
+\entry {\code {:uint32}}{2}
+\entry {\code {:uint64}}{2}
+\entry {\code {:uint8}}{2}
+\entry {\code {:unsigned-char}}{2}
+\entry {\code {:unsigned-int}}{2}
+\entry {\code {:unsigned-long}}{2}
+\entry {\code {:unsigned-long-long}}{2}
+\entry {\code {:unsigned-short}}{2}
+\entry {\code {:void}}{2}
+\initial {F}
+\entry {\code {foreign-alloc}}{5}
+\entry {\code {foreign-free}}{5}
+\entry {\code {foreign-symbol-pointer}}{9}
+\initial {I}
+\entry {\code {inc-pointer}}{4}
+\initial {M}
+\entry {\code {make-pointer}}{4}
+\initial {N}
+\entry {\code {null-pointer}}{4}
+\entry {\code {null-pointer-p}}{4}
+\initial {P}
+\entry {\code {pointerp}}{4}
+\initial {W}
+\entry {\code {with-foreign-pointer}}{5}

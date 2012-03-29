@@ -1,0 +1,22 @@
+FFI definitions for BLAS and LAPACK. Currently only Intel MKL is
+supported, but it's fairly easy to add more.
+
+This package also contains other interesting stuff:
+
+- a FFI supports fortran ABI (see src/ffi-utils.lisp)
+- a wrapper and makefile to generate .so file for enable SMP in Intel MKL
+  (see src/lapack_wrapper.*, src/Makefile)
+- Some utilities for thread-safety (e.g. make-static-array)
+
+BLAS/LAPACK manuals can be found at:
+
+  http://software.intel.com/en-us/articles/intel-math-kernel-library-documentation/
+
+For other information you can find them in docs/.
+
+
+
+Jianshi Huang (MSI)
+huang@msi.co.jp
+2009-12-04
+

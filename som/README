@@ -1,0 +1,2 @@
+CL-USER(2): :ld defsystem
+CL-USER(3): (som::test)

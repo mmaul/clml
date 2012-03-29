@@ -1,0 +1,129 @@
+<html lang="en">
+<head>
+<title>Parallel Binding and Stepping - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Other-Features.html#Other-Features" title="Other Features">
+<link rel="prev" href="On_002dline-Help.html#On_002dline-Help" title="On-line Help">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Parallel-Binding-and-Stepping"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="On_002dline-Help.html#On_002dline-Help">On-line Help</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Other-Features.html#Other-Features">Other Features</a>
+<hr>
+</div>
+
+<h3 class="section">3.5 Parallel Binding and Stepping</h3>
+
+<p>The parallel binding and stepping of variables is a feature that
+<code>iterate</code> does <em>not</em> have.  This section attempts to provide a
+rationale.
+
+   <p>We say that two variables are bound <em>in parallel</em> if neither
+binding shadows the other.  This is the usual semantics of <code>let</code>
+(as opposed to <code>let*</code>).  Similarly, we can say that iteration
+variables are stepped in parallel if neither variable is updated
+before the other, conceptually speaking; in other words, if the code
+to update each variable can reference the old values of both
+variables.
+
+   <p><code>loop</code> allows parallel binding of variables and parallel stepping
+of driver variables.  My view is that if you are depending on the
+serial/parallel distinction, you are doing something obscure.  If you
+need to bind variables in parallel using <code>with</code>, then you must be
+using a variable name that shadows a name in the existing lexical
+environment.  Don't do that.  The most common use for parallel
+stepping is to track the values of variables on the previous
+iteration, but in fact this does not require parallel stepping at all;
+the following will work:
+
+<pre class="lisp">  (iter (for current in list)
+        (for prev previous current)
+        ...)
+</pre>
+   <!-- =================================================================== -->
+</body></html>
+

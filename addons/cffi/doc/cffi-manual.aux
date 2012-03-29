@@ -1,0 +1,315 @@
+@xrdef{Introduction-title}{Introduction}
+@xrdef{Introduction-snt}{Chapter@tie 1}
+@xrdef{Introduction-pg}{1}
+@xrdef{Installation-title}{Installation}
+@xrdef{Installation-snt}{Chapter@tie 2}
+@xrdef{Installation-pg}{2}
+@xrdef{Implementation Support-title}{Implementation Support}
+@xrdef{Implementation Support-snt}{Chapter@tie 3}
+@xrdef{Implementation Support-pg}{3}
+@xrdef{Tutorial-title}{An Introduction to Foreign Interfaces and @acronym {CFFI}}
+@xrdef{Tutorial-snt}{Chapter@tie 4}
+@xrdef{Tutorial-Comparison-title}{What makes Lisp different}
+@xrdef{Tutorial-Comparison-snt}{Section@tie 4.1}
+@xrdef{Tutorial-pg}{4}
+@xrdef{Tutorial-Comparison-pg}{4}
+@xrdef{Tutorial-Getting a URL-title}{Getting a @acronym {URL}}
+@xrdef{Tutorial-Getting a URL-snt}{Section@tie 4.2}
+@xrdef{Tutorial-Loading-title}{Loading foreign libraries}
+@xrdef{Tutorial-Loading-snt}{Section@tie 4.3}
+@xrdef{Tutorial-Getting a URL-pg}{5}
+@xrdef{Tutorial-Loading-pg}{5}
+@xrdef{Tutorial-Initializing-title}{Initializing @code {libcurl}}
+@xrdef{Tutorial-Initializing-snt}{Section@tie 4.4}
+@xrdef{Tutorial-Initializing-pg}{6}
+@xrdef{Tutorial-easy_setopt-title}{Setting download options}
+@xrdef{Tutorial-easy_setopt-snt}{Section@tie 4.5}
+@xrdef{Tutorial-easy_setopt-pg}{7}
+@xrdef{Tutorial-Abstraction-title}{Breaking the abstraction}
+@xrdef{Tutorial-Abstraction-snt}{Section@tie 4.6}
+@xrdef{Tutorial-Abstraction-pg}{9}
+@xrdef{Tutorial-Lisp easy_setopt-title}{Option functions in Lisp}
+@xrdef{Tutorial-Lisp easy_setopt-snt}{Section@tie 4.7}
+@xrdef{Tutorial-Lisp easy_setopt-pg}{10}
+@xrdef{Tutorial-Memory-title}{Memory management}
+@xrdef{Tutorial-Memory-snt}{Section@tie 4.8}
+@xrdef{Tutorial-Memory-pg}{12}
+@xrdef{Tutorial-Callbacks-title}{Calling Lisp from C}
+@xrdef{Tutorial-Callbacks-snt}{Section@tie 4.9}
+@xrdef{Tutorial-Callbacks-pg}{15}
+@xrdef{Tutorial-Completion-title}{A complete @acronym {FFI}?}
+@xrdef{Tutorial-Completion-snt}{Section@tie 4.10}
+@xrdef{Tutorial-Completion-pg}{17}
+@xrdef{Tutorial-Types-title}{Defining new types}
+@xrdef{Tutorial-Types-snt}{Section@tie 4.11}
+@xrdef{Tutorial-Types-pg}{18}
+@xrdef{Tutorial-Conclusion-title}{What's next?}
+@xrdef{Tutorial-Conclusion-snt}{Section@tie 4.12}
+@xrdef{Tutorial-Conclusion-pg}{20}
+@xrdef{Wrapper generators-title}{Wrapper generators}
+@xrdef{Wrapper generators-snt}{Chapter@tie 5}
+@xrdef{Wrapper generators-pg}{21}
+@xrdef{Foreign Types-title}{Foreign Types}
+@xrdef{Foreign Types-snt}{Chapter@tie 6}
+@xrdef{Built-In Types-title}{Built-In Types}
+@xrdef{Built-In Types-snt}{Section@tie 6.1}
+@xrdef{Foreign Types-pg}{22}
+@xrdef{Built-In Types-pg}{22}
+@xrdef{Other Types-title}{Other Types}
+@xrdef{Other Types-snt}{Section@tie 6.2}
+@xrdef{Other Types-pg}{23}
+@xrdef{Defining Foreign Types-title}{Defining Foreign Types}
+@xrdef{Defining Foreign Types-snt}{Section@tie 6.3}
+@xrdef{Defining Foreign Types-pg}{24}
+@xrdef{Foreign Type Translators-title}{Foreign Type Translators}
+@xrdef{Foreign Type Translators-snt}{Section@tie 6.4}
+@xrdef{Optimizing Type Translators-title}{Optimizing Type Translators}
+@xrdef{Optimizing Type Translators-snt}{Section@tie 6.5}
+@xrdef{Foreign Type Translators-pg}{25}
+@xrdef{Optimizing Type Translators-pg}{26}
+@xrdef{Foreign Structure Types-title}{Foreign Structure Types}
+@xrdef{Foreign Structure Types-snt}{Section@tie 6.6}
+@xrdef{Foreign Structure Types-pg}{27}
+@xrdef{Allocating Foreign Objects-title}{Allocating Foreign Objects}
+@xrdef{Allocating Foreign Objects-snt}{Section@tie 6.7}
+@xrdef{Allocating Foreign Objects-pg}{28}
+@xrdef{convert-from-foreign-title}{convert-from-foreign}
+@xrdef{convert-from-foreign-snt}{}
+@xrdef{convert-from-foreign-pg}{29}
+@xrdef{convert-to-foreign-title}{convert-to-foreign}
+@xrdef{convert-to-foreign-snt}{}
+@xrdef{convert-to-foreign-pg}{30}
+@xrdef{defbitfield-title}{defbitfield}
+@xrdef{defbitfield-snt}{}
+@xrdef{defbitfield-pg}{31}
+@xrdef{defcstruct-title}{defcstruct}
+@xrdef{defcstruct-snt}{}
+@xrdef{defcstruct-pg}{33}
+@xrdef{defcunion-title}{defcunion}
+@xrdef{defcunion-snt}{}
+@xrdef{defcunion-pg}{35}
+@xrdef{defctype-title}{defctype}
+@xrdef{defctype-snt}{}
+@xrdef{defctype-pg}{36}
+@xrdef{defcenum-title}{defcenum}
+@xrdef{defcenum-snt}{}
+@xrdef{defcenum-pg}{37}
+@xrdef{define-foreign-type-title}{define-foreign-type}
+@xrdef{define-foreign-type-snt}{}
+@xrdef{define-foreign-type-pg}{38}
+@xrdef{define-parse-method-title}{define-parse-method}
+@xrdef{define-parse-method-snt}{}
+@xrdef{define-parse-method-pg}{39}
+@xrdef{foreign-bitfield-symbols-title}{foreign-bitfield-symbols}
+@xrdef{foreign-bitfield-symbols-snt}{}
+@xrdef{foreign-bitfield-symbols-pg}{40}
+@xrdef{foreign-bitfield-value-title}{foreign-bitfield-value}
+@xrdef{foreign-bitfield-value-snt}{}
+@xrdef{foreign-bitfield-value-pg}{41}
+@xrdef{foreign-enum-keyword-title}{foreign-enum-keyword}
+@xrdef{foreign-enum-keyword-snt}{}
+@xrdef{foreign-enum-keyword-pg}{42}
+@xrdef{foreign-enum-value-title}{foreign-enum-value}
+@xrdef{foreign-enum-value-snt}{}
+@xrdef{foreign-enum-value-pg}{43}
+@xrdef{foreign-slot-names-title}{foreign-slot-names}
+@xrdef{foreign-slot-names-snt}{}
+@xrdef{foreign-slot-names-pg}{44}
+@xrdef{foreign-slot-offset-title}{foreign-slot-offset}
+@xrdef{foreign-slot-offset-snt}{}
+@xrdef{foreign-slot-offset-pg}{45}
+@xrdef{foreign-slot-pointer-title}{foreign-slot-pointer}
+@xrdef{foreign-slot-pointer-snt}{}
+@xrdef{foreign-slot-pointer-pg}{46}
+@xrdef{foreign-slot-value-title}{foreign-slot-value}
+@xrdef{foreign-slot-value-snt}{}
+@xrdef{foreign-slot-value-pg}{47}
+@xrdef{foreign-type-alignment-title}{foreign-type-alignment}
+@xrdef{foreign-type-alignment-snt}{}
+@xrdef{foreign-type-alignment-pg}{48}
+@xrdef{foreign-type-size-title}{foreign-type-size}
+@xrdef{foreign-type-size-snt}{}
+@xrdef{foreign-type-size-pg}{49}
+@xrdef{free-converted-object-title}{free-converted-object}
+@xrdef{free-converted-object-snt}{}
+@xrdef{free-converted-object-pg}{50}
+@xrdef{free-translated-object-title}{free-translated-object}
+@xrdef{free-translated-object-snt}{}
+@xrdef{free-translated-object-pg}{51}
+@xrdef{translate-from-foreign-title}{translate-from-foreign}
+@xrdef{translate-from-foreign-snt}{}
+@xrdef{translate-from-foreign-pg}{52}
+@xrdef{translate-to-foreign-title}{translate-to-foreign}
+@xrdef{translate-to-foreign-snt}{}
+@xrdef{translate-to-foreign-pg}{53}
+@xrdef{with-foreign-slots-title}{with-foreign-slots}
+@xrdef{with-foreign-slots-snt}{}
+@xrdef{with-foreign-slots-pg}{54}
+@xrdef{Pointers-title}{Pointers}
+@xrdef{Pointers-snt}{Chapter@tie 7}
+@xrdef{Basic Pointer Operations-title}{Basic Pointer Operations}
+@xrdef{Basic Pointer Operations-snt}{Section@tie 7.1}
+@xrdef{Allocating Foreign Memory-title}{Allocating Foreign Memory}
+@xrdef{Allocating Foreign Memory-snt}{Section@tie 7.2}
+@xrdef{Accessing Foreign Memory-title}{Accessing Foreign Memory}
+@xrdef{Accessing Foreign Memory-snt}{Section@tie 7.3}
+@xrdef{Pointers-pg}{55}
+@xrdef{Basic Pointer Operations-pg}{55}
+@xrdef{Allocating Foreign Memory-pg}{55}
+@xrdef{Accessing Foreign Memory-pg}{55}
+@xrdef{foreign-free-title}{foreign-free}
+@xrdef{foreign-free-snt}{}
+@xrdef{foreign-free-pg}{57}
+@xrdef{foreign-alloc-title}{foreign-alloc}
+@xrdef{foreign-alloc-snt}{}
+@xrdef{foreign-alloc-pg}{58}
+@xrdef{foreign-symbol-pointer-title}{foreign-symbol-pointer}
+@xrdef{foreign-symbol-pointer-snt}{}
+@xrdef{foreign-symbol-pointer-pg}{60}
+@xrdef{inc-pointer-title}{inc-pointer}
+@xrdef{inc-pointer-snt}{}
+@xrdef{inc-pointer-pg}{61}
+@xrdef{incf-pointer-title}{incf-pointer}
+@xrdef{incf-pointer-snt}{}
+@xrdef{incf-pointer-pg}{62}
+@xrdef{make-pointer-title}{make-pointer}
+@xrdef{make-pointer-snt}{}
+@xrdef{make-pointer-pg}{63}
+@xrdef{mem-aref-title}{mem-aref}
+@xrdef{mem-aref-snt}{}
+@xrdef{mem-aref-pg}{64}
+@xrdef{mem-ref-title}{mem-ref}
+@xrdef{mem-ref-snt}{}
+@xrdef{mem-ref-pg}{65}
+@xrdef{null-pointer-title}{null-pointer}
+@xrdef{null-pointer-snt}{}
+@xrdef{null-pointer-pg}{66}
+@xrdef{null-pointer-p-title}{null-pointer-p}
+@xrdef{null-pointer-p-snt}{}
+@xrdef{null-pointer-p-pg}{67}
+@xrdef{pointerp-title}{pointerp}
+@xrdef{pointerp-snt}{}
+@xrdef{pointerp-pg}{68}
+@xrdef{pointer-address-title}{pointer-address}
+@xrdef{pointer-address-snt}{}
+@xrdef{pointer-address-pg}{69}
+@xrdef{pointer-eq-title}{pointer-eq}
+@xrdef{pointer-eq-snt}{}
+@xrdef{pointer-eq-pg}{70}
+@xrdef{with-foreign-object-title}{with-foreign-object}
+@xrdef{with-foreign-object-snt}{}
+@xrdef{with-foreign-object-pg}{71}
+@xrdef{with-foreign-pointer-title}{with-foreign-pointer}
+@xrdef{with-foreign-pointer-snt}{}
+@xrdef{with-foreign-pointer-pg}{72}
+@xrdef{Strings-title}{Strings}
+@xrdef{Strings-snt}{Chapter@tie 8}
+@xrdef{Strings-pg}{73}
+@xrdef{*default-foreign-encoding*-title}{*default-foreign-encoding*}
+@xrdef{*default-foreign-encoding*-snt}{}
+@xrdef{*default-foreign-encoding*-pg}{74}
+@xrdef{foreign-string-alloc-title}{foreign-string-alloc}
+@xrdef{foreign-string-alloc-snt}{}
+@xrdef{foreign-string-alloc-pg}{75}
+@xrdef{foreign-string-free-title}{foreign-string-free}
+@xrdef{foreign-string-free-snt}{}
+@xrdef{foreign-string-free-pg}{76}
+@xrdef{foreign-string-to-lisp-title}{foreign-string-to-lisp}
+@xrdef{foreign-string-to-lisp-snt}{}
+@xrdef{foreign-string-to-lisp-pg}{77}
+@xrdef{lisp-string-to-foreign-title}{lisp-string-to-foreign}
+@xrdef{lisp-string-to-foreign-snt}{}
+@xrdef{lisp-string-to-foreign-pg}{78}
+@xrdef{with-foreign-string-title}{with-foreign-string}
+@xrdef{with-foreign-string-snt}{}
+@xrdef{with-foreign-string-pg}{79}
+@xrdef{with-foreign-pointer-as-string-title}{with-foreign-pointer-as-string}
+@xrdef{with-foreign-pointer-as-string-snt}{}
+@xrdef{with-foreign-pointer-as-string-pg}{80}
+@xrdef{Variables-title}{Variables}
+@xrdef{Variables-snt}{Chapter@tie 9}
+@xrdef{Variables-pg}{81}
+@xrdef{defcvar-title}{defcvar}
+@xrdef{defcvar-snt}{}
+@xrdef{defcvar-pg}{82}
+@xrdef{get-var-pointer-title}{get-var-pointer}
+@xrdef{get-var-pointer-snt}{}
+@xrdef{get-var-pointer-pg}{84}
+@xrdef{Functions-title}{Functions}
+@xrdef{Functions-snt}{Chapter@tie 10}
+@xrdef{Functions-pg}{85}
+@xrdef{defcfun-title}{defcfun}
+@xrdef{defcfun-snt}{}
+@xrdef{defcfun-pg}{86}
+@xrdef{foreign-funcall-title}{foreign-funcall}
+@xrdef{foreign-funcall-snt}{}
+@xrdef{foreign-funcall-pg}{88}
+@xrdef{foreign-funcall-pointer-title}{foreign-funcall-pointer}
+@xrdef{foreign-funcall-pointer-snt}{}
+@xrdef{foreign-funcall-pointer-pg}{90}
+@xrdef{Libraries-title}{Libraries}
+@xrdef{Libraries-snt}{Chapter@tie 11}
+@xrdef{Defining a library-title}{Defining a library}
+@xrdef{Defining a library-snt}{Section@tie 11.1}
+@xrdef{Library definition style-title}{Library definition style}
+@xrdef{Library definition style-snt}{Section@tie 11.2}
+@xrdef{Libraries-pg}{91}
+@xrdef{Defining a library-pg}{91}
+@xrdef{Library definition style-pg}{91}
+@xrdef{close-foreign-library-title}{close-foreign-library}
+@xrdef{close-foreign-library-snt}{}
+@xrdef{close-foreign-library-pg}{92}
+@xrdef{*darwin-framework-directories*-title}{*darwin-framework-directories*}
+@xrdef{*darwin-framework-directories*-snt}{}
+@xrdef{*darwin-framework-directories*-pg}{93}
+@xrdef{define-foreign-library-title}{define-foreign-library}
+@xrdef{define-foreign-library-snt}{}
+@xrdef{define-foreign-library-pg}{94}
+@xrdef{*foreign-library-directories*-title}{*foreign-library-directories*}
+@xrdef{*foreign-library-directories*-snt}{}
+@xrdef{*foreign-library-directories*-pg}{95}
+@xrdef{load-foreign-library-title}{load-foreign-library}
+@xrdef{load-foreign-library-snt}{}
+@xrdef{load-foreign-library-pg}{97}
+@xrdef{load-foreign-library-error-title}{load-foreign-library-error}
+@xrdef{load-foreign-library-error-snt}{}
+@xrdef{load-foreign-library-error-pg}{99}
+@xrdef{use-foreign-library-title}{use-foreign-library}
+@xrdef{use-foreign-library-snt}{}
+@xrdef{use-foreign-library-pg}{100}
+@xrdef{Callbacks-title}{Callbacks}
+@xrdef{Callbacks-snt}{Chapter@tie 12}
+@xrdef{Callbacks-pg}{101}
+@xrdef{callback-title}{callback}
+@xrdef{callback-snt}{}
+@xrdef{callback-pg}{102}
+@xrdef{defcallback-title}{defcallback}
+@xrdef{defcallback-snt}{}
+@xrdef{defcallback-pg}{103}
+@xrdef{get-callback-title}{get-callback}
+@xrdef{get-callback-snt}{}
+@xrdef{get-callback-pg}{105}
+@xrdef{The Groveller-title}{The Groveller}
+@xrdef{The Groveller-snt}{Chapter@tie 13}
+@xrdef{Groveller Syntax-title}{Specification File Syntax}
+@xrdef{Groveller Syntax-snt}{Section@tie 13.2}
+@xrdef{The Groveller-pg}{106}
+@xrdef{Groveller Syntax-pg}{106}
+@xrdef{Groveller ASDF Integration-title}{ASDF Integration}
+@xrdef{Groveller ASDF Integration-snt}{Section@tie 13.3}
+@xrdef{Groveller Implementation Notes-title}{Implementation Notes}
+@xrdef{Groveller Implementation Notes-snt}{Section@tie 13.4}
+@xrdef{Groveller ASDF Integration-pg}{108}
+@xrdef{Groveller Implementation Notes-pg}{108}
+@xrdef{Limitations-title}{Limitations}
+@xrdef{Limitations-snt}{Chapter@tie 14}
+@xrdef{Limitations-pg}{110}
+@xrdef{Platform-specific features-title}{Platform-specific features}
+@xrdef{Platform-specific features-snt}{Appendix@tie @char65{}}
+@xrdef{Platform-specific features-pg}{111}
+@xrdef{Glossary-title}{Glossary}
+@xrdef{Glossary-snt}{Appendix@tie @char66{}}
+@xrdef{Glossary-pg}{112}
+@xrdef{Comprehensive Index-title}{Index}
+@xrdef{Comprehensive Index-snt}{}
+@xrdef{Comprehensive Index-pg}{113}

@@ -1,0 +1,201 @@
+<html lang="en">
+<head>
+<title>Control Flow - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Clauses.html#Clauses" title="Clauses">
+<link rel="prev" href="Gathering-Clauses.html#Gathering-Clauses" title="Gathering Clauses">
+<link rel="next" href="Predicates.html#Predicates" title="Predicates">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Control-Flow"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Predicates.html#Predicates">Predicates</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Gathering-Clauses.html#Gathering-Clauses">Gathering Clauses</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Clauses.html#Clauses">Clauses</a>
+<hr>
+</div>
+
+<h3 class="section">2.4 Control Flow</h3>
+
+<p>Several clauses can be used to alter the usual flow of control in a
+loop.
+
+   <blockquote>
+<b>Note:</b> The clauses of this and subsequent sections don't adhere to
+<code>iterate</code>'s usual syntax, but instead use standard Common Lisp syntax. 
+Hence the format for describing syntax subsequently is like the
+standard format used in the Common Lisp manual, not like the
+descriptions of clauses above. 
+</blockquote>
+
+   <p><a name="index-finish-85"></a>
+
+<div class="defun">
+&mdash; Clause: <b>finish</b><var><a name="index-finish-86"></a></var><br>
+<blockquote>
+<p>Stops the loop and runs the epilogue code. 
+</p></blockquote></div>
+
+<!-- for example: -->
+<!-- @lisp -->
+<!-- (iter (with answer = nil) -->
+<!-- (initially (make-a-mess)) -->
+<!-- (for i from 1 to 10) -->
+<!-- (when (correct? i) -->
+<!-- (setq answer i) -->
+<!-- (finish)) -->
+<!-- (finally (cleanup))) -->
+<!-- @end lisp -->
+<!-- this code will execute |cleanup| whether or not the test |(correct? -->
+<!-- i)| ever succeeds. -->
+<!-- the (more elegant) formulation, -->
+<!-- @lisp -->
+<!-- (iter (initially (make-a-mess)) -->
+<!-- (for i from 1 to 10) -->
+<!-- (finding i such-that (correct? i)) -->
+<!-- (finally (cleanup))) -->
+<!-- @end lisp -->
+<!-- would not execute |cleanup| if |(correct? i)| succeeded; it -->
+<!-- would do an immediate return. -->
+<p><a name="index-leave-87"></a>
+
+<div class="defun">
+&mdash; Clause: <b>leave</b> <code>&amp;optional</code><var> value<a name="index-leave-88"></a></var><br>
+<blockquote>
+<p>Immediately returns <var>value</var> (default <code>nil</code>) from the current
+<code>iterate</code> form, skipping the epilogue code.  Equivalent to using
+<code>return-from</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-next_002diteration-89"></a>
+
+<div class="defun">
+&mdash; Clause: <b>next-iteration</b><var><a name="index-next_002diteration-90"></a></var><br>
+<blockquote>
+<p>Skips the remainder of the loop body and begins the next iteration of
+the loop. 
+</p></blockquote></div>
+
+   <p><a name="index-while-91"></a>
+
+<div class="defun">
+&mdash; Clause: <b>while</b><var> expr<a name="index-while-92"></a></var><br>
+<blockquote>
+<p>If <var>expr</var> ever evaluates to <code>nil</code>, the loop is terminated and
+the epilogue code executed.  Equivalent to <code>(if (not </code><var>expr</var><code>)
+(finish))</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-until-93"></a>
+
+<div class="defun">
+&mdash; Clause: <b>until</b><var> expr<a name="index-until-94"></a></var><br>
+<blockquote>
+<p>Equivalent to <code>(if </code><var>expr</var><code> (finish))</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-if_002dfirst_002dtime-95"></a>
+
+<div class="defun">
+&mdash; Clause: <b>if-first-time</b><var> then </var><code>&amp;optional</code><var> else<a name="index-if_002dfirst_002dtime-96"></a></var><br>
+<blockquote>
+<p>If this clause is being executed for the first time in this invocation
+of the <code>iterate</code> form, then the <var>then</var> code is evaluated; otherwise
+the <var>else</var> code is evaluated.
+
+        <p><code>(for </code><var>var</var><code> first </code><var>expr1</var><code> then </code><var>expr2</var><code>)</code> is almost
+equivalent to
+
+     <pre class="lisp">       (if-first-time (dsetq <var>var</var> <var>expr1</var>)
+                      (dsetq <var>var</var> <var>expr2</var>))
+  </pre>
+        <p>The only difference is that the <code>for</code> version makes <var>var</var>
+available for use with <code>for... previous</code>. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+</body></html>
+

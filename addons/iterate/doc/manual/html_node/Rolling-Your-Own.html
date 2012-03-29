@@ -1,0 +1,244 @@
+<html lang="en">
+<head>
+<title>Rolling Your Own - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Differences-Between-Iterate-and-Loop.html#Differences-Between-Iterate-and-Loop" title="Differences Between Iterate and Loop">
+<link rel="next" href="Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029.html#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029" title="Non-portable Extensions to Iterate (Contribs)">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Rolling-Your-Own"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029.html#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">Non-portable Extensions to Iterate (Contribs)</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Differences-Between-Iterate-and-Loop.html#Differences-Between-Iterate-and-Loop">Differences Between Iterate and Loop</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">7 Rolling Your Own</h2>
+
+<h3 class="section">7.1 Introduction</h3>
+
+<p><code>iterate</code> is extensible&mdash;you can write new clauses that embody new
+iteration patterns.  You might want to write a new driver clause for a
+data structure of your own, or you might want to write a clause that
+collects or manipulates elements in a way not provided by <code>iterate</code>.
+
+   <p>This section describes how to write clauses for <code>iterate</code>.  Writing a
+clause is like writing a macro.  In fact, writing a clause <em>is</em>
+writing a macro: since <code>iterate</code> code-walks its body and macroexpands,
+you can add new abstractions to <code>iterate</code> with good old <code>defmacro</code>.
+
+   <p>Actually, there are two extensions you can make to <code>iterate</code> that are
+even easier than writing a macro.  They are adding a synonym for an
+existing clause and defining a driver clause for an indexable
+sequence.  These can be done with <code>defsynonym</code> and
+<code>defclause-sequence</code>, respectively.  See <a href="Extensibility-Aids.html#Extensibility-Aids">Extensibility Aids</a>.
+
+   <p>The rest of this section explains how to write macros that expand into
+<code>iterate</code> clauses.  Here's how you could add a simplified version of
+<code>iterate</code>'s <code>multiply</code> clause, if <code>iterate</code> didn't already have one:
+
+<pre class="lisp">  (defmacro multiply (expr)
+    `(reducing ,expr by #'* initial-value 1))
+</pre>
+   <p>If you found yourself summing the square of an expression often, you
+might want to write a macro for that.  A first cut might be
+
+<pre class="lisp">  (defmacro sum-of-squares (expr)
+    `(sum (* ,expr ,expr)))
+</pre>
+   <p>but if you are an experienced macro writer, you will realize that this
+code will evaluate <var>expr</var> twice, which is probably a bad idea.  A
+better version would use a temporary:
+
+<pre class="lisp">  (defmacro sum-of-squares (expr)
+    (let ((temp (gensym)))
+      `(let ((,temp ,expr))
+         (sum (* ,temp ,temp)))))
+</pre>
+   <p>Although this may seem complex, it is just the sort of thing you'd
+have to go through to write any macro, which illustrates the point of
+this section: if you can write macros, you can extend <code>iterate</code>.
+
+   <p>Our macros don't use <code>iterate</code>'s keyword-argument syntax.  We could just
+use keywords with <code>defmacro</code>, but we would still not be using
+<code>iterate</code>'s clause indexing mechanism.  Unlike Lisp, which uses just the
+first symbol of a form to determine what function to call, <code>iterate</code>
+individuates clauses by the list of required keywords.  For instance,
+<code>for... in</code> and <code>for... in-vector</code> are different
+clauses implemented by distinct Lisp functions.
+
+   <p>To buy into this indexing scheme, as well as the keyword-argument
+syntax, use <code>defmacro-clause</code>:
+
+   <p><a name="index-defmacro_002dclause-120"></a>
+
+<div class="defun">
+&mdash; Macro: <b>defmacro-clause</b><var> arglist </var><code>&amp;body</code><var> body<a name="index-defmacro_002dclause-121"></a></var><br>
+<blockquote>
+<p>Defines a new <code>iterate</code> clause.  <var>arglist</var> is a list of symbols
+which are alternating keywords and arguments.  <code>&amp;optional</code> may be
+used, and the list may be terminated by <code>&amp;sequence</code>.  <var>body</var>
+is an ordinary macro body, as with <code>defmacro</code>.  If the first form
+of <var>body</var> is a string, it is considered a documentation string and
+will be shown by
+<code>display-iterate-clauses</code>.  <code>defmacro-clause</code> will signal an
+error if defining the clause would result in an ambiguity.  E.g. you
+cannot define the clause <code>for... from</code> because there would be
+no way to distinguish it from a use of the <code>for</code> clause with
+optional keyword <code>from</code>. 
+</p></blockquote></div>
+
+   <p>Here is <code>multiply</code> using <code>defmacro-clause</code>.  The keywords
+are capitalized for readability.
+
+<pre class="lisp">  (defmacro-clause (MULTIPLY expr &amp;optional INTO var)
+    `(reducing ,expr by #'* into ,var initial-value 1))
+</pre>
+   <p>You don't have to worry about the case when <code>var</code> is not
+supplied; for any clause with an <code>into</code> keyword, saying
+<code>into nil</code> is equivalent to omitting the <code>into</code> entirely.
+
+   <p>As another, more extended example, consider the fairly common
+iteration pattern that involves finding the sequence element that
+maximizes (or minimizes) some function.  <code>iterate</code> provides this as
+<code>finding... maximizing</code>, but it's instructive to see how to
+write it.  Here, in pseudocode, is how you might write such a loop for
+maximizing a function F:
+
+<pre class="example">  <span class="roman">set variable MAX-VAL to NIL;</span>
+  <span class="roman">set variable WINNER to NIL;</span>
+  <span class="roman">for each element EL in the sequence</span>
+      <span class="roman">if MAX-VAL is NIL or F(EL) &gt; MAX-VAL then</span>
+          <span class="roman">set MAX-VAL to F(EL);</span>
+          <span class="roman">set WINNER to EL;</span>
+      <span class="roman">end if;</span>
+  <span class="roman">end for;</span>
+  <span class="roman">return WINNER.</span>
+</pre>
+   <p>Here is the macro:
+
+<pre class="lisp">  (defmacro-clause (FINDING expr MAXIMIZING func &amp;optional INTO var)
+    "Simple FINDING... MAXIMIZING implementation"
+    (let ((max-val (gensym "MAX-VAL"))
+          (temp1 (gensym "EL"))
+          (temp2 (gensym "VAL"))
+          (winner (or var iterate::*result-var*)))
+      `(progn
+         (with ,max-val = nil)
+         (with ,winner = nil)
+         (let* ((,temp1 ,expr)
+                (,temp2 (funcall ,func ,temp1)))
+           (when (or (null ,max-val) (&gt; ,temp2 ,max-val))
+             (setq ,winner ,temp1 ,max-val ,temp2))))))
+</pre>
+   <!-- This example differs from the built-in finder: -->
+<!--  The built-in one specifies the clause's value (el so far) -->
+<!-- (trivial to implement: add ,winner at end of progn) -->
+<!--  The built-in one accepts an (el max-val) tuple var spec. -->
+<!--  Influence of (the type var) on type declarations -->
+<p>Note that if no <code>into</code> variable is supplied, we use
+<code>iterate::*result-var*</code>, which contains the internal variable
+into which all clauses place their results.  If this variable is bound
+by some clause, then <code>iterate</code> will return its value automatically;
+otherwise, <code>nil</code> will be returned.
+
+<!-- The original example had four flaws: -->
+<!--  ,expr and ,func occured twice in expansion -->
+<!--  (finally (leave ,winner)) breaks because FINALLY does not walk -->
+<!-- its forms, so LEAVE does not work inside FINALLY. -->
+<!--  Do not use (finally (return ,winner)) either, as that would -->
+<!-- always return winner, even in case of ... INTO nil. -->
+<!--  Value of clause as form undefined, unlike all built-in clauses -->
+<ul class="menu">
+<li><a accesskey="1" href="Writing-Drivers.html#Writing-Drivers">Writing Drivers</a>
+<li><a accesskey="2" href="Extensibility-Aids.html#Extensibility-Aids">Extensibility Aids</a>
+<li><a accesskey="3" href="Subtleties.html#Subtleties">Subtleties</a>
+</ul>
+
+<!-- =================================================================== -->
+</body></html>
+

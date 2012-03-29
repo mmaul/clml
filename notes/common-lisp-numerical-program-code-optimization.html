@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+               "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+lang="en" xml:lang="en">
+<head>
+<title>common-lisp-numerical-program-code-optimization</title>
+<meta http-equiv="Content-Type" content="text/html;charset=iso-8859-1"/>
+<meta name="generator" content="Org-mode"/>
+<meta name="generated" content="2010-06-01 14:50:16 JST"/>
+<meta name="author" content="Jianshi Huang"/>
+<meta name="description" content=""/>
+<meta name="keywords" content=""/>
+<style type="text/css">
+ <!--/*--><![CDATA[/*><!--*/
+  html { font-family: Times, serif; font-size: 12pt; }
+  .title  { text-align: center; }
+  .todo   { color: red; }
+  .done   { color: green; }
+  .tag    { background-color: #add8e6; font-weight:normal }
+  .target { }
+  .timestamp { color: #bebebe; }
+  .timestamp-kwd { color: #5f9ea0; }
+  p.verse { margin-left: 3% }
+  pre {
+	border: 1pt solid #AEBDCC;
+	background-color: #F3F5F7;
+	padding: 5pt;
+	font-family: courier, monospace;
+        font-size: 90%;
+        overflow:auto;
+  }
+  table { border-collapse: collapse; }
+  td, th { vertical-align: top; }
+  dt { font-weight: bold; }
+  div.figure { padding: 0.5em; }
+  div.figure p { text-align: center; }
+  .linenr { font-size:smaller }
+  .code-highlighted {background-color:#ffff00;}
+  .org-info-js_info-navigation { border-style:none; }
+  #org-info-js_console-label { font-size:10px; font-weight:bold;
+                               white-space:nowrap; }
+  .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                 font-weight:bold; }
+  /*]]>*/-->
+</style>
+<script type="text/javascript">
+<!--/*--><![CDATA[/*><!--*/
+ function CodeHighlightOn(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(null != target) {
+     elem.cacheClassElem = elem.className;
+     elem.cacheClassTarget = target.className;
+     target.className = "code-highlighted";
+     elem.className   = "code-highlighted";
+   }
+ }
+ function CodeHighlightOff(elem, id)
+ {
+   var target = document.getElementById(id);
+   if(elem.cacheClassElem)
+     elem.className = elem.cacheClassElem;
+   if(elem.cacheClassTarget)
+     target.className = elem.cacheClassTarget;
+ }
+/*]]>*///-->
+</script>
+</head>
+<body>
+<div id="content">
+
+<h1 class="title">common-lisp-numerical-program-code-optimization</h1>
+
+
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1 Profiling </a></li>
+<li><a href="#sec-2">2 Type declaration </a></li>
+<li><a href="#sec-3">3 Avoid using global special bindings in loops </a></li>
+<li><a href="#sec-4">4 Inlining and avoid boxing </a>
+<ul>
+<li><a href="#sec-4.1">4.1 Update (2010/2/5/18:00) </a></li>
+<li><a href="#sec-4.2">4.2 Update (2010/2/8 12:00) </a></li>
+</ul>
+</li>
+<li><a href="#sec-5">5 Common expression reduction </a></li>
+<li><a href="#sec-6">6 Compile in SBCL to get more optimization notes </a></li>
+</ul>
+</div>
+</div>
+
+<div id="outline-container-1" class="outline-2">
+<h2 id="sec-1"><span class="section-number-2">1</span> Profiling </h2>
+<div class="outline-text-2" id="text-1">
+
+
+<p>
+Before code optimization we need to find the hot spot of the code and
+start optimizing from there step by step to make sure our changes
+doesn't break the code.
+</p>
+<p>
+dataset: "sample/bc-train-for-svm.csv"
+kernel: (setf rbf-kernel (make-rbf-kernel :gamma 0.05)), #'linear-kernel
+benchmark code: (excl:gc t) (time (setf svm (make-svm-learner training-vector rbf-kernel 100)))
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col"></th><th scope="col">(1)</th><th scope="col">(2)</th><th scope="col">(3)</th><th scope="col">(4)</th><th scope="col">(5)</th><th scope="col">(6)</th><th scope="col">(7)</th><th scope="col">(8)</th><th scope="col">(9)</th><th scope="col">avg</th></tr>
+</thead>
+<tbody>
+<tr><td>rbf-kernel-original</td><td>1.967</td><td>3.008</td><td>2.308</td><td>2.174</td><td>2.566</td><td>1.885</td><td>1.963</td><td>2.707</td><td>2.594</td><td>2.352</td></tr>
+</tbody>
+</table>
+
+
+<p>
+(prof:with-profiling (:type :time) (&hellip;) (prof:show-flat-profile))
+&hellip;
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Type declaration </h2>
+<div class="outline-text-2" id="text-2">
+
+
+<p>
+Adding type declaration not only increases performance, reduces
+garbages, but also let the compiler diagnose type errors in compile
+time. You can also turn type specialization to type checks by
+compiling the code with (optimize (speed 0) (safety 3)).
+</p>
+<p>
+So it's strongly recommended to add type declarations to all parts of
+the code when available.
+</p>
+<p>
+Improvements after type declaration:
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col"></th><th scope="col">(1)</th><th scope="col">(2)</th><th scope="col">(3)</th><th scope="col">(4)</th><th scope="col">(5)</th><th scope="col">(6)</th><th scope="col">(7)</th><th scope="col">(8)</th><th scope="col">(9)</th><th scope="col">avg</th></tr>
+</thead>
+<tbody>
+<tr><td>rbf-kernel-original</td><td>1.967</td><td>3.008</td><td>2.308</td><td>2.174</td><td>2.566</td><td>1.885</td><td>1.963</td><td>2.707</td><td>2.594</td><td>2.352</td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.363</td><td>0.329</td><td>0.387</td><td>0.341</td><td>0.289</td><td>0.310</td><td>0.293</td><td>0.293</td><td>0.287</td><td>0.321</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Avoid using global special bindings in loops </h2>
+<div class="outline-text-2" id="text-3">
+
+
+<p>
+Especially important for array bindings
+</p>
+<p>
+Improvements after avoiding global special bindings:
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col"></th><th scope="col">(1)</th><th scope="col">(2)</th><th scope="col">(3)</th><th scope="col">(4)</th><th scope="col">(5)</th><th scope="col">(6)</th><th scope="col">(7)</th><th scope="col">(8)</th><th scope="col">(9)</th><th scope="col">avg</th></tr>
+</thead>
+<tbody>
+<tr><td>rbf-kernel-original</td><td>1.967</td><td>3.008</td><td>2.308</td><td>2.174</td><td>2.566</td><td>1.885</td><td>1.963</td><td>2.707</td><td>2.594</td><td>2.352</td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.363</td><td>0.329</td><td>0.387</td><td>0.341</td><td>0.289</td><td>0.310</td><td>0.293</td><td>0.293</td><td>0.287</td><td>0.321</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.296</td><td>0.312</td><td>0.207</td><td>0.332</td><td>0.353</td><td>0.293</td><td>0.301</td><td>0.331</td><td>0.214</td><td>0.293</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>+ avoid special binding reference</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Inlining and avoid boxing </h2>
+<div class="outline-text-2" id="text-4">
+
+
+<p>
+Inlining will make more optimization opportunities for the compiler.
+</p>
+<p>
+Functions returning double-float needs to be boxed usually, either
+inline them or tag the functions with Allegro CL's internal hacks.
+</p>
+<ol>
+<li>
+small function are better declared inclined.
+</li>
+<li>
+profiling space usages first
+</li>
+<li>
+AllegroCL will ignore inline declaration, use compiler macros instead
+</li>
+<li>
+be careful of code explosion.
+</li>
+<li>
+use AllegroCL's internal hack to tag the functions to avoid boxing.
+</li>
+<li>
+for closures that return boxed double-float, store the result in a
+1d double-float array (e.g. <b>kernel-function-result</b>)
+
+
+</li>
+</ol>
+
+<p>(prof:with-profiling (:type :space) &hellip; (prof:show-call-graph))
+&hellip;
+</p>
+<p>
+it showed, the EXP function in the rbf-kernel function causes most of
+the new-double-float garbages.
+</p>
+<p>
+After optimization, EXP function is responsible for 99% of the boxings
+in AllegroCL. The arguments for EXP needs to be boxed and the result
+is also an boxed double-float. AllegroCL cannot optimize EXP properly.
+</p>
+<p>
+In SBCL, the boxing of EXP will be optimized by the compiler.
+</p>
+<p>
+Linear kernel can be optimized in both AllegroCL and SBCL, it now only
+generates 2,260,928 bytes of garbages, which is very good.
+</p>
+
+<ul>
+<li>
+make kernel-function store result in an 1d double-float array
+</li>
+<li>
+tag compute-obj-fun since it takes 12 double-float as inputs
+
+</li>
+</ul>
+
+<p>Improvement after optimization:
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col"></th><th scope="col">(1)</th><th scope="col">(2)</th><th scope="col">(3)</th><th scope="col">(4)</th><th scope="col">(5)</th><th scope="col">(6)</th><th scope="col">(7)</th><th scope="col">(8)</th><th scope="col">(9)</th><th scope="col">avg</th></tr>
+</thead>
+<tbody>
+<tr><td>rbf-kernel-original</td><td>1.967</td><td>3.008</td><td>2.308</td><td>2.174</td><td>2.566</td><td>1.885</td><td>1.963</td><td>2.707</td><td>2.594</td><td>2.352</td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.363</td><td>0.329</td><td>0.387</td><td>0.341</td><td>0.289</td><td>0.310</td><td>0.293</td><td>0.293</td><td>0.287</td><td>0.321</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.296</td><td>0.312</td><td>0.207</td><td>0.332</td><td>0.353</td><td>0.293</td><td>0.301</td><td>0.331</td><td>0.214</td><td>0.293</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>+ avoid special binding reference</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.234</td><td>0.222</td><td>0.242</td><td>0.219</td><td>0.318</td><td>0.219</td><td>0.234</td><td>0.305</td><td>0.388</td><td>0.265</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>+ avoid special binding reference</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>+ avoid boxing</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+
+
+<p>
+current garbages generated using rbf-kernel is about:
+3,499 cons cells, 76,990,656 other bytes, 0 static bytes
+</p>
+<p>
+current garbages generated using linear-kernel is about:
+11,476 cons cells, 1,945,760 other bytes, 0 static bytes
+</p>
+<p>
+So the remaining problem is Franz's EXP implementation.
+</p>
+
+
+</div>
+
+<div id="outline-container-4.1" class="outline-3">
+<h3 id="sec-4.1"><span class="section-number-3">4.1</span> Update (2010/2/5/18:00) </h3>
+<div class="outline-text-3" id="text-4.1">
+
+
+<p>
+We have to use foreign functions if the compiler cannot do
+specialization correctly.
+</p>
+<p>
+By defining code like the followings:
+</p>
+<p>
+(declaim (inline d-exp))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+(ff:def-foreign-call (d-exp "lisp<sub>exp</sub>") ((arg :double))
+:returning :double
+:arg-checking nil
+:call-direct t))
+</p>
+<p>
+(defun d-exp (x)
+(declare (type double-float x))
+(exp x))
+</p>
+<p>
+We reduce the garbages to 128,448 for rbf-kernel.
+</p>
+<p>
+Here's the latest benchmark:
+</p>
+<table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
+<caption></caption>
+<colgroup><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" /><col align="left" />
+</colgroup>
+<thead>
+<tr><th scope="col"></th><th scope="col">(1)</th><th scope="col">(2)</th><th scope="col">(3)</th><th scope="col">(4)</th><th scope="col">(5)</th><th scope="col">(6)</th><th scope="col">(7)</th><th scope="col">(8)</th><th scope="col">(9)</th><th scope="col">avg</th></tr>
+</thead>
+<tbody>
+<tr><td>rbf-kernel-original</td><td>1.967</td><td>3.008</td><td>2.308</td><td>2.174</td><td>2.566</td><td>1.885</td><td>1.963</td><td>2.707</td><td>2.594</td><td>2.352</td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.363</td><td>0.329</td><td>0.387</td><td>0.341</td><td>0.289</td><td>0.310</td><td>0.293</td><td>0.293</td><td>0.287</td><td>0.321</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.296</td><td>0.312</td><td>0.207</td><td>0.332</td><td>0.353</td><td>0.293</td><td>0.301</td><td>0.331</td><td>0.214</td><td>0.293</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>+ avoid special binding reference</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+<tbody>
+<tr><td>rbf-kernel</td><td>0.180</td><td>0.139</td><td>0.211</td><td>0.187</td><td>0.173</td><td>0.239</td><td>0.169</td><td>0.165</td><td>0.205</td><td>0.185</td></tr>
+<tr><td>+ type declaration</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>+ avoid special binding reference</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>+ avoid boxing (use or define double</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+<tr><td>float only functions)</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-4.2" class="outline-3">
+<h3 id="sec-4.2"><span class="section-number-3">4.2</span> Update (2010/2/8 12:00) </h3>
+<div class="outline-text-3" id="text-4.2">
+
+
+<ul>
+<li>
+Trick:
+
+</li>
+</ul>
+
+<p>Allegro cannot optimize the follow code:
+</p>
+<p>
+(+ &hellip;
+(the double-float
+(loop for &hellip;
+sum &hellip; into result of-type double-float
+finally (return result))))
+</p>
+<p>
+The value loop returned will always be boxed.
+</p>
+<p>
+The only way to remove the boxing is to use let-form:
+</p>
+<p>
+(+ &hellip;
+(let ((result 0d0))
+(declare (type double-float result))
+(loop for &hellip;
+do (incf result &hellip;))
+result))
+</p>
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Common expression reduction </h2>
+<div class="outline-text-2" id="text-5">
+
+<p>I've noticed several (- <b>c</b> <b>epsilon</b>) in one function. Since it's a
+constant, bind it to a local variable.
+</p>
+<p>
+Duplicated array accesses are definitely needed to be optimized.
+</p>
+<p>
+Since it will change the code by fairly a bit, I intend not to do this
+optimization now.
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Compile in SBCL to get more optimization notes </h2>
+<div class="outline-text-2" id="text-6">
+
+
+<p>
+Currently my SBCL cannot compile read-data.cl&hellip; so I'll do it later.
+</p>
+
+</div>
+</div>
+<div id="postamble">
+<p class="author"> Author: Jianshi Huang
+<a href="mailto:huang@msi.co.jp">&lt;huang@msi.co.jp&gt;</a>
+</p>
+<p class="date"> Date: 2010-06-01 14:50:16 JST</p>
+<p class="creator">HTML generated by org-mode 6.33trans in emacs 23</p>
+</div>
+</div>
+</body>
+</html>

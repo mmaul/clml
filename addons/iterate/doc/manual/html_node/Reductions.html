@@ -1,0 +1,201 @@
+<html lang="en">
+<head>
+<title>Reductions - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Gathering-Clauses.html#Gathering-Clauses" title="Gathering Clauses">
+<link rel="next" href="Accumulations.html#Accumulations" title="Accumulations">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Reductions"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Accumulations.html#Accumulations">Accumulations</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Gathering-Clauses.html#Gathering-Clauses">Gathering Clauses</a>
+<hr>
+</div>
+
+<h4 class="subsection">2.3.1 Reductions</h4>
+
+<p><em>Reduction</em> is an extremely common iteration pattern in which the
+results of successive applications of a binary operation are
+accumulated.  For example, a loop that computes the sum of the
+elements of a list is performing a reduction with the addition
+operation.  This could be written in Common Lisp as <code>(reduce #'+
+list)</code> or with <code>iterate</code> as
+
+<pre class="lisp">  (iter (for el in list)
+        (sum el))
+</pre>
+   <p><a name="index-sum-47"></a>
+
+<div class="defun">
+&mdash; Clause: <b>sum</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-sum-48"></a></var><br>
+<blockquote>
+<p>Each time through the loop, <var>expr</var> is evaluated and added to a
+variable, which is bound initially to zero.  If <var>expr</var> has a type,
+it is <em>not</em> used as the type of the sum variable, which is always
+<code>number</code>.  To get the result variable to be of a more specific
+type, use an explicit variable, as in
+
+     <pre class="lisp">       (iter (for el in number-list)
+             (sum el into x)
+             (declare (fixnum x))
+             (finally (return x)))
+  </pre>
+        </blockquote></div>
+
+   <p><a name="index-multiply-49"></a>
+
+<div class="defun">
+&mdash; Clause: <b>multiply</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-multiply-50"></a></var><br>
+<blockquote>
+<p>Like <code>sum</code>, but the initial value of the result variable is
+1, and the variable is updated by multiplying <var>expr</var> into
+it. 
+</p></blockquote></div>
+
+   <p><a name="index-counting-51"></a>
+
+<div class="defun">
+&mdash; Clause: <b>counting</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-counting-52"></a></var><br>
+<blockquote>
+<p><var>expr</var> is evaluated on each iteration.  If it is non-<code>nil</code>,
+the accumulation variable, initially zero, is incremented. 
+</p></blockquote></div>
+
+   <p><a name="index-maximize-53"></a>
+<a name="index-minimize-54"></a>
+
+<div class="defun">
+&mdash; Clause: <b>maximize</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-maximize-55"></a></var><br>
+&mdash; Clause: <b>minimize</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-minimize-56"></a></var><br>
+<blockquote>
+<p><var>expr</var> is evaluated on each iteration and its extremum (maximum or
+minimum) is stored in the accumulation variable.  If <var>expr</var> is
+never evaluated, then the result is <code>nil</code> (if the accumulation
+variable is untyped) or 0 (if it has a numeric type). 
+</p></blockquote></div>
+
+   <p><a name="index-reducing-57"></a>
+
+<div class="defun">
+&mdash; Clause: <b>reducing</b><var> expr </var><code>by</code><var> func </var><code>&amp;optional</code><var><a name="index-reducing-58"></a></var><br>
+<blockquote><p>                       <code>initial-value</code> <var>init-val</var> <code>into</code> <var>var</var>
+
+        <p>This is a general way to perform reductions.  <var>func</var> should be a
+function of two arguments, the first of which will be the value
+computed so far and the second of which will be the value of
+<var>expr</var>.  It should return the new value.  <code>reducing</code> is
+roughly equivalent to the Common Lisp <code>(reduce </code><var>func</var>
+<var>sequence</var><code> :key </code><var>expr-function</var><code>)</code>, where <var>expr-function</var>
+is used to derive values from the successive elements of
+<var>sequence</var>.
+
+        <p>If the <code>reducing</code> clause is never executed, the result is
+undefined.
+
+        <p>It is not necessary to provide an initial value, but better code can
+be generated if one is supplied.  Regardless of its location in the
+<code>iterate</code> body, <var>init-val</var> will be evaluated before the loop is
+entered, so it should not depend on any value computed inside the
+<code>iterate</code> form.
+
+     <!-- if a @var{var} is not specified, you can get @iter{} to declare the -->
+<!-- type of the internal variable by putting a @code{the} expression -->
+<!-- around @var{func}.  see @ref{Types}. -->
+</blockquote></div>
+
+<!-- @impnote{in principle, |maximize| and |minimize| can be thought of -->
+<!-- as reductions where the initial value is the smallest (or largest) -->
+<!-- value that the accumulation variable can assume.  because lisp's -->
+<!-- bignums can represent arbitrary integers, these clauses cannot be -->
+<!-- implemented as reductions in general.  if, however, the type of -->
+<!-- ~expr~ or ~var~ can be determined to be a fixnum or a float, -->
+<!-- @iter{} will implement the clause as a true reduction, using one of -->
+<!-- the constants |most-negative-fixnum|, |@c most-positive-fixnum|, -->
+<!-- |most-negative-short-float|, etc.@: as appropriate.} -->
+<!-- =================================================================== -->
+</body></html>
+

@@ -1,0 +1,27 @@
+;; Object examples/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "examples/"
+  :tables (list 
+   (semanticdb-table "examples.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("defpackage" code nil nil [1281 1383]) ("in-package" code nil nil [1385 1413]) ("defcfun" code nil nil [1442 1479]) ("defcfun" code nil nil [1608 1651]) ("sprintf-test" function nil nil [1684 1979]) ("defcenum" code nil nil [2011 2079]) ("defcfun" code nil nil [2150 2199]) ("cffi-version" function nil nil [2201 2276]) ("run-examples" function nil nil [2278 2703]))
+    :file "examples.lisp"
+    :pointmax 2704
+    )
+   (semanticdb-table "run-examples.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("setf" code nil nil [1290 1337]) ("and" code nil nil [1341 1375]) ("load" code nil nil [1401 1426]) ("asdf:operate" code nil nil [1428 1484]) ("cffi-examples:run-examples" code nil nil [1485 1513]) ("force-output" code nil nil [1514 1528]) ("quit" code nil nil [1529 1535]))
+    :file "run-examples.lisp"
+    :pointmax 1536
+    )
+   (semanticdb-table "mapping.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("defpackage" code nil nil [1540 1638]) ("in-package" code nil nil [1640 1672]) ("define-foreign-type" code nil nil [1674 1774]) ("define-parse-method" code nil nil [1776 1885]) ("*regular-hashtable*" variable (:default-value (make-hash-table)) nil [1887 1933]) ("*weak-hashtable*" variable (:default-value (make-weak-hash-table :weakness :value)) nil [1934 1999]) ("*regular-counter*" variable nil nil [2000 2028]) ("*weak-counter*" variable nil nil [2029 2054]) ("increment-counter" function (:arguments ("value")) nil [2056 2157]) ("define-modify-macro" code nil nil [2159 2214]) ("translate-to-foreign" function (:arguments ("type")) nil [2216 2542]) ("translate-from-foreign" function (:arguments ("type")) nil [2544 2702]) ("defctype" code nil nil [2725 2778]) ("run" function nil nil [2829 2910]))
+    :file "mapping.lisp"
+    :pointmax 2911
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0pre3"
+  :semanticdb-version "2.0pre3"
+  )

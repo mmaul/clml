@@ -1,0 +1,23 @@
+plans:
+======
+moments, cumulants for distributions
+all C-Fs should use the C-F-guess-* functions
+unify when to use double-floats and when integers/rationals
+more variate relationships (like gamma - erlang - exponential)
+confidence interval estimation
+multivariate distributions
+distribution options: lower tail / upper tail; logarithm
+
+- Support Vector Machine
+- NaiveBayes
+- Neural Network
+(kmeans, kNN, association analysis, principal component analysis etc.
+ are not needed)
+
+tools:
+======
+matrices (transpose, invert)
+singular decomposition
+determinants
+qr
+least squares

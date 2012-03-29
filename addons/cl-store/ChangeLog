@@ -1,0 +1,383 @@
+2007-09-17 Sean Ross <sross@common-lisp.net>
+	* sbcl/custom.lisp: be lenient when parsing parts of sbcls version string. Thanks to Gustavo.
+	* default-backend.lisp: faster serializing of (simple-array
+	unsigned-byte 8). Thanks to Chris Dean
+
+2007-01-26 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp : Checked in a fix for non sb32 integers, certain 
+	large number numbers where incorrectly serialize. 
+	Reported by Cyrus Harmon.
+	* plumbing.lisp: Added a new function alias-backend and alias the backend
+	'cl-store:cl-store as :cl-store
+	
+	
+2007-01-23 Sean Ross <sross@common-lisp.net>
+	* circularities.lisp: Renamed with-grouped-serialization to with-serialization-unit
+	and added two keyword args to allow removal of *grouped-restore-hash* and 
+	*grouped-store-hash* special vars as exported symbols.
+	* default-backend.lisp: Changed defvars of register-types to defparameters.
+
+2007-01-22 Sean Ross <sross@common-lisp.net>
+	* utils.lisp, circularities.lisp, tests.lisp 
+	* stop store-32-bit from creating an intermediary object
+	which reduces the consing (on at least Lispworks 5.0 and SBCL 'Kitten of Death').
+	* export 4 new symbols which allows more efficient serialization of values.	
+	create-serialize-hash, with-grouped-serialization, *grouped-store-hash*
+	and *grouped-restore-hash*.
+	* conditionalize some forms which were preventing ABCL from running the tests.
+	
+	
+2006-12-16 Sean Ross <sross@common-lisp.net>
+	* circularities.lisp: Bug fix from Alex Mizrahi. Change *restored-values*
+	to use eql as the hash test. 
+
+2006-12-16 Sean Ross <sross@common-lisp.net>
+	* cl-store.asd, utils.lisp : Added preliminary support for ABCL (tested on 
+	version 0.0.9).
+
+2006-12-13 Sean Ross <sross@common-lisp.net>
+	* utils.lisp, acl/custom.lisp, cmucl/custom.lisp, lispworks/custom.lisp
+	sbcl/custom/lisp, default-backend.lisp, cl-store.asd: 
+	Committed handling for serialization of float types short, single, double and
+	long and handling of positive infinity, negative infinity and NaN for all
+	float types (this is still only for sbcl, cmucl, acl, and lispworks).
+
+2006-12-11 Sean Ross <sross@common-lisp.net>
+	* lispworks/custom.lisp: Began work on new special float creation.
+	* .cvsignore : Update ignorable files
+
+2006-10-01 Sean Ross <sross@common-lisp.net>
+	* utils.lisp: Fix mkstr to upcase args.
+
+2006-08-03 Sean Ross <sross@common-lisp.net>
+	* lispworks/custom.lisp: Fix float handling for Lispworks 5.0 .
+	* utils.lisp: changed references to compute-slots to class-slots.
+	* package.lisp: Removed symbols from export list that are no 
+	longer used.
+
+2006-03-13 Sean Ross <sross@common-lisp.net>
+	* sbcl/custom.lisp: Fixed sbcl structure definition
+	storing for versions >= 0.9.6.25 .
+	
+2006-03-13 Sean Ross <sross@common-lisp.net>
+	* utils.lisp, tests.lisp, openmcl/custom.lisp: Added
+	support for structure object storing for OpenMCL.
+	Thanks to Kilian Sprotte for the code.
+	* default-backend.lisp, utils.lisp: Changed creation
+	of class initargs to use loop instead of mappend.
+	Removed mappend.
+	
+2005-11-30 Sean Ross <sross@common-lisp.net>
+	* package.lisp: Added imports for MCL (from Gary King)
+	* backends.lisp: Changed definition of the defstore-? and
+	defrestore-? macros to work with lispworks dspecs.
+	* default-backend.lisp: Fixed the *sbcl-readtable* to copy
+	the default readtable.
+	* plumbing.lisp: Changed cl-store-error to extend directly from error
+	and removed error from restore-error and store-error's precedence list.
+	 
+2005-10-06 Sean Ross <sross@common-lisp.net>
+	* backends.lisp: Fixed type definition for 
+	compatible-magic-numbers from integer to list.
+	Reported by Bryan O'Connor.
+	
+2005-10-04 Sean Ross <sross@common-lisp.net>
+	* sbcl/custom.lisp: sb-kernel:instance is no
+	longer a class (since 0.9.5.3 or so). Fixed
+	definition of *sbcl-struct-inherits* to work 
+	with or without this class. 
+	Reported by Rafał Strzaliński.
+	
+2005-09-20 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp: Changed storing and restoring
+	of standard-object to not create unnecessary garbage.
+	
+2005-09-09 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp: Altered list serialization to store 
+	all types of lists (proper, dotted and circular) in N time,
+	thanks to Alain Picard for parts of the code.
+
+2005-09-01 Sean Ross <sross@common-lisp.net>
+    Version 0.6 Release.
+	* cl-store.asd, package.lisp: Added support for the new release
+	of CLISP with a MOP.
+	* default-backend.lisp: Fixed storing of long lists.
+	 (Reported by and help by Alain Picard)
+	* default-backend.lisp: New magic number, due to the
+	change in approach of storing lists, although previous
+	files can still be restored.
+	
+2005-05-18 Sean Ross <sross@common-lisp.net>
+	* utils.lisp: Removed awhen
+	* backends.lisp: Added a compatible-magic-numbers slot.
+	* default-backend.lisp: misc cleanups.
+	New magic number (can still restore previous versions files).
+	
+2005-05-06 Sean Ross <sross@common-lisp.net>
+	* backends.lisp: Added optional errorp argument
+	to find-backend (default false).
+	* default-backend.lisp: Changed simple-string storing
+	to keep the upgraded-array-element-type of the 
+	restored string the same as the string which was stored.
+	This seems to give a performance boost (more in memory usage) 
+	with SBCL and Lispworks.
+	* circularities.lisp: Stopped binding *stored-values*  
+	and *restored-values* when circularity checking is inhibited.
+	* doc/cl-store.texi: Miscellaneous fixes.
+	
+2005-05-05 Sean Ross <sross@common-lisp.net>
+	* all: After much experimentation with Lispworks I
+	discovered that globally declaiming unsafe code is
+	not a good idea. Changed to per function declarations.
+	* default-backend.lisp: Removed lispworks unicode string
+	test as it was incorrect.
+	
+2005-03-24 Sean Ross <sross@common-lisp.net>
+	* backends.lisp, circularities.lisp, tests.lisp:
+	Added test gensym.2 which crashed in previous
+	versions (pre 0.5.7). Symbols are now tested 
+	for eq-ality when storing. 
+	int-sym-or-char-p renamed to int-or-char-p.
+	* plumbing.lisp: Added error to the superclasses
+	of restore-error and store-error.
+	
+2005-03-23 Sean Ross <sross@common-lisp.net>
+	* backends.lisp: Fix up for type specifications
+	for the old-magic-numbers and stream-type slots
+	for class backend, reported by Kilian Sprotte.
+	* circularities.lisp: Changed *store-hash-size* and
+	*restore-hash-size* to more reasonable values (50).
+	
+2005-03-17 Sean Ross <sross@common-lisp.net>
+	* doc/cl-store.texi: Fixed up to work properly with makeinfo.
+	
+2005-03-15 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp, utils.lisp: Changed reference
+	to array-dimension-limit in array storing to 
+	array-total-size limit.
+	* default-backend.lisp: Added an implementation specific 
+	test to determine whether or not a string contains unicode
+	characters.
+	
+2005-02-26 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp: Fixed internal-store-object
+	for the hash-table class (argument order was messed).
+	
+2005-02-18 Sean Ross <sross@common-lisp.net>
+   Version 0.5 Release.
+	* utils.lisp, package.lisp: Took a lesson from the MOP
+	and changed serializable-slots to call the new GF 
+	serializable-slots-using-class.
+	
+2005-02-17 Sean Ross <sross@common-lisp.net>
+	* package.lisp, utils.lisp, default-backend.lisp: Patch 
+	from Thomas Stenhaug which changed get-slot-details to 
+	a generic-function so that it can be customized.
+	Added serializable-slots (returns a list of slot-definitions)
+	which can be overridden to customize which slots are
+	serialized when storing clos instances.
+	
+2005-02-16 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp, package.lisp, plumbing.lisp: Patch
+	from Thomas Stenhaug which adds more comprehensive package
+	storing.
+	
+2005-02-14 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp: Applied patch from Thomas Stenhaug
+	to default null superclasses of a restored class to 
+	standard-object as this caused errors in Lispworks.
+	
+2005-02-11 Sean Ross <sross@common-lisp.net>
+	New Magic Number for cl-store-backend.
+	* default-backend.lisp, acl/custom.lisp, lispworks/custom.lisp
+	* sbcl/custom.lisp, cmucl/custom.lisp:
+	Changed storing of floats to be compatible between implementations
+	while ensuring that NaN floats and friends are still serializable.
+	* backends.lisp, plumbing.lisp:
+	Added concept of backend designators which can be a 
+	symbol (the backend name) or the backend itself. These are 
+	acceptable replacements for a backend object
+	to store, restore and with-backend.
+	Completely changed argument order for generic functions
+	to ensure that backends are the first argument.
+	* ecl/mop.lisp: Added support for ecl.
+	* plumbing.lisp: Removed multiple-value-store (I don't really
+	see the point of it).
+	* backends.lisp: Changed the working of object restoration
+	from functions in a hash-table (restorer-funs of a backend)
+	to generic functions specialized on backend and a symbol,
+	removed find-function-for-type. 
+	* plumbing.lisp: Changed the handling of the stream-type
+	of backends to be any legal type designator since it's 
+	only used when opening files.
+	* backends.lisp: Both defstore-? and defrestore-?
+	can take an optional qualifer argument.
+	
+2005-02-03 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp: Fixed hash-table restoration,
+	it no longer assumes that the result of hash-table-test
+	is a symbol but treats it as a function designator.
+	* default-backend.lisp: Added various declarations
+	to help improve speed.
+	
+2005-02-01 Sean Ross <sross@common-lisp.net>
+	* various: Large patch which has removed pointless 
+	argument-precedence-order from various gf's, added the 
+	start of support for ecl, renamed fix-clisp.lisp file to 
+	mop.lisp, and changed resolving-object and setting 
+	to use delays allowing get-setf-place and *postfix-setters*
+	to be removed.
+	
+2004-12-02 Sean Ross <sross@common-lisp.net>
+	* sbcl/custom.lisp, cmucl/custom.lisp: Changed the evals when restoring
+	structure definitions to (funcall (compile nil ...))
+	* cl-store-xml.asd: Removed
+	* cl-store-xml.noasd: Added (xml-backend is officially nuked).
+	
+2004-11-26 Sean Ross <sross@common-lisp.net>
+	* cmucl/custom.lisp: Custom structure definition storing for CMUCL.
+	* plumbing.lisp: Bind *read-eval* to nil inside store and restore.
+	
+2004-11-24 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp: New Magic Number (Breaks backwards compatibility)
+	* cl-store.asd New Version 0.4
+	* default-backend.lisp: Changed symbol storing to be smarter
+	with symbols with no home package.
+	* sbcl/custom.lisp: Support for structure definitions from defstruct.
+	* tests.lisp: Tests for structure definitions.
+	* circularities.lisp: Optimization for referrers and values-object's.
+	Added *store-hash-size* and *restore-hash-size* which can be bound
+	to reduce the calls to rehash which conses like crazy.
+	Added *check-for-circs* which can be bound to nil to stop
+	checking for circularities which reduces consing drastically but objects
+	will not be eq and will hang on circular objects (see README).
+	* default-backend.lisp: New Magic Number ,again.
+	Cater for SB! package names for built-in function names
+	in SBCL.
+	
+2004-11-10 Sean Ross <sross@common-lisp.net>
+	New Version: 0.3.6 New Magic Number (Breaks backwards compatibility)
+	* default-backend.lisp: Storing for functions and generic functions.
+	* tests.lisp: Tests for functions and GF's.
+	* plumbing.lisp, circularities.lisp, default-backend.lisp: 
+	Optimized int-sym-or-char-p.
+	* clisp/fix-clisp.lisp: Added generic-function-name.
+	* package.lisp: Import generic-function-name.
+	* default-backend.lisp: More optimizations for strings and ints.
+		
+2004-11-03 Sean Ross <sross@common-lisp.net>
+	* tests.lisp: Added tests for unicode strings and symbols.
+	* default-backend.lisp: We definitely support unicode now.
+	Added small optimization to stop the size of files from
+	ballooning.
+
+2004-11-01 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp: Changed storing of sizes of integers
+	and strings from store-32-bit to store-object. Changed all
+	instances of store-32-byte to store-32-bit. 
+	Added a simple function storing method.
+	New Magic Number
+	* docs/cl-store.texi: New documentation.
+	* lispworks/custom.lisp: Custom storing for conditions
+	to ignore class allocated slots. 
+	
+2004-10-21 Sean Ross <sross@common-lisp.net>
+	* package.lisp, acl/custom.lisp: Added support for Allegro CL.
+	
+2004-10-13 Sean Ross <sross@common-lisp.net>
+	* cl-store.asd: New Version (0.3)
+	* circularities.lisp, default-backend.lisp, xml-backend.lisp:
+	Changed referrer representation to a structure.
+	Removed cl-store-referrer package.
+	
+2004-10-12 Sean Ross <sross@common-lisp.net>
+	* lispworks/custom.lisp, lispworks/custom-xml.lisp, default-backend.lisp: 
+	Added support for NaN floats.
+	* tests.lisp: Test NaN floats, Test multiple values.
+	* default-backend.lisp: fix typo which broke clisp support.
+	
+2004-10-11 Sean Ross <sross@common-lisp.net>
+	* default-backend: Added multiple-value-store.
+	* xml-backend: Added support for multiple return values.
+	
+2004-10-07 Sean Ross <sross@common-lisp.net>
+	* circularities.lisp: Added support for multiple return values from
+	functions defined with defrestore-?.
+	
+2004-10-06 Sean Ross <sross@common-lisp.net>
+	* cl-store-xml.asd, xml-package.lisp, xml-tests.lisp: Moved the xml backend
+	into it's own package files.
+	* xml-backend.lisp, sbcl/custom-xml.lisp, cmucl/custom-xml.lisp, lispworks/custom-xml.lisp:
+	Added support for infinite floats to sbcl, cmucl and lispworks.
+	* xml-backend.lisp, default-backend.lisp:
+	Fixed floating point contagion warning signalled by clisp.
+	* plumbing.lisp: Changed error handing to signal a store-error or restore-error
+	inside a handler-bind and leave the original error unhandled.
+	* docs/: Rudimentary Documentation.
+	
+2004-10-05 Sean Ross <sross@common-lisp.net>
+	* default-backend.lisp: New Magic number.
+	* backends.lisp: Changed with-backend to take a variable instead of a backend name.
+	* backends.lisp, plumbing.lisp: Added previous magic number field to backends and
+	an appropriate error if an incompatible magic number is read. 
+	* circularities.lisp, plumbing.lisp: Removed check-stream-element-type.
+	* default-backend.lisp: Added a small optimization for 32 byte integers and
+	support for symbols with unicode strings as names. 
+				
+2004-10-04 Sean Ross <sross@common-lisp.net>
+	* sbcl/custom.lisp: Custom float storing (supports inifinities).
+	* cmucl/custom.lisp: Custom float storing (supports inifinities).
+	* xml-backend.lisp, tests.xml: Deprecated xml-backend.
+	
+2004-10-01 Sean Ross <sross@common-lisp.net>
+	* lispworks/custom.lisp: Lispworks support for inifinite floats from Alain Picard.
+	* tests.lisp: Infinite float tests for lispworks.
+	
+2004-09-27 Sean Ross <sross@common-lisp.net>
+	* plumbing.lisp: Slightly nicer error handling (I think).
+	All conditions caught in store and restore are resignalled
+	and rethrown as a store or restore error respectively.
+
+2004-09-01 Sean Ross <sross@common-lisp.net>
+	* sbcl/custom.lisp, sbcl/custom-xml.lisp: Custom structure storing.
+	* cmucl/custom.lisp, cmucl/custom-xml.lisp: Custom structure storing.
+	* lispworks/custom.lisp, lispworks/custom-xml.lisp: Custom structure storing
+	for Lispworks from Alain Picard.
+	* test.lisp: Enabled structure tests for Lispworks.
+
+2004-07-29 Sean Ross <sross@common-lisp.net>
+	* cl-store.asd: New version (0.2)
+	* sbcl/sockets.lisp: Removed.
+	* store.lisp: Removed.
+	* backends.lisp: New file for creating backends (Idea from Robert Sedgewick).
+	* circularities.lisp: Much changes, now works properly.
+	* default-backend.lisp: New file contains storing definitions
+	from store.lisp. Changes to simple-string storing, magic-number changed.
+	* plumbing.lisp: New file, framework stuff.
+	* xml-backend.lisp: New file. New backend for writing out Common-Lisp
+	objects in xml format.
+	* tests.lisp : More and more tests.
+	
+2004-06-04 Sean Ross <sross@common-lisp.net>
+	* circularities.lisp: spelling fix.
+	* cl-store.asd: Specialized operation-done-p to stop some errors in asdf.
+	* package.lisp: Imports for openmcl from Robert Sedgewick,
+	Along with extra imports for cmucl.
+
+2004-05-21 Sean Ross <sross@common-lisp.net>
+	* store.lisp, fix-clisp.lisp, circularities.lisp, package.lisp, 
+	* tests.lisp, utils.lisp, cl-store.asd:
+	   Added ability to specify the type code of an object 
+	   when using defstore. Added code to autogenerate the 
+	   accessor methods for CLISP when restoring classes.
+	   EQ floats are now restored correctly.
+	
+2004-05-18 Sean Ross <sross@common-lisp.net>
+	* store.lisp, fix-clisp.lisp, sbcl/sockets.lisp:
+	Added fix for sbcl to use non-blocking IO when working with sockets.
+	Created directory structure and moved fix-clisp
+
+2004-05-17 Sean Ross <sross@common-lisp.net>
+	* store.lisp, fast-io.lisp, circularities.lisp, package.lisp,
+	fix-clisp.lisp, utils.lisp, cl-store.asd, tests.lisp:
+	Initial import

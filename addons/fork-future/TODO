@@ -1,0 +1,6 @@
+* TODO use OSICAT instead of self-made posix-wrapper (make allegrocl
+   32bit to support long-long first)
+
+* TODO use other communication mechanism instead of temp file for results
+
+* TODO complete documents (APIs, design, examples)

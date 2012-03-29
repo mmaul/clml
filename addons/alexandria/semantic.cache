@@ -1,0 +1,118 @@
+;; Object alexandria/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "alexandria/"
+  :tables (list 
+   (semanticdb-table "arrays.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("deftype" code nil nil [27 270]) ("deftype" code nil nil [272 518]) ("copy-array" function (:arguments ("array" "&key" "element-type" "fill-pointer" "adjustable")) nil [520 1307]))
+    :file "arrays.lisp"
+    :pointmax 1309
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "binding.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("if-let" function (:arguments ("bindings" "then-form" "&optional" "else-form")) nil [27 1028]) ("if-let*" function (:arguments ("bindings" "then-form" "&optional" "else-form")) nil [1030 2081]) ("when-let" function (:arguments ("bindings" "&body" "forms")) nil [2083 2912]) ("when-let*" function (:arguments ("bindings" "&body" "forms")) nil [2914 3799]))
+    :file "binding.lisp"
+    :pointmax 3801
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "conditions.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("required-argument" function (:arguments ("&optional" "name")) nil [27 300]) ("define-condition" code nil nil [302 377]) ("simple-style-warning" function (:arguments ("message" "&rest" "args")) nil [379 506]))
+    :file "conditions.lisp"
+    :pointmax 508
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "control-flow.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("generate-switch-body" function (:arguments ("whole" "object" "clauses" "test" "key" "&optional" "default")) nil [27 1109]) ("switch" function (:arguments ("&whole" "whole" "object" "&body" "clauses")) nil [1111 1403]) ("eswitch" function (:arguments ("&whole" "whole" "object" "&body" "clauses")) nil [1405 1641]) ("cswitch" function (:arguments ("&whole" "whole" "object" "&body" "clauses")) nil [1643 1918]) ("whichever" function (:arguments ("&rest" "possibilities")) nil [1920 2357]) ("xor" function (:arguments ("&rest" "datums")) nil [2359 3232]))
+    :file "control-flow.lisp"
+    :pointmax 3232
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "definitions.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("extract-function-name" function (:arguments ("spec")) nil [27 272]) ("define-constant" function (:arguments ("name" "initial-value" "&key" "test" "documentation")) nil [274 1799]))
+    :file "definitions.lisp"
+    :pointmax 1800
+    )
+   (semanticdb-table "functions.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("disjoin" function (:arguments ("predicate" "&rest" "more-predicates")) nil [27 568]) ("conjoin" function (:arguments ("predicate" "&rest" "more-predicates")) nil [570 1223]) ("compose" function (:arguments ("function" "&rest" "more-functions")) nil [1225 1770]) ("define-compiler-macro" code nil nil [1772 2334]) ("multiple-value-compose" function (:arguments ("function" "&rest" "more-functions")) nil [2336 2914]) ("define-compiler-macro" code nil nil [2916 3508]) ("curry" function (:arguments ("function" "&rest" "arguments")) nil [3510 3895]) ("define-compiler-macro" code nil nil [3897 4195]) ("rcurry" function (:arguments ("function" "&rest" "arguments")) nil [4197 4542]) ("named-lambda" function (:arguments ("name" "lambda-list" "&body" "body")) nil [4544 4748]) ("declaim" code nil nil [4750 4842]) ("ensure-function" function (:arguments ("function-designator")) nil [4843 5177]))
+    :file "functions.lisp"
+    :pointmax 5178
+    )
+   (semanticdb-table "macros.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("with-gensyms" function (:arguments ("names" "&body" "forms")) nil [27 594]) ("with-unique-names" function (:arguments ("names" "&body" "forms")) nil [596 709]) ("once-only" function (:arguments ("names" "&body" "forms")) nil [711 1371]) ("parse-body" function (:arguments ("body" "&key" "documentation" "whole")) nil [1373 2146]))
+    :file "macros.lisp"
+    :pointmax 2147
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "package.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("defpackage" code nil nil [1 2032]))
+    :file "package.lisp"
+    :pointmax 2033
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "symbols.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("declaim" code nil nil [27 59]) ("ensure-symbol" function (:arguments ("name" "&optional" "package")) nil [60 505]) ("make-formatted-symbol" function (:arguments ("package" "name")) nil [507 668]) ("declaim" code nil nil [670 702]) ("format-symbol" function (:arguments ("package" "control" "&rest" "arguments")) nil [703 1159]) ("make-keyword" function (:arguments ("name")) nil [1161 1288]) ("make-gensym-list" function (:arguments ("length" "&optional" "x")) nil [1290 1497]))
+    :file "symbols.lisp"
+    :pointmax 1498
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "hash-tables.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("copy-hash-table" function (:arguments ("table" "&key" "test" "size" "rehash-size" "rehash-threshold")) nil [27 780]) ("declaim" code nil nil [782 813]) ("maphash-keys" function (:arguments ("function" "table")) nil [814 1039]) ("declaim" code nil nil [1041 1074]) ("maphash-values" function (:arguments ("function" "table")) nil [1075 1304]) ("hash-table-keys" function (:arguments ("table")) nil [1306 1517]) ("hash-table-values" function (:arguments ("table")) nil [1519 1746]) ("hash-table-alist" function (:arguments ("table")) nil [1748 1983]) ("hash-table-plist" function (:arguments ("table")) nil [1985 2223]) ("alist-hash-table" function (:arguments ("alist" "&rest" "hash-table-initargs")) nil [2225 2578]) ("plist-hash-table" function (:arguments ("plist" "&rest" "hash-table-initargs")) nil [2580 2962]))
+    :file "hash-tables.lisp"
+    :pointmax 2964
+    )
+   (semanticdb-table "lists.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("alist-plist" function (:arguments ("alist")) nil [27 290]) ("plist-alist" function (:arguments ("plist")) nil [292 573]) ("define-modify-macro" code nil nil [575 715]) ("define-modify-macro" code nil nil [717 898]) ("define-modify-macro" code nil nil [900 1112]) ("circular-list" function (:arguments ("&rest" "elements")) nil [1114 1256]) ("circular-list-p" function (:arguments ("object")) nil [1258 1628]) ("circular-tree-p" function (:arguments ("object")) nil [1630 2389]) ("proper-list-p" function (:arguments ("object")) nil [2391 2852]) ("deftype" code nil nil [2854 3107]) ("lastcar" function (:arguments ("list")) nil [3109 3587]) ("make-circular-list" function (:arguments ("length" "&key" "initial-element")) nil [4108 4328]) ("deftype" code nil nil [4330 4576]) ("ensure-car" function (:arguments ("thing")) nil [4578 4729]) ("ensure-cons" function (:arguments ("cons")) nil [4731 4924]) ("ensure-list" function (:arguments ("list")) nil [4926 5087]) ("remove-from-plist" function (:arguments ("plist" "&rest" "keys")) nil [5089 5783]) ("delete-from-plist" function (:arguments ("plist" "&rest" "keys")) nil [5785 5985]) ("define-modify-macro" code nil nil [5987 6064]) ("define-modify-macro" code nil nil [6065 6142]) ("declaim" code nil nil [6144 6167]) ("sans" function (:arguments ("plist" "&rest" "keys")) nil [6168 6299]) ("mappend" function (:arguments ("function" "&rest" "lists")) nil [6301 6563]) ("setp" function (:arguments ("object" "&key" "test" "key")) nil [6565 7018]) ("set-equal" function (:arguments ("list1" "list2" "&key" "test" "key")) nil [7020 7575]) ("map-product" function (:arguments ("function" "list" "&rest" "more-lists")) nil [7577 8513]) ("flatten" function (:arguments ("tree")) nil [8515 8938]))
+    :file "lists.lisp"
+    :pointmax 8939
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "types.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("of-type" function (:arguments ("type")) nil [27 176]) ("define-compiler-macro" code nil nil [178 491]) ("declaim" code nil nil [493 517]) ("type=" function (:arguments ("type1" "type2")) nil [518 1095]))
+    :file "types.lisp"
+    :pointmax 1096
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "tests.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 22]) (":sb-rt" include nil nil [24 40]) (":alexandria" include nil nil [42 63]) ("defpackage" code nil nil [65 126]) ("in-package" code nil nil [128 157]) ("deftest" code nil nil [172 322]) ("deftest" code nil nil [324 713]) ("deftest" code nil nil [715 769]) ("deftest" code nil nil [790 876]) ("deftest" code nil nil [878 982]) ("deftest" code nil nil [984 1096]) ("deftest" code nil nil [1098 1208]) ("deftest" code nil nil [1210 1298]) ("deftest" code nil nil [1300 1388]) ("deftest" code nil nil [1390 1483]) ("deftest" code nil nil [1485 1532]) ("deftest" code nil nil [1552 1807]) ("deftest" code nil nil [1809 2029]) ("deftest" code nil nil [2044 2182]) ("deftest" code nil nil [2202 2968]) ("deftest" code nil nil [2970 3256]) ("deftest" code nil nil [3258 3565]) ("deftest" code nil nil [3567 3759]) ("deftest" code nil nil [3761 3964]) ("deftest" code nil nil [3966 4330]) ("deftest" code nil nil [4332 4674]) ("deftest" code nil nil [4676 4976]) ("deftest" code nil nil [4978 5351]) ("deftest" code nil nil [5369 5746]) ("deftest" code nil nil [6147 6371]) ("deftest" code nil nil [6373 6638]) ("deftest" code nil nil [6640 7065]) ("deftest" code nil nil [7067 7462]) ("deftest" code nil nil [7464 7947]) ("deftest" code nil nil [7949 8623]) ("deftest" code nil nil [8625 8710]) ("deftest" code nil nil [8712 8856]) ("deftest" code nil nil [8858 9128]) ("deftest" code nil nil [9130 9202]) ("deftest" code nil nil [9204 9391]) ("deftest" code nil nil [9393 9591]) ("deftest" code nil nil [9605 9689]) ("deftest" code nil nil [9691 9775]) ("deftest" code nil nil [9777 10075]) ("deftest" code nil nil [10077 10309]) ("deftest" code nil nil [10311 10478]) ("deftest" code nil nil [10480 10715]) ("deftest" code nil nil [10717 11154]) ("deftest" code nil nil [11156 11216]) ("deftest" code nil nil [11218 12057]) ("deftest" code nil nil [12059 12406]) ("deftest" code nil nil [12408 12470]) ("deftest" code nil nil [12472 12847]) ("deftest" code nil nil [12849 12979]) ("deftest" code nil nil [12981 13129]) ("deftest" code nil nil [13131 13310]) ("deftest" code nil nil [13312 13495]) ("deftest" code nil nil [13497 13751]) ("deftest" code nil nil [13753 14012]) ("deftest" code nil nil [14014 14147]) ("deftest" code nil nil [14149 14356]) ("deftest" code nil nil [14358 14394]) ("deftest" code nil nil [14396 14431]) ("deftest" code nil nil [14433 14472]) ("deftest" code nil nil [14474 14518]) ("deftest" code nil nil [14520 14560]) ("deftest" code nil nil [14562 14601]) ("deftest" code nil nil [14603 14660]) ("deftest" code nil nil [14662 14740]) ("deftest" code nil nil [14742 14801]) ("deftest" code nil nil [14803 14924]) ("deftest" code nil nil [14926 14983]) ("deftest" code nil nil [14985 15073]) ("deftest" code nil nil [15075 15165]) ("deftest" code nil nil [15167 15230]) ("deftest" code nil nil [15232 15329]) ("deftest" code nil nil [15331 15429]) ("deftest" code nil nil [15431 15515]) ("deftest" code nil nil [15517 15938]) ("deftest" code nil nil [15940 16020]) ("deftest" code nil nil [16036 16200]) ("deftest" code nil nil [16202 16470]) ("deftest" code nil nil [16472 16511]) ("deftest" code nil nil [16513 16577]) ("deftest" code nil nil [16579 16643]) ("deftest" code nil nil [16645 16909]) ("deftest" code nil nil [16911 16952]) ("deftest" code nil nil [16954 16995]) ("deftest" code nil nil [16997 17037]) ("deftest" code nil nil [17039 17083]) ("deftest" code nil nil [17085 17130]) ("deftest" code nil nil [17132 17190]) ("deftest" code nil nil [17192 17256]) ("deftest" code nil nil [17258 17312]) ("deftest" code nil nil [17314 17394]) ("deftest" code nil nil [17396 17459]) ("deftest" code nil nil [17461 17524]) ("deftest" code nil nil [17526 17625]) ("deftest" code nil nil [17768 17831]) ("deftest" code nil nil [17998 18024]) ("deftest" code nil nil [18032 18052]) ("deftest" code nil nil [18070 18315]) ("deftest" code nil nil [18654 18903]) ("deftest" code nil nil [19244 19341]) ("deftest" code nil nil [19343 19643]) ("deftest" code nil nil [19645 19977]) ("deftest" code nil nil [21122 21325]) ("deftest" code nil nil [23477 23653]) ("deftest" code nil nil [24585 24725]) ("deftest" code nil nil [25875 26027]) ("deftest" code nil nil [26029 26340]) ("deftest" code nil nil [26680 27156]) ("deftest" code nil nil [27158 27489]) ("deftest" code nil nil [27491 27590]) ("deftest" code nil nil [27592 27683]) ("deftest" code nil nil [27685 27771]) ("deftest" code nil nil [27773 27928]) ("deftest" code nil nil [27930 28072]) ("deftest" code nil nil [28074 28269]) ("deftest" code nil nil [28285 28359]) ("deftest" code nil nil [28361 28445]) ("deftest" code nil nil [28447 28525]) ("deftest" code nil nil [28607 28753]) ("deftest" code nil nil [28755 28838]) ("deftest" code nil nil [28841 28967]) ("deftest" code nil nil [29103 29362]) ("deftest" code nil nil [29382 29557]) ("deftest" code nil nil [29559 29612]) ("deftest" code nil nil [29614 29673]) ("deftest" code nil nil [29675 29737]) ("deftest" code nil nil [29739 29808]) ("deftest" code nil nil [29810 29863]) ("declaim" code nil nil [29880 29908]) ("opaque" function (:arguments ("x")) nil [29909 29931]) ("deftest" code nil nil [29933 30018]) ("deftest" code nil nil [30020 30121]) ("deftest" code nil nil [30123 30249]) ("deftest" code nil nil [30251 30361]) ("deftest" code nil nil [30363 30440]) ("deftest" code nil nil [30442 30612]) ("deftest" code nil nil [30614 30745]) ("deftest" code nil nil [30747 30881]) ("deftest" code nil nil [30883 30960]) ("deftest" code nil nil [30962 31102]) ("deftest" code nil nil [31104 31204]) ("deftest" code nil nil [31206 31311]) ("deftest" code nil nil [31313 31419]) ("deftest" code nil nil [31421 31557]) ("deftest" code nil nil [31559 31668]) ("deftest" code nil nil [31670 31752]) ("deftest" code nil nil [31754 31892]))
+    :file "tests.lisp"
+    :pointmax 31893
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "strings.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("deftype" code nil nil [27 185]))
+    :file "strings.lisp"
+    :pointmax 186
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "numbers.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("declaim" code nil nil [27 51]) ("clamp" function (:arguments ("number" "min" "max")) nil [52 319]) ("gaussian-random" function (:arguments ("&optional" "min" "max")) nil [321 1512]) ("declaim" code nil nil [1514 1537]) ("iota" function (:arguments ("n" "&key" "start" "step")) nil [1538 2143]) ("declaim" code nil nil [2145 2172]) ("map-iota" function (:arguments ("function" "n" "&key" "start" "step")) nil [2173 2832]) ("declaim" code nil nil [2834 2857]) ("lerp" function (:arguments ("v" "a" "b")) nil [2858 3004]) ("declaim" code nil nil [3006 3029]) ("mean" function (:arguments ("sample")) nil [3030 3163]) ("declaim" code nil nil [3165 3190]) ("median" function (:arguments ("sample")) nil [3191 3538]) ("declaim" code nil nil [3540 3567]) ("variance" function (:arguments ("sample" "&key" "biased")) nil [3568 3994]) ("declaim" code nil nil [3996 4033]) ("standard-deviation" function (:arguments ("sample" "&key" "biased")) nil [4034 4422]) ("define-modify-macro" code nil nil [4424 4590]) ("define-modify-macro" code nil nil [4592 4758]) ("defconstant" code nil nil [4978 5027]) ("defconstant" code nil nil [5168 5224]) ("declaim" code nil nil [7426 7454]) ("%factorial" function (:arguments ("n")) nil [7455 7528]) ("factorial" function (:arguments ("n")) nil [7530 7638]) ("binomial-coefficient" function (:arguments ("n" "k")) nil [7660 8381]) ("subfactorial" function (:arguments ("n")) nil [8383 8576]) ("count-permutations" function (:arguments ("n" "&optional" "k")) nil [8578 8832]))
+    :file "numbers.lisp"
+    :pointmax 8833
+    :unmatched-syntax 'nil
+    )
+   (semanticdb-table "sequences.lisp"
+    :major-mode 'lisp-mode
+    :tags '(("in-package" code nil nil [1 25]) ("rotate-tail-to-head" function (:arguments ("sequence" "n")) nil [27 611]) ("rotate-head-to-tail" function (:arguments ("sequence" "n")) nil [613 1222]) ("rotate" function (:arguments ("sequence" "&optional" "n")) nil [1224 1987]) ("shuffle" function (:arguments ("sequence" "&key" "start" "end")) nil [1989 2471]) ("random-elt" function (:arguments ("sequence" "&key" "start" "end")) nil [2473 2975]) ("define-modify-macro" code nil nil [2977 3277]) ("define-modify-macro" code nil nil [3279 3579]) ("deftype" code nil nil [3581 3759]) ("emptyp" function (:arguments ("sequence")) nil [3761 3975]) ("sequence-of-length-p" function (:arguments ("sequence" "length")) nil [3977 4419]) ("declaim" code nil nil [4421 4453]) ("copy-sequence" function (:arguments ("type" "sequence")) nil [4454 4654]) ("first-elt" function (:arguments ("sequence")) nil [4656 5213]) ("last-elt" function (:arguments ("sequence")) nil [5859 6476]) ("starts-with-subseq" function (:arguments ("sequence" "prefix" "&rest" "args" "&key" "return-suffix" "&allow-other-keys")) nil [7086 8374]) ("ends-with-subseq" function (:arguments ("sequence" "suffix" "&key" "test")) nil [8376 9146]) ("starts-with" function (:arguments ("object" "sequence" "&key" "test" "key")) nil [9148 9784]) ("ends-with" function (:arguments ("object" "sequence" "&key" "test" "key")) nil [9786 10701]) ("map-combinations" function (:arguments ("function" "sequence" "&key" "start" "end" "length" "copy")) nil [10703 13328]) ("map-permutations" function (:arguments ("function" "sequence" "&key" "start" "end" "length" "copy")) nil [13330 15357]) ("map-derangements" function (:arguments ("function" "sequence" "&key" "start" "end" "copy")) nil [15359 17436]))
+    :file "sequences.lisp"
+    :pointmax 17437
+    :unmatched-syntax 'nil
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0pre3"
+  :semanticdb-version "2.0pre3"
+  )

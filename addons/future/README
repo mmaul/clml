@@ -1,0 +1,275 @@
+-*- mode: org -*-
+
+* Description
+
+Future is a thread based parallel library (similar to fork-future, but
+with shared-memory) that has thread-pool feature, very low overhead
+and has the same API as fork-future.
+ 
+by Jianshi Huang @ Mathematical Systems Inc. (huang@msi.co.jp)
+
+
+* Purpose
+
+Although fork-based futures are easier to use -- you don't need to
+think about locking and memory management is done by the operating
+system via copy-on-write, sometimes, for algorithms that needs to
+update large amount of data, shared-memory parallelism is
+necessary. Therefore thread-based future library is made.
+
+There is a similar opensource library available:
+
+  - Eager Future (http://common-lisp.net/project/eager-future/)
+
+It has quite intuitive APIs and nice features and it should be
+reasonable to build on top of it. But I still decided to make a new
+implementation and reasons are: 
+
+  - to make it depend on less third-party libraries
+    
+    Currently, it only depends on alexandria, which itself is
+    self-contained.
+
+  - to keep the API same as fork-future
+
+    This makes it easier for us to switch between them in
+    applications.
+
+  - simplifying the implementation and optimize for extremely low overhead
+
+    I don't like some of the implementation in eager-future :) and
+    since one of the benefits of thread-based future compared to
+    fork-based future is the low overhead, I want to make it as low as
+    possible so I need to make sure the scheduler is designed to do as
+    little as possible.
+
+    Actually there's no scheduler, like eager future, each threads
+    itself will pull out more tasks when available. Furthermore,
+    threads will wait for new tasks for some time before quit so
+    thread creation overhead can be ignored.
+
+  - thorough testing
+
+    Since it will be used in our commercial products, tests are very
+    important. Tests on multiple implementations and stress tests are
+    very important for us.
+
+* Compare to fork-future
+
+The differences of thread-based future and fork-based future are:
+
+  - thread-based future is shared-memory and every updates to the data
+    will be seen by other threads while data in fork-based future is
+    non-shared.
+
+    So you need to make sure there are no race conditions or you need
+    to use locks.
+
+  - thread-based future has much less overhead. 
+    
+    Test result shows that the overhead of a fork-based future is
+    about 10ms on a 3GHz Core 2 machine, while the overhead of a
+    thread-based future is about 7.8us, about 1000 times lower.
+
+    So it's allows us to ignore the granularity of each future task in
+    most cases. Though the overhead is so low, it's still wise to have
+    each task run more than 1ms, in order to get reasonably good
+    speedup, as we can see in the benchmarks below
+
+  - thread-based future may stress the garbage collector.
+    
+    The problem of the garbage collector in AllegroCL and SBCL is it
+    has to be run sequentially, which means all threads has to be
+    stopped until gc finishes.
+
+    The problem became worse for thread-base future since it will
+    produce n times of the garbage where n is the number of threads.
+    So every garbage collection will need to iterate over objects n
+    times as the sequential version! In one benchmark, we can see that
+    in one case the garbage collection time became much worse and made
+    the parallelized version much slower than the sequential version.
+
+    In fork-based future, however, each process has its own memory
+    space and garbage collectors so the amount of garbage and
+    collection time is similar as the sequential version. Furthermore,
+    the garbage collectors in each process can run in parallel.
+
+    Thus it's VERY important to make sure each task produces as little
+    garbage as possible in thread-based future.
+
+
+* Supported implementations/platforms
+
+  |-------------+------+-----------+
+  |             | SBCL | AllegroCL | 
+  |-------------+------+-----------+
+  | Linux-x86   | Yes  | Yes       |
+  | Linux-x8664 | Yes  | Yes       |
+  |-------------+------+-----------+
+
+Porting to other implementations should be easy. Just add
+implementation specific APIs to thread-api.lisp and it should work.
+
+* Library dependencies
+
+The only third-party library it depends on is alexandria.
+
+Tests depends on Stefil test framework.
+
+* APIs
+
+The followings are public APIs:
+
+  future
+  touch
+  wait-for-future
+  wait-for-any-future
+  wait-for-all-futures
+  kill-future
+  kill-all-futures
+  initialize-environment
+  with-new-environment
+  future-max-threads
+  *before-start-hooks*
+  *after-finish-hooks*
+
+** Major APIs
+
+- future : Macro
+
+  (future &body body) is used to create a future object that evaluates
+  the body.
+
+- touch : Function
+
+  (touch future) is to obtain the evaluation result of the future, it
+  will block if the future is not finished yet.
+
+- initialize-environment : Function
+
+  (initialize-environment) will clean up the environment which is
+  essential for the precondition of later futures to run properly.
+
+  It is strongly suggested to call initialize-environment before
+  starting a paralleled task.
+
+- with-new-environment : Macro
+
+  (with-new-environment () &body body) will create new environments
+  and thread pools that does not interfere current running and pending
+  futures.
+
+  A common practice is to write the following code:
+
+  (with-new-environment ()
+    ...body)
+
+  in new paralleled tasks. with-new-environment will insert
+  initialize-environment before body.
+
+
+** Misc
+
+:future will be pushed to *features* after loading.
+
+
+
+* Benchmark results
+
+** Fib bench
+
+  This benchmark is used for testing scalability and to find the
+  reasonable minimal granularity for each task.
+
+  - machine: csisv9 (32core AMD opteron 8380 2.5GHz)
+  - task: calculate the n-th Fibonacci number 20,000 times
+  - thread pool size: 32
+
+    n = 21, 22, 23, 25, 27, 30
+
+    |  n | cpu usage | speedup | ms per call |
+    |----+-----------+---------+-------------|
+    | 21 |   719.93% |   6.05x | 0.5ms       |
+    | 22 |  2940.11% |   29.3x | 1ms         |
+    | 23 |  2971.38% |    29.9 | 2ms         |
+    | 25 |  3084.19% |   30.4x | 4ms         |
+    | 27 |  3172.23% |         |             |
+    | 30 |  3185.42% |         |             |
+
+  * speedup means n times as fast as sequential  
+
+We can see a sudden drop between (fib 22) and (fib 21), probably
+because of the task is too short and there's contention in the task
+queue's lock/unlocking. However this still needs to be confirmed.
+
+So the minimal granularity for each task running on a 2.5GHz 32core
+32threads machine is about 1ms. It should be less for machines that
+have less cores but 1ms is a safe value to use.
+
+
+** k-means
+
+   - machine: kaplan (4core)
+   - thread pool size: 4
+
+Results:
+
+- sequential
+
+Evaluation took: 
+  455.504 seconds of real time 
+  456.770000 seconds of total run time (450.310000 user, 6.460000 system) 
+  [ Run times consist of 41.320 seconds GC time, and 415.450 seconds non-GC time. ] 
+  100.28% CPU 
+  ... 
+
+
+- parallel (4 threads) 
+
+Evaluation took: 
+  275.781 seconds of real time 
+  645.270000 seconds of total run time (631.560000 user, 13.710000 system) 
+  [ Run times consist of 115.050 seconds GC time, and 530.220 seconds non-GC time. ] 
+  233.98% CPU 
+
+
+We can see that the GC time increased from 41.32 sec to 115.05
+sec. Ignore the GC time and we get acceptable speedup, about 2.58x as
+fast and 330% cpu usage. The reason of the extra time consumed in
+non-GC time is yet to be found, it can be caused by cache misses or
+SBCL internal locking.
+
+
+** k-nn
+
+   - machine: kaplan (4core)
+   - thread pool size: 4
+
+Results:
+
+- sequential
+
+Evaluation took:                                                                                                                                             
+  114.333 seconds of real time                                                                                                                               
+  114.630000 seconds of total run time (113.040000 user, 1.590000 system)                                                                                    
+  [ Run times consist of 42.250 seconds GC time, and 72.380 seconds non-GC time. ]                                                                           
+  100.26% CPU           
+
+- parallel (4 threads)
+
+Evaluation took:                                                                                                                                             
+  196.060 seconds of real time                                                                                                                               
+  274.700000 seconds of total run time (254.540000 user, 20.160000 system)                                                                                   
+  [ Run times consist of 132.860 seconds GC time, and 141.840 seconds non-GC time. ]                                                                         
+  140.11% CPU                                                                                                                                                
+  102 lambdas converted                                                                                                                                      
+  ...                            
+
+
+The parallelized k-nn running on 4 cores is a completely failure. The
+main cause as we can see above is the increase of GC time, from 42secs
+to 133secs and it consumes 2/3 of the total execution time.
+
+Ignoring the GC, we get 225% cpu usage and 0.15x as speedup, which is
+still very bad. The reasons are yet to be found.
+

@@ -1,0 +1,2157 @@
+Table of Contents
+*****************
+
+iterate
+1 Introduction
+2 Clauses
+  2.1 Drivers
+    2.1.1 Numerical Iteration
+    2.1.2 Sequence Iteration
+    2.1.3 Generalized Drivers
+    2.1.4 Generators
+    2.1.5 Previous Values of Driver Variables
+  2.2 Variable Binding and Setting
+  2.3 Gathering Clauses
+    2.3.1 Reductions
+    2.3.2 Accumulations
+    2.3.3 Finders
+    2.3.4 Aggregated Boolean Tests
+  2.4 Control Flow
+  2.5 Predicates
+  2.6 Code Placement
+3 Other Features
+  3.1 Multiple Accumulations
+  3.2 Named Blocks
+  3.3 Destructuring
+  3.4 On-line Help
+  3.5 Parallel Binding and Stepping
+4 Types and Declarations
+  4.1 Discussion
+  4.2 Summary
+5 Problems with Code Movement
+6 Differences Between `Iterate' and `Loop'
+7 Rolling Your Own
+  7.1 Introduction
+  7.2 Writing Drivers
+  7.3 Extensibility Aids
+  7.4 Subtleties
+8 Non-portable Extensions to Iterate (Contribs)
+  8.1 An SQL Query Driver for Iterate
+9 Obtaining `Iterate'
+10 Acknowledgements
+Appendix A Don't Loop, Iterate
+  A.1 Introduction
+  A.2 More about `iterate'
+  A.3 Comparisons With Other Iteration Methods
+    A.3.1 `do', `dotimes' and `dolist'
+    A.3.2 Tail Recursion
+    A.3.3 High-order Functions
+    A.3.4 Streams and Generators
+    A.3.5 Series
+    A.3.6 `Prog' and `Go'
+    A.3.7 `Loop'
+  A.4 Implementation
+  A.5 Conclusion
+  A.6 Acknowledgments
+  A.7 Bibliography
+Index
+
+
+iterate
+*******
+
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+     The present manual is a conversion of Jonathan Amsterdam's "The
+     Iterate Manual", MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled "Don't Loop, Iterate."
+
+1 Introduction
+**************
+
+This manual describes `iterate', a powerful iteration facility for
+Common Lisp.  `iterate' provides abstractions for many common iteration
+patterns and allows for the definition of additional patterns.
+`iterate' is a macro that expands into ordinary Lisp at compile-time, so
+it is more efficient than higher-order functions like `map' and
+`reduce'.  While it is similar to `loop', `iterate' offers a more
+Lisp-like syntax and enhanced extensibility.  (For a more complete
+comparison of `iterate' with other iteration constructs, see MIT AI Lab
+Working Paper No. 324, _Don't Loop, Iterate._ also included in this
+manual in *Note Don't Loop Iterate::.)
+
+   An `iterate' form consists of the symbol `iter'(1) followed by one
+or more forms, some of which may be `iterate' _clauses_.  Here is a
+simple example of `iterate' which collects the numbers from 1 to 10
+into a list, and returns the list.  The return value is shown following
+the arrow.
+
+  (iter (for i from 1 to 10)
+        (collect i))          => (1 2 3 4 5 6 7 8 9 10)
+
+   This form contains two clauses: a `for' clause that steps the
+variable `i' over the integers from 1 to 10, and a `collect' clause
+that accumulates its argument into a list.  With a few exceptions, all
+`iterate' clauses have the same format: alternating symbols (called
+_keywords_) and expressions (called _arguments_).  The syntax and
+terminology are those of Common Lisp's keyword lambda lists.  One
+difference is that `iterate''s keywords do not have to begin with a
+colon--though they may, except for the first symbol of a clause.  So
+you can also write `(for i :from 1 :to 10)' if you prefer.
+
+   Any Lisp form can appear in the body of an `iterate', where it will
+have its usual meaning.  `iterate' walks the entire body, expanding
+macros, and recognizing clauses at any level.  This example collects
+all the odd numbers in a list:
+
+  (iter (for el in list)
+        (if (and (numberp el) (oddp el))
+            (collect el)))
+
+   There are clauses for iterating over numbers, lists, arrays and other
+objects, and for collecting, summing, counting, maximizing and other
+useful operations.  `iterate' also supports the creation of new variable
+bindings, stepping over multiple sequences at once, destructuring, and
+compiler declarations of variable types.  The following example
+illustrates some of these features:
+
+  (iter (for (key . item) in alist)
+        (for i from 0)
+        (declare (fixnum i))
+        (collect (cons i key)))
+
+   This loop takes the keys of an alist and returns a new alist
+associating the keys with their positions in the original list.  The
+compiler declaration for `i' will appear in the generated code in the
+appropriate place.
+
+   ---------- Footnotes ----------
+
+   (1) You can also use `iterate', but `iter' is preferred because it
+avoids potential conflicts with possible future additions to Common
+Lisp, and because it saves horizontal space when writing code.
+
+2 Clauses
+*********
+
+Most of `iterate''s clauses will be familiar to `loop' programmers.
+(`loop' is an iteration macro that has been incorporated into Common
+Lisp.  See Guy Steele's _Common Lisp, 2nd Edition_.)  In nearly all
+cases they behave the same as their `loop' counterparts, so a `loop'
+user can switch to `iterate' with little pain (and much gain).
+
+   All clauses with the standard keyword-argument syntax consist of two
+parts: a _required_ part, containing keywords that must be present and
+in the right order; and an _optional_ part, containing keywords that
+may be omitted and, if present, may occur in any order.  In the
+descriptions below, the parts are separated by the Lisp lambda-list
+keyword `&optional'.
+
+2.1 Drivers
+===========
+
+An iteration-driving clause conceptually causes the iteration to go
+forward.  Driver clauses in `iterate' allow iteration over numbers,
+lists, vectors, hashtables, packages, files and streams.
+Iteration-driving clauses must appear at the top level of an `iterate'
+form; they cannot be nested inside another clause.  The driver variable
+is updated at the point where the driver clause occurs.  Before the
+clause is executed for the first time, the value of the variable is
+undefined.
+
+   Multiple drivers may appear in a single `iterate' form, in which
+case all of the driver variables are updated each time through the
+loop, in the order in which the clauses appear.  The first driver to
+terminate will terminate the entire loop.
+
+   In all cases, the value of the driver variable on exit from the loop,
+including within the epilogue code (see the `finally' clause), is
+undefined.
+
+   All the parameters of a driver clause are evaluated once, before the
+loop begins.  Hence it is not possible to change the bounds or other
+properties of an iteration by side-effect from within the loop.
+
+   With one exception, driver clauses begin with the word `for' (or the
+synonym `as') and mention an iteration variable, which is given a
+binding within the `iterate' form.  The exception is `repeat', which
+just executes a loop a specified number of times:
+
+ -- Clause: repeat N
+     Repeat the loop N times.  For example:
+
+       (iter (repeat 100)
+             (print "I will not talk in class."))
+
+     If _n <= 0_ , then loop will never be executed.  If N is not an
+     integer, the actual number of executions will be _ceil(n)_ .
+
+2.1.1 Numerical Iteration
+-------------------------
+
+ -- Clause: for VAR `&sequence'
+     The general form for iterating over a sequence of numbers requires
+     a variable and, optionally, one or more keywords that provide the
+     bounds and step size of the iteration.  The `&sequence' lambda-list
+     keyword is a shorthand for these sequence keywords.  They are:
+     `from', `upfrom', `downfrom', `to', `downto', `above', `below' and
+     `by'.  `from' provides the starting value for VAR and defaults to
+     zero.  `to' provides a final value and implies that the successive
+     values of VAR will be increasing; `downto' implies that they will
+     be decreasing.  The loop terminates when VAR passes the final value
+     (i.e. becomes smaller or larger than it, depending on the
+     direction of iteration); in other words, the loop body will never
+     be executed for values of VAR past the final value.  `below' and
+     `above' are similar to `to' and `downto', except that the loop
+     terminates when VAR equals or passes the final value.
+
+     If no final value is specified, the variable will be stepped
+     forever.  Using `from' or `upfrom' will result in increasing
+     values, while `downfrom' will give decreasing values.
+
+     On each iteration, VAR is incremented or decremented by the value
+     of the sequence keyword `by', which defaults to 1.  It should
+     always be a positive number, even for downward iterations.
+
+     In the following examples, the sequence of numbers generated is
+     shown next to the clause.
+
+       (for i upfrom 0) => 0 1 2 ...
+       (for i from 5) => 5 6 7 ...    ; either from or upfrom is okay
+       (for i downfrom 0) => 0 -1 -2 ...
+       (for i from 1 to 3) => 1 2 3
+       (for i from 1 below 3) => 1 2
+       (for i from 1 to 3 by 2) => 1 3
+       (for i from 1 below 3 by 2) => 1
+       (for i from 5 downto 3) => 5 4 3
+
+2.1.2 Sequence Iteration
+------------------------
+
+There are a number of clauses for iterating over sequences.  In all of
+them, the argument following `for' may be a list instead of a symbol,
+in which case destructuring is performed.  See *Note Destructuring::.
+
+ -- Clause: for VAR *in* LIST `&optional' `by' STEP-FUNCTION
+     VAR is set to successive elements of list. STEP-FUNCTION, which
+     defaults to `cdr', is used to obtain the next sublist.
+
+     This clause uses `endp' to test for the end of a list, hence
+     should signal an error when processing an improper list whose final
+     `cdr' is not `nil'--like `loop'.  Prior to 2007, `iterate' would
+     default to `atom' and silently exit.
+
+          Compatibility Note: The original implementation used the
+          variable `iterate::*list-end-test*', defaulting to `atom'.
+          Years later, it was deemed unacceptable for the semantics
+          _not_ to be lexically apparent from the iteration form so
+          this variable was removed.  If your application depends on
+          the original behaviour, the ancient `for VAR in' is
+          equivalent to `for (VAR) on'.
+
+ -- Clause: for VAR *on* LIST `&optional' `by' STEP-FUNCTION
+     VAR is set to successive sublists of list.  STEP-FUNCTION (default
+     `cdr') is used as in `for... in'.
+
+     This clause uses `atom' to test for the end of a list, so it can
+     be used with dotted lists--like `loop'.
+
+ -- Clause: for VAR *in-vector* VECTOR `&sequence'
+     VAR takes on successive elements from VECTOR.  The vector's
+     fill-pointer is observed.  Here and in subsequent clauses, the
+     `&sequence' keywords include `with-index', which takes a symbol as
+     argument and uses it for the index variable instead of an
+     internally generated symbol.  The other `&sequence' keywords
+     behave as in numerical iteration, except that the default iteration
+     bounds are the bounds of the vector.  E.g. in `(for i in-vector v
+     downto 3)', `i' will start off being bound to the last element in
+     `v', and will be set to preceding elements down to and including
+     the element with index 3.
+
+ -- Clause: for VAR *in-sequence* SEQ `&sequence'
+     This uses Common Lisp's generalized sequence functions, `elt' and
+     `length', to obtain elements and determine the length of SEQ.
+     Hence it will work for any sequence, including lists, and will
+     observe the fill-pointers of vectors.
+
+ -- Clause: for VAR *in-string* STRING `&sequence'
+     VAR is set to successive characters of STRING.
+
+ -- Clause: for VAR *index-of-vector* VECTOR `&sequence'
+ -- Clause: for VAR *index-of-sequence* SEQUENCE `&sequence'
+ -- Clause: for VAR *index-of-string* STRING `&sequence'
+     VAR is set to successive indices of the sequence.  These clauses
+     avoid the overhead of accessing the sequence elements for those
+     applications where they do not need to be examined, or are examined
+     rarely.  They admit all the optional keywords of the other sequence
+     drivers except the (redundant) `with-index' keyword.
+
+ -- Clause: for (KEY VALUE) *in-hashtable* TABLE
+     KEY and VALUE, which must appear as shown in a list and may be
+     destructuring templates, are set to the keys and values of TABLE.
+     If KEY is `nil', then the hashtable's keys will be ignored;
+     similarly for VALUE.  The order in which elements of TABLE will be
+     retrieved is unpredictable.
+
+ -- Clause: for VAR *in-package* PACKAGE `&optional' `external-only' EXT
+     Iterates over all the symbols in PACKAGE, or over only the
+     external symbols if EXT is specified and non-`nil'.  EXT is not
+     evaluated.  The same symbol may appear more than once.
+
+ -- Clause: for VAR *in-packages* `&optional' `having-access'
+          SYMBOL-TYPES
+     Iterates over all the symbols from the list of packages denoted by
+     the descriptor PACKAGES and having accessibility (or visibility)
+     given by SYMBOL-TYPES.  This defaults to the list `(:external
+     :internal :inherited)' and is not evaluated.  VAR must be a list
+     of up to three variables: in each iteration, these will be set to
+     a symbol, its access-type and package (as per
+     `with-package-iterator' in ANSI CL).  The same symbol may appear
+     more than once.
+
+ -- Clause: for VAR *in-file* NAME `&optional' `using' READER
+     Opens the file NAME (which may be a string or pathname) for input,
+     and iterates over its contents.  READER defaults to `read', so by
+     default _var_ will be bound to the successive forms in the file.
+     The `iterate' body is wrapped in an `unwind-protect' to ensure
+     that the file is closed no matter how the `iterate' is exited.
+
+ -- Clause: for VAR *in-stream* STREAM `&optional' `using' READER
+     Like `for... in-file', except that STREAM should be an existing
+     stream object that supports input operations.
+
+2.1.3 Generalized Drivers
+-------------------------
+
+These are primarily useful for writing drivers that can also be used as
+generators (see *Note Generators::).
+
+ -- Clause: for VAR *next* EXPR
+     VAR is set to EXPR each time through the loop.  Destructuring is
+     performed.  When the clause is used as a generator, EXPR is the
+     code that is executed when `(next _var_)' is encountered (see
+     *Note Generators::).  EXPR should compute the first value for VAR,
+     as well as all subsequent values, and is responsible for
+     terminating the loop.  For compatibility with future versions of
+     `iterate', this termination should be done with `terminate', which
+     can be considered a synonym for `finish' (see *Note Control
+     Flow::).
+
+     As an example, the following clauses are equivalent to `(for i
+     from 1 to 10)':
+
+       (initially (setq i 0))
+       (for i next (if (> i 10) (terminate) (incf i)))
+
+ -- Clause: for VAR `do-next' FORM
+     FORM is evaluated each time through the loop.  Its value is NOT
+     set to VAR; that is FORM's job.  VAR is only present so that
+     `iterate' knows it is a driver variable.
+     `(for VAR next EXPR)' is equivalent to `(for VAR do-next (dsetq
+     VAR EXPR))'.  (See *Note Destructuring:: for an explanation of
+     `dsetq'.)
+
+2.1.4 Generators
+----------------
+
+In all of the above clauses, the driver variable is updated on each
+iteration.  Sometimes it is desirable to have greater control over
+updating.  For instance, consider the problem of associating numbers,
+in increasing order and with no gaps, with the non-`nil' elements of a
+list.  One obvious first pass at writing this is:
+
+  (iter (for el in list)
+        (for i upfrom 1)
+        (if el (collect (cons el i))))
+
+   But on the list `(a b nil c)' this produces `((a . 1) (b . 2) (c .
+4))' instead of the desired `((a . 1) (b . 2) (c . 3))'.  The problem
+is that `i' is incremented each time through the loop, even when `el'
+is `nil'.
+
+   The problem could be solved elegantly if we could step `i' only when
+we wished to.  This can be accomplished for any `iterate' driver by
+writing `generate' (or its synonym `generating') instead of `for'.
+Doing so produces a _generator_--a driver whose values are yielded
+explicitly.  To obtain the next value of a generator variable V, write
+`(next V)'.  The value of a `next' form is the next value of _v_, as
+determined by its associated driver clause.  `next' also has the
+side-effect of updating V to that value.  If there is no next value,
+`next' will terminate the loop, just as with a normal driver.
+
+   Using generators, we can now write our example like this:
+
+  (iter (for el in list)
+        (generate i upfrom 1)
+        (if el (collect (cons el (next i)))))
+
+   Now `i' is updated only when `(next i)' is executed, and this occurs
+only when `el' is non-`nil'.
+
+   To better understand the relationship between ordinary drivers and
+generators, observe that we can rewrite an ordinary driver using its
+generator form immediately followed by `next', as this example shows:
+
+  (iter (generating i from 1 to 10)
+        (next i)
+        ...)
+
+   Provided that the loop body contains no `(next i)' forms, this will
+behave just as if we had written `(for i from 1 to 10)'.
+
+   We can still refer to a driver variable V without using `next'; in
+this case, its value is that given to it by the last evaluation of
+`(next V)'.  Before `(next V)' has been called the first time, the
+value of V is undefined.
+
+   This semantics is more flexible than one in which V begins the loop
+bound to its first value and calls of `next' supply subsequent values,
+because it means the loop will not terminate too soon if the
+generator's sequence is empty.  For instance, consider the following
+code, which tags non-`nil' elements of a list using a list of tags, and
+also counts the null elements.  (We assume there are at least as many
+tags as non-`nil' elements.)
+
+  (let* ((counter 0)
+         (tagged-list (iter (for el in list)
+                            (generating tag in tag-list)
+                            (if (null el)
+                                (incf counter)
+                                (collect (cons el (next tag)))))))
+    ...)
+
+   It may be that there are just as many tags as non-null elements of
+`list'.  If all the elements of `list' are null, we still want the
+counting to proceed, even though `tag-list' is `nil'.  If `tag' had to
+be assigned its first value before the loop begins, we would have had
+to terminate the loop before the first iteration, since when `tag-list'
+is `nil', `tag' has no first value.  With the existing semantics,
+however, `(next tag)' will never execute, so the iteration will cover
+all the elements of `list'.
+
+   When the "variable" of a driver clause is actually a destructuring
+template containing several variables, all the variables are eligible
+for use with `next'.  As before, `(next V)' evaluates to V's next
+value; but the effect is to update all of the template's variables.
+For instance, the following code will return the list `(a 2 c)'.
+
+  (iter (generating (key . item) in '((a . 1) (b . 2) (c . 3)))
+        (collect (next key))
+        (collect (next item)))
+
+   Only driver clauses with variables can be made into generators.  This
+includes all clauses mentioned so far except for `repeat'.  It does
+_not_ include `for... previous', `for...  =', `for... initially...
+then' or `for...  first... then' (see below).
+
+2.1.5 Previous Values of Driver Variables
+-----------------------------------------
+
+Often one would like to access the value of a variable on a previous
+iteration.  `iterate' provides a special clause for accomplishing this.
+
+ -- Clause: for PVAR *previous* VAR `&optional' `initially' INIT `back'
+          N
+     Sets PVAR to the previous value of VAR, which should be a driver
+     variable, a variable from another `for... previous' clause, or a
+     variable established by a `for... =', `for...  initially... then'
+     or `for...  first... then' clause (see *Note Variable Binding and
+     Setting::).  Initially, PVAR is given the value INIT (which
+     defaults to `nil').  The INIT expression will be moved outside the
+     loop body, so it should not depend on anything computed within the
+     loop.  PVAR retains the value of INIT until VAR is set to its
+     second value, at which point PVAR is set to VAR's first value; and
+     so on.
+
+     The argument N to `back' must be a constant, positive integer, and
+     defaults to 1.  It determines how many iterations back PVAR should
+     track VAR.  For example, when N is 2, then PVAR will be assigned
+     VAR's first value when VAR is set to its third value.
+
+     A `for... previous' clause may occur after or before its
+     associated driver clause.  `for... previous' works with generators
+     as well as ordinary drivers.
+
+     Example:
+
+       (iter (for el in '(1 2 3 4))
+             (for p-el previous el)
+             (for pp-el previous p-el initially 0)
+             (collect pp-el))
+
+     This evaluates to `(0 0 1 2)'.  It could have been written more
+     economically as
+
+       (iter (for el in '(1 2 3 4))
+             (for pp-el previous el back 2 initially 0)
+             (collect pp-el))
+
+2.2 Variable Binding and Setting
+================================
+
+Several clauses exist for establishing new variable bindings or for
+setting variables in the loop.  They all support destructuring.
+
+ -- Clause: with VAR `&optional' `=' VALUE
+     Causes VAR to be bound to value before the loop body is entered.
+     If VALUE is not supplied, VAR assumes a default binding, which
+     will be `nil' in the absence of declarations.  Also, if VALUE is
+     not supplied, no destructuring is performed; instead, VAR may be a
+     list of symbols, all of which are given default bindings.  If
+     VALUE is supplied, VAR is bound to it, with destructuring.
+
+     Because `with' creates bindings whose scope includes the entire
+     `iterate' form, it is good style to put all `with' clauses at the
+     beginning.
+
+     Successive occurrences of `with' result in sequential bindings (as
+     with `let*').  There is no way to obtain parallel bindings; see
+     *Note Parallel Binding and Stepping:: for a rationale.
+
+ -- Clause: for VAR *=* EXPR
+     On each iteration, EXPR is evaluated and VAR is set to its value.
+
+     This clause may appear to do the same thing as `for... next'.  In
+     fact, they are quite different.  `for... =' provides only three
+     services: it sets up a binding for VAR, sets it to EXPR on each
+     iteration, and makes it possible to use `for...  previous' with
+     VAR.  `for... next' provides these services in addition to the
+     ability to turn the driver into a generator.
+
+
+ -- Clause: for VAR *initially* INIT-EXPR *then* THEN-EXPR
+     Before the loop begins, VAR is set to INIT-EXPR; on all iterations
+     after the first it is set to THEN-EXPR. This clause must occur at
+     top-level.  INIT-EXPR will be moved outside the loop body and
+     THEN-EXPR will be moved to the end of the loop body, so they are
+     subject to code motion problems (see *Note Problems with Code
+     Movement::).
+
+     This clause may appear to be similar to `for... next', but in fact
+     they differ significantly.  `for... initially...  then' is
+     typically used to give VAR its first value before the loop begins,
+     and subsequent values on following iterations.  This is
+     incompatible with generators, whose first value and subsequent
+     values must all be computed by `(next VAR)'.  Also, the update of
+     VAR in `for... initially... then' does not occur at the location
+     of the clause.
+
+     Use `for... initially... then' for one-shot computations where its
+     idiom is more convenient, but use `for... next' for extending
+     `iterate' with new drivers (see *Note Rolling Your Own::).
+
+ -- Clause: for VAR *first* FIRST-EXPR *then* THEN-EXPR
+     The first time through the loop, VAR is set to FIRST-EXPR; on
+     subsequent iterations, it is set to THEN-EXPR.  This differs from
+     `for... initially' in that VAR is set to FIRST-EXPR inside the
+     loop body, so FIRST-EXPR may depend on the results of other
+     clauses.  For instance,
+
+       (iter (for num in list)
+             (for i first num then (1+ i))
+             ...)
+
+     will set `i' to the first element of `list' on the first
+     iteration, whereas
+
+       (iter (for num in list)
+             (for i initially num then (1+ i))
+             ...)
+
+     is probably erroneous; `i' will be bound to `num''s default
+     binding (usually `nil') for the first iteration.
+
+     Compatibility Note: `loop''s `for... =' works like `iterate''s, but
+     `loop' used the syntax `for... =... then' to mean `for...
+     initially... then'.  It was felt that these two operations were
+     sufficiently different to warrant different keywords.
+
+     Also, the `for' in the above three clauses is misleading, since
+     none is true driver (e.g. none has a corresponding `generate'
+     form).  `setting' would have been a better choice, but `for' was
+     used to retain some compatibility with `loop'.
+
+2.3 Gathering Clauses
+=====================
+
+Many of `iterate''s clauses accumulate values into a variable, or set a
+variable under certain conditions.  At the end of the loop, this
+variable contains the desired result.  All these clauses have an
+optional `into' keyword, whose argument should be a symbol.  If the
+`into' keyword is not supplied, the accumulation variable will be
+internally generated and its value will be returned at the end of the
+loop; if a variable is specified, that variable is used for the
+accumulation, and is not returned as a result--it is up to the user to
+return it explicitly, in the loop's epilogue code (see `finally').  It
+is safe to examine the accumulation variable during the loop, but it
+should not be modified.
+
+   These clauses all begin with a verb.  When the verb does not conflict
+with an existing Common Lisp function, then it may be used in either
+its infinitival or present-participle form (e.g. `sum', `summing').
+However, when there is a conflict with Common Lisp, only the
+present-participle form may be used (e.g. `unioning').  This is to
+prevent `iterate' clauses from clashing with Common Lisp functions.
+
+2.3.1 Reductions
+----------------
+
+_Reduction_ is an extremely common iteration pattern in which the
+results of successive applications of a binary operation are
+accumulated.  For example, a loop that computes the sum of the elements
+of a list is performing a reduction with the addition operation.  This
+could be written in Common Lisp as `(reduce #'+ list)' or with
+`iterate' as
+
+  (iter (for el in list)
+        (sum el))
+
+ -- Clause: sum EXPR `&optional' `into' VAR
+     Each time through the loop, EXPR is evaluated and added to a
+     variable, which is bound initially to zero.  If EXPR has a type,
+     it is _not_ used as the type of the sum variable, which is always
+     `number'.  To get the result variable to be of a more specific
+     type, use an explicit variable, as in
+
+       (iter (for el in number-list)
+             (sum el into x)
+             (declare (fixnum x))
+             (finally (return x)))
+
+ -- Clause: multiply EXPR `&optional' `into' VAR
+     Like `sum', but the initial value of the result variable is 1, and
+     the variable is updated by multiplying EXPR into it.
+
+ -- Clause: counting EXPR `&optional' `into' VAR
+     EXPR is evaluated on each iteration.  If it is non-`nil', the
+     accumulation variable, initially zero, is incremented.
+
+ -- Clause: maximize EXPR `&optional' `into' VAR
+ -- Clause: minimize EXPR `&optional' `into' VAR
+     EXPR is evaluated on each iteration and its extremum (maximum or
+     minimum) is stored in the accumulation variable.  If EXPR is never
+     evaluated, then the result is `nil' (if the accumulation variable
+     is untyped) or 0 (if it has a numeric type).
+
+ -- Clause: reducing EXPR `by' FUNC `&optional'
+     `initial-value' INIT-VAL `into' VAR
+
+     This is a general way to perform reductions.  FUNC should be a
+     function of two arguments, the first of which will be the value
+     computed so far and the second of which will be the value of EXPR.
+     It should return the new value.  `reducing' is roughly equivalent
+     to the Common Lisp `(reduce FUNC SEQUENCE :key EXPR-FUNCTION)',
+     where EXPR-FUNCTION is used to derive values from the successive
+     elements of SEQUENCE.
+
+     If the `reducing' clause is never executed, the result is
+     undefined.
+
+     It is not necessary to provide an initial value, but better code
+     can be generated if one is supplied.  Regardless of its location
+     in the `iterate' body, INIT-VAL will be evaluated before the loop
+     is entered, so it should not depend on any value computed inside
+     the `iterate' form.
+
+
+2.3.2 Accumulations
+-------------------
+
+All the predefined accumulation clauses add values to a sequence.  If
+the sequence is a list, they all have the property that the partial
+list is kept in the correct order and available for inspection at any
+point in the loop.
+
+ -- Clause: collect EXPTR `&optional'
+     `into' VAR `at' PLACE `result-type' TYPE
+
+     Produces a sequence of the values of EXPTR on each iteration.
+     PLACE indicates where the next value of EXPTR is added to the list
+     and may be one of the symbols `start', `beginning' (a synonym for
+     `start') or `end'.  The symbol may be quoted, but need not be.
+     The default is `end'.  For example,
+
+       (iter (for i from 1 to 5)
+             (collect i))
+
+     produces `(1 2 3 4 5)', whereas
+
+       (iter (for i from 1 to 5)
+             (collect i at beginning))
+
+     produces `(5 4 3 2 1)' (and is likely to be faster in most Common
+     Lisp implementations).
+
+     If TYPE is provided, it should be a subtype of `sequence'.  The
+     default is `list'.  Specifying a type other than `list' will
+     result in `collect' returning a sequence of that type.  _However_,
+     the type of the sequence being constructed when inside the loop
+     body is undefined when a non-`list' type is specified.  (As with
+     PLACE, quoting TYPE is optional.)
+
+ -- Clause: adjoining EXPTR `&optional' `into' VAR `test' TEST `at'
+          PLACE `result-type' TYPE
+     Like `collect', but only adds the value of EXPTR if it is not
+     already present.  TEST, which defaults to `#'eql', is the test to
+     be used with `member'.
+
+ -- Clause: appending EXPR `&optional' `into' VAR `at' PLACE
+ -- Clause: nconcing EXPR `&optional' `into' VAR `at' PLACE
+ -- Clause: unioning EXPR `&optional' `into' VAR `test' TEST `at' PLACE
+ -- Clause: nunioning EXPR `&optional' `into' VAR `test' TEST `at' PLACE
+     These are like `collect', but behave like the Common Lisp
+     functions `append', `nconc', `union' or `nunion'.  As in Common
+     Lisp, they work only on lists.  Also as in Common Lisp, `unioning'
+     and `nunioning' assume that the value of EXPR contains no
+     duplicates.
+
+ -- Clause: accumulate EXPR `by' FUNC `&optional' `initial-value'
+          INIT-VAL `into' VAR
+     This is a general-purpose accumulation clause.  FUNC should be a
+     function of two arguments, the value of EXPR and the value
+     accumulated so far in the iteration, and it should return the
+     updated value.  If no initial value is supplied, `nil' is used.
+
+     The differences between `accumulate' and `reducing' are slight.
+     One difference is that the functions take their arguments in a
+     different order.  Another is that in the absence of INIT-VAL,
+     `accumulate' will use `nil', whereas `reducing' will generate
+     different code that avoids any dependence on the initial value.
+     The reason for having both clauses is that one usually thinks of
+     reductions (like `sum') and accumulations (like `collect') as
+     different beasts.
+
+2.3.3 Finders
+-------------
+
+A _finder_ is a clause whose value is an expression that meets some
+condition.
+
+ -- Clause: finding EXPR *such-that* TEST `&optionally' `into' VAR
+          `on-failure' FAILURE-VALUE
+     If TEST (which is an expression) ever evaluates to non-`nil', the
+     loop is terminated, the epilogue code is run and the value of EXPR
+     is returned.  Otherwise, `nil' (or FAILURE-VALUE, if provided) is
+     returned.  If VAR is provided, it will have either the non-`nil'
+     value of EXPR or FAILURE-VALUE when the epilogue code is run.
+
+     As a special case, if the TEST expression is a sharp-quoted
+     function, then it is applied to EXPR instead of being simply
+     evaluated.  E.g. `(finding x such-that #'evenp)' is equivalent to
+     `(finding x such-that (evenp x))'.
+
+     `On-failure' is a misnomer.  Because it is always evaluated, it
+     behaves more like the default third argument to the `gethash'
+     function.  As a result, `on-failure (error "Not found")' makes no
+     sense.  Instead, the clauses `leave' or `thereis' can be used in
+     conjunction with `finally' as follows:
+
+       (iter (for x in '(1 2 3))
+             (if (evenp x) (leave x))
+             (finally (error "not found")))
+
+     This clause may appear multiple times when all defaults are
+     identical.  It can also be used together with either
+     `always'/`never' or `thereis' if their defaults match.  More
+     specifically, `on-failure nil' is compatible with `thereis', while
+     `on-failure t' is compatible with `always' and `never' clauses.
+
+       (iter (for i in '(7 -4 2 -3))
+             (if (plusp i)
+               (finding i such-that (evenp i))
+               (finding (- i) such-that (oddp i))))
+
+ -- Clause: finding EXPR *maximizing* M-EXPR `&optional' `into' VAR
+ -- Clause: finding EXPR *minimizing* M-EXPR `&optional' `into' VAR
+     Computes the extremum (maximum or minimum) value of M-EXPR over
+     all iterations, and returns the value of EXPR corresponding to the
+     extremum.  EXPR is evaluated inside the loop at the time the new
+     extremum is established.  If M-EXPR is never evaluated (due to,
+     for example, being embedded in a conditional clause), then the
+     returned value depends on the type, if any, of EXPR (or VAR, if
+     one is supplied).  If there is no type, the returned value will be
+     `nil'; if the type is numeric, the returned value will be zero.
+
+     For these two clauses, VAR may be a list of two symbols; in that
+     case, the first is used to record EXPR and the second, M-EXPR.
+
+     As with `finding... such-that', if M-EXPR is a sharp-quoted
+     function, then it is called on EXPR instead of being evaluated.
+
+2.3.4 Aggregated Boolean Tests
+------------------------------
+
+ -- Clause: always EXPR
+     If EXPR ever evaluates to `nil', then `nil' is immediately
+     returned; the epilogue code is not executed.  If EXPR never
+     evaluates to `nil', the epilogue code is executed and the last
+     value of EXPR (or `t' if EXPR was never evaluated) is returned
+     (whereas `loop' would constantly return `t').
+
+
+ -- Clause: never EXPR
+     Like `(always (not EXPR))', except it does not influence the last
+     value returned by a possible other `always' clause.  That is,
+
+       (iter (repeat 2)
+             (always 2)
+             (never nil)) => 2 ; not t
+
+ -- Clause: thereis EXPR
+     If EXPR is ever non-`nil', its value is immediately returned
+     without running epilogue code.  Otherwise, the epilogue code is
+     performed and `nil' is returned.
+
+     This clause cannot be used together with `always' or `never',
+     because their defaults are opposed (similarly, `(loop always 3
+     thereis nil)' refuses to compile in some implementations of
+     `loop').
+
+2.4 Control Flow
+================
+
+Several clauses can be used to alter the usual flow of control in a
+loop.
+
+     Note: The clauses of this and subsequent sections don't adhere to
+     `iterate''s usual syntax, but instead use standard Common Lisp
+     syntax.  Hence the format for describing syntax subsequently is
+     like the standard format used in the Common Lisp manual, not like
+     the descriptions of clauses above.
+
+ -- Clause: finish
+     Stops the loop and runs the epilogue code.
+
+ -- Clause: leave `&optional' VALUE
+     Immediately returns VALUE (default `nil') from the current
+     `iterate' form, skipping the epilogue code.  Equivalent to using
+     `return-from'.
+
+ -- Clause: next-iteration
+     Skips the remainder of the loop body and begins the next iteration
+     of the loop.
+
+ -- Clause: while EXPR
+     If EXPR ever evaluates to `nil', the loop is terminated and the
+     epilogue code executed.  Equivalent to `(if (not EXPR) (finish))'.
+
+ -- Clause: until EXPR
+     Equivalent to `(if EXPR (finish))'.
+
+ -- Clause: if-first-time THEN `&optional' ELSE
+     If this clause is being executed for the first time in this
+     invocation of the `iterate' form, then the THEN code is evaluated;
+     otherwise the ELSE code is evaluated.
+
+     `(for VAR first EXPR1 then EXPR2)' is almost equivalent to
+
+       (if-first-time (dsetq VAR EXPR1)
+                      (dsetq VAR EXPR2))
+
+     The only difference is that the `for' version makes VAR available
+     for use with `for... previous'.
+
+2.5 Predicates
+==============
+
+     Compatibility Note: The clauses in this section were added in the
+     twenty-first century and not part of Jonathan Amsterdam's original
+     design.
+
+ -- Clause: first-iteration-p
+     Returns `t' in the first iteration of the loop, otherwise `nil'.
+
+ -- Clause: first-time-p
+     Returns `t' the first time the expression is evaluated, and then
+     `nil' forever.  This clause comes handy when printing (optional)
+     elements separated by a comma:
+
+       (iter (for el in '(nil 1 2 nil 3))
+             (when el
+               (unless (first-time-p)
+                 (princ ", "))
+               (princ el)))
+       -| 1, 2, 3
+
+2.6 Code Placement
+==================
+
+When fine control is desired over where code appears in a loop
+generated by `iterate', the following special clauses may be useful.
+They are all subject to code-motion problems (see *Note Problems with
+Code Movement::).
+
+ -- Clause: initially `&rest' FORMS
+     The lisp FORMS are placed in the prologue section of the loop,
+     where they are executed once, before the loop body is entered.
+
+ -- Clause: after-each `&rest' FORMS
+     The FORMS are placed at the end of the loop body, where they are
+     executed after each iteration.  Unlike the other clauses in this
+     section, FORMS may contain `iterate' clauses.
+
+ -- Clause: else `&rest' FORMS
+     The lisp FORMS are placed in the epilogue section of the loop,
+     where they are executed if this `else' clause is never met during
+     execution of the loop and the loop terminates normally.
+
+ -- Clause: finally `&rest' FORMS
+     The lisp FORMS are placed in the epilogue section of the loop,
+     where they are executed after the loop has terminated normally.
+
+ -- finally-protected: `&rest' FORMS
+     The lisp FORMS are placed in the second form of an
+     `unwind-protect' outside the loop.  They are always executed after
+     the loop has terminated, regardless of how the termination
+     occurred.
+
+3 Other Features
+****************
+
+3.1 Multiple Accumulations
+==========================
+
+It is permitted to have more than one clause accumulate into the same
+variable, as in the following:
+
+  (iter (for i from 1 to 10)
+        (collect i into nums)
+        (collect (sqrt i) into nums)
+        (finally (return nums)))
+
+   Clauses can only accumulate into the same variable if they are
+compatible.  `collect', `adjoining', `appending', `nconcing',
+`unioning' and `nunioning' are compatible with each other; `sum',
+`multiply' and `counting' are compatible; `always' and `never' are
+compatible; `finding'... `such-that' is compatible with either
+`thereis' or `always' and `never' when their defaults match; and
+`maximize' and `minimize' clauses are compatible only with other
+`maximize' and `minimize' clauses, respectively.
+
+3.2 Named Blocks
+================
+
+Like Common Lisp `block's, `iterate' forms can be given names.  The
+name should be a single symbol, and it must be the first form in the
+`iterate'.  The generated code behaves exactly like a named block; in
+particular, `(return-from NAME)' can be used to exit it:
+
+  (iter fred
+        (for i from 1 to 10)
+        (iter barney
+              (for j from i to 10)
+              (if (> (* i j) 17)
+                  (return-from fred j))))
+
+   An `iterate' form that is not given a name is implicitly named `nil'.
+
+   Sometimes one would like to write an expression in an inner `iterate'
+form, but have it processed by an outer `iterate' form.  This is
+possible with the `in' clause.
+
+ -- Clause: in NAME `&rest' FORMS
+     Evaluates FORMS as if they were part of the `iterate' form named
+     NAME.  In other words, `iterate' clauses are processed by the
+     `iterate' form named NAME, and not by any `iterate' forms that
+     occur inside NAME.
+
+     As an example, consider the problem of collecting a list of the
+     elements in a two-dimensional array.  The naive solution,
+       (iter (for i below (array-dimension ar 0))
+             (iter (for j below (array-dimension ar 1))
+                   (collect (aref ar i j))))
+     is wrong because the list created by the inner `iterate' is simply
+     ignored by the outer one.  But using `in' we can write:
+       (iter outer (for i below (array-dimension ar 0))
+             (iter (for j below (array-dimension ar 1))
+                   (in outer (collect (aref ar i j)))))
+     which has the desired result.
+
+3.3 Destructuring
+=================
+
+In many places within `iterate' clauses where a variable is expected, a
+list can be written instead.  In these cases, the value to be assigned
+is _destructured_ according to the pattern described by the list.  As a
+simple example, the clause
+  (for (key . item) in alist)
+   will result in `key' being set to the `car' of each element in
+`alist', and `item' being set to the `cdr'.  The pattern list may be
+nested to arbitrary depth, and (as the example shows) need not be
+terminated with `nil'; the only requirement is that each leaf be a
+bindable symbol (or `nil', in which case no binding is generated for
+that piece of the structure).
+
+   Sometimes, you might like to do the equivalent of a
+`multiple-value-setq' in a clause.  This "multiple-value destructuring"
+can be expressed by writing `(values PAT_1 PAT_2 ...)' for a
+destructuring pattern, as in
+
+  (for (values (a . b) c d) = (three-valued-function ...))
+
+   Note that the PAT_I can themselves be destructuring patterns (though
+not multiple-value destructuring patterns).  You can't do
+multiple-value destructuring in a `with' clause; instead wrap the whole
+`iterate' form in a `multiple-value-bind'.
+
+     Rationale: There are subtle interactions between variable
+     declarations and evaluation order that make the correct
+     implementation of multiple-value destructuring in a `with'
+     somewhat tricky.
+
+   The destructuring feature of `iterate' is available as a separate
+mechanism, using the `dsetq' macro:
+
+ -- Macro: dsetq TEMPLATE EXPR
+     Performs destructuring of EXPR using TEMPLATE.  May be used
+     outside of an `iterate' form.  Yields the primary value of EXPR.
+
+3.4 On-line Help
+================
+
+There is a limited facility for on-line help, in the form of the
+`display-iterate-clauses' function.
+
+ -- Function: display-iterate-clauses `&optional' CLAUSE-SPEC
+     Displays a list of `iterate' clauses.  If CLAUSE-SPEC is not
+     provided, all clauses are shown; if it is a symbol, all clauses
+     beginning with that symbol are shown; and if it is a list of
+     symbols, all clauses for which CLAUSE-SPEC is a prefix are shown.
+
+3.5 Parallel Binding and Stepping
+=================================
+
+The parallel binding and stepping of variables is a feature that
+`iterate' does _not_ have.  This section attempts to provide a
+rationale.
+
+   We say that two variables are bound _in parallel_ if neither binding
+shadows the other.  This is the usual semantics of `let' (as opposed to
+`let*').  Similarly, we can say that iteration variables are stepped in
+parallel if neither variable is updated before the other, conceptually
+speaking; in other words, if the code to update each variable can
+reference the old values of both variables.
+
+   `loop' allows parallel binding of variables and parallel stepping of
+driver variables.  My view is that if you are depending on the
+serial/parallel distinction, you are doing something obscure.  If you
+need to bind variables in parallel using `with', then you must be using
+a variable name that shadows a name in the existing lexical
+environment.  Don't do that.  The most common use for parallel stepping
+is to track the values of variables on the previous iteration, but in
+fact this does not require parallel stepping at all; the following will
+work:
+
+  (iter (for current in list)
+        (for prev previous current)
+        ...)
+
+4 Types and Declarations
+************************
+
+4.1 Discussion
+==============
+
+Sometimes efficiency dictates that the types of variables be declared.
+This type information needs to be communicated to `iterate' so it can
+bind variables to appropriate values.  Furthermore, `iterate' must often
+generate internal variables invisible to the user; there needs to be a
+way for these to be declared.
+
+   As an example, consider this code, which will return the number of
+odd elements in `number-list':
+
+  (iter (for el in number-list)
+        (count (oddp el)))
+
+   In processing this form, `iterate' will create an internal variable,
+let us call it `list17', to hold the successive `cdr's of
+`number-list', and will bind the variable to `number-list'.  It will
+also generate a default binding for `el'; only inside the body of the
+loop will `el' be set to the `car' of `list17'.  Finally, `iterate'
+will generate a variable, call it `result', to hold the result of the
+count, and will bind it to zero.
+
+   When dealing with type declarations, `iterate' observes one simple
+rule: _it will never generate a declaration unless requested to do so_.
+The reason is that such declarations might mask errors in compiled code
+by avoiding error-checks; the resulting problems would be doubly hard
+to track down because the declarations would be hidden from the
+programmer.  Of course, a compiler might omit error-checks even in the
+absence of declarations, though this behavior can usually be avoided,
+e.g. by saying `(declaim (optimize (safety 3)))'.
+
+   So, the above `iterate' form will generate code with no declarations.
+But say we wish to declare the types of `el' and the internal variables
+`list17' and `result'.  How is this done?
+
+   Declaring the type of `el' is easy, since the programmer knows the
+variable's name:
+
+  (iter (for el in number-list)
+        (declare (fixnum el))
+        (counting (oddp el)))
+
+   `iterate' can read variable type declarations like this one.  Before
+processing any clauses, it scans the entire top-level form for type
+declarations and records the types, so that variable bindings can be
+performed correctly.  In this case, `el' will be bound to zero instead
+of `nil'.  Also, `iterate' collects all the top-level declarations and
+puts them at the begining of the generated code, so it is not necessary
+to place all declarations at the beginning of an `iterate' form;
+instead, they can be written near the variables whose types they
+declare.
+
+   Since `iterate' is not part of the compiler, it will not know about
+declarations that occur outside an `iterate' form; these declarations
+must be repeated inside the form.
+
+   Here is another way we could have declared the type of `el':
+
+  (iter (for (the fixnum el) in number-list)
+        (counting (oddp el)))
+
+   `iterate' extends the Common Lisp `the' form to apply to variables
+as well as value-producing forms; anywhere a variable is allowed--in a
+`with' clause, as the iteration variable in a driver clause, as the
+`into' argument of an accumulation clause, even inside a destructuring
+template--you can write `(the TYPE SYMBOL)' instead.
+
+   There is one crucial difference between using a `the' form and
+actually declaring the variable: explicit declarations are always
+placed in the generated code, but type information from a `the' form is
+not turned into an actual declaration unless you tell `iterate' to do
+so using `iterate:declare-variables'.  See below.
+
+   Declaring the types of internal variables is harder than declaring
+the types of explicitly mentioned variables, since their names are
+unknown.  You do it by declaring `iterate:declare-variables' somewhere
+inside the top level of the `iterate' form.  (This will also generate
+declarations for variables declared using `the'.)  `iterate' does not
+provide much selectivity here: it's all or none.  And unfortunately,
+since `iterate' is not privy to compiler information but instead reads
+declarations itself, it will not hear if you `(declaim
+(iterate:declare-variables))'.  Instead, set the variable
+`iterate::*always-declare-variables*' to `t' at compile-time, using
+`eval-when'.
+
+   To determine the appropriate types for internal variables, `iterate'
+uses three sources of information:
+
+   * Often, the particular clause dictates a certain type for a
+     variable; `iterate' will use this information when available.  In
+     the current example, the variable `list17' will be given the type
+     `list', since that is the only type that makes sense; and the
+     variable `result' will be given the type `fixnum', on the
+     assumption that you will not be counting high enough to need
+     bignums.  You can override this assumption only by using and
+     explicitly declaring a variable:
+
+       (iter (declare (iterate:declare-variables))
+             (for el in number-list)
+             (count (oddp el) into my-result)
+             (declare (integer my-result))
+             (finally (return my-result)))
+
+     Other examples of the type assumptions that `iterate' makes are:
+     type `list' for `into' variables of collection clauses; type
+     `list' for expressions that are to be destructured; type `vector'
+     for the variable holding the vector in a `for... in-vector'
+     clause, and similarly for `string' and the `for... in-string'
+     clause; and the implementation-dependent type `(type-of
+     array-dimension-limit)' for the index and limit variables
+     generated by sequence iteration drivers like `for... in-vector'
+     and `for...  in-string' (but not `for... in-sequence', because it
+     may be used to iterate over a list).
+
+   * Sometimes, `iterate' will examine expressions and try to determine
+     their types in a simple-minded way.  If the expression is
+     self-evaluating (like a number, for instance), `iterate' knows
+     that the expression's type is the same as the type of the value it
+     denotes, so it can use that type.  If the expression is of the
+     form `(the TYPE EXPR)', `iterate' is smart enough to extract TYPE
+     and use it.  However, the current version of `iterate' does not
+     examine declarations of function result types or do any type
+     inference.  It will not determine, for example, that the type of
+     `(+ 3 4)' is `fixnum', or even `number'.
+
+   * In some cases, the type of an internal variable should match the
+     type of some other variable.  For instance, `iterate' generates an
+     internal variable for `(f x)' in the clause `(for i from 1 to (f
+     x))', and in the absence of other information will give it the same
+     type as `i'.  If, however, the expression had been written `(the
+     fixnum (f x))', then `iterate' would have given the internal
+     variable the type `fixnum' regardless of `i''s type.  The type
+     incompatibility errors that could arise in this situation are not
+     checked for.
+
+   Note that if you do declare `iterate:declare-variables', then
+`iterate' may declare user variables as well as internal ones if they do
+not already have declarations, though only for variables that it binds.
+For instance, in this code:
+
+  (iter (declare (iterate:declare-variables))
+        (for i from 1 to 10)
+        (collect i into var))
+
+   the variable `var' will be declared to be of type `list'.
+
+4.2 Summary
+===========
+
+`iterate' understands standard Common Lisp variable type declarations
+that occur within an `iterate' form and will pass them through to the
+generated code.  If the declaration `(iterate:declare-variables)'
+appears at the top level of an `iterate' form, or if
+`iterate::*always-declare-variables*' is non-`nil', then `iterate' will
+use the type information gleaned from user declarations,
+self-evaluating expressions and `the' expressions, combined with
+reasonable assumptions, to determine variable types and declare them.
+
+5 Problems with Code Movement
+*****************************
+
+Some `iterate' clauses, or parts of clauses, result in code being moved
+from the location of the clause to other parts of the loop.  Drivers
+behave this way, as do code-placement clauses like `initially' and
+`finally'.  When using these clauses, there is a danger of writing an
+expression that makes sense in its apparent location but will be
+invalid or have a different meaning in another location.  For example:
+
+  (iter (for i from 1 to 10)
+        (let ((x 3))
+          (initially (setq x 4))))
+
+   While it may appear that the `x' of `(initially (setq x 4))' is the
+same as the `x' of `(let ((x 3)) ...', in fact they are not:
+`initially' moves its code outside the loop body, so `x' would refer to
+a global variable.  Here is another example of the same problem:
+
+  (iter (for i from 1 to 10)
+        (let ((x 3))
+          (collect i into x)))
+
+   If this code were executed, `collect' would create a binding for its
+`x' at the top level of the `iterate' form that the `let' will shadow.
+
+   Happily, `iterate' is smart enough to catch these errors; it walks
+all problematical code to ensure that free variables are not bound
+inside the loop body, and checks all variables it binds for the same
+problem.
+
+   However, some errors cannot be caught:
+
+  (iter (with x = 3)
+        (for el in list)
+        (setq x 1)
+        (reducing el by #'+ initial-value x))
+
+   `reducing' moves its `initial-value' argument to the initialization
+part of the loop in order to produce more efficient code.  Since
+`iterate' does not perform data-flow analysis, it cannot determine that
+`x' is changed inside the loop; all it can establish is that `x' is not
+bound internally.  Hence this code will not signal an error and will
+use 3 as the initial value of the reduction.
+
+   The following list summarizes all cases that are subject to these
+code motion and variable-shadowing problems.
+
+   * Any variable for which `iterate' creates a binding, including
+     those used in `with' and the `into' keyword of many clauses.
+
+   * The special clauses which place code: `initially', `after-each',
+     `else', `finally' and `finally-protected'.
+
+   * The variables of a `next' or `do-next' form.
+
+   * The `initially' arguments of `for... initially...  then' and
+     `for... previous'.
+
+   * The `then' argument of `for... initially... then'.
+
+   * The `initial-value' arguments of `reducing' and `accumulate'.
+
+   * The `on-failure' argument of `finding... such-that'.
+
+6 Differences Between `Iterate' and `Loop'
+******************************************
+
+`loop' contains a great deal of complexity which `iterate' tries to
+avoid.  Hence many esoteric features of `loop' don't exist in
+`iterate'.  Other features have been carried over, but in a cleaned-up
+form.  And of course, many new features have been added; they are not
+mentioned in this list.
+
+   * `iterate''s syntax is more Lisp-like than `loop''s, having a higher
+     density of parens.
+
+   * The current implementation of `iterate', unlike the standardised
+     version of `loop', is extensible (see *Note Rolling Your Own::).
+
+   * `loop' puts the updates of all driver variables at the top of the
+     loop; `iterate' leaves them where the driver clauses appear.  In
+     particular, `iterate' allows to place drivers after `while'
+     clauses.
+
+   * While for the most part `iterate' clauses that resemble `loop'
+     clauses behave similarly, there are some differences.  For
+     instance, there is no `for... =... then' in `iterate'; instead use
+     `for... initially... then'.
+
+   * `loop' binds the variable `it' at certain times to allow
+     pseudo-English expressions like `when EXPR return it'.  In
+     `iterate', you must bind EXPR to a variable yourself.  Note that
+     `when EXPR return it' is like `thereis EXPR' except that the
+     latter is an accumulation clause and therefore competes with other
+     accumulations (remember "Multiple Accumulations" in *Note Other
+     Features::).
+
+   * `loop' has a special `return' clause, illustrated in the previous
+     item.  `iterate' doesn't need one, since an ordinary Lisp `return'
+     has the same effect.
+
+   * `loop' allows for parallel binding and stepping of iteration
+     variables.  `iterate' does not.  (See *Note Parallel Binding and
+     Stepping::.)
+
+   * `loop' and `iterate' handle variable type declarations very
+     differently.  `loop' provides a special syntax for declaring
+     variable types, and does not examine declarations.  Moreover, the
+     standard implementation of `loop' will generate declarations when
+     none are requested.  `iterate' parses standard Common Lisp type
+     declarations, and will never declare a variable itself unless
+     declarations are specifically requested.
+
+7 Rolling Your Own
+******************
+
+7.1 Introduction
+================
+
+`iterate' is extensible--you can write new clauses that embody new
+iteration patterns.  You might want to write a new driver clause for a
+data structure of your own, or you might want to write a clause that
+collects or manipulates elements in a way not provided by `iterate'.
+
+   This section describes how to write clauses for `iterate'.  Writing a
+clause is like writing a macro.  In fact, writing a clause _is_ writing
+a macro: since `iterate' code-walks its body and macroexpands, you can
+add new abstractions to `iterate' with good old `defmacro'.
+
+   Actually, there are two extensions you can make to `iterate' that are
+even easier than writing a macro.  They are adding a synonym for an
+existing clause and defining a driver clause for an indexable sequence.
+These can be done with `defsynonym' and `defclause-sequence',
+respectively.  See *Note Extensibility Aids::.
+
+   The rest of this section explains how to write macros that expand
+into `iterate' clauses.  Here's how you could add a simplified version
+of `iterate''s `multiply' clause, if `iterate' didn't already have one:
+
+  (defmacro multiply (expr)
+    `(reducing ,expr by #'* initial-value 1))
+
+   If you found yourself summing the square of an expression often, you
+might want to write a macro for that.  A first cut might be
+
+  (defmacro sum-of-squares (expr)
+    `(sum (* ,expr ,expr)))
+
+   but if you are an experienced macro writer, you will realize that
+this code will evaluate EXPR twice, which is probably a bad idea.  A
+better version would use a temporary:
+
+  (defmacro sum-of-squares (expr)
+    (let ((temp (gensym)))
+      `(let ((,temp ,expr))
+         (sum (* ,temp ,temp)))))
+
+   Although this may seem complex, it is just the sort of thing you'd
+have to go through to write any macro, which illustrates the point of
+this section: if you can write macros, you can extend `iterate'.
+
+   Our macros don't use `iterate''s keyword-argument syntax.  We could
+just use keywords with `defmacro', but we would still not be using
+`iterate''s clause indexing mechanism.  Unlike Lisp, which uses just the
+first symbol of a form to determine what function to call, `iterate'
+individuates clauses by the list of required keywords.  For instance,
+`for... in' and `for... in-vector' are different clauses implemented by
+distinct Lisp functions.
+
+   To buy into this indexing scheme, as well as the keyword-argument
+syntax, use `defmacro-clause':
+
+ -- Macro: defmacro-clause ARGLIST `&body' BODY
+     Defines a new `iterate' clause.  ARGLIST is a list of symbols
+     which are alternating keywords and arguments.  `&optional' may be
+     used, and the list may be terminated by `&sequence'.  BODY is an
+     ordinary macro body, as with `defmacro'.  If the first form of
+     BODY is a string, it is considered a documentation string and will
+     be shown by `display-iterate-clauses'.  `defmacro-clause' will
+     signal an error if defining the clause would result in an
+     ambiguity.  E.g. you cannot define the clause `for... from'
+     because there would be no way to distinguish it from a use of the
+     `for' clause with optional keyword `from'.
+
+   Here is `multiply' using `defmacro-clause'.  The keywords are
+capitalized for readability.
+
+  (defmacro-clause (MULTIPLY expr &optional INTO var)
+    `(reducing ,expr by #'* into ,var initial-value 1))
+
+   You don't have to worry about the case when `var' is not supplied;
+for any clause with an `into' keyword, saying `into nil' is equivalent
+to omitting the `into' entirely.
+
+   As another, more extended example, consider the fairly common
+iteration pattern that involves finding the sequence element that
+maximizes (or minimizes) some function.  `iterate' provides this as
+`finding... maximizing', but it's instructive to see how to write it.
+Here, in pseudocode, is how you might write such a loop for maximizing
+a function F:
+
+  set variable MAX-VAL to NIL;
+  set variable WINNER to NIL;
+  for each element EL in the sequence
+      if MAX-VAL is NIL or F(EL) > MAX-VAL then
+          set MAX-VAL to F(EL);
+          set WINNER to EL;
+      end if;
+  end for;
+  return WINNER.
+
+   Here is the macro:
+
+  (defmacro-clause (FINDING expr MAXIMIZING func &optional INTO var)
+    "Simple FINDING... MAXIMIZING implementation"
+    (let ((max-val (gensym "MAX-VAL"))
+          (temp1 (gensym "EL"))
+          (temp2 (gensym "VAL"))
+          (winner (or var iterate::*result-var*)))
+      `(progn
+         (with ,max-val = nil)
+         (with ,winner = nil)
+         (let* ((,temp1 ,expr)
+                (,temp2 (funcall ,func ,temp1)))
+           (when (or (null ,max-val) (> ,temp2 ,max-val))
+             (setq ,winner ,temp1 ,max-val ,temp2))))))
+
+   Note that if no `into' variable is supplied, we use
+`iterate::*result-var*', which contains the internal variable into
+which all clauses place their results.  If this variable is bound by
+some clause, then `iterate' will return its value automatically;
+otherwise, `nil' will be returned.
+
+7.2 Writing Drivers
+===================
+
+In principle, drivers can be implemented just as easily as other
+`iterate' clauses.  In practice, they are a little harder to get right.
+As an example, consider writing a driver that iterates over all the
+elements of a vector, ignoring its fill-pointer.  `for...  in-vector'
+won't work for this, because it observes the fill-pointer.  It's
+necessary to use `array-dimension' instead of `length' to obtain the
+size of the vector.  Here is one approach:
+
+  (defmacro-clause (FOR var IN-WHOLE-VECTOR v)
+    "All the elements of a vector (disregards fill-pointer)"
+    (let ((vect (gensym))
+          (index (gensym)))
+      `(progn
+         (with ,vect = ,v)
+         (for ,index from 0 below (array-dimension ,vect 0))
+         (for ,var = (aref ,vect ,index)))))
+
+   Note that we immediately put `v' in a variable, in case it is an
+expression.  Again, this is just good Lisp macrology.  It also has a
+subtle effect on the semantics of the driver: `v' is evaluated only
+once, at the beginning of the loop, so changes to `v' in the loop have
+no effect on the driver.  Similarly, the bounds for numerical iteration
+e.g. the above `array-dimension' are also evaluated once only.  This is
+how all of `iterate''s drivers work.
+
+   There is an important point concerning the `progn' in this code.  We
+need the `progn', of course, because we are returning several forms,
+one of which is a driver.  But `iterate' drivers must occur at
+top-level.  Is this code in error?  No, because _top-level_ is defined
+in `iterate' to include forms inside a `progn'.  This is just the
+definition of top-level that Common Lisp uses, and for the same reason:
+to allow macros to return multiple forms at top-level.
+
+   While our `for... in-whole-vector' clause will work, it is not
+ideal.  In particular, it does not support generating.  Do do so, we
+need to use `for... next' or `for... do-next'.  The job is simplified
+by the `defmacro-driver' macro.
+
+ -- Macro: defmacro-driver ARGLIST `&body' BODY
+     Defines a driver clause in both the `for' and `generate' forms,
+     and provides a parameter `generate' which BODY can examine to
+     determine how it was invoked.  ARGLIST is as in `defmacro-clause',
+     and should begin with the symbol `for'.
+
+   With `defmacro-driver', our driver looks like this:
+
+  (defmacro-driver (FOR var IN-WHOLE-VECTOR v)
+    "All the elements of a vector (disregards fill-pointer)"
+     (let ((vect (gensym))
+           (end (gensym))
+           (index (gensym))
+           (kwd (if generate 'generate 'for)))
+       `(progn
+          (with ,vect = ,v)
+          (with ,end = (array-dimension ,vect 0))
+          (with ,index = -1)
+          (,kwd ,var next (progn (incf ,index)
+                                 (if (>= ,index ,end) (terminate))
+                                 (aref ,vect ,index))))))
+
+   We are still missing one thing: the `&sequence' keywords.  We can
+get them easily enough, by writing
+
+  (defmacro-driver (FOR var IN-WHOLE-VECTOR v &sequence)
+    ...)
+
+   We can now refer to parameters `from', `to', `by', etc. which
+contain either the values for the corresponding keyword, or `nil' if
+the keyword was not supplied.  Implementing the right code for these
+keywords is cumbersome but not difficult; it is left as an exercise.
+But before you begin, see `defclause-sequence' below for an easier way.
+
+7.3 Extensibility Aids
+======================
+
+This section documents assorted features that may be of use in
+extending `iterate'.
+
+ -- Unexported Variable: *result-var*
+     Holds the variable that is used to return a value as a result of
+     the `iterate' form.  You may examine this and use it in a `with'
+     clause, but you should not change it.
+
+ -- Macro: defsynonym SYN WORD
+     Makes SYN a synonym for the existing `iterate' keyword WORD.  Only
+     the first word in each clause can have synonyms.
+
+ -- Macro: defclause-sequence ELEMENT-NAME INDEX-NAME `&key' ACCESS-FN
+          SIZE-FN SEQUENCE-TYPE ELEMENT-TYPE ELEMENT-DOC-STRING
+          INDEX-DOC-STRING
+     Provides a simple way to define sequence clauses.  Generates two
+     clauses, one for iterating over the sequence's elements, the other
+     for iterating over its indices.  The first symbol of both clauses
+     will have print-name `for'.  ELEMENT-NAME and INDEX-NAME should be
+     symbols.  ELEMENT-NAME is the second keyword of the element
+     iterator (typically of the form `in-SEQUENCE-TYPE'), and
+     INDEX-NAME is the second keyword of the index-iterator (typically
+     of the form `index-of-SEQUENCE-TYPE').  Either name may be `nil',
+     in which case the corresponding clause is not defined.  If both
+     symbols are supplied, they should be in the same package.  The
+     `for' that begins the clauses will be in this package.
+
+     ACCESS-FN is the function to be used to access elements of the
+     sequence in the element iterator.  The function should take two
+     arguments, a sequence and an index, and return the appropriate
+     element.  SIZE-FN should denote a function of one argument, a
+     sequence, that returns its size.  Both ACCESS-FN and SIZE-FN are
+     required for the element iterator, but only SIZE-FN is needed for
+     the index iterator.
+
+     The SEQUENCE-TYPE and ELEMENT-TYPE keywords are used to suggest
+     types for the variables used to hold the sequence and the sequence
+     elements, respectively.  The usual rules about `iterate''s
+     treatment of variable type declarations apply (see *Note Types and
+     Declarations::).
+
+     ELEMENT-DOC-STRING and INDEX-DOC-STRING are the documentation
+     strings, for use with `display-iterate-clauses'.
+
+     The generated element-iterator performs destructuring on the
+     element variable.
+
+   As an example, the above `for... in-whole-vector' example could have
+been written:
+
+  (defclause-sequence IN-WHOLE-VECTOR INDEX-OF-WHOLE-VECTOR
+    :access-fn 'aref
+    :size-fn (lambda (v) (array-dimension v 0))
+    :sequence-type 'vector
+    :element-type t
+    :element-doc-string "Elements of a vector, disregarding fill-pointer"
+    :index-doc-string  "Indices of vector, disregarding fill-pointer")
+
+7.4 Subtleties
+==============
+
+There are some subtleties to be aware of when writing `iterate' clauses.
+First, the code returned by your macros may be `nconc''ed into a list,
+so you should always returned freshly consed lists, rather than
+constants.  Second, `iterate' matches clauses by using `eq' on the
+first symbol and `string=' on the subsequent ones, so the package of
+the first symbol of a clause is relevant.  All of the clauses in this
+manual have their first word in the `iterate' package.  You can use the
+package system in the usual way to shadow `iterate' clauses without
+replacing them.
+
+8 Non-portable Extensions to Iterate (Contribs)
+***********************************************
+
+Currently, there is only one non-portable extension to iterate in the
+distribution: `iterate-pg'.  If you have made an extension that depends
+on non-portable features, feel free to send them to the `iterate'
+project team for inclusion in the iterate distribution.
+
+8.1 An SQL Query Driver for Iterate
+===================================
+
+The pg package by Eric Marsden (see `http://cliki.net/pg') provides an
+interface to the PostgreSQL database.  Using the `in-relation' driver,
+it is possible to handle the results of SQL queries with `iterate'.
+
+   This usage example should give you an idea of how to use it:
+
+  (pg:with-pg-connection (c "somedb" "someuser")
+    (iter (for (impl version date) in-relation "select * from version"
+                                   on-connection *dbconn*)
+          (collect version)))
+
+   The distribution now contains an `iterate.asd' system definition
+file for the `iterate' package.  To use the extension via ASDF (Another
+System Definition Facility), simply make your system depend on the
+`iterate-pg' system instead of the `iterate' system.  To load it
+manually, use:
+
+  (asdf:oos 'asdf:load-op :iterate-pg)
+
+9 Obtaining `Iterate'
+*********************
+
+`iterate' has been successfully ported to most implementations that
+purport to conform to ANSI CL.  Since 2006, source and project
+information is available from
+`http://common-lisp.net/project/iterate/'.  The mailing list for all
+purposes is <iterate-devel@common-lisp.net>, but you need to subscribe
+to it before posting.
+
+   The source file was split into two files in 2003: `package.lisp'
+contains the package definition, `iterate.lisp' the main code.  Other
+files in the distribution contain user contributions, test cases and
+documentation.
+
+   `iterate' resides in the `iterate' package (nickname `iter').  Just
+say `(use-package :iterate)' to make all the necessary symbols
+available.  If a symbol is not exported, it appears in this manual with
+an "`iterate::'" prefix.
+
+   The regression test suite in `iterate-test.lisp', based on MIT's
+`RT' package, contains many examples.
+
+     Note: The rest of this chapter serves history.
+
+   `iterate' currently runs on Lisp Machines, and on HP's, Sun3's and
+Sparcstations under Lucid.  `iterate' source and binaries are available
+at the MIT AI Lab in the subdirectories of `/src/local/lisplib/'.  The
+source file, `iterate.lisp', is also available for anonymous FTP in the
+directory `/com/ftp/pub/' on the machine `TRIX.AI.MIT.EDU' (Internet
+number 128.52.32.6).  If you are unable to obtain `iterate' in one of
+these ways, send mail to <jba@ai.mit.edu> and I will send you the
+source file.
+
+   Send bug reports to <bug-iterate@ai.mit.edu>.  The `info-iterate'
+mailing list will have notices of changes and problems; to have
+yourself added, send mail to <info-iterate-request@ai.mit.edu>.
+
+10 Acknowledgements
+*******************
+
+Richard Waters provided invaluable criticism which spurred me to
+improve `iterate' greatly.  As early users, David Clemens, Oren Etzioni
+and Jeff Siskind helped ferret out many bugs.
+
+   Thanks to Andreas Fuch, Jo"rg Ho"hle and Attila Lendvai, who more
+than a decade after the original release, ported the code to ANSI CL
+and fixed long-standing bugs.
+
+Appendix A Don't Loop, Iterate
+******************************
+
+     Note: This appendix is a Texinfo conversion performed by Lui's
+     Oliveira of Jonathan Amsterdam's Working Paper 324, MIT AI Lab
+     entitled "Don't Loop, Iterate."
+
+A.1 Introduction
+================
+
+Above all the wonders of Lisp's pantheon stand its metalinguistic
+tools; by their grace have Lisp's acolytes been liberated from the
+rigid asceticism of lesser faiths.  Thanks to Macro and kin, the jolly,
+complacent Lisp hacker can gaze through a fragrant cloud of setfs and
+defstructs at the emaciated unfortunates below, scraping out their
+meager code in inflexible notation, and sneer superciliously.  It's a
+good feeling.
+
+   But all's not joy in Consville.  For--I beg your pardon, but--there
+really is no good way to _iterate_ in Lisp.  Now, some are happy to map
+their way about, whether for real with `mapcar' and friends, or with
+the make-believe of Series; others are so satisfied with `do' it's a
+wonder they're not C hackers.(1)  Still others have gotten by with
+`loop', but are getting tired of looking up the syntax in the manual
+over and over again.  And in the elegant schemes of some, only tail
+recursion and lambdas figure.  But that still leaves a sizeable
+majority of folk--well, me, at least--who would simply like to
+_iterate_, thank you, but in a way that provides nice abstractions, is
+extensible, and looks like honest-to-God Lisp.
+
+   In what follows I describe a macro package, called `iterate', that
+provides the power and convenient abstractions of `loop' but in a more
+syntactically palatable way.  `iter' also has many features that `loop'
+lacks, like generators and better support for nested loops.  `iterate'
+generates inline code, so it's more efficient than using the
+higher-order function approach.  And `iterate' is also extensible--it's
+easy to add new clauses to its vocabulary in order to express new
+patterns of iteration in a convenient way.
+
+A.2 More about `iterate'
+========================
+
+A Common Lisp programmer who wonders what's lacking with present-day
+iteration features would do well to consider `setf'.  Of course, `setf'
+doesn't iterate, but it has some other nice properties.  It's easy to
+use, for one thing.  It's extensible--you can define new `setf' methods
+very easily, so that `setf' will work with new forms.  `setf' is also
+efficient, turning into code that's as good as anyone could write by
+hand.  Arguably, `setf' provides a nice abstraction: it allows you to
+view value-returning forms, like `(car ...)' or `(get ...)' as
+locations that can be stored into.  Finally and most obviously, `setf'
+_looks_ like Lisp; it's got a syntax right out of `setq'.
+
+   `iterate' attempts to provide all of these properties.  Here is a
+simple use of `iterate' that returns all the elements of `num-list' that
+are greater than three:
+
+  (iterate (for el in num-list)
+           (when (> el 3)
+             (collect el)))
+
+   An `iterate' form consists of the symbol `iterate' followed by some
+Lisp forms.  Any legal Lisp form is allowed, as well as certain forms
+that `iterate' treats specially, called _clauses_.  `for...in' and
+`collect' are the two clauses in the above example.  An `iterate'
+clause can appear anywhere a Lisp form can appear; `iterate' walks its
+body, looking inside every form, processing `iterate' clauses when it
+finds them.  It even expands macros, so you can write macros that
+contain `iterate' clauses.  Almost all clauses use the syntax of
+function keyword-argument lists: alternating keywords and arguments.
+`iterate' keywords don't require a preceding colon, but you can use one
+if you like.
+
+   `iterate' provides many convenient iteration abstractions, most of
+them familiar to `loop' users.  Iteration-driving clauses (those
+beginning with `for') can iterate over numbers, lists, arrays,
+hashtables, packages and files.  There are clauses for collecting
+values into a list, summing and counting, maximizing, finding maximal
+elements, and various other things.  Here are a few examples, for extra
+flavor.
+
+   To sum a list of numbers:
+
+  (iterate (for i in list)
+           (sum i))
+
+   To find the length of the shortest element in a list:
+
+  (iterate (for el in list)
+           (minimize (length el)))
+
+   To find the shortest element in a list:
+
+  (iterate (for el in list)
+           (finding el minimizing (length el)))
+
+   To return `t' only if every other element of a list is odd:
+
+  (iterate (for els on list by #'cddr)
+           (always (oddp (car els))))
+
+   To split an association list into two separate lists (this example
+uses `iterate''s ability to do destructuring):
+
+  (iterate (for (key . item) in alist)
+           (collect key into keys)
+           (collect item into items)
+           (finally (return (values keys items))))
+
+A.3 Comparisons With Other Iteration Methods
+============================================
+
+As with any aspect of coding, how to iterate is a matter of taste.  I
+do not wish to dictate taste or even to suggest that `iterate' is a
+"better" way to iterate than other methods.  I would, however, like to
+examine the options, and explain why I prefer `iterate' to its
+competitors.
+
+A.3.1 `do', `dotimes' and `dolist'
+----------------------------------
+
+The `do' form has long been a Lisp iteration staple.  It provides for
+binding of iteration variables, an end-test, and a body of arbitrary
+code.  It can be a bit cumbersome for simple applications, but the most
+common special cases--iterating over the integers from zero and over
+the members of a list--appear more conveniently as `dotimes' and
+`dolist'.
+
+   `do''s major problem is that it provides no abstraction.  For
+example, collection is typically handled by binding a variable to
+`nil', pushing elements onto the variable, and `nreverse'ing the result
+before returning it.  Such a common iteration pattern should be easier
+to write.  (It is, using `mapcar'--but see below.)
+
+   Another problem with `do', for me at least, is that it's hard to
+read.  The crucial end-test is buried between the bindings and the
+body, marked off only by an extra set of parens (and some indentation).
+It is also unclear, until after a moment of recollection, whether the
+end-test has the sense of a "while" or an "until."
+
+   Despite its flaws, `do' is superior to the iteration facilities of
+every other major programming language except CLU.  Perhaps that is the
+reason many Lisp programmers don't mind using it.
+
+A.3.2 Tail Recursion
+--------------------
+
+Tail-recursive implementations of loops, like those found in Scheme
+code [SchemeBook], are parsimonious and illuminating.  They have the
+advantage of looking like recursion, hence unifying the notation for
+two different types of processes.  For example, if only tail-recursion
+is used, a loop that operates on list elements from front to back looks
+very much like a recursion that operates on them from back to front.
+
+   However, using tail-recursion exclusively can lead to cumbersome code
+and a proliferation of functions, especially when one would like to
+embed a loop inside a function.  Tail-recursion also provides no
+abstraction for iteration; in Scheme, that is typically done with
+higher-order functions.
+
+A.3.3 High-order Functions
+--------------------------
+
+Lisp's age-old mapping functions, recently revamped for Common Lisp
+[CLM], are another favorite for iteration.  They provide a pleasing
+abstraction, and it's easy to write new higher-order functions to
+express common iteration patterns.  Common Lisp already comes with many
+such useful functions, for removing, searching, and performing
+reductions on lists.  Another Common Lisp advantage is that these
+functions work on any sequence--vectors as well as lists.
+
+   One problem with higher-order functions is that they are inefficient,
+requiring multiple calls on their argument function.  While the the
+built-ins, like `map' and `mapcar', can be open-coded, that cannot be
+so easily done for user-written functions.  Also, using higher-order
+functions often results in the creation of intermediate sequences that
+could be avoided if the iteration were written out explicitly.
+
+   The second problem with higher-order functions is very much a matter
+of personal taste.  While higher-order functions are theoretically
+elegant, they are often cumbersome to read and write.  The unpleasant
+sharp-quote required by Common Lisp is particularly annoying here, and
+even in Scheme, I find the presence of a lambda with its argument list
+visually distracting.
+
+   Another problem is that it's difficult to express iteration of
+sequences of integers without creating such sequences explicitly as
+lists or arrays.  One could resort to tail-recursion or `dotimes'--but
+then it becomes very messy to express double iterations where one
+driver is over integers.  Multiple iteration is easy in `iterate', as
+illustrated by the following example, which creates an alist of list
+elements and their positions:
+
+  (iterate (for el in list)
+           (for i from 0)
+           (collect (cons el i)))
+
+A.3.4 Streams and Generators
+----------------------------
+
+For really heavy-duty iteration jobs, nothing less than a
+coroutine-like mechanism will do.  Such mechanisms hide the state of
+the iteration behind a convenient abstraction.  A _generator_ is a
+procedure that returns the next element in the iteration each time it
+is called.  A _stream_ (in the terminology of [SchemeBook]) is a data
+structure which represents the iteration, but which computes the next
+element only on demand.  Generators and streams support a similar style
+of programming.  Here, for example, is how you might enumerate the
+leaves of a tree (represented as a Lisp list with atoms at the leaves)
+using streams:
+
+  (defun tree-leaves (tree)
+    (if (atom tree)
+        (stream-cons tree empty-stream)
+        (stream-append (tree-leaves (car tree))
+                       (tree-leaves (cdr tree)))))
+
+   Although `tree-leaves' looks like an ordinary recursion, it will
+only do enough work to find the first leaf before returning.  The
+stream it returns can be accessed with `stream-car', which will yield
+the (already computed) first leaf of the tree, or with `stream-cdr',
+which will initiate computation of the next leaf.
+
+   Such a computation would be cumbersome to write using `iterate', or
+any of the other standard iteration constructs; in fact, it is not even
+technically speaking an iteration, if we confine that term to processes
+that take constant space and linear time.  Streams, then, are
+definitely more powerful than standard iteration machinery.
+
+   Unfortunately, streams are very expensive, since they must somehow
+save the state of the computation.  Generators are typically cheaper,
+but are less powerful and still require at least a function call.  So
+these powerful tools should be used only when necessary, and that is
+not very often; most of the time, ordinary iteration suffices.
+
+   There is one aspect of generators that `iterate' can capture, and
+that is the ability to produce elements on demand.  Say we wish to
+create an alist that pairs the non-null elements of a list with the
+positive integers.  We saw above that it is easy to iterate over a list
+and a series of numbers simultaneously, but here we would like to do
+something a little different: we want to iterate over the list of
+elements, but only draw a number when we need one (namely, when a list
+element is non-null).  The solution employs the `iterate' `generate'
+keyword in place of `for' and the special clause `next':
+
+  (iterate (for el in list)
+           (generate i from 1)
+           (if el
+               (collect (cons el (next i)))))
+
+   Using `next' with any driver variable changes how that driver works.
+Instead of supplying its values one at a time on each iteration, the
+driver computes a value only when a `next' clause is executed.  This
+ability to obtain values on demand greatly increases `iterate''s power.
+Here, `el' is set to the next element of the list on each iteration,
+as usual; but `i' is set only when `(next i)' is executed.
+
+A.3.5 Series
+------------
+
+Richard C. Waters has developed a very elegant notation called Series
+which allows iteration to be expressed as sequence-mapping somewhat in
+the style of APL, but which compiles to efficient looping code [Series].
+
+   My reasons for not using Series are, again, matters of taste.  Like
+many elegant notations, Series can be somewhat cryptic.  Understanding
+what a Series expression does can require some effort until one has
+mastered the idiom.  And if you wish to share your code with others,
+they will have to learn Series as well.  `iterate' suffers from this
+problem to some extent, but since the iteration metaphor it proposes is
+much more familiar to most programmers than that of Series, it is
+considerably easier to learn and read.
+
+A.3.6 `Prog' and `Go'
+---------------------
+
+Oh, don't be silly.
+
+A.3.7 `Loop'
+------------
+
+`loop' is the iteration construct most similar to `iterate' in
+appearance.  `loop' is a macro written originally for MacLisp and in
+widespread use [Loop].  It has been adopted as part of Common Lisp.
+`loop' provides high-level iteration with abstractions for collecting,
+summing, maximizing and so on.  Recall our first `iterate' example:
+
+  (iterate (for el in num-list)
+           (when (> el 3)
+             (collect el)))
+
+   Expressed with `loop', it would read
+
+  (loop for el in list
+        when (> el 3)
+          collect el)
+
+   The similarity between the two macros should immediately be apparent.
+Most of `iterate''s clauses were borrowed from `loop'.  But compared to
+`iterate', `loop' has a paucity of parens.  Though touted as more
+readable than heavily-parenthesized code, `loop''s Pascalish syntax
+creates several problems.  First, many dyed-in-the-wool Lisp hackers
+simply find it ugly.  Second, it requires learning the syntax of a
+whole new sublanguage.  Third, the absence of parens makes it hard to
+parse, both by machine and, more importantly, by human.  Fourth, one
+often has to consult the manual to recall lesser-used aspects of the
+strange syntax.  Fifth, there is no good interface with the rest of
+Lisp, so `loop' clauses cannot appear inside Lisp forms and macros
+cannot expand to pieces of `loop'.  And Sixth, pretty-printers and
+indenters that don't know about `loop' will invariably display it
+wrongly.  This is particularly a problem with program-editor indenters.
+A reasonably clever indenter, like that of Gnu Emacs, can indent
+nearly any normal Lisp form correctly, and can be easily customized for
+most new forms.  But it can't at present handle `loop'.  The syntax of
+`iterate' was designed to keep parens to a minimum, but conform close
+enough to Lisp so as not to confuse code-display tools.  Gnu Emacs
+indents `iterate' reasonably with no modifications.
+
+   Indenting is a mere annoyance; `loop''s lack of extensibility is a
+more serious problem.  The original `loop' was completely extensible,
+but the Symbolics version only provides for the definition of new
+iteration-driving clauses, and the Common Lisp specification does not
+have any extension mechanism.  But extensibility is a boon.  Consider
+first the problem of adding the elements of a list together, which can
+be accomplished with `iterate' by
+
+  (iterate (for el in list)
+           (sum el))
+
+   and in `loop' with
+
+  (loop for el in list
+        sum el)
+
+   But now, say that you wished to compute the sum of the square roots
+of the elements.  You could of course write, in either `loop' or
+`iterate',
+
+  (iterate (for el in list)
+           (sum (sqrt el)))
+
+   But perhaps you find yourself writing such loops often enough to make
+it worthwhile to create a new abstraction.  There is nothing you can do
+in `loop', but in `iterate' you could simply write a macro:
+
+  (defmacro (sum-of-sqrts expr &optional into-var)
+    `(sum (sqrt ,expr) into ,into-var))
+
+   `sum-of-sqrts' is a perfectly ordinary Lisp macro.  Since `iterate'
+expands all macros and processes the results, `(sum-of-sqrts el)' will
+behave exactly as if we'd written `(sum (sqrt el))'.
+
+   There's also a way to define macros that use `iterate''s clause
+syntax.
+
+A.4 Implementation
+==================
+
+A Common Lisp implementation of `iterate' has existed for well over a
+year.  It runs under Lucid for HP 300's, Sun 3's and SPARCstations, and
+on Symbolics Lisp machines.
+
+A.5 Conclusion
+==============
+
+Iteration is a matter of taste.  I find `iterate' more palatable than
+other iteration constructs: it's more readable, more efficient than
+most, provides nice abstractions, and can be extended.
+
+   If you're new to Lisp iteration, start with `iterate'--look before
+you `loop'.  If you're already using `loop' and like the power that it
+offers, but have had enough of its syntax and inflexibility, then my
+advice to you is, don't `loop'--`iterate'.
+
+A.6 Acknowledgments
+===================
+
+Thanks to David Clemens for many helpful suggestions and for the
+egregious pun near the end.  Conversations with Richard Waters prompted
+me to add many improvements to `iterate'.  Alan Bawden, Sundar
+Narasimhan, and Jerry Roylance also provided useful comments.  David
+Clemens and Oren Etzioni shared with me the joys of beta-testing.
+
+A.7 Bibliography
+================
+
+   * [SchemeBook] Abelson, Harold and Gerald Jay Sussman.  _Structure
+     and Interpretation of Computer Programs._ Cambridge, MA: The MIT
+     Press, 1985.
+
+   * [Loop] "The loop Iteration Macro." In _Symbolics Common
+     Lisp--Language Concepts_, manual 2A of the Symbolics documentation,
+     pp. 541-567.
+
+   * [CLM] Steele, Guy L.  _Common Lisp: The Language_.  Bedford, MA:
+     Digital Press, 1984.
+
+   * [Series] Waters, Richard C.  _Optimization of Series Expressions:
+     Part I: User's Manual for the Series Macro Package_.  MIT AI Lab
+     Memo No. 1082.
+
+   ---------- Footnotes ----------
+
+   (1) Hey, don't get mad--I'll be much more polite later, when the
+real paper starts.
+
+Index
+*****
+
+*always-declare-variables*:                    See 4.2.      (line 1211)
+*list-end-test*:                               See 2.1.2.    (line  253)
+*result-var*:                                  See 7.3.      (line 1536)
+accumulate:                                    See 2.3.2.    (line  717)
+adjoining:                                     See 2.3.2.    (line  701)
+after-each:                                    See 2.6.      (line  897)
+always:                                        See 2.3.4.    (line  793)
+appending:                                     See 2.3.2.    (line  707)
+collect:                                       See 2.3.2.    (line  674)
+counting:                                      See 2.3.1.    (line  634)
+declare-variables:                             See 4.2.      (line 1211)
+defclause-sequence:                            See 7.3.      (line 1544)
+defmacro-clause:                               See 7.1.      (line 1393)
+defmacro-driver:                               See 7.2.      (line 1495)
+defsynonym:                                    See 7.3.      (line 1540)
+display-iterate-clauses:                       See 3.4.      (line 1024)
+dsetq:                                         See 3.3.      (line 1014)
+else:                                          See 2.6.      (line  902)
+finally:                                       See 2.6.      (line  907)
+finally-protected:                             See 2.6.      (line  911)
+finding...maximizing:                          See 2.3.3.    (line  773)
+finding...minimizing:                          See 2.3.3.    (line  773)
+finding...such-that:                           See 2.3.3.    (line  739)
+finish:                                        See 2.4.      (line  831)
+first-iteration-p:                             See 2.5.      (line  870)
+first-time-p:                                  See 2.5.      (line  873)
+for:                                           See 2.1.1.    (line  201)
+for...=:                                       See 2.2.      (line  520)
+for...do-next:                                 See 2.1.3.    (line  355)
+for...first...then:                            See 2.2.      (line  552)
+for...in:                                      See 2.1.2.    (line  244)
+for...in-file:                                 See 2.1.2.    (line  321)
+for...in-hashtable:                            See 2.1.2.    (line  298)
+for...in-package:                              See 2.1.2.    (line  305)
+for...in-packages:                             See 2.1.2.    (line  310)
+for...in-sequence:                             See 2.1.2.    (line  280)
+for...in-stream:                               See 2.1.2.    (line  328)
+for...in-string:                               See 2.1.2.    (line  286)
+for...in-vector:                               See 2.1.2.    (line  268)
+for...index-of-sequence:                       See 2.1.2.    (line  289)
+for...index-of-string:                         See 2.1.2.    (line  289)
+for...index-of-vector:                         See 2.1.2.    (line  289)
+for...initially...then:                        See 2.2.      (line  531)
+for...next:                                    See 2.1.3.    (line  338)
+for...on:                                      See 2.1.2.    (line  261)
+for...previous:                                See 2.1.5.    (line  462)
+if-first-time:                                 See 2.4.      (line  850)
+in:                                            See 3.2.      (line  961)
+initially:                                     See 2.6.      (line  893)
+leave:                                         See 2.4.      (line  834)
+maximize:                                      See 2.3.1.    (line  638)
+minimize:                                      See 2.3.1.    (line  638)
+multiply:                                      See 2.3.1.    (line  630)
+nconcing:                                      See 2.3.2.    (line  707)
+never:                                         See 2.3.4.    (line  801)
+next-iteration:                                See 2.4.      (line  839)
+nunioning:                                     See 2.3.2.    (line  707)
+reducing:                                      See 2.3.1.    (line  645)
+repeat:                                        See 2.1.      (line  189)
+sum:                                           See 2.3.1.    (line  618)
+terminate:                                     See 2.1.3.    (line  338)
+the:                                           See 4.1.      (line 1123)
+thereis:                                       See 2.3.4.    (line  809)
+unioning:                                      See 2.3.2.    (line  707)
+until:                                         See 2.4.      (line  847)
+while:                                         See 2.4.      (line  843)
+with:                                          See 2.2.      (line  504)

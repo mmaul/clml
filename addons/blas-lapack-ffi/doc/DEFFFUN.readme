@@ -1,0 +1,73 @@
+* Description
+
+** Macro: defffun  (for fortran calling convention)
+
+** Syntax: similar to defcfun, 
+
+  NOTE: Every non-array arguments will be passed by reference
+
+** Special types:
+
+- Array type specifier: (array <element-type> *...)
+- String type specifier: :char or :string
+- Complex type specifier: complex-float complex-double
+- Void type: :void
+
+** In-Out Modes:
+
+   The In-Out modes changes whether the argument is the function APIs
+   or not, whether it's returned as part of the multiple values or
+   not.
+
+  - :in means the argument is only used for input
+
+    The default mode is :in, which means it will be treated properly
+    as passed-by-reference and scalar values and strings will be
+    auto-translated to foreign values. These arguments will not be
+    returned.
+
+  - :out means the argument is only used for output
+
+    To make the API more fortran alike, which allows programs to port
+    code more easily, :out arguments are still needed to be specified
+    in the arguments but the values will not be used. (So a 0d0 like
+    value will be good enough).
+
+  - :in-out means the argument is used for both purpose
+    
+** Return values
+
+   As said above, :out and :in-out arguments will be returned as
+   multiple values. What's the return value of a fortran subroutine
+   and a fortran procedure (:void)?
+
+   Here we make the convention that if it's a fortran subroutine, the
+   first return value is always the subroutine's return value. And
+   follows with :out or :in-out arguments. If it's a fortran
+   procedure, since the return value is empty, the first return value
+   will be the first :out :in-out argument, with other arguments comes
+   after.
+
+   This means if there's no :out and :in-out arguments, and it's a
+   fortran procedure (return :void), then no value will be returned.
+
+** Support docstring
+   
+
+* Examples
+
+1. saxpy in BLAS
+
+(defffun saxpy :void
+  "Scala Alpha X Plus Y"
+  (n blas-int)
+  (a :float)
+  (x (:array :float *)) 
+  (incx blas-int)
+  (y (:array :float *) :in-out)
+  (incy blas-int))
+
+- Usage:
+
+(saxpy 10 2s0 x 1 y 1) => y after updating
+

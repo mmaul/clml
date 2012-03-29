@@ -1,0 +1,302 @@
+-*- outline -*-
+
+* UKgas
+分析対象として UKgas.sexp という 1960年からの各季節ごとのイギリスの
+ガスの使用量を用います。
+
+EXPL-SMTHING: (setf UKgas (time-series-data
+                           (read-data-from-file "sample/UKgas.sexp")
+                           :start 1960 :frequency 4))
+#<TIME-SERIES-DATASET>
+DIMENSIONS: UKgas
+TYPES:      NUMERIC
+FREQUENCY: 4
+START:     (1960 1)
+END:       (1986 4)
+POINTS:    108
+
+time-series-data によって UKgas.sexp を時系列データとして読み込みます。
+すなわち、データの各行に時間の割り振りを行ないます。
+ここでは開始時間 start を 1960, 単位時間あたりの観測値数 frequency は
+季節ごとのデータなので 4 とします。
+たとえば、もとは
+
+160.1
+129.7
+84.8
+120.1
+169.7
+
+のようなデータを上記のようにして時系列データとして読み込んだ場合、
+各行に時間の情報が付与され、
+
+160.1 <- 1960 1
+129.7 <- 1960 2
+84.8  <- 1960 3
+120.1 <- 1960 4
+169.7 <- 1961 1
+
+となります。
+
+EXPL-SMTHING: (draw UKgas)
+
+としてグラフを見てみると、このデータには全体的な傾向(トレンド)として増加傾向
+と周期性(seasonality) がありそうです。
+** acf
+時系列データの特性を表す基本的な統計量として、平均・自己共分散・自己相関
+などは頻繁に用いられます。関数 acf によって自己共分散・自己相関を見ることが
+できます。UKgas の自己相関を見てみますと
+
+EXPL-SMTHING: (acf UKgas)
+
+lag が 1 ごとに自己相関係数が高い値を示しています。これはすなわち 1 周期
+ずつ時間がずれたデータと相関が高いことを示しており、UKgas には 1 年単位の
+周期性が顕著に現れていると言えます。
+
+時系列データには、観測対象のさまざまな性質が総体として表れますので、明らか
+な性質から取り除いてゆき、それ以外にどのような性質があるか観察できるように
+する必要があります。
+** diff
+トレンドおよび周期性が明らかなデータから、それらを取り除く方法として、差分
+があります。差分とは、元のデータと時間をずらしたデータとの差、すなわち
+時間 t でのデータ値を y_t, t+i での値を y_{t+i} とすると、
+その差 y_t - y_{t+i} のことです。
+UKgas に対して、i = 1 および 4 としたときのグラフを見てみます。
+
+EXPL-SMTHING: (draw (diff UKgas :lag 1) (diff UKgas :lag 4))
+
+黒い線が i = 1 であり、赤い線が i = 4 です。
+i = 1 とすると、トレンドが取り除かれ、周期性がより顕著に見られます。
+UKgas は四半期データですので周期は 4 と考えられるので、i = 4 とすると周期性
+も取り除かれます。赤い線を見ると、概ね平坦であり、このデータにはこれ以上明ら
+かな性質を見て取ることはできなさそうです。
+
+* HoltWinters
+このようなトレンドや周期性をもった時系列データに対する推定モデルとして 
+holt-winters というものがあります。1980年の春までのデータを学習対象として、
+推定値と実際の値を見比べてみます。
+まず学習データを作成します。
+
+EXPL-SMTHING: (setf UKgas-for-learn (sub-ts UKgas :end '(1980 1)))
+#<TIME-SERIES-DATASET>
+DIMENSIONS: UKgas
+TYPES:      NUMERIC
+FREQUENCY: 4
+START:     (1960 1)
+END:       (1980 1)
+POINTS:    81
+
+** alpha beta gamma
+この学習データに対して holt-winters を用いて予測を行ないます。
+holt-winters にはパラメータ alpha, beta, gamma があり、それぞれ 0 から 1 の
+値をとり、alpha は基準値、beta は トレンド、gamma は 周期性 に関連したパラメータです。
+まずはこれらに適当な値を入れたモデルでの予測結果を見てみます。
+
+EXPL-SMTHING: (setf pred 
+                    (HoltWinters-prediction UKgas-for-learn
+                                            :alpha 0.1 :beta 0.1 :gamma 0.1
+                                            :n-ahead 27))
+
+#<TIME-SERIES-DATASET>
+DIMENSIONS: UKgas
+TYPES:      NUMERIC
+FREQUENCY: 4
+START:     (1960 2)
+END:       (1987 1)
+POINTS:    107
+
+:alpha :beta :gamma に数字を指定することでその数字を用いたモデルによる
+予測結果が得られます。:n-ahead でどれだけ先の時間まで予測するかを指定し
+ます。学習対象データは1980年の春までなので、27 季節分だけ先、すなわち
+1987年の春までの予測値が結果には含まれています。
+もともとのデータ UKgas と比較してみると
+
+EXPL-SMTHING: (draw UKgas pred)
+
+黒い線が実際のデータで、赤い線が予測値ですが、誤差が明らかに大きく、うまくフィッティング
+できていません。
+これら alpha beta gamma の値は、0 に近いほど過去のデータ、1 に近いほど新しいデー
+タに重点を置いた予測を行ないます。たとえば UKgas は時間が進むほどトレンドの増加傾向が
+強まっているように見えます。よってトレンドに関連したパラメータ beta の値を 0.9 とすれば、
+1980年以降の予測値のトレンドはより急になるはずです。
+実際に見てみると
+
+EXPL-SMTHING: (setf pred-0.9 (holtwinters-prediction UKgas-for-learn
+                                                     :alpha 0.1 :beta 0.9 :gamma 0.1
+                                                     :n-ahead 27))
+
+#<TIME-SERIES-DATASET>
+DIMENSIONS: UKgas
+TYPES:      NUMERIC
+FREQUENCY: 4
+START:     (1960 2)
+END:       (1987 1)
+POINTS:    108
+
+EXPL-SMTHING(15): (draw UKgas-for-learn pred pred-0.9)
+
+赤い線が beta 0.1 で、緑の線が beta 0.9 です。1980年以降の予測値におけ
+るトレンドの違いがはっきりわかります。
+しかしこのように手動で調整していては当然効率が悪く、なかなか最適なもの
+にたどりつけないでしょう。
+
+** error measurement
+そこで、モデルと実際のデータとの誤差を評価し、最も誤差の少ない alpha,
+beta, gamma の値の組み合わせを自動的に選ぶ方法を用います。
+:alpha :beta :gamma に値を何も指定せず、誤差評価関数 :err-measure を
+指定してやると、その評価関数において誤差が一番小さかった alpha, beta,
+gamma の値が算出され、それらを用いたモデルによる予測結果が得られます。
+ここでは、二乗平均誤差 mse を用いてみます。
+
+EXPL-SMTHING: (multiple-value-setq (pred model)
+                    (HoltWinters-prediction UKgas-for-learn
+                                            :err-measure 'mse
+                                            :n-ahead 27))
+#<TIME-SERIES-DATASET>
+DIMENSIONS: UKgas
+TYPES:      NUMERIC
+FREQUENCY: 4
+START:     (1960 2)
+END:       (1986 4)
+POINTS:    107
+
+EXPL-SMTHING: model
+#<HOLTWINTERS-MODEL>
+alpha: 0.1, beta: 0.30000000000000004, gamma: 0.9999999999999999
+seasonal: ADDITIVE
+error: 1111.6438599636774 ( MSE )
+
+HoltWinters-prediction の返り値の二つ目 model によって、予測に用いた
+モデルを知ることができます。モデルには alpha, beta, gamma の値、後述しま
+すがモデルのタイプである seasonal 、さらに error 誤差評価関数の値および
+用いた誤差関数、の情報が入っています。
+error には最も誤差の少なかった alpha beta gamma の組み合わせとそのときの
+誤差評価関数の値が表示されます。この評価関数の値は、もともとのデータと評
+価関数の定義から、十分に小さい値となっているかユーザーが判断する必要があ
+ります。
+
+いま UKgas の最小, 最大値は 84.8, 1163.9 であり、実際の誤差は、二乗平均
+誤差を用いた評価関数の最小値約 1111 よりだいたい 33 ぐらいとわかるので、
+十分に小さい値と判断できます。
+元データ UKgas と比較してみると
+
+EXPL-SMTHING: (draw UKgas pred)
+
+それなりに適切なモデルが得られていることがわかります。
+
+** revision
+もし誤差評価関数の値が十分に小さくならず、あまりよいフィッティングが
+得られていなかった場合の対処として、
+
+・違う誤差評価関数を用いてみる。
+・モデルのタイプを変えてみる。
+・最適なパラメータを選ぶ精度を細かくする。
+
+の三つがあります。
+
+誤差評価関数として、ここでは二乗平均誤差 mse を用いていますが、
+平均絶対誤差率 mape など、他の誤差評価関数も用意されています。
+
+EXPL-SMTHING: (multiple-value-setq (pred-mape model-mape)
+                    (HoltWinters-prediction UKgas-for-learn
+                                            :err-measure 'mape
+                                            :n-ahead 27))
+#<TIME-SERIES-DATASET>
+DIMENSIONS: UKgas
+TYPES:      NUMERIC
+FREQUENCY: 4
+START:     (1960 2)
+END:       (1986 4)
+POINTS:    107
+
+EXPL-SMTHING(18): model-mape
+#<HOLTWINTERS-MODEL>
+alpha: 0.1, beta: 0.1, gamma: 0.9999999999999999
+seasonal: ADDITIVE
+error: 0.10211495479035436 ( MAPE )
+
+EXPL-SMTHING: (draw pred pred-mape)
+
+mse と mape で若干の違いが見られます。
+
+二つ目の方法はモデルのタイプを変えることですが、デフォルトでは :additive
+となっており、選択肢としてもう一つ :multiplicative があります。
+これは予測値を算出する際に、過去のデータから得られた情報をどう寄与させるか
+を決定するもので、
+
+additive というのは、一定量が加算されていくモデル
+multiplicative というのは、一定割合で増加していくモデル
+
+です。関数 HoltWinters-prediction の :seasonal で指定することができます。
+
+EXPL-SMTHING: (multiple-value-setq (pred-mult model-mult)
+                    (HoltWinters-prediction UKgas-for-learn
+                                            :seasonal :multiplicative
+                                            :err-measure 'mse
+                                            :n-ahead 27))
+#<TIME-SERIES-DATASET>
+DIMENSIONS: UKgas
+TYPES:      NUMERIC
+FREQUENCY: 4
+START:     (1960 2)
+END:       (1986 4)
+POINTS:    107
+
+EXPL-SMTHING: model-mult
+#<HOLTWINTERS-MODEL>
+alpha: 0.1, beta: 0.4, gamma: 0.7999999999999999
+seasonal: MULTIPLICATIVE
+error: 898.3782791289863 ( MSE )
+
+最初に行なった :additive モデルの結果と比較しますと、誤差の値は 1111 から 
+898 と小さくなっており、グラフを見てみますと
+
+EXPL-SMTHING: (draw pred pred-mult)
+
+黒い線が :additive, 赤い線が :multiplicative ですが、1980 年以降の予測値を
+見てみるとその増加の仕方に違いが見られます。
+
+計算に時間を要しますが、三つ目の方法として最適なパラメータを選ぶ際の精度
+( デフォルトは 0.1 )をより細かくするという方法もあります。
+精度は :optim-step で指定できます。0.01 として実行すると、
+
+EXPL-SMTHING: (multiple-value-setq (pred-mse-0.01 model-mse-0.01)
+                    (HoltWinters-prediction UKgas-for-learn
+                                            :err-measure 'mse
+                                            :optim-step 0.01d0
+                                            :n-ahead 27))
+#<TIME-SERIES-DATASET>
+DIMENSIONS: UKgas
+TYPES:      NUMERIC
+FREQUENCY: 4
+START:     (1960 2)
+END:       (1986 4)
+POINTS:    107
+
+EXPL-SMTHING(23): model-mse-0.01
+#<HOLTWINTERS-MODEL>
+alpha: 0.03, beta: 0.9700000000000006, gamma: 0.9600000000000006
+seasonal: ADDITIVE
+error: 1052.6321660959095 ( MSE )
+
+EXPL-SMTHING(63): (draw UKgas pred-mse-0.01)
+
+誤差評価関数の最小値が、0.1 のときの 1111 から 1052 に下がっていることがわ
+かります。精度は細かければ細かいほど誤差は少なくなりますが、その分計算すべ
+きパラメータの組み合わせも増え、改善される誤差幅も小さくなっていくと考えら
+れます。
+
+最終的には、以上のようにして得られたいくつかのモデルのグラフをそれぞれ見て
+、観察者がどれかを選ぶことになります。
+
+
+
+
+
+
+
+
+
+
+
+

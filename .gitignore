@@ -1,0 +1,13 @@
+*.o
+*.so
+*.fasl
+*.FASL
+*.64ufasl
+*.ufasl
+*.sbfasl
+*.lisp-temp
+*.tmp
+*~
+.gdb_history
+#*
+.#*

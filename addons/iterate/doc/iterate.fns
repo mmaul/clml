@@ -1,0 +1,55 @@
+\initial {&}
+\entry {\code {\k {&rest}}}{14}
+\initial {A}
+\entry {\code {accumulate}}{11}
+\entry {\code {adjoining}}{10}
+\entry {\code {after-each}}{14}
+\entry {\code {always}}{12}
+\entry {\code {appending}}{10}
+\initial {C}
+\entry {\code {collect}}{10}
+\entry {\code {counting}}{9}
+\initial {D}
+\entry {\code {defclause-sequence}}{26}
+\entry {\code {defmacro-clause}}{23}
+\entry {\code {defmacro-driver}}{25}
+\entry {\code {defsynonym}}{26}
+\entry {\code {display-iterate-clauses}}{16}
+\entry {\code {dsetq}}{16}
+\initial {E}
+\entry {\code {else}}{14}
+\initial {F}
+\entry {\code {finally}}{14}
+\entry {\code {finding}}{11, 12}
+\entry {\code {finish}}{12}
+\entry {\code {first-iteration-p}}{13}
+\entry {\code {first-time-p}}{13}
+\entry {\code {for}}{2, 3, 4, 5, 7, 8}
+\initial {I}
+\entry {\code {if-first-time}}{13}
+\entry {\code {in}}{15}
+\entry {\code {initially}}{13}
+\initial {L}
+\entry {\code {leave}}{13}
+\initial {M}
+\entry {\code {maximize}}{9}
+\entry {\code {minimize}}{9}
+\entry {\code {multiply}}{9}
+\initial {N}
+\entry {\code {nconcing}}{10}
+\entry {\code {never}}{12}
+\entry {\code {next-iteration}}{13}
+\entry {\code {nunioning}}{10}
+\initial {R}
+\entry {\code {reducing}}{10}
+\entry {\code {repeat}}{2}
+\initial {S}
+\entry {\code {sum}}{9}
+\initial {T}
+\entry {\code {thereis}}{12}
+\initial {U}
+\entry {\code {unioning}}{10}
+\entry {\code {until}}{13}
+\initial {W}
+\entry {\code {while}}{13}
+\entry {\code {with}}{7}

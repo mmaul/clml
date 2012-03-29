@@ -1,0 +1,193 @@
+<html lang="en">
+<head>
+<title>Accumulations - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Gathering-Clauses.html#Gathering-Clauses" title="Gathering Clauses">
+<link rel="prev" href="Reductions.html#Reductions" title="Reductions">
+<link rel="next" href="Finders.html#Finders" title="Finders">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Accumulations"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Finders.html#Finders">Finders</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Reductions.html#Reductions">Reductions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Gathering-Clauses.html#Gathering-Clauses">Gathering Clauses</a>
+<hr>
+</div>
+
+<h4 class="subsection">2.3.2 Accumulations</h4>
+
+<p>All the predefined accumulation clauses add values to a sequence.  If
+the sequence is a list, they all have the property that the partial
+list is kept in the correct order and available for inspection at any
+point in the loop.
+
+   <p><a name="index-collect-59"></a>
+
+<div class="defun">
+&mdash; Clause: <b>collect</b><var> exptr </var><code>&amp;optional</code><var><a name="index-collect-60"></a></var><br>
+<blockquote><p>                      <code>into</code> <var>var</var> <code>at</code> <var>place</var> <code>result-type</code> <var>type</var>
+
+        <p>Produces a sequence of the values of <var>exptr</var> on each
+iteration.  <var>place</var> indicates where the next value of <var>exptr</var>
+is added to the list and may be one of the symbols <code>start</code>,
+<code>beginning</code> (a synonym for <code>start</code>) or <code>end</code>.  The
+symbol may be quoted, but need not be.  The default is <code>end</code>. 
+For example,
+
+     <pre class="lisp">       (iter (for i from 1 to 5)
+             (collect i))
+  </pre>
+        <p>produces <code>(1 2 3 4 5)</code>, whereas
+
+     <pre class="lisp">       (iter (for i from 1 to 5)
+             (collect i at beginning))
+  </pre>
+        <p>produces <code>(5 4 3 2 1)</code> (and is likely to be faster in most Common
+Lisp implementations).
+
+        <p>If <var>type</var> is provided, it should be a subtype of <code>sequence</code>. 
+The default is <code>list</code>.  Specifying a type other than <code>list</code>
+will result in <code>collect</code> returning a sequence of that type. 
+<em>However</em>, the type of the sequence being constructed when inside
+the loop body is undefined when a non-<code>list</code> type is specified. 
+(As with <var>place</var>, quoting <var>type</var> is optional.) 
+</p></blockquote></div>
+
+   <p><a name="index-adjoining-61"></a>
+
+<div class="defun">
+&mdash; Clause: <b>adjoining</b><var> exptr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>test</code><var> test </var><code>at</code><var> place </var><code>result-type</code><var> type<a name="index-adjoining-62"></a></var><br>
+<blockquote>
+<p>Like <code>collect</code>, but only adds the value of <var>exptr</var> if it is
+not already present.  <var>test</var>, which defaults to <code>#'eql</code>, is
+the test to be used with <code>member</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-appending-63"></a>
+<a name="index-nconcing-64"></a>
+<a name="index-unioning-65"></a>
+<a name="index-nunioning-66"></a>
+
+<div class="defun">
+&mdash; Clause: <b>appending</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>at</code><var> place<a name="index-appending-67"></a></var><br>
+&mdash; Clause: <b>nconcing</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>at</code><var> place<a name="index-nconcing-68"></a></var><br>
+&mdash; Clause: <b>unioning</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>test</code><var> test </var><code>at</code><var> place<a name="index-unioning-69"></a></var><br>
+&mdash; Clause: <b>nunioning</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>test</code><var> test </var><code>at</code><var> place<a name="index-nunioning-70"></a></var><br>
+<blockquote>
+<p>These are like <code>collect</code>, but behave like the Common Lisp
+functions <code>append</code>, <code>nconc</code>, <code>union</code> or <code>nunion</code>. 
+As in Common Lisp, they work only on lists.  Also as in Common Lisp,
+<code>unioning</code> and <code>nunioning</code> assume that the value of
+<var>expr</var> contains no duplicates. 
+</p></blockquote></div>
+
+   <p><a name="index-accumulate-71"></a>
+
+<div class="defun">
+&mdash; Clause: <b>accumulate</b><var> expr </var><code>by</code><var> func </var><code>&amp;optional</code> <code>initial-value</code><var> init-val </var><code>into</code><var> var<a name="index-accumulate-72"></a></var><br>
+<blockquote>
+<p>This is a general-purpose accumulation clause.  <var>func</var> should be a
+function of two arguments, the value of <var>expr</var> and the value
+accumulated so far in the iteration, and it should return the updated
+value.  If no initial value is supplied, <code>nil</code> is used.
+
+     <!-- If a @var{var} is not specified, you can get @iter{} to declare the -->
+<!-- type of the internal variable by putting a @code{the} expression -->
+<!-- around @var{func}.  see section \ref{types}. -->
+<p>The differences between <code>accumulate</code> and <code>reducing</code> are
+slight.  One difference is that the functions take their arguments in
+a different order.  Another is that in the absence of <var>init-val</var>,
+<code>accumulate</code> will use <code>nil</code>, whereas <code>reducing</code> will
+generate different code that avoids any dependence on the initial
+value.  The reason for having both clauses is that one usually thinks
+of reductions (like <code>sum</code>) and accumulations (like
+<code>collect</code>) as different beasts. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+</body></html>
+

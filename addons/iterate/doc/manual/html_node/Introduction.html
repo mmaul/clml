@@ -1,0 +1,170 @@
+<html lang="en">
+<head>
+<title>Introduction - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="index.html#Top" title="Top">
+<link rel="next" href="Clauses.html#Clauses" title="Clauses">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Introduction"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Clauses.html#Clauses">Clauses</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="index.html#Top">Top</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">1 Introduction</h2>
+
+<p>This manual describes <code>iterate</code>, a powerful iteration facility for
+Common Lisp.  <code>iterate</code> provides abstractions for many common iteration
+patterns and allows for the definition of additional patterns. 
+<code>iterate</code> is a macro that expands into ordinary Lisp at compile-time, so
+it is more efficient than higher-order functions like <code>map</code> and
+<code>reduce</code>.  While it is similar to <code>loop</code>, <code>iterate</code> offers a
+more Lisp-like syntax and enhanced extensibility.  (For a more
+complete comparison of <code>iterate</code> with other iteration constructs, see
+<acronym>MIT</acronym> <acronym>AI</acronym> Lab Working Paper No. 324, <em>Don't
+Loop, Iterate.</em> also included in this manual in <a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">Don't Loop Iterate</a>.)
+
+   <p>An <code>iterate</code> form consists of the symbol <code>iter</code><a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>
+followed by one or more forms, some of which may be <code>iterate</code>
+<em>clauses</em>.  Here is a simple example of <code>iterate</code> which collects
+the numbers from 1 to 10 into a list, and returns the list.  The
+return value is shown following the arrow.
+
+<pre class="lisp">  (iter (for i from 1 to 10)
+        (collect i))          =&gt; (1 2 3 4 5 6 7 8 9 10)
+</pre>
+   <p>This form contains two clauses: a <code>for</code> clause that steps the
+variable <code>i</code> over the integers from 1 to 10, and a <code>collect</code>
+clause that accumulates its argument into a list.  With a few
+exceptions, all <code>iterate</code> clauses have the same format: alternating
+symbols (called <em>keywords</em>) and expressions (called
+<em>arguments</em>).  The syntax and terminology are those of Common
+Lisp's keyword lambda lists.  One difference is that <code>iterate</code>'s keywords
+do not have to begin with a colon&mdash;though they may, except for the
+first symbol of a clause.  So you can also write <code>(for i :from 1
+:to 10)</code> if you prefer.
+
+   <p>Any Lisp form can appear in the body of an <code>iterate</code>, where it will have
+its usual meaning.  <code>iterate</code> walks the entire body, expanding macros,
+and recognizing clauses at any level.  This example collects all the
+odd numbers in a list:
+
+<pre class="lisp">  (iter (for el in list)
+        (if (and (numberp el) (oddp el))
+            (collect el)))
+</pre>
+   <p>There are clauses for iterating over numbers, lists, arrays and other
+objects, and for collecting, summing, counting, maximizing and other
+useful operations.  <code>iterate</code> also supports the creation of new variable
+bindings, stepping over multiple sequences at once, destructuring, and
+compiler declarations of variable types.  The following example
+illustrates some of these features:
+
+<pre class="lisp">  (iter (for (key . item) in alist)
+        (for i from 0)
+        (declare (fixnum i))
+        (collect (cons i key)))
+</pre>
+   <p>This loop takes the keys of an alist and returns a new alist
+associating the keys with their positions in the original list.  The
+compiler declaration for <code>i</code> will appear in the generated code in
+the appropriate place.
+
+<!-- =================================================================== -->
+<div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> You can
+also use <code>iterate</code>, but <code>iter</code> is preferred because it
+avoids potential conflicts with possible future additions to Common
+Lisp, and because it saves horizontal space when writing code.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

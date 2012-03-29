@@ -1,0 +1,217 @@
+<html lang="en">
+<head>
+<title>The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="#Top">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's "The
+     Iterate Manual", MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled "Don't Loop, Iterate."
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<h1 class="settitle">The Iterate Manual and Paper</h1>
+<div class="contents">
+<h2>Table of Contents</h2>
+<ul>
+<li><a name="toc_Top" href="index.html#Top">iterate</a>
+<li><a name="toc_Introduction" href="Introduction.html#Introduction">1 Introduction</a>
+<li><a name="toc_Clauses" href="Clauses.html#Clauses">2 Clauses</a>
+<ul>
+<li><a href="Drivers.html#Drivers">2.1 Drivers</a>
+<ul>
+<li><a href="Numerical-Iteration.html#Numerical-Iteration">2.1.1 Numerical Iteration</a>
+<li><a href="Sequence-Iteration.html#Sequence-Iteration">2.1.2 Sequence Iteration</a>
+<li><a href="Generalized-Drivers.html#Generalized-Drivers">2.1.3 Generalized Drivers</a>
+<li><a href="Generators.html#Generators">2.1.4 Generators</a>
+<li><a href="Previous-Values-of-Driver-Variables.html#Previous-Values-of-Driver-Variables">2.1.5 Previous Values of Driver Variables</a>
+</li></ul>
+<li><a href="Variable-Binding-and-Setting.html#Variable-Binding-and-Setting">2.2 Variable Binding and Setting</a>
+<li><a href="Gathering-Clauses.html#Gathering-Clauses">2.3 Gathering Clauses</a>
+<ul>
+<li><a href="Reductions.html#Reductions">2.3.1 Reductions</a>
+<li><a href="Accumulations.html#Accumulations">2.3.2 Accumulations</a>
+<li><a href="Finders.html#Finders">2.3.3 Finders</a>
+<li><a href="Aggregated-Boolean-Tests.html#Aggregated-Boolean-Tests">2.3.4 Aggregated Boolean Tests</a>
+</li></ul>
+<li><a href="Control-Flow.html#Control-Flow">2.4 Control Flow</a>
+<li><a href="Predicates.html#Predicates">2.5 Predicates</a>
+<li><a href="Code-Placement.html#Code-Placement">2.6 Code Placement</a>
+</li></ul>
+<li><a name="toc_Other-Features" href="Other-Features.html#Other-Features">3 Other Features</a>
+<ul>
+<li><a href="Other-Features.html#Other-Features">3.1 Multiple Accumulations</a>
+<li><a href="Named-Blocks.html#Named-Blocks">3.2 Named Blocks</a>
+<li><a href="Destructuring.html#Destructuring">3.3 Destructuring</a>
+<li><a href="On_002dline-Help.html#On_002dline-Help">3.4 On-line Help</a>
+<li><a href="Parallel-Binding-and-Stepping.html#Parallel-Binding-and-Stepping">3.5 Parallel Binding and Stepping</a>
+</li></ul>
+<li><a name="toc_Types-and-Declarations" href="Types-and-Declarations.html#Types-and-Declarations">4 Types and Declarations</a>
+<ul>
+<li><a href="Types-and-Declarations.html#Types-and-Declarations">4.1 Discussion</a>
+<li><a href="Types-and-Declarations.html#Types-and-Declarations">4.2 Summary</a>
+</li></ul>
+<li><a name="toc_Problems-with-Code-Movement" href="Problems-with-Code-Movement.html#Problems-with-Code-Movement">5 Problems with Code Movement</a>
+<li><a name="toc_Differences-Between-Iterate-and-Loop" href="Differences-Between-Iterate-and-Loop.html#Differences-Between-Iterate-and-Loop">6 Differences Between <code>Iterate</code> and <code>Loop</code></a>
+<li><a name="toc_Rolling-Your-Own" href="Rolling-Your-Own.html#Rolling-Your-Own">7 Rolling Your Own</a>
+<ul>
+<li><a href="Rolling-Your-Own.html#Rolling-Your-Own">7.1 Introduction</a>
+<li><a href="Writing-Drivers.html#Writing-Drivers">7.2 Writing Drivers</a>
+<li><a href="Extensibility-Aids.html#Extensibility-Aids">7.3 Extensibility Aids</a>
+<li><a href="Subtleties.html#Subtleties">7.4 Subtleties</a>
+</li></ul>
+<li><a name="toc_Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029" href="Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029.html#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">8 Non-portable Extensions to Iterate (Contribs)</a>
+<ul>
+<li><a href="Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029.html#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">8.1 An SQL Query Driver for Iterate</a>
+</li></ul>
+<li><a name="toc_Obtaining-Iterate" href="Obtaining-Iterate.html#Obtaining-Iterate">9 Obtaining <code>Iterate</code></a>
+<li><a name="toc_Acknowledgements" href="Acknowledgements.html#Acknowledgements">10 Acknowledgements</a>
+<li><a name="toc_Don_0027t-Loop-Iterate" href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">Appendix A Don't Loop, Iterate</a>
+<ul>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.1 Introduction</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.2 More about <code>iterate</code></a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.3 Comparisons With Other Iteration Methods</a>
+<ul>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.3.1 <code>do</code>, <code>dotimes</code> and <code>dolist</code></a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.3.2 Tail Recursion</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.3.3 High-order Functions</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.3.4 Streams and Generators</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.3.5 Series</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.3.6 <code>Prog</code> and <code>Go</code></a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.3.7 <code>Loop</code></a>
+</li></ul>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.4 Implementation</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.5 Conclusion</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.6 Acknowledgments</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">A.7 Bibliography</a>
+</li></ul>
+<li><a name="toc_Comprehensive-Index" href="Comprehensive-Index.html#Comprehensive-Index">Index</a>
+</li></ul>
+</div>
+
+
+
+<div class="node">
+<p>
+<a name="Top"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Introduction.html#Introduction">Introduction</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="../index.html#dir">(dir)</a>
+<hr>
+</div>
+
+<h2 class="unnumbered">iterate</h2>
+
+<p>Copyright &copy; 1989 Jonathan Amsterdam &lt;jba at ai.mit.edu&gt; <br>
+<!-- Copyright @copyright{} 2006 Lu@'{@dotless{i}}s Oliveira -->
+<!-- <loliveira at common-lisp.net> @* -->
+
+   <blockquote>
+The present manual is a conversion of Jonathan Amsterdam's &ldquo;The
+Iterate Manual&rdquo;, <acronym>MIT</acronym> <acronym>AI</acronym> Memo No. 1236.  Said memo
+mentioned the following contract information:
+
+        <p><em>This report describes research done at the Artificial
+Intelligence Laboratory of the Massachusetts Institute of Technology. 
+Support for the laboratory's artificial intelligence research is
+provided in part by the Advanced Research Projects Agency of the
+Department of Defense under Office of Naval Research contract
+N00014-85-K-0124.</em>
+
+        <p>The appendix includes Jonathan Amsterdam's Working Paper 324,
+MIT AI Lab entitled &ldquo;Don't Loop, Iterate.&rdquo;
+</blockquote>
+
+<ul class="menu">
+<li><a accesskey="1" href="Introduction.html#Introduction">Introduction</a>
+<li><a accesskey="2" href="Clauses.html#Clauses">Clauses</a>
+<li><a accesskey="3" href="Other-Features.html#Other-Features">Other Features</a>
+<li><a accesskey="4" href="Types-and-Declarations.html#Types-and-Declarations">Types and Declarations</a>
+<li><a accesskey="5" href="Problems-with-Code-Movement.html#Problems-with-Code-Movement">Problems with Code Movement</a>
+<li><a accesskey="6" href="Differences-Between-Iterate-and-Loop.html#Differences-Between-Iterate-and-Loop">Differences Between Iterate and Loop</a>
+<li><a accesskey="7" href="Rolling-Your-Own.html#Rolling-Your-Own">Rolling Your Own</a>
+<li><a accesskey="8" href="Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029.html#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">Non-portable Extensions to Iterate (Contribs)</a>
+<li><a accesskey="9" href="Obtaining-Iterate.html#Obtaining-Iterate">Obtaining Iterate</a>
+<li><a href="Acknowledgements.html#Acknowledgements">Acknowledgements</a>
+<li><a href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">Don't Loop Iterate</a>
+<li><a href="Comprehensive-Index.html#Comprehensive-Index">Comprehensive Index</a>
+</ul>
+
+<!-- =================================================================== -->
+</body></html>
+

@@ -1,0 +1,53 @@
+@numchapentry{Introduction}{1}{Introduction}{1}
+@numchapentry{Clauses}{2}{Clauses}{2}
+@numsecentry{Drivers}{2.1}{Drivers}{2}
+@numsubsecentry{Numerical Iteration}{2.1.1}{Numerical Iteration}{2}
+@numsubsecentry{Sequence Iteration}{2.1.2}{Sequence Iteration}{3}
+@numsubsecentry{Generalized Drivers}{2.1.3}{Generalized Drivers}{5}
+@numsubsecentry{Generators}{2.1.4}{Generators}{5}
+@numsubsecentry{Previous Values of Driver Variables}{2.1.5}{Previous Values of Driver Variables}{7}
+@numsecentry{Variable Binding and Setting}{2.2}{Variable Binding and Setting}{7}
+@numsecentry{Gathering Clauses}{2.3}{Gathering Clauses}{9}
+@numsubsecentry{Reductions}{2.3.1}{Reductions}{9}
+@numsubsecentry{Accumulations}{2.3.2}{Accumulations}{10}
+@numsubsecentry{Finders}{2.3.3}{Finders}{11}
+@numsubsecentry{Aggregated Boolean Tests}{2.3.4}{Aggregated Boolean Tests}{12}
+@numsecentry{Control Flow}{2.4}{Control Flow}{12}
+@numsecentry{Predicates}{2.5}{Predicates}{13}
+@numsecentry{Code Placement}{2.6}{Code Placement}{13}
+@numchapentry{Other Features}{3}{Other Features}{15}
+@numsecentry{Multiple Accumulations}{3.1}{}{15}
+@numsecentry{Named Blocks}{3.2}{Named Blocks}{15}
+@numsecentry{Destructuring}{3.3}{Destructuring}{16}
+@numsecentry{On-line Help}{3.4}{On-line Help}{16}
+@numsecentry{Parallel Binding and Stepping}{3.5}{Parallel Binding and Stepping}{16}
+@numchapentry{Types and Declarations}{4}{Types and Declarations}{18}
+@numsecentry{Discussion}{4.1}{}{18}
+@numsecentry{Summary}{4.2}{}{20}
+@numchapentry{Problems with Code Movement}{5}{Problems with Code Movement}{21}
+@numchapentry{Differences Between @code {Iterate} and @code {Loop}}{6}{Differences Between Iterate and Loop}{22}
+@numchapentry{Rolling Your Own}{7}{Rolling Your Own}{23}
+@numsecentry{Introduction}{7.1}{}{23}
+@numsecentry{Writing Drivers}{7.2}{Writing Drivers}{24}
+@numsecentry{Extensibility Aids}{7.3}{Extensibility Aids}{26}
+@numsecentry{Subtleties}{7.4}{Subtleties}{27}
+@numchapentry{Non-portable Extensions to Iterate (Contribs)}{8}{Non-portable Extensions to Iterate (Contribs)}{28}
+@numsecentry{An SQL Query Driver for Iterate}{8.1}{}{28}
+@numchapentry{Obtaining @code {Iterate}}{9}{Obtaining Iterate}{29}
+@numchapentry{Acknowledgements}{10}{Acknowledgements}{30}
+@appentry{Don't Loop, Iterate}{A}{Don't Loop Iterate}{31}
+@appsecentry{Introduction}{A.1}{}{31}
+@appsecentry{More about @iter {}}{A.2}{}{31}
+@appsecentry{Comparisons With Other Iteration Methods}{A.3}{}{32}
+@appsubsecentry{@code {do}, @code {dotimes} and @code {dolist}}{A.3.1}{}{32}
+@appsubsecentry{Tail Recursion}{A.3.2}{}{33}
+@appsubsecentry{High-order Functions}{A.3.3}{}{33}
+@appsubsecentry{Streams and Generators}{A.3.4}{}{34}
+@appsubsecentry{Series}{A.3.5}{}{35}
+@appsubsecentry{@code {Prog} and @code {Go}}{A.3.6}{}{35}
+@appsubsecentry{@code {Loop}}{A.3.7}{}{35}
+@appsecentry{Implementation}{A.4}{}{36}
+@appsecentry{Conclusion}{A.5}{}{36}
+@appsecentry{Acknowledgments}{A.6}{}{36}
+@appsecentry{Bibliography}{A.7}{}{36}
+@unnchapentry{Index}{10001}{Comprehensive Index}{38}

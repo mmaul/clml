@@ -1,0 +1,123 @@
+nearest-search.cl: （近似）最近傍探索 nearest-search
+
+* nearest-search オブジェクト
+input-data: 入力データ
+input-key:  データから比較用のベクトルを取り出す関数. defaultは#'identity
+distance:   2引数の距離関数 defaultは#'hjs.util.vector:euclid-distance
+
+注意：一部のクラスに対してはdistanceは二つのdvecを取りdouble-floatを返す必要がある
+naive以外の近傍点探索を用いる動機は高速化であると思われるので、この要求は自然と考えている
+また、kd-treeに関してはアルゴリズム自体がカテゴリーデータには適用できない
+
+
+* 標準メソッド
+dataはinput-keyに渡される
+make-instanceされた時点で自動的に初期化ステップが走るので、すぐ下記のメソッドが使える
+
+- (find-nearest nearest-search data)
+  dataに一番近い点と距離を返す
+
+- (find-nearest-k nearest-search data k &optional result tmp-distances)
+  dataからのk近傍点と距離の入った長さkのベクトルを返す
+  (result,tmp-distances)は長さkの(vector,dvec)を与える（初期化は自動的に行われる.ゴミ抑制のため）
+
+- (find-nearest-epsilon nearest-search data epsilon &optional result)
+  dataから距離epsilon以内の点すべての入ったベクトルを返す（距離は返さない！）
+  resultにはextend可能なvectorを与える（初期化は自動）
+
+* 実装済み（近似）近傍点class hierarchy list
+  葉にあたるclassでしか動作しない！
+
+- nearest-search
+-- exact-nearest-search  (厳密な近傍点探索)
+--- naive-nearest-search (単に全データをチェックするnaiveな探索)
+--- kd-tree-search       (kd-木: n次元空間を超矩形で分割する)
+--- m-tree-search        (m-木:  n次元距離空間を超球体で分割する)
+　　　　　　　　　　　　　　　　追加引数 (:m 木の次数 :pivot rootのpivot(dvec)
+                                  :priority-queue priority-queueの種類 default = :binomial (priority-queue.clを参照))
+-- stochastic-nearest-search               (近似近傍点探索)
+--- locality-sensitive-hashing             (LSH: 代表的な近似近傍点探索)
+                                            追加引数 (:L hash長 :k hash数)
+---- p-stable-locality-sensitive-hashing   (p安定分布族に対するLSH)
+                                            追加引数 (:w 分母(double-float))
+----- euclid-locality-sensitive-hashing    (euclid距離に対するgauss分布を使ったLSH)
+----- manhattan-locality-sensitive-hashing (manhattan距離に対するcauchy分布を使ったLSH)
+---- cosine-locality-sensitive-hashing     (cosine距離に対するLSH)
+
+* Tips:
+一般に、高次元データに対しては近似近傍点探索が強い
+低次元、大量データにはnaive,m-treeが優秀
+どれが最速かはオーバーヘッド次第
+
+m-treeのmは大きいほど分割が大きくなり、幅が広い木となる
+pivotは次元さえあってればなんでもいいが、性能を考えると距離空間の真ん中にあるとよい（全データの平均など）
+
+LSHに対して距離関数を与えても（hash関数は距離関数に対して定義されるため）勝手に上書きされる
+# errorを返すべき？
+
+LSHはL,k,wの三つのパラメータで精度と速度のトレードオフを制御する
+理論計算量はO(Lk)
+# 実際にはO(L^2k)な気がする。実験するとそうなる by 藤井
+wはhash-bitのon/offの閾値で、大きいほど発火点が下がる=一つのハッシュに入るデータ数が減る=誤検出が減ることが期待される
+それぞれのパラメータの正確な意味は、元論文を参照していただきたい
+Lはrecallを高めるパラメータ
+kはprecisionを高めるパラメータ
+と思えばよい
+
+* Todo
+
+m-tree,kd-treeは、実際にはpivot選択によって性能が大きく変化する
+汎用的に性能が高いものを選んだつもりだが、別の実装を試す必要がある？
+
+m-treeにおけるpriority-queueは検索時に使用するので、make-instance時ではなく、find-nearest-*の引数でもよいはず
+&allow-other-keysとかを使ってそういうインターフェイスにすべきか否か
+
+以下のものは性能が出ないのでバグとかチェック中です
+
+- spectral-hashing (PCAを使ってハッシュ関数を設計する L-n距離用？ :Lは次元数以下である必要がある)
+- simhash          (cosine距離用：構築・探索に効率的なアルゴリズムを使えるはず)
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+k-nn-new.cl: nearest-searchパッチ済k-nn
+
+完全に別パッケージにパッチ済クローンをまるまる定義する
+（カテゴリデータについて拡張されたk-nnの扱いが面倒だったので）
+問題無ければ単にパッケージ名とファイルを置き換えるだけでよい
+
+インターフェイスに対して追加引数nns-type,nns-argsを定義
+nns-argsはlistでapplyの最後に渡るようになっている
+naiveに対しては依然としてカテゴリデータを扱える（はず）
+多少の引数チェックはしている
+
+sample/eyes200.sexp（1680次元）に対して試すとLSHの威力がある程度分かるが、インスタンスが200程度なのでちょっと寂しい
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+optics-speed.cl: OPTICSに対するnearest-searchパッチ
+
+必要な箇所だけOPTICSパッケージに追加定義する
+optics-speedがインターフェイス
+
+追加引数はk-nnと同じくnns-type,nns-args
+フォーマットも同じ
+
+参考文献：
+
+kd-tree:
+Songrit Maneewongvatana and David M. Mount, "It’s okay to be skinny, if your friends are fat", 4th Annual CGC Workshop on Computational Geometry, 1999 (Sliding-midpoint split)
+(他の空間木データ構造へのポインタが豊富)
+
+m-tree:
+Paolo C., Marco P., Pavel Z.,"M-tree: An Efficient Access Method for Similarity Search in Metric Spaces", Proceedings of the 23rd International Conference on Very Large Data Bases, 1997
+
+LSH:
+Datar M., Immorlica N., Indyk P., Mirrokni V S., "Locality-sensitive hashing scheme based on p-stable distributions, Proceedings of the twentieth annual symposium on Computational geometry", 2004
+lsh p-stable: http://www.slideshare.net/JavaDM/lsh-pstable-1565961 (日本語)
+http://d.hatena.ne.jp/n_shuyo/20100201/simhash (cosine-lsh, Lとkの簡単な説明)
+
+spectral hashing:
+Y. Weiss, A. Torralba, R. Fergus."Spectral Hashing", NIPS, 2008.
+
+simHash:
+Gurmeet Singh Manku ，Arvind Jain， and Anish Das Sarma． "Detecting near-duplicates for web crawling"， Proceedings of the 16th international conference on World Wide Web, 2007．

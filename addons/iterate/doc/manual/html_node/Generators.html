@@ -1,0 +1,200 @@
+<html lang="en">
+<head>
+<title>Generators - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Drivers.html#Drivers" title="Drivers">
+<link rel="prev" href="Generalized-Drivers.html#Generalized-Drivers" title="Generalized Drivers">
+<link rel="next" href="Previous-Values-of-Driver-Variables.html#Previous-Values-of-Driver-Variables" title="Previous Values of Driver Variables">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Generators"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Previous-Values-of-Driver-Variables.html#Previous-Values-of-Driver-Variables">Previous Values of Driver Variables</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Generalized-Drivers.html#Generalized-Drivers">Generalized Drivers</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Drivers.html#Drivers">Drivers</a>
+<hr>
+</div>
+
+<h4 class="subsection">2.1.4 Generators</h4>
+
+<p>In all of the above clauses, the driver variable is updated on each
+iteration.  Sometimes it is desirable to have greater control over
+updating.  For instance, consider the problem of associating numbers,
+in increasing order and with no gaps, with the non-<code>nil</code> elements
+of a list.  One obvious first pass at writing this is:
+
+<pre class="lisp">  (iter (for el in list)
+        (for i upfrom 1)
+        (if el (collect (cons el i))))
+</pre>
+   <p>But on the list <code>(a b nil c)</code> this produces <code>((a . 1) (b
+. 2) (c .  4))</code> instead of the desired <code>((a . 1) (b . 2) (c
+. 3))</code>.  The problem is that <code>i</code> is incremented each time through
+the loop, even when <code>el</code> is <code>nil</code>.
+
+   <p>The problem could be solved elegantly if we could step <code>i</code> only
+when we wished to.  This can be accomplished for any <code>iterate</code> driver by
+writing <code>generate</code> (or its synonym <code>generating</code>) instead of
+<code>for</code>.  Doing so produces a <em>generator</em>&mdash;a driver whose
+values are yielded explicitly.  To obtain the next value of a
+generator variable <var>v</var>, write <code>(next </code><var>v</var><code>)</code>.  The value of
+a <code>next</code> form is the next value of <em>v</em>, as determined by its
+associated driver clause.  <code>next</code> also has the side-effect of
+updating <var>v</var> to that value.  If there is no next value,
+<code>next</code> will terminate the loop, just as with a normal driver.
+
+   <p>Using generators, we can now write our example like this:
+
+<pre class="lisp">  (iter (for el in list)
+        (generate i upfrom 1)
+        (if el (collect (cons el (next i)))))
+</pre>
+   <p>Now <code>i</code> is updated only when <code>(next i)</code> is executed, and
+this occurs only when <code>el</code> is non-<code>nil</code>.
+
+   <p>To better understand the relationship between ordinary drivers and
+generators, observe that we can rewrite an ordinary driver using its
+generator form immediately followed by <code>next</code>, as this example
+shows:
+
+<pre class="lisp">  (iter (generating i from 1 to 10)
+        (next i)
+        ...)
+</pre>
+   <p>Provided that the loop body contains no <code>(next i)</code> forms, this
+will behave just as if we had written <code>(for i from 1 to 10)</code>.
+
+   <p>We can still refer to a driver variable <var>v</var> without using
+<code>next</code>; in this case, its value is that given to it by the last
+evaluation of <code>(next </code><var>v</var><code>)</code>.  Before <code>(next </code><var>v</var><code>)</code> has
+been called the first time, the value of <var>v</var> is undefined.
+
+   <p>This semantics is more flexible than one in which <var>v</var> begins the
+loop bound to its first value and calls of <code>next</code> supply
+subsequent values, because it means the loop will not terminate too
+soon if the generator's sequence is empty.  For instance, consider the
+following code, which tags non-<code>nil</code> elements of a list using a
+list of tags, and also counts the null elements.  (We assume there are
+at least as many tags as non-<code>nil</code> elements.)
+
+<pre class="lisp">  (let* ((counter 0)
+         (tagged-list (iter (for el in list)
+                            (generating tag in tag-list)
+                            (if (null el)
+                                (incf counter)
+                                (collect (cons el (next tag)))))))
+    ...)
+</pre>
+   <p>It may be that there are just as many tags as non-null elements of
+<code>list</code>.  If all the elements of <code>list</code> are null, we still
+want the counting to proceed, even though <code>tag-list</code> is
+<code>nil</code>.  If <code>tag</code> had to be assigned its first value before
+the loop begins, we would have had to terminate the loop before the
+first iteration, since when <code>tag-list</code> is <code>nil</code>, <code>tag</code>
+has no first value.  With the existing semantics, however, <code>(next
+tag)</code> will never execute, so the iteration will cover all the elements
+of <code>list</code>.
+
+   <p>When the &ldquo;variable&rdquo; of a driver clause is actually a destructuring
+template containing several variables, all the variables are eligible
+for use with <code>next</code>.  As before, <code>(next </code><var>v</var><code>)</code> evaluates
+to <var>v</var>'s next value; but the effect is to update all of the
+template's variables.  For instance, the following code will return
+the list <code>(a 2 c)</code>.
+
+<pre class="lisp">  (iter (generating (key . item) in '((a . 1) (b . 2) (c . 3)))
+        (collect (next key))
+        (collect (next item)))
+</pre>
+   <p>Only driver clauses with variables can be made into generators.  This
+includes all clauses mentioned so far except for <code>repeat</code>.  It
+does <em>not</em> include <code>for... previous</code>, <code>for... 
+=</code>, <code>for... initially... then</code> or <code>for... 
+first... then</code> (see below).
+
+<!-- =================================================================== -->
+</body></html>
+

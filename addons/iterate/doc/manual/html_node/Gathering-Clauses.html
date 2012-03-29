@@ -1,0 +1,137 @@
+<html lang="en">
+<head>
+<title>Gathering Clauses - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Clauses.html#Clauses" title="Clauses">
+<link rel="prev" href="Variable-Binding-and-Setting.html#Variable-Binding-and-Setting" title="Variable Binding and Setting">
+<link rel="next" href="Control-Flow.html#Control-Flow" title="Control Flow">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Gathering-Clauses"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Control-Flow.html#Control-Flow">Control Flow</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Variable-Binding-and-Setting.html#Variable-Binding-and-Setting">Variable Binding and Setting</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Clauses.html#Clauses">Clauses</a>
+<hr>
+</div>
+
+<h3 class="section">2.3 Gathering Clauses</h3>
+
+<p>Many of <code>iterate</code>'s clauses accumulate values into a variable, or set a
+variable under certain conditions.  At the end of the loop, this
+variable contains the desired result.  All these clauses have an
+optional <code>into</code> keyword, whose argument should be a symbol.  If
+the <code>into</code> keyword is not supplied, the accumulation variable
+will be internally generated and its value will be returned at the end
+of the loop; if a variable is specified, that variable is used for the
+accumulation, and is not returned as a result&mdash;it is up to the user
+to return it explicitly, in the loop's epilogue code (see
+<code>finally</code>).  It is safe to examine the accumulation variable
+during the loop, but it should not be modified.
+
+   <p>These clauses all begin with a verb.  When the verb does not conflict
+with an existing Common Lisp function, then it may be used in either
+its infinitival or present-participle form (e.g. <code>sum</code>,
+<code>summing</code>).  However, when there is a conflict with Common Lisp,
+only the present-participle form may be used (e.g. <code>unioning</code>). 
+This is to prevent <code>iterate</code> clauses from clashing with Common Lisp
+functions.
+
+<!-- although these clauses are described as ``producing a value,'' it -->
+<!-- is a mistake to think of the lisp list representing the clause as a -->
+<!-- value-producing form in the usual way.  clauses may legally be -->
+<!-- written where a value is expected, e.g.@: @code{(setq x (sum i))}, -->
+<!-- but the lisp value of a clause in such a context is undefined. -->
+<ul class="menu">
+<li><a accesskey="1" href="Reductions.html#Reductions">Reductions</a>
+<li><a accesskey="2" href="Accumulations.html#Accumulations">Accumulations</a>
+<li><a accesskey="3" href="Finders.html#Finders">Finders</a>
+<li><a accesskey="4" href="Aggregated-Boolean-Tests.html#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a>
+</ul>
+
+<!-- =================================================================== -->
+</body></html>
+

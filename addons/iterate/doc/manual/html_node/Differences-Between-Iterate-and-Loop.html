@@ -1,0 +1,151 @@
+<html lang="en">
+<head>
+<title>Differences Between Iterate and Loop - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Problems-with-Code-Movement.html#Problems-with-Code-Movement" title="Problems with Code Movement">
+<link rel="next" href="Rolling-Your-Own.html#Rolling-Your-Own" title="Rolling Your Own">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Differences-Between-Iterate-and-Loop"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Rolling-Your-Own.html#Rolling-Your-Own">Rolling Your Own</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Problems-with-Code-Movement.html#Problems-with-Code-Movement">Problems with Code Movement</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">6 Differences Between <code>Iterate</code> and <code>Loop</code></h2>
+
+<p><code>loop</code> contains a great deal of complexity which <code>iterate</code> tries to
+avoid.  Hence many esoteric features of <code>loop</code> don't exist in
+<code>iterate</code>.  Other features have been carried over, but in a cleaned-up
+form.  And of course, many new features have been added; they are not
+mentioned in this list.
+
+     <ul>
+<li><code>iterate</code>'s syntax is more Lisp-like than <code>loop</code>'s, having a higher
+density of parens.
+
+     <li>The current implementation of <code>iterate</code>, unlike the standardised version
+of <code>loop</code>, is extensible (see <a href="Rolling-Your-Own.html#Rolling-Your-Own">Rolling Your Own</a>).
+
+     <li><code>loop</code> puts the updates of all driver variables at the top of the
+loop; <code>iterate</code> leaves them where the driver clauses appear.  In
+particular, <code>iterate</code> allows to place drivers after <code>while</code> clauses.
+
+     <li>While for the most part <code>iterate</code> clauses that resemble <code>loop</code>
+clauses behave similarly, there are some differences.  For instance,
+there is no <code>for... =... then</code> in <code>iterate</code>; instead use
+<code>for... initially... then</code>.
+
+     <li><code>loop</code> binds the variable <code>it</code> at certain times to allow
+pseudo-English expressions like <code>when </code><var>expr</var><code> return it</code>.  In
+<code>iterate</code>, you must bind <var>expr</var> to a variable yourself.  Note that
+<code>when </code><var>expr</var><code> return it</code> is like <code>thereis </code><var>expr</var>
+except that the latter is an accumulation clause and therefore
+competes with other accumulations (remember &ldquo;Multiple Accumulations&rdquo;
+in <a href="Other-Features.html#Other-Features">Other Features</a>).
+
+     <!-- repeat different behaviour of |always| clause here? -->
+<li><code>loop</code> has a special <code>return</code> clause, illustrated in the
+previous item.  <code>iterate</code> doesn't need one, since an ordinary Lisp
+<code>return</code> has the same effect.
+
+     <li><code>loop</code> allows for parallel binding and stepping of iteration
+variables.  <code>iterate</code> does not.  (See <a href="Parallel-Binding-and-Stepping.html#Parallel-Binding-and-Stepping">Parallel Binding and Stepping</a>.)
+
+     <li><code>loop</code> and <code>iterate</code> handle variable type declarations very
+differently.  <code>loop</code> provides a special syntax for declaring
+variable types, and does not examine declarations.  Moreover, the
+standard implementation of <code>loop</code> will generate declarations when
+none are requested.  <code>iterate</code> parses standard Common Lisp type
+declarations, and will never declare a variable itself unless
+declarations are specifically requested. 
+</ul>
+
+<!-- =================================================================== -->
+</body></html>
+

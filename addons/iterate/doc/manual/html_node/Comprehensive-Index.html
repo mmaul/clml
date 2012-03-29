@@ -1,0 +1,169 @@
+<html lang="en">
+<head>
+<title>Comprehensive Index - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate" title="Don't Loop Iterate">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Comprehensive-Index"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Don_0027t-Loop-Iterate.html#Don_0027t-Loop-Iterate">Don't Loop Iterate</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="unnumbered">Index</h2>
+
+<ul class="index-cp" compact>
+<li><a href="Types-and-Declarations.html#index-g_t_002aalways_002ddeclare_002dvariables_002a-119">*always-declare-variables*</a>: <a href="Types-and-Declarations.html#Types-and-Declarations">Types and Declarations</a></li>
+<li><a href="Sequence-Iteration.html#index-g_t_002alist_002dend_002dtest_002a-7"><code>*list-end-test*</code></a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Extensibility-Aids.html#index-g_t_002aresult_002dvar_002a-125"><code>*result-var*</code></a>: <a href="Extensibility-Aids.html#Extensibility-Aids">Extensibility Aids</a></li>
+<li><a href="Accumulations.html#index-accumulate-71">accumulate</a>: <a href="Accumulations.html#Accumulations">Accumulations</a></li>
+<li><a href="Accumulations.html#index-adjoining-61">adjoining</a>: <a href="Accumulations.html#Accumulations">Accumulations</a></li>
+<li><a href="Code-Placement.html#index-after_002deach-103">after-each</a>: <a href="Code-Placement.html#Code-Placement">Code Placement</a></li>
+<li><a href="Aggregated-Boolean-Tests.html#index-always-79">always</a>: <a href="Aggregated-Boolean-Tests.html#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a></li>
+<li><a href="Accumulations.html#index-appending-63">appending</a>: <a href="Accumulations.html#Accumulations">Accumulations</a></li>
+<li><a href="Accumulations.html#index-collect-59">collect</a>: <a href="Accumulations.html#Accumulations">Accumulations</a></li>
+<li><a href="Reductions.html#index-counting-51">counting</a>: <a href="Reductions.html#Reductions">Reductions</a></li>
+<li><a href="Types-and-Declarations.html#index-declare_002dvariables-118">declare-variables</a>: <a href="Types-and-Declarations.html#Types-and-Declarations">Types and Declarations</a></li>
+<li><a href="Extensibility-Aids.html#index-defclause_002dsequence-128">defclause-sequence</a>: <a href="Extensibility-Aids.html#Extensibility-Aids">Extensibility Aids</a></li>
+<li><a href="Rolling-Your-Own.html#index-defmacro_002dclause-120">defmacro-clause</a>: <a href="Rolling-Your-Own.html#Rolling-Your-Own">Rolling Your Own</a></li>
+<li><a href="Writing-Drivers.html#index-defmacro_002ddriver-122">defmacro-driver</a>: <a href="Writing-Drivers.html#Writing-Drivers">Writing Drivers</a></li>
+<li><a href="Extensibility-Aids.html#index-defsynonym-126">defsynonym</a>: <a href="Extensibility-Aids.html#Extensibility-Aids">Extensibility Aids</a></li>
+<li><a href="On_002dline-Help.html#index-display_002diterate_002dclauses-115">display-iterate-clauses</a>: <a href="On_002dline-Help.html#On_002dline-Help">On-line Help</a></li>
+<li><a href="Destructuring.html#index-dsetq-113">dsetq</a>: <a href="Destructuring.html#Destructuring">Destructuring</a></li>
+<li><a href="Code-Placement.html#index-else-105">else</a>: <a href="Code-Placement.html#Code-Placement">Code Placement</a></li>
+<li><a href="Code-Placement.html#index-finally-107">finally</a>: <a href="Code-Placement.html#Code-Placement">Code Placement</a></li>
+<li><a href="Code-Placement.html#index-finally_002dprotected-109">finally-protected</a>: <a href="Code-Placement.html#Code-Placement">Code Placement</a></li>
+<li><a href="Finders.html#index-finding_0040dots_007b_007dmaximizing-75">finding<small class="dots">...</small>maximizing</a>: <a href="Finders.html#Finders">Finders</a></li>
+<li><a href="Finders.html#index-finding_0040dots_007b_007dminimizing-76">finding<small class="dots">...</small>minimizing</a>: <a href="Finders.html#Finders">Finders</a></li>
+<li><a href="Finders.html#index-finding_0040dots_007b_007dsuch_002dthat-73">finding<small class="dots">...</small>such-that</a>: <a href="Finders.html#Finders">Finders</a></li>
+<li><a href="Control-Flow.html#index-finish-85">finish</a>: <a href="Control-Flow.html#Control-Flow">Control Flow</a></li>
+<li><a href="Predicates.html#index-first_002diteration_002dp-97">first-iteration-p</a>: <a href="Predicates.html#Predicates">Predicates</a></li>
+<li><a href="Predicates.html#index-first_002dtime_002dp-99">first-time-p</a>: <a href="Predicates.html#Predicates">Predicates</a></li>
+<li><a href="Numerical-Iteration.html#index-for-3">for</a>: <a href="Numerical-Iteration.html#Numerical-Iteration">Numerical Iteration</a></li>
+<li><a href="Variable-Binding-and-Setting.html#index-for_0040dots_007b_007d_003d-41">for<small class="dots">...</small>=</a>: <a href="Variable-Binding-and-Setting.html#Variable-Binding-and-Setting">Variable Binding and Setting</a></li>
+<li><a href="Generalized-Drivers.html#index-for_0040dots_007b_007ddo_002dnext-35">for<small class="dots">...</small>do-next</a>: <a href="Generalized-Drivers.html#Generalized-Drivers">Generalized Drivers</a></li>
+<li><a href="Variable-Binding-and-Setting.html#index-for_0040dots_007b_007dfirst_0040dots_007b_007dthen-45">for<small class="dots">...</small>first<small class="dots">...</small>then</a>: <a href="Variable-Binding-and-Setting.html#Variable-Binding-and-Setting">Variable Binding and Setting</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din-5">for<small class="dots">...</small>in</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din_002dfile-28">for<small class="dots">...</small>in-file</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din_002dhashtable-22">for<small class="dots">...</small>in-hashtable</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din_002dpackage-24">for<small class="dots">...</small>in-package</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din_002dpackages-26">for<small class="dots">...</small>in-packages</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din_002dsequence-12">for<small class="dots">...</small>in-sequence</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din_002dstream-30">for<small class="dots">...</small>in-stream</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din_002dstring-14">for<small class="dots">...</small>in-string</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007din_002dvector-10">for<small class="dots">...</small>in-vector</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007dindex_002dof_002dsequence-17">for<small class="dots">...</small>index-of-sequence</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007dindex_002dof_002dstring-18">for<small class="dots">...</small>index-of-string</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007dindex_002dof_002dvector-16">for<small class="dots">...</small>index-of-vector</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Variable-Binding-and-Setting.html#index-for_0040dots_007b_007dinitially_0040dots_007b_007dthen-43">for<small class="dots">...</small>initially<small class="dots">...</small>then</a>: <a href="Variable-Binding-and-Setting.html#Variable-Binding-and-Setting">Variable Binding and Setting</a></li>
+<li><a href="Generalized-Drivers.html#index-for_0040dots_007b_007dnext-33">for<small class="dots">...</small>next</a>: <a href="Generalized-Drivers.html#Generalized-Drivers">Generalized Drivers</a></li>
+<li><a href="Sequence-Iteration.html#index-for_0040dots_007b_007don-8">for<small class="dots">...</small>on</a>: <a href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="Previous-Values-of-Driver-Variables.html#index-for_0040dots_007b_007dprevious-37">for<small class="dots">...</small>previous</a>: <a href="Previous-Values-of-Driver-Variables.html#Previous-Values-of-Driver-Variables">Previous Values of Driver Variables</a></li>
+<li><a href="Control-Flow.html#index-if_002dfirst_002dtime-95">if-first-time</a>: <a href="Control-Flow.html#Control-Flow">Control Flow</a></li>
+<li><a href="Named-Blocks.html#index-in-111">in</a>: <a href="Named-Blocks.html#Named-Blocks">Named Blocks</a></li>
+<li><a href="Code-Placement.html#index-initially-101">initially</a>: <a href="Code-Placement.html#Code-Placement">Code Placement</a></li>
+<li><a href="Control-Flow.html#index-leave-87">leave</a>: <a href="Control-Flow.html#Control-Flow">Control Flow</a></li>
+<li><a href="Reductions.html#index-maximize-53">maximize</a>: <a href="Reductions.html#Reductions">Reductions</a></li>
+<li><a href="Reductions.html#index-minimize-54">minimize</a>: <a href="Reductions.html#Reductions">Reductions</a></li>
+<li><a href="Reductions.html#index-multiply-49">multiply</a>: <a href="Reductions.html#Reductions">Reductions</a></li>
+<li><a href="Accumulations.html#index-nconcing-64">nconcing</a>: <a href="Accumulations.html#Accumulations">Accumulations</a></li>
+<li><a href="Aggregated-Boolean-Tests.html#index-never-81">never</a>: <a href="Aggregated-Boolean-Tests.html#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a></li>
+<li><a href="Control-Flow.html#index-next_002diteration-89">next-iteration</a>: <a href="Control-Flow.html#Control-Flow">Control Flow</a></li>
+<li><a href="Accumulations.html#index-nunioning-66">nunioning</a>: <a href="Accumulations.html#Accumulations">Accumulations</a></li>
+<li><a href="Reductions.html#index-reducing-57">reducing</a>: <a href="Reductions.html#Reductions">Reductions</a></li>
+<li><a href="Drivers.html#index-repeat-1">repeat</a>: <a href="Drivers.html#Drivers">Drivers</a></li>
+<li><a href="Reductions.html#index-sum-47">sum</a>: <a href="Reductions.html#Reductions">Reductions</a></li>
+<li><a href="Generalized-Drivers.html#index-terminate-32">terminate</a>: <a href="Generalized-Drivers.html#Generalized-Drivers">Generalized Drivers</a></li>
+<li><a href="Types-and-Declarations.html#index-the-117">the</a>: <a href="Types-and-Declarations.html#Types-and-Declarations">Types and Declarations</a></li>
+<li><a href="Aggregated-Boolean-Tests.html#index-thereis-83">thereis</a>: <a href="Aggregated-Boolean-Tests.html#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a></li>
+<li><a href="Accumulations.html#index-unioning-65">unioning</a>: <a href="Accumulations.html#Accumulations">Accumulations</a></li>
+<li><a href="Control-Flow.html#index-until-93">until</a>: <a href="Control-Flow.html#Control-Flow">Control Flow</a></li>
+<li><a href="Control-Flow.html#index-while-91">while</a>: <a href="Control-Flow.html#Control-Flow">Control Flow</a></li>
+<li><a href="Variable-Binding-and-Setting.html#index-with-39">with</a>: <a href="Variable-Binding-and-Setting.html#Variable-Binding-and-Setting">Variable Binding and Setting</a></li>
+   </ul></body></html>
+

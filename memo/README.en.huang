@@ -1,0 +1,2527 @@
+#			  -*- mode: org -*-
+
+#+TITLE:     CL Machine-Learning
+#+AUTHOR:    Salvi Péter, Naganuma Shigeta, Tada Masashi, Abe Yusuke, Jianshi Huang, Fujii Ryo, Abe Seika, Kuroda Hisao
+#+OPTIONS:   H:2 num:t toc:t \n:nil @:t ::t |:t ^:t *:t TeX:nil LaTeX:nil f:nil
+
+CL Machine-Learning is high performance and large scale statistical
+machine learning package written in Common Lisp.  It runs almost all
+major platforms and supports several Common Lisp implementations --
+Allegro, Lispworks and Sbcl.
+
+* QUOTE Loading/Using the library
+(let ((*read-default-float-format* 'double-float))
+  (load "defsystem.cl")
+  (load-system :machine-learning :compile t))
+or (in AllegroCL)
+  CL-USER(2): (setf *read-default-float-format* 'double-float)
+  CL-USER(3): :ld defsystem
+  CL-USER(4): (excl:load-system :machine-learning :compile t)
+* Machine-Learning Packages
+** Read-Data
+*** Class
+**** dataset (root class)
+- accessor:
+  - dimensions : a sequence of column information (each column represents one dimension)
+**** unspecialized-dataset (dataset when the type of each dimension is unknown or unspecified)
+- accessor:
+  - points : a sequence of data vectors (a data vector is one row in
+             the table), without the column name line.
+- parent: dataset
+**** specialized-dataset (dataset when the type of every dimension is specified)
+- parent: dataset
+**** numeric-dataset (specialized dataset when all dimensions are of numeric type)
+- accessor:
+  - dataset-numeric-points : a sequence of numerical (:numeric) data vectors
+- parent: specialized-dataset
+**** category-dataset (specialized dataset when all dimensions are of category type)
+- accessor:
+  - dataset-category-points : a sequence of categorical (:category) data vectors
+- parent: specialized-dataset
+**** numeric-and-category-dataset (specialized dataset with both numerical and categorical typed dimensions)
+- accessor:
+  - dataset-numeric-points : a sequence of numerical ( :numeric ) data vectors
+  - dataset-category-points : a sequence of categorical ( :category ) data vectors
+- parent: (numeric-dataset category-dataset)
+*** read-data-from-file (filename &key (type :sexp) external-format csv-type-spec (csv-header-p t) (missing-value-check t) missing-values-list)
+- return: <unspecialized-dataset>
+- arguments:
+  - filename		:	<string>
+  - type		:	:sexp | :csv
+  - external-format	:	<acl-external-format>
+  - csv-header-p	:	<boolean>, whether the first line contains column names, the default value is T
+  - csv-type-spec	:	<list of symbol>, for converting each column to the corresponding type during CSV parsing, e.g. '(string integer double-float double-float)
+  - missing-value-check :       <boolean>, whether there are missing values in the CSV file, the default value is T.
+  - missing-value-list  :       <list>, a list of values which indicates a missing value, default to '(nil "" "NA")
+- comment:
+  When external-format is unspecified、type :sexp sets external-format to :default、type :csv sets external-format to :932 (ACL expression for <CRLF + 932>)
+*** pick-and-specialize-data ((d unspecialized-dataset) &key (range :all) except data-types)
+- return: <numeric-dataset>, <category-dataset> or <numeric-and-category-dataset> (will automatically specialize based on the input)
+- arguments:
+  - d			:	<unspecialized-dataset>
+  - range		:	:all | <list integer>, which columns will be included in the output dataset, column index starts from 0. e.g. '(0 1 3 4)
+  - except		:	<list integer>, the opposite of :range, the columns specified will be excluded, column index starts from 0. e.g. '(2)
+  - data-types		:	<list type>, the types for each column in the output dataset. e.g. '(:category :numeric :numeric)
+  Note: range で指定した列の順番は読み込みに反映される。
+*** divide-dataset ((specialized-d specialized-dataset) &key divide-ratio random (range :all) except)
+- return: (values of <numeric-dataset>, <category-dataset> or <numeric-and-category-dataset>)
+- arguments:
+  - d			:       <specialized-dataset>
+  - divide-ratio        :       <list non-negative-integer>, ratios for dividing data vectors、do nothing when is nil. e.g. '(1 2 3) will divide data vectors according to ratios 1:2:3.
+  - random              :       <boolean>, when T, the data vectors will be divided randomly
+  - range		:	:all | <list integer>, which columns will be included in the output dataset, column index starts from 0。 e.g. '(0 1 3 4)
+  - except		:	<list integer>, the opposite of :range, the columns specified will be excluded, column index starts from 0。 e.g. '(2)
+- The new row index after division will be the same as the original data vectors.
+*** choice-dimensions (names data)
+- return: <vector vector>
+- arguments:
+  - names  : <list string>, a list of column names
+  - data   : <unspecialized-dataset> | <specialized-dataset>
+*** choice-a-dimension (name data)
+- return: <vector>
+- arguments:
+  - name  : <string>, column name
+  - data  : <unspecialized-dataset> | <specialized-dataset>
+*** make-unspecialized-dataset (all-column-names data)
+- return: <unspecialized-dataset>
+- arguments:
+  - all-column-names	:	<list string>
+  - data		:	<vector vector>
+*** dataset-cleaning (d &key interp-types outlier-types outlier-values)
+- return: <numeric-dataset> | <category-dataset> | <numeric-and-category-dataset> 
+- arguments:
+  - d : <numeric-dataset> | <category-dataset> | <numeric-and-category-dataset>
+  - interp-types   : <list, nil | :zero | :min | :max | :mean | :median | :mode | :spline>
+  - outlier-types  : <list, nil | :std-dev | :mean-dev | :user | :smirnov-grubbs | :freq>
+  - outlier-values : <list, nil | value according to outlier-type>
+- comments: 
+  First outliers will be detected and then with other missing values
+  they will be interpolated.
+  - numeric
+    - interpolation : :zero | :min | :max | :mean | :median | :spline (3 dimensional)
+    - outlier detection : 
+      - :std-dev : by standard deviation
+      - :mean-dev : by mean deviation
+      - :user : user specified value
+      - :smirnov-grubbs : by Smirnov-Grubbs test
+  - category
+    - interpolation : :mode
+    - outlier detection : 
+      - :user : user specified value
+      - :freq : by frequency
+*** make-bootstrap-sample-datasets (dataset &key number-of-datasets)
+- return: <list dataset>
+- arguments:
+  - dataset : <dataset>
+  - number-of-datasets : <positive-integer>, default value is 10
+- comments:
+  - make a bootstrap sample dataset according to number-of-datasets
+  - the type of the dataset returned is the same as the input dataset
+*** QUOTE sample usage
+ READ-DATA(18): (setf dataset (read-data-from-file "sample/original-airquality.sexp"))
+ #<UNSPECIALIZED-DATASET>
+ DIMENSIONS: id | Ozone | Solar.R | Wind | Temp | Month | Day
+ TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+ DATA POINTS: 153 POINTS
+
+ READ-DATA(19): (setf dataset (pick-and-specialize-data
+                               dataset :range :all
+                               :data-types '(:category :numeric :numeric :numeric :numeric
+                                             :category :category)))
+ #<NUMERIC-AND-CATEGORY-DATASET>
+ DIMENSIONS: id | Ozone | Solar.R | Wind | Temp | Month | Day
+ TYPES:      CATEGORY | NUMERIC | NUMERIC | NUMERIC | NUMERIC | CATEGORY | CATEGORY
+ CATEGORY DATA POINTS: 153 POINTS
+ NUMERIC DATA POINTS: 153 POINTS
+
+ READ-DATA(20): (dataset-numeric-points dataset)
+ #(#(41.0 190.0 7.4 67.0) #(36.0 118.0 8.0 72.0) #(12.0 149.0 #.EXCL:*NAN-DOUBLE* 74.0) #(18.0 313.0 11.5 62.0) 
+   #(#.EXCL:*NAN-DOUBLE* #.EXCL:*NAN-DOUBLE* 14.3 56.0) #(28.0 #.EXCL:*NAN-DOUBLE* 14.9 66.0) #(23.0 299.0 8.6 65.0)
+   #(19.0 99.0 13.8 #.EXCL:*NAN-DOUBLE*) #(8.0 19.0 #.EXCL:*NAN-DOUBLE* #.EXCL:*NAN-DOUBLE*) #(#.EXCL:*NAN-DOUBLE* 194.0 8.6 69.0) ...)
+ READ-DATA(21): (dataset-category-points dataset)
+ #(#(1 5 1) #(2 5 2) #(3 5 3) #(4 0 0) #(5 5 5) #(6 5 6) #(7 5 7) #(8 5 8) #(9 5 9) #(10 5 10) ...)
+
+ READ-DATA(22): (setf dataset 
+                   (dataset-cleaning dataset 
+                                     :interp-types '(nil :spline :min :max :median :mode :mode)
+                                     :outlier-types '(nil :std-dev :mean-dev :smirnov-grubbs nil
+                                                      :user :freq)
+                                     :outlier-values '(nil 2d0 2d0 0.05d0 nil 5 nil)))
+ #<NUMERIC-AND-CATEGORY-DATASET>
+ DIMENSIONS: id | Ozone | Solar.R | Wind | Temp | Month | Day
+ TYPES:      CATEGORY | NUMERIC | NUMERIC | NUMERIC | NUMERIC | CATEGORY | CATEGORY
+ CATEGORY DATA POINTS: 153 POINTS
+ NUMERIC DATA POINTS: 153 POINTS
+ READ-DATA(23): (dataset-numeric-points dataset)
+ #(#(41.0 190.0 7.4 67.0) #(36.0 118.0 8.0 72.0) #(12.0 149.0 20.7 74.0) #(18.0 313.0 11.5 62.0) #(27.093168555852095 36.0 14.3 56.0)
+   #(28.0 36.0 14.9 66.0) #(23.0 299.0 8.6 65.0) #(19.0 99.0 13.8 79.0) #(8.0 36.0 20.7 79.0)
+   #(2.4104000463381468 194.0 8.6 69.0) ...)
+ READ-DATA(24): (dataset-category-points dataset)
+ #(#(1 8 1) #(2 8 2) #(3 8 3) #(4 8 30) #(5 8 5) #(6 8 6) #(7 8 7) #(8 8 8) #(9 8 9) #(10 8 10) ...)
+
+ READ-DATA(25): (divide-dataset dataset :divide-ratio '(3 2) :except '(2 3 4))
+ #<NUMERIC-AND-CATEGORY-DATASET>
+ DIMENSIONS: id | Ozone | Month | Day
+ TYPES:      CATEGORY | NUMERIC | CATEGORY | CATEGORY
+ CATEGORY DATA POINTS: 91 POINTS
+ NUMERIC DATA POINTS: 91 POINTS
+ #<NUMERIC-AND-CATEGORY-DATASET>
+ DIMENSIONS: id | Ozone | Month | Day
+ TYPES:      CATEGORY | NUMERIC | CATEGORY | CATEGORY
+ CATEGORY DATA POINTS: 62 POINTS
+ NUMERIC DATA POINTS: 62 POINTS
+
+ READ-DATA(26): (choice-dimensions '("Day" "Month" "Temp" "Wind") dataset)
+ #(#(1 8 67.0 7.4) #(2 8 72.0 8.0) #(3 8 74.0 20.7) #(30 8 62.0 11.5) #(5 8 56.0 14.3) #(6 8 66.0 14.9) 
+   #(7 8 65.0 8.6) #(8 8 79.0 13.8) #(9 8 79.0 20.7) #(10 8 69.0 8.6) ...)
+ READ-DATA(27): (choice-a-dimension "Ozone" dataset)
+ #(41.0 36.0 12.0 18.0 27.093168555852095 28.0 23.0 19.0 8.0 2.4104000463381468 ...)
+
+ READ-DATA(26): (make-bootstrap-sample-datasets dataset :number-of-datasets 3)
+ (#<NUMERIC-AND-CATEGORY-DATASET>
+ DIMENSIONS: id | Ozone | Solar.R | Wind | Temp | Month | Day
+ TYPES:      CATEGORY | NUMERIC | NUMERIC | NUMERIC | NUMERIC | CATEGORY | CATEGORY
+ CATEGORY DATA POINTS: 153 POINTS
+ NUMERIC DATA POINTS: 153 POINTS
+  #<NUMERIC-AND-CATEGORY-DATASET>
+ DIMENSIONS: id | Ozone | Solar.R | Wind | Temp | Month | Day
+ TYPES:      CATEGORY | NUMERIC | NUMERIC | NUMERIC | NUMERIC | CATEGORY | CATEGORY
+ CATEGORY DATA POINTS: 153 POINTS
+ NUMERIC DATA POINTS: 153 POINTS
+  #<NUMERIC-AND-CATEGORY-DATASET>
+ DIMENSIONS: id | Ozone | Solar.R | Wind | Temp | Month | Day
+ TYPES:      CATEGORY | NUMERIC | NUMERIC | NUMERIC | NUMERIC | CATEGORY | CATEGORY
+ CATEGORY DATA POINTS: 153 POINTS
+ NUMERIC DATA POINTS: 153 POINTS
+ )
+
+** Principal-Component-Analysis
+*** Class
+**** pca-result (the result of principle component analysis)
+- accessor:
+ - components		:       <vector of datapoints>, principle components、score	
+ - contributions	:       <vector of double-float>
+ - loading-factors	:       <matrix>  (pay attention the representation of the matrix is row major)
+ - pca-method		:       :covariance | :correlation
+**** pca-model (for calculating score)
+- accessor:
+ - loading-factors	:       <matrix>, (pay attention the representation of the matrix is row major)
+ - pca-method		:       :covariance | :correlation
+*** princomp (dataset &key (method :correlation))
+- return: (values pca-result pca-model)
+- arugments:
+  - dataset		:	<numeric-dataset>
+  - method		:	:covariance | :correlation
+*** princomp-projection (dataset pca-model)
+- return: score (vector of datapoints)
+- arguments:
+  - dataset		:	<numeric-dataset>
+  - pca-model		:	<pca-model>, model by PCA
+*** sub-princomp (dataset &key (method :correlation) (dimension-thld 0.8d0))
+- return: (values pca-result pca-model)
+- arugments:
+  - dataset		:	<numeric-dataset>
+  - method		:	:covariance | :correlation
+  - dimension-thld : 0 < <number> < 1 | 1 <= <integer>, threshold for determining principal components
+- note:
+  When 0 < dimension-thld < 1, it means the threshold for accumulated
+  contribution ratio. A principle component's contribution ratio means
+  its proportion in all principle components' contributions.
+
+  ???
+  1 <= <integer> を指定した場合は主成分数をあらかじめ指定することを意味する。
+*** make-face-estimator ((face-dataset numeric-and-category-dataset)
+                         &key id-column dimension-thld method
+                              pca-method d-fcn pca-result pca-model)
+- return: (values estimator hash)
+- arguments:
+  - face-dataset : <numeric-and-category-dataset>
+  - id-column : <string>, the name for the face ID column, default value is "personID"
+  - dimension-thld : 0 < <number> < 1 | 1 <= <integer>, the threshold for determining the number of dimensions to use.
+  - method : :eigenface | :subspace, method for face recognition, eigenface or subspace method.
+  - pca-method : :covariance | :correlation, only valid when method is :subspace 
+  - d-fcn : distance function for eigenface, default value is euclid-distance
+  - pca-result : <pca-result>, necessary for :eigenface
+  - pca-model : <pca-model>, necessary for :eigenface
+- note:
+  When 0 < dimension-thld < 1, it means the threshold for accumulated
+  contribution ratio. A principle component's contribution ratio means
+  its proportion in all principle components' contributions.
+  
+  ???
+  1 <= <integer> を指定した場合は次元数をあらかじめ指定することを意味する。
+- reference:
+  - 坂野 鋭 "パターン認識における主成分分析 顔画像認識を例として" 
+    http://www.ism.ac.jp/editsec/toukei/pdf/49-1-023.pdf
+*** face-estimate ((d numeric-dataset) estimator)
+- return: <numeric-and-category-dataset>
+- arguments:
+  - d : <numeric-dataset>
+  - estimator : <closure>, the first return value for make-face-estimator 
+*** Note
+- when using princomp and sub-princomp, if there exists two columns
+  that are of same value, the result for :correlation 
+  method will not be converged. Therefore pick-and-specialize-data or
+  divide-dataset must be used to remove one column.
+  
+*** QUOTE sample usage
+PCA(10): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+PCA(11): (setf dataset (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric)))
+PCA(12): (princomp dataset :method :correlation)
+ #<PCA-RESULT @ #x20fcd88a>
+ #<PCA-MODEL @ #x20fcd8c2>
+PCA(13): (princomp-projection dataset (cadr /))
+ #(#(-0.18646787691278618 -0.5587877417431286)
+  #(-0.2586922124306382 -0.6310120772609806)
+  #(0.08929776779173992 -0.2830220970386028)
+  #(-0.311219001898167 -0.6835388667285094)
+  #(-0.19303372559622725 -0.5653535904265697)
+  #(-0.19303372559622725 -0.5653535904265697)
+  #(-0.19303372559622725 -0.5653535904265697)
+  #(-1.9046466459275095 1.014942356235892)
+  #(0.20748304409367965 -0.1648368207366632)
+  #(0.161522103309592 -0.21079776152075083) ...)
+
+;; learning and estimation by eigenface method and data for eyes
+PCA(40): (let ((eyes (pick-and-specialize-data
+                      (read-data-from-file "sample/eyes200.sexp")
+                      :except '(0)
+                      :data-types (append (make-list 1 :initial-element :category)
+                                          (make-list 1680 :initial-element :numeric)))))
+           (multiple-value-setq (for-learn for-estimate)
+             (divide-dataset eyes :divide-ratio '(1 1) :random t)))
+
+PCA(43): (multiple-value-setq (pca-result pca-model)
+             (princomp (divide-dataset for-learn :except '(0)) :method :covariance))
+; it takes
+; cpu time (non-gc) 387,350 msec (00:06:27.350) user, 1,230 msec system
+; cpu time (gc)     300 msec user, 10 msec system
+; cpu time (total)  387,650 msec (00:06:27.650) user, 1,240 msec system
+; real time  389,905 msec (00:06:29.905)
+; space allocation:
+;  34,748 cons cells, 98,980,632 other bytes, 32 static bytes
+; environment: AllegroCL 32bit, CPU 2.4GHz
+
+PCA(65): (loop for dimension in '(1 5 10 20 30)
+             as estimator = (make-face-estimator for-learn :dimension-thld dimension :method :eigenface
+                                                 :pca-result pca-result :pca-model pca-model)
+             as result = (face-estimate for-estimate estimator)
+             do (format t "hitting-ratio: ~,3F~%"
+                        (/ (count-if (lambda (p) (string-equal (aref p 0) (aref p 1)))
+                                     (dataset-category-points result))
+                           (length (dataset-points result)))))
+Dimension : 1
+Number of self-misjudgement : 53
+hitting-ratio: 0.580
+Dimension : 5
+Number of self-misjudgement : 21
+hitting-ratio: 0.860
+Dimension : 10
+Number of self-misjudgement : 18
+hitting-ratio: 0.880
+Dimension : 20
+Number of self-misjudgement : 15
+hitting-ratio: 0.890
+Dimension : 30
+Number of self-misjudgement : 13
+hitting-ratio: 0.890
+
+** K-means
+*** k-means ((k integer) (dataset numeric-dataset) &key (distance-fn *distance-function*) standardization (max-iteration *max-iteration*) (num-of-trials *num-of-trials*) (random-state *random-state*) debug)
+- return: (best-result table)
+  - best-result		:	points, clusters, distance infomation, etc.
+  - table		:	lookup table for normalized vecs and original vecs, might be removed later.
+- arguments:
+  - k			:	<integer>, number of clusters
+  - dataset		:	<numeric-dataset> | <category-dataset> | <numeric-or-category-dataset>
+  - distance-fn		:	#'euclid-distance | #'manhattan-distance | #'cosine-distance
+  - standardization	:	t | nil, whether to standardize the inputs
+  - max-iteration	:	maximum number of iterations of one trial
+  - num-of-trials	:	number of trials, every trial changes the initial position of the clusters
+  - random-state	:	(for testing), specify the random-state of the random number generator
+  - debug		:	(for debugging) print out some debugging information
+*** QUOTE sample usage
+K-MEANS(22): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+K-MEANS(23): (setf dataset (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric)))
+K-MEANS(24): (k-means 20 dataset :distance-fn #'manhattan-distance)
+ #S(PROBLEM-WORKSPACE :POINTS #(#S(POINT
+                                  :ID
+                                  0
+                                  :POS
+                                  #(1.0 129.0)
+                                  :OWNER
+                                  #S(CLUSTER
+                                     :ID
+                                     16
+                                     :CENTER
+                                     #(1.2455357142857142
+                                       129.12321428571428)
+                                     :OLD-CENTER
+                                     #(1.2455357142857142
+                                       129.12321428571428)
+                                     :SIZE
+                                     1120))
+                               ...)
+                     :CLUSTERS #(#S(CLUSTER
+                                    :ID
+                                    0
+                                    :CENTER
+                                    #(1.0831024930747923 110.0)
+                                    :OLD-CENTER
+                                    #(1.0831024930747923 110.0)
+                                    :SIZE
+                                    361)
+                                 ...)
+                     :DISTANCE-BETWEEN-CLUSTERS #2A((1.7976931348623157e+308
+                                                     124.38037357745417
+                                                     174.4273053916255
+                                                     151.26611354279854
+                                                     13.21191276633519
+                                                     111.08310249307479
+                                                     238.6819189661527
+                                                     294.1850209583026
+                                                     2920.083102493075
+                                                     35.26307380581604
+                                                     ...)
+                                                    ...)
+                     :DISTANCE-BETWEEN-POINT-AND-OWNER #(0.36874999999999747
+                                                         0.17974882260597758
+                                                         11.982608695652175
+                                                         0.08310249307479234
+                                                         0.347715736040624
+                                                         0.347715736040624
+                                                         0.347715736040624
+                                                         1.9458398744113148
+                                                         6.437807183364839
+                                                         0.9826086956521745
+                                                         ...)
+                     :LOWER-BOUNDS ...)
+ NIL
+** Cluster-Validation
+*** QUOTE Parameter
+ *workspace* | validation target, the result of k-means clustering
+*** calinski (&optional (*workspace* *workspace*))
+- return: <number> cluster validity index
+*** hartigan (&optional (*workspace* *workspace*))
+- return: <number> cluster validity index
+*** ball-and-hall (&optional (*workspace* *workspace*))
+- return: <number> cluster validity index
+*** dunn-index (&key (*workspace* *workspace*)
+                     (distance :manhattan)
+                     (intercluster :centroid)
+                     (intracluster :centroid))
+- return: <number> cluster validity index
+- arguments:
+  - distance: :manhattan | :euclid | :cosine
+  - intercluster: :single | :complete | :average | :centroid | :average-to-centroids | :hausdorff
+  - intracluster: :complete | :average | :centroid
+*** davies-bouldin-index (&key (*workspace* *workspace*)
+                               (distance :manhattan)
+                               (intercluster :centroid)
+                               (intracluster :centroid))
+- return: <number> cluster validity index
+- arguments:
+  - distance: :manhattan | :euclid | :cosine
+  - intercluster: :single | :complete | :average | :centroid | :average-to-centroids | :hausdorff
+  - intracluster: :complete | :average | :centroid
+*** global-silhouette-value (&key (*workspace* *workspace*)
+                                  (distance :manhattan))
+- return: <number> cluster validity index
+- arguments:
+  - distance: :manhattan | :euclid | :cosine
+*** QUOTE sample usage
+ CLUSTER-VALIDATION(72): (setf *workspace*
+                          (k-means:k-means
+                           5
+                           (read-data:pick-and-specialize-data
+                            (read-data:read-data-from-file
+                             "sample/syobu.csv" :type :csv
+                             :csv-type-spec '(string integer integer integer integer)
+                             :external-format #+allegro :932 #-allegro :sjis)
+                            :except '(0) :data-types (make-list 4
+                                                                :initial-element :numeric))))
+ CLUSTER-VALIDATION(73): (calinski)
+ 441.8562453167574
+ CLUSTER-VALIDATION(74): (hartigan)
+ 2.5074656538807023
+ CLUSTER-VALIDATION(75): (ball-and-hall)
+ 1127.7702976190476
+ CLUSTER-VALIDATION(76): (dunn-index :distance :euclid
+                                     :intercluster :hausdorff
+                                     :intracluster :centroid)
+ 1.2576613811360222
+ CLUSTER-VALIDATION(77): (davies-bouldin-index :distance :euclid
+                                               :intercluster :average
+                                               :intracluster :complete)
+ 1.899415427296523
+ CLUSTER-VALIDATION(78): (global-silhouette-value :distance :euclid)
+ 0.5786560352400679
+*** reference
+- VMS Technical Reference | http://www.msi.co.jp/vmstudio/materials/tech/index.html
+- "Cluster validation techniques for genome expression data" | http://www.cs.tcd.ie/publications/tech-reports/reports.02/TCD-CS-2002-33.pdf
+** Linear-Regression
+*** mlr (numeric-dataset range)
+- return: <SIMPLE-ARRAY DOUBLE-FLOAT (*)>, intercept and coefficients of multiple regression formula
+- arguments:
+  - numeric-dataset : <NUMERIC-DATASET>
+  - range : <list>, indices of explanatory variables, index of objective variable
+*** QUOTE sample usage
+ LINEAR-REGRESSION(128):(setf dataset (read-data-from-file "sample/airquality.csv"
+			       :type :csv
+			       :csv-type-spec 
+			       '(integer double-float double-float double-float double-float integer integer)))
+ #<UNSPECIALIZED-DATASET>
+ DIMENSIONS: id | Ozone | Solar | Wind | Temp | Month | Day
+ TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+ DATA POINTS: 111 POINTS
+ LINEAR-REGRESSION(129):(setf airquality (pick-and-specialize-data dataset :range '(0 1 2 3 4) 
+				    :data-types '(:numeric :numeric :numeric :numeric :numeric)))
+ #<NUMERIC-DATASET>
+ DIMENSIONS: id | Ozone | Solar | Wind | Temp
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMERIC DATA POINTS: 111 POINTS
+ LINEAR-REGRESSION(130):(mlr airquality '(2 3 4 1))
+ #(-64.34207892859138 0.05982058996849854 -3.333591305512754 1.6520929109927098)
+** Hierarchical-Clustering
+*** cophenetic-matrix (distance-matrix &optional (method #'average))
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* * )), (SIMPLE-ARRAY T (* *)), cophenetic-matrix and merge matrix???
+- arguments:
+  - distance-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *)), distance matrix from the input data
+  - method : single | complete | average | centroid | median | ward, method for determining distance between clusters, default value is average
+*** cutree (k merge-matrix)
+- return: (SIMPLE-ARRAY T), Vector of cluster indices which data points belong.
+- arguments:
+  - k : cluster number, the dendrograms split into k pieces.
+  - merge-matrix
+*** QUOTE sample usage
+HC(35): (setf data (read-data-from-file "sample/seiseki.csv"
+					:type :csv :csv-type-spec
+					'(string double-float double-float double-float double-float double-float)))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: name | math | science | japanese | english | history
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 7 POINTS
+HC(36): (setf seiseki (pick-and-specialize-data data :range '(1 2 3 4 5)
+						:data-types '(:numeric :numeric :numeric :numeric :numeric)))
+ #<NUMERIC-DATASET>
+DIMENSIONS: math | science | japanese | english | history
+TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+NUMERIC DATA POINTS: 7 POINTS
+HC(37): (setf distance-matrix (distance-matrix (numeric-matrix seiseki)))
+ #2A((0.0 68.65857557508748 33.77869150810907 60.13318551349163 28.478061731796284 63.37191807101944 67.88225099390856)
+    (68.65857557508748 0.0 81.11103500757464 64.1404708432983 60.753600716336145 12.409673645990857 38.1051177665153)
+    (33.77869150810907 81.11103500757464 0.0 52.67826876426369 21.307275752662516 75.66372975210778 87.53856293085921)
+    (60.13318551349163 64.1404708432983 52.67826876426369 0.0 47.10626285325551 54.31390245600108 91.53141537199127)
+    (28.478061731796284 60.753600716336145 21.307275752662516 47.10626285325551 0.0 56.382621436041795 67.72739475278819)
+    (63.37191807101944 12.409673645990857 75.66372975210778 54.31390245600108 56.382621436041795 0.0 45.58508528016593)
+    (67.88225099390856 38.1051177665153 87.53856293085921 91.53141537199127 67.72739475278819 45.58508528016593 0.0))
+HC(38): (multiple-value-setq (u v) (cophenetic-matrix distance-matrix #'ward))
+ #2A((0.0 150.95171411164776 34.40207690904939 66.03152040007744 34.40207690904939 150.95171411164776 150.95171411164776)
+    (150.95171411164776 0.0 150.95171411164776 150.95171411164776 150.95171411164776 12.409673645990857 51.65691081579053)
+    (34.40207690904939 150.95171411164776 0.0 66.03152040007744 21.307275752662516 150.95171411164776 150.95171411164776)
+    (66.03152040007744 150.95171411164776 66.03152040007744 0.0 66.03152040007744 150.95171411164776 150.95171411164776)
+    (34.40207690904939 150.95171411164776 21.307275752662516 66.03152040007744 0.0 150.95171411164776 150.95171411164776)
+    (150.95171411164776 12.409673645990857 150.95171411164776 150.95171411164776 150.95171411164776 0.0 51.65691081579053)
+    (150.95171411164776 51.65691081579053 150.95171411164776 150.95171411164776 150.95171411164776 51.65691081579053 0.0))
+HC(39): (cutree 3 v)
+ #(1 2 1 3 1 2 2)
+** Non-negative-Matrix-Factorization
+*** nmf (non-negative-matrix k &key (cost-fn 'euclidean) (iteration 100))
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* *)), 2 factor matrices by factorization
+- arguments:
+  - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
+  - k : size of dimension reduction
+  - cost-fn : euclidean | kl , cost function, default value is Euclidean-norm
+  - iteration : number of iterations of NMF algorithm, default value is 100
+- comments : Kullback–Leibler divergence can be obtained when used as the cost function.
+*** QUOTE sample usage
+NMF(113): (setf matrix (sample-matrix 4 4))
+ #2A((5.0 33.0 13.0 29.0) (55.0 84.0 74.0 96.0) (11.0 69.0 92.0 48.0) (15.0 86.0 36.0 89.0))
+NMF(114): (multiple-value-setq (weight feature) (nmf matrix 3 :iteration 80))
+ #2A((0.1706700616740593 2.8780911735531785 0.9590208453512624)
+    (2.04316650967508 0.9205577182615349 2.177706505047263)
+    (0.45460124650102984 0.8208500118171567 9.364639376361005)
+    (0.6081182025287406 7.873531632669753 2.0094667372957074))
+NMF(115): feature
+ #2A((26.64452775384442 32.373333937257556 27.1225512002247 41.13741018340651)
+    (8.205335826063113e-6 7.186521221246216 0.2535892468154233 7.415674453785212)
+    (7.798828607758656e-5 5.166396186586663 8.485528725251449 2.44838404009116))
+NMF(116): (m*m weight feature)
+ #2A((4.54752160312147 31.163303833367888 13.496659390410713 30.71196285636883)
+    (54.43938416184624 84.010613867982 74.12832291141632 96.20899698701007)
+    (12.113372596853665 68.99745115344638 92.00202074988742 47.716508000514054)
+    (16.203243644732968 86.65181709675957 35.541747762140545 88.3239016155684))
+NMF(117): (multiple-value-setq (weight feature) (nmf matrix 3 :cost-fn 'kl))
+ #2A((0.043068086218311506 0.05615058329446132 0.16029572873360276)
+    (0.21249176355212562 0.6796882407264663 0.1811889159952452)
+    (0.6443337004127561 0.08444888547870807 0.2125582079281919)
+    (0.10010644981680689 0.1797122905003643 0.4459571473429601))
+NMF(118): feature
+ #2A((6.478155493510353 45.81284687065614 125.70077558823121 10.819729810945052)
+    (78.61488727127733 66.63762341406404 62.441606842405456 96.81364930861258)
+    (0.9069572352123124 159.54952971527982 26.85761756936332 154.36662088044235))
+NMF(119): (m*m weight feature)
+ #2A((4.838654906189247 31.289921197802457 13.224985867116567 30.646437922074924)
+    (54.974499708007016 83.93626798604987 74.01750800106926 96.0717231487415)
+    (11.00581471766063 69.05979629094608 91.97517704462386 47.959213628068696)
+    (15.18103066814309 87.71401452520158 35.782329087190305 87.32262530111485)) 
+*** nmf-sc (non-negative-matrix k sparseness &key type (iteration 100))
+  sparseness constrained non-negative-matrix factorization 
+- return (SIMPLE-ARRAY DOUBLE-FLOAT (* * )), 2 factor matrices by factorization
+- arguments:
+  - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* * ))
+  - k : size of dimension reduction
+  - sparseness : row sparseness and column sparseness for left or right matrix
+  - type : left | right , whether sparseness constraints will be attached to the left factor matrix or right factor matrix
+  - iteration : the number of iterations of NMF algorithm, default value is 100
+- comments : Euclidean-norm is used as cost function. 
+             Sparseness constraints are attached to each column vectors for left
+             factor matrix and each row vectors for right factor
+             matrix.
+
+             Implementation reference: "Non-negative Matrix Factorization with Sparseness Constraints", http://www.cs.helsinki.fi/u/phoyer/papers/pdf/NMFscweb.pdf 
+*** QUOTE sample usage
+NMF(34): (setf x (sample-matrix 100 100))
+#2A((70.0 65.0 68.0 42.0 35.0 20.0 51.0 7.0 25.0 9.0 ...)
+    (44.0 83.0 39.0 37.0 32.0 74.0 32.0 23.0 27.0 42.0 ...)
+    (57.0 97.0 96.0 23.0 56.0 67.0 27.0 19.0 90.0 89.0 ...)
+    (55.0 6.0 32.0 78.0 59.0 58.0 34.0 63.0 66.0 7.0 ...)
+    (66.0 92.0 63.0 65.0 63.0 75.0 36.0 7.0 79.0 77.0 ...)
+    (75.0 86.0 95.0 73.0 66.0 86.0 61.0 34.0 7.0 43.0 ...)
+    (11.0 39.0 87.0 31.0 4.0 52.0 64.0 57.0 8.0 23.0 ...)
+    (84.0 52.0 49.0 68.0 75.0 14.0 21.0 73.0 57.0 77.0 ...)
+    (93.0 85.0 28.0 22.0 98.0 2.0 61.0 48.0 45.0 7.0 ...)
+    (81.0 51.0 5.0 36.0 87.0 12.0 84.0 53.0 35.0 78.0 ...)
+    ...)
+NMF(35): (multiple-value-setq (w h) (nmf-sc x 3 0.7 :type 'left))
+ #2A((1.4779288903810084e-12 3698.436810921221 508.76839564873075)
+    (0.06468571444133886 0.0 4.206412995699793e-12)
+    (15616.472155017571 5522.3359228859135 13359.214293446286)
+    (0.5537530076878738 0.0030283688683994114 0.46633231671876274)
+    (7472.121463556481 0.0 8687.743649034346)
+    (866.1770680973686 6831.896141533997 4459.0733598676115)
+    (1.5181766737885027 0.4388556634212364 0.727139819117383)
+    (0.7198025410086757 0.0047792056984690134 4.206412995699793e-12)
+    (1.4779288903810084e-12 0.0 4.206412995699793e-12)
+    (0.25528585009283233 0.0 4.206412995699793e-12)
+    ...)
+NMF(36): h
+ #2A((0.00287491870133676 0.0026133720724571797 2.950874161225484e-5 0.005125487883511961 6.757515335801653e-4
+     0.0012968322406142806 0.0038001301816957284 0.002985585252159595 0.0081124151768938 0.0042303781451423035 ...)
+    (0.004994350656772211 0.0025747747712995227 0.007134096369763904 0.0065746407124065084 0.0038636664279363847
+     0.004880229457827016 0.00512112561086382 0.0038194228552171946 0.0050556422535574476 0.003237070939818787 ...)
+    (0.0052939720030634446 0.007382671590128047 0.007556184152626243 3.931389819873203e-6 0.004546870255049726
+     0.006931587163470776 2.239987792302906e-4 0.001349836871839297 1.94285681454748e-4 0.004391868346075027 ...))
+NMF(37): (sparseness (pick-up-column w 0))
+0.7
+NMF(38): (multiple-value-setq (w h) (nmf-sc x 3 0.9 :type 'right))
+ #2A((8.289561664219266e-6 1.4361785459627462e-4 3.2783650074466155e-9)
+    (8.963543606154278e-5 2.46840968396353e-5 2.181734037947416e-6)
+    (2.9872365277908504e-5 1.412292680612174e-4 4.198406652155696e-5)
+    (6.890230812495509e-13 7.954471346549545e-5 2.7910446164534665e-5)
+    (1.2477626056283604e-4 4.292564917625326e-9 2.5310616226879616e-5)
+    (3.619705865699883e-7 1.464351885312363e-4 7.522900946233666e-5)
+    (4.19655080884389e-7 1.6289294924375495e-4 3.153712985065881e-5)
+    (1.703028808790872e-8 5.8687333880722456e-5 1.2797257648598223e-4)
+    (1.4373147157245112e-5 6.128539811119244e-7 9.512691095539368e-5)
+    (2.029113599202957e-18 8.421240673252468e-17 1.0537112796313751e-4)
+    ...)
+NMF(39): h
+ #2A((0.0 0.0 559651.4985471596 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+    (0.0 0.006235745138837956 588285.0338912416 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+    (0.0030094219837337732 0.0 336606.15256656246 0.0 0.0 0.0 0.0 0.0 6.607186514884233e-5 0.0 ...))
+NMF(40): (sparseness (pick-up-row h 0))
+0.8999999999999999
+*** nmf-clustering (non-negative-matrix k &key (type 'row) (cost-fn 'euclidean) (iteration 100))
+  ???
+  Clustering using NMF. 行ないし列に割り当てられたデータを、最大成分の特徴グループに帰属させる
+- return (SIMPLE-ARRAY T (*)), vector of cluster indices which data points belong.
+- arguments :
+   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
+   - k : size of dimension reduction, (= the number of clusters)
+   - type : row | column, default value is row
+   - cost-fn : euclidean | kl, cost function, default value is Euclidean-norm
+   - iteration : the number of iterations of NMF algorithm, default value is 100
+- comments : different to k-means, the size of clusters doesn't need to be fixed???
+*** QUOTE sample usage
+NMF(136): (setf x (sample-matrix 7 10))
+ #2A((90.0 89.0 21.0 40.0 30.0 21.0 44.0 24.0 1.0 51.0)
+    (1.0 64.0 5.0 90.0 66.0 69.0 89.0 29.0 95.0 80.0)
+    (52.0 11.0 87.0 30.0 26.0 56.0 27.0 74.0 16.0 3.0)
+    (90.0 10.0 92.0 16.0 54.0 75.0 48.0 22.0 73.0 71.0)
+    (66.0 20.0 88.0 89.0 6.0 10.0 62.0 99.0 79.0 45.0)
+    (3.0 71.0 31.0 74.0 99.0 76.0 93.0 19.0 31.0 61.0)
+    (52.0 40.0 11.0 47.0 90.0 11.0 80.0 88.0 45.0 30.0))
+NMF(137): (nmf-clustering x 5)
+ #(4 1 3 3 2 1 4)
+NMF(138): (nmf-clustering x 5 :type 'column)
+ #(2 0 2 0 0 0 0 1 0 0)
+*** rho-k (non-negative-matrix k &key (type 'row) (cost-fn 'euclidean) (iteration 100) (repeat 100))
+  Index of the stability of NMF clustering result. Value close to 1.0 indicates the result is stable.
+- return DOUBLE-FLOAT
+- arguments:
+   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
+   - k : size of dimension reduction, (= the number of clusters)
+   - type : row | column, default value is row, 
+   - cost-fn : euclidean | kl, cost function, default value is Euclidean-norm
+   - iteration : the number of iterations of NMF algorithm, default value is 100
+   - repeat : the number of trials of NMF clustering, default value  is 100
+- comments: The result is taken by averaging the outputs of repeated
+            runs. 
+
+            ???最後に群平均法による階層型クラスタリングを経由するので計算には時間がかかる
+
+           Implementation reference: "Metagenes and molecular pattern discovery using matrix factorization", http://www.pnas.org/content/101/12/4164
+*** QUOTE sample usage
+NMF(18): (setf matrix (sample-matrix 100 100))
+#2A((37.0 96.0 74.0 31.0 23.0 52.0 77.0 24.0 96.0 68.0 ...)
+    (4.0 26.0 41.0 82.0 51.0 10.0 19.0 61.0 48.0 36.0 ...)
+    (4.0 91.0 78.0 27.0 72.0 53.0 97.0 7.0 49.0 17.0 ...)
+    (45.0 15.0 81.0 65.0 67.0 38.0 66.0 5.0 55.0 88.0 ...)
+    (63.0 12.0 56.0 87.0 81.0 1.0 5.0 99.0 88.0 79.0 ...)
+    (9.0 26.0 58.0 43.0 38.0 61.0 15.0 47.0 98.0 12.0 ...)
+    (56.0 34.0 74.0 84.0 42.0 4.0 1.0 57.0 85.0 65.0 ...)
+    (79.0 28.0 9.0 94.0 8.0 72.0 45.0 17.0 85.0 2.0 ...)
+    (53.0 41.0 80.0 12.0 69.0 52.0 85.0 94.0 14.0 31.0 ...)
+    (20.0 1.0 8.0 40.0 29.0 13.0 75.0 8.0 58.0 26.0 ...)
+    ...)
+NMF(19): (rho-k matrix 2)
+0.9794613282960201
+NMF(20): (rho-k matrix 2 :cost-fn 'kl)
+0.9789550957506326
+*** nmf-analysis (non-negative-matrix k &key (cost-fn 'euclidean) (iteration 100) (type 'row) (results 10))
+  Display the result of feature extraction of NMF algorithm
+- return nil
+- arguments:
+   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
+   - k : size of dimension reduction, (= the number of features extracted)
+   - cost-fn : euclidean | kl, cost function, default value is Euclidean-norm
+   - iteration : the number of iterations of NMF algorithm, default value is 100
+   - type : row | column, default is row,
+   - results : the number of most important features to be displayed, default value is 10
+*** QUOTE sample usage
+NMF(25): (setf x (sample-matrix 100 200))
+ #2A((92.0 5.0 77.0 47.0 91.0 25.0 93.0 63.0 48.0 30.0 ...)
+    (10.0 2.0 48.0 73.0 90.0 35.0 4.0 19.0 78.0 29.0 ...)
+    (38.0 7.0 44.0 61.0 98.0 92.0 11.0 31.0 97.0 80.0 ...)
+    (12.0 45.0 53.0 69.0 92.0 95.0 50.0 57.0 57.0 52.0 ...)
+    (89.0 33.0 45.0 54.0 43.0 62.0 4.0 92.0 19.0 93.0 ...)
+    (38.0 84.0 75.0 71.0 16.0 74.0 34.0 41.0 59.0 83.0 ...)
+    (7.0 59.0 45.0 95.0 47.0 55.0 21.0 82.0 55.0 74.0 ...)
+    (57.0 41.0 43.0 65.0 56.0 51.0 26.0 26.0 84.0 21.0 ...)
+    (44.0 68.0 22.0 83.0 75.0 63.0 98.0 74.0 18.0 79.0 ...)
+    (78.0 21.0 71.0 8.0 53.0 88.0 35.0 23.0 20.0 18.0 ...)
+    ...)
+NMF(26): (nmf-analysis x 3 :type 'column :results 5)
+
+Feature 0
+81   46.75849601655378
+103   45.955361786327046
+140   43.68666852948713
+64   43.51457629469007
+152   42.932921747549514
+
+Feature 1
+186   11.79404092624892
+138   11.19240951742515
+42   10.716884646306237
+150   9.93408007033108
+98   9.827683668745964
+
+Feature 2
+145   8.53136727031378
+128   7.427871404203731
+131   7.399743366645699
+162   7.207875670792123
+98   7.097879611292094
+NIL
+*** nmf-corpus-analysis (corpus-data-file-name k &key (cost-fn 'euclidean) (iteration 100) (results 10))
+  Display the result corpus' feature extraction of NMF algorithm
+- return nil
+- arguments:
+   - corpus-data-file-name : filename of the frequency of appearance data file made from corpus. 
+   - k : size of dimension reduction, (= the number of features extracted)
+   - cost-fn : euclidean | kl, cost function, default value is Euclidean-norm
+   - iteration : the number of iterations of NMF algorithm, default value is 100
+   - results : display the index terms and articles whose features are most significant, default is to display the first 10 items.
+- comments : the format for the frequency of appearance data file is:
+             - the first line contains the index terms
+             - the first column contains the name of articles
+*** QUOTE sample usage
+NMF(28): (nmf-corpus-analysis "sample/sports-corpus-data" 4 :results 5)
+
+Feature 0
+マラソン    0.07221234705139196
+大阪    0.048907356128417456
+世界    0.046937004997150256
+練習    0.03656428697461747
+日本    0.03196115942493634
+
+Feature 1
+キャンプ    0.06669809921902364
+監督    0.06319183784218135
+宮崎    0.0603534199166669
+投手    0.0467484630832916
+野村    0.04307898597844882
+
+Feature 2
+アイスホッケー    0.12314369586804824
+群馬    0.11734247660369697
+国体    0.09758358466775546
+フィギュア    0.07967494922812343
+少年    0.06966151926393403
+
+Feature 3
+決勝    0.17775648082813153
+男子    0.1415161591768607
+成年    0.13896964605781512
+準決勝    0.10669825925511302
+少年    0.10114921378575456
+
+Feature 0
+00267800     3.139507891258316
+00261590     2.9042791235836773
+00267780     2.824946337171344
+00267810     2.687575441447076
+00267690     1.9435136609462225
+
+Feature 1
+00260660     2.1652786748662334
+00264500     2.042034597541854
+00261710     1.9204912229777378
+00260650     1.8473613697451237
+00261770     1.6826072449181502
+
+Feature 2
+00264550     2.2258764175760613
+00265130     2.1413384537343356
+00264810     2.1063727120265354
+00265250     1.8808112202308758
+00265790     1.8551204404326642
+
+Feature 3
+00264340     1.5903555678649122
+00265320     1.5595692470136513
+00264850     1.5262814236429483
+00265600     1.482087788101349
+00265420     1.4449599333480858
+NIL
+*** c^3 m-cluster-number (corpus-data-file-name)
+  Finding the optimal number of clusters for the corpus, based on C^3 Method (cover-coefficient-based concept clustering methodology).
+- return DOUBLE-FLOAT
+- arguments:
+   - corpus-data-file-name : filename of the frequency of appearance data file made from corpus. 
+- comments : Implementation uses the method described in 「文書クラスタリングの技法:文献レビュー」, http://wwwsoc.nii.ac.jp/mslis/pdf/LIS49033.pdf as reference.
+*** QUOTE sample usage
+NMF(87): (c^3m-cluster-number "sample/sports-corpus-data")
+20.974904271175472
+NMF(88): (c^3m-cluster-number "sample/politics-corpus-data")
+15.290476048493785
+*** nmf-search (non-negative-matrix row-or-column-number &key type (cost-fn 'euclidean) (iteration 100) (results 10))
+  Search the related and similar data using NMF.
+- return nil
+- arguments:
+   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* * ))
+   - row-or-column-number : the nth row or column
+   - type row | column : whether the search targets are row data or column data
+   - cost-fn : euclidean | kl, cost function, default value is Euclidean-norm
+   - iteration : the number of iterations of NMF algorithm, default value is 100
+   - results : display the rows or columns whose features are most significant, default is to display the first 10 items.
+- comments : ???距離や類似度ではなく、特徴数1で非負行列因子分解することで関連・類似データを求めている
+*** QUOTE sample usage
+NMF(96): (setf x (sample-matrix 100 200))
+ #2A((62.0 91.0 13.0 64.0 59.0 64.0 92.0 48.0 33.0 31.0 ...)
+    (0.0 81.0 61.0 38.0 4.0 14.0 97.0 83.0 92.0 20.0 ...)
+    (98.0 74.0 45.0 77.0 87.0 67.0 61.0 25.0 89.0 62.0 ...)
+    (14.0 3.0 67.0 16.0 41.0 17.0 90.0 13.0 18.0 2.0 ...)
+    (47.0 33.0 81.0 14.0 37.0 46.0 61.0 41.0 74.0 92.0 ...)
+    (40.0 1.0 93.0 1.0 22.0 95.0 46.0 77.0 68.0 43.0 ...)
+    (27.0 38.0 30.0 8.0 91.0 8.0 51.0 22.0 67.0 3.0 ...)
+    (50.0 36.0 13.0 73.0 26.0 32.0 13.0 74.0 96.0 28.0 ...)
+    (43.0 21.0 27.0 36.0 29.0 39.0 93.0 53.0 12.0 74.0 ...)
+    (10.0 78.0 25.0 92.0 83.0 52.0 47.0 20.0 72.0 3.0 ...)
+    ...)
+NMF(97): (nmf-search x 113 :type 'column)
+
+Feature 0
+113   145.19488284162378
+17   84.73937398353675
+123   83.8805446764401
+100   83.74400654487428
+183   82.11736662225094
+91   81.55075159303482
+194   81.04143723738916
+188   80.93626654118066
+97   80.77377247509784
+143   79.9072654735812
+NIL
+*** nmf-corpus-search (corpus-file-data-name term-or-document-name &key type (iteration 100) (results 10))
+  Search the related and similar index terms as well as articles in the corpus using NMF.
+- return nil
+- arguments:
+   - corpus-data-file-name : filename of the frequency of appearance data file made from corpus. 
+   - term-or-document-name : the name of an index term or the name of an article
+   - type : term | document, whether the search targets are index terms or articles
+   - iteration : the number of iterations of NMF algorithm, default value is 100
+   - results : display the index terms and articles whose features are most significant, default is to display the first 10 items.
+- comments : ???nmf-searchと同様に、距離や類似度ではなく、特徴数1で非負行列因子分解することで関連・類似データを求めている
+*** QUOTE sample usage
+NMF(96): (nmf-corpus-search "sample/sports-corpus-data" "西武" :type 'term :results 5)
+
+Feature 0
+西武    0.5136289748533318
+所沢    0.031111296370433392
+埼玉    0.03077730757866988
+期待    0.028991679735086512
+松坂    0.0247687314053667
+
+Feature 0
+00261790     9.17404383318168
+00266250     4.333328938007245
+00261710     1.3181090110603069
+00261730     0.09148867884277861
+00265240     0.062146341425771835
+NIL
+NMF(97): (nmf-corpus-search "sample/sports-corpus-data" "00267800" :type 'document :results 5)
+
+Feature 0
+大阪    0.21556014825397538
+マラソン    0.18511880535718545
+距離    0.11551386609160769
+練習    0.1048378562554717
+経験    0.08812313779269842
+
+Feature 0
+00267800     7.589221601169096
+00267780     1.0915481583469564
+00267810     0.932794061387184
+00261590     0.8585298782628589
+00267690     0.6222481411009909
+NIL
+NMF(98): (nmf-corpus-search "sample/politics-corpus-data" "クリントン" :type 'term :results 5)
+
+Feature 0
+クリントン    0.5041552834951207
+大統領    0.12319116718527458
+アイオワ    0.03738685338466452
+米    0.032777504270718856
+ヒラリー    0.029932395002703473
+
+Feature 0
+00240260     6.274784595077431
+00240860     5.015399391753567
+00266600     0.44472249859569957
+00240820     0.05063904550471321
+00251070     0.029699222336423015
+NIL
+** Spectral-Clustering
+   Package for undirected graph clustering
+*** spectral-clustering-mcut (m ncls &key (eigen-tolerance 100d0))
+- return1: Clustering result as a list of list of nodes
+- return2: Status code :success, :questionable, :input-error, or :fatal-error
+- arguments:
+  - m : <SIMPLE-ARRAY DOUBLE-FLOAT (* *)>, similarity matrix of a graph
+  - ncls : <integer>, number of cluster
+  - eigen-tolerance : Acceptable error value for eigen computation
+*** QUOTE sample usage
+ SPECTRAL-CLUSTERING(25): (load "sample/spectral-clustering-sample.cl" :external-format #+allegro :932 #-allegro :sjis)
+ SPECTRAL-CLUSTERING(26): *spectral-nodevector*
+ #("満足度" "差別" "林" "NPO" "生きがい" "中学" "服" "社会福祉" "市場" "ADL" ...)
+ SPECTRAL-CLUSTERING(27): *spectral-w*
+ #2A((1.0 0.0 0.0015822785208001733 0.0 0.0 0.0 0.0
+      0.0015822785208001733 0.0 0.0015822785208001733 ...)
+     (0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+     (0.0015822785208001733 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+     (0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0035273367539048195 0.0 0.0 ...)
+     (0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 ...)
+     (0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 0.0 ...)
+     (0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 ...)
+     (0.0015822785208001733 0.0 0.0 0.0035273367539048195 0.0 0.0 0.0
+      1.0 0.0 0.0 ...)
+     (0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0 ...)
+     (0.0015822785208001733 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 1.0 ...)
+     ...)
+ SPECTRAL-CLUSTERING(28): (spectral-clustering-mcut *spectral-w* 3)
+((2 4 6 8 11 12 14 16 18 19 ...) (0 1 3 5 7 9 10 13 15 17 ...)
+ (55 73 86 95 111 146 157 257 376))
+ :SUCCESS
+ SPECTRAL-CLUSTERING(29): (mapcar (lambda (c) (mapcar (lambda (n) (aref *spectral-nodevector* n)) c)) *)
+(("林" "生きがい" "服" "市場" "母子" "リサイクル" "腰痛" "手術" "金属" "理論" ...)
+ ("満足度" "差別" "NPO" "中学" "社会福祉" "ADL" "癒し" "伊藤" "教材" "ひきこもり" ...)
+ ("Method" "system" "language" "study" "education" "Web" "English"
+  "japanese" "journal"))
+*** Note
+References:
+ 1. 新納浩幸, 「R で学ぶクラスタ解析」, オーム社, 2007.
+ 2. A Min-max Cut Algorithm for Graph Partitioning and Data Clustering
+    Chris H. Q. Ding, Xiaofeng He, Hongyuan Zha, Ming Gu, Horst D. Simon
+    First IEEE International Conference on Data Mining (ICDM'01), 2001.
+** Optics
+   OPTICS -- density-based clustering package 
+*** Class
+**** optics-output (the result of clustering)
+- accessor:
+  - ordered-data : points, reachability-distance, core-distance, cluster-id 
+  - cluster-info : <list (cluster-id . size)>, ID and the size of elements of each cluster
+- note: when cluster-id = -1, it means a noise point.
+*** optics (input-path epsilon min-pts r-epsilon target-cols 
+                       &key (file-type :sexp) (csv-type-spec '(string double-float double-float)) 
+                            (distance :manhattan) (normalize nil) (external-format :default))
+- return: optics-output
+- arguments:
+  - input-path : <string>
+  - epsilon : <number> above 0, neighborhood radius
+  - min-pts : <integer> above 0, minimum number of data points
+  - r-epsilon : <number> above 0 not more than epsilon, threshold for reachability-distance
+  - target-cols : <list string>, the names of target columns, each column's type is :numeric
+  - file-type : :sexp | :csv
+  - csv-type-spec : <list symbol>, type conversion of each column when reading lines from CSV file, e.g. '(string integer double-float double-float)
+  - distance : :manhattan | :euclid | :cosine
+  - normalize : t | nil
+  - external-format	:	<acl-external-format>
+*** QUOTE sample usage
+OPTICS(10): (optics "sample/syobu.csv" 10 2 10 '("がく長" "がく幅" "花びら長" "花びら幅")
+                     :file-type :csv :csv-type-spec '(string integer integer integer integer) 
+                     :distance :manhattan :external-format #+allegro :932 #-allegro :sjis)
+ #<OPTICS-OUTPUT>
+ [ClusterID] SIZE | [-1] 6 | [1] 48 | [2] 96
+OPTICS(11): (ordered-data *)
+ #(#("ID" "reachability" "core distance" "ClusterID") #(0 10.1 2.0 1)
+  #(4 2.0 2.0 1) #(17 2.0 2.0 1) #(27 2.0 2.0 1) #(28 2.0 2.0 1)
+  #(39 2.0 2.0 1) #(37 2.0 4.0 1) #(40 2.0 3.0 1) #(7 2.0 2.0 1) ...)
+** Association-Rule
+*** Class
+**** assoc-result-dataset (analysis result)
+- accessor:
+  - rules :       extracted results      <list vector>
+  - thresholds :  (support confidence lift conviction)
+  - rule-length : maximum length of a rule  <integer>
+- note: the vectors of extracted results are rules, they contain the following elements
+  - "premise": the premise part of the rule, a list of unit rules
+  - "conclusion": the conclusion part of the rule, a list of unit rules
+  - "support", "confidence", "lift", "conviction": some helpfulness indices of the rule
+  - unit rule (where length is 1), is represented as string "<column name> = <value>".
+*** association-analyze (infile outfile target-variables key-variable rule-length
+                            &key (support 0) (confident 0) (lift 0) (conviction 0) (external-format :default)
+                                 (file-type :sexp) (csv-type-spec '(string double-float))
+                                 (algorithm :lcm))
+- return: assoc-result-dataset
+- arguments:
+  - infile : <string>
+  - outfile : <string>
+  - target-variables : <list string> column names
+  - key-variable : <string> column name for determining identities
+  - rule-length : <integer> >= 2, maximum length for a rule
+  - support : <number> for percentage
+  - confident : <number> for percentage
+  - lift : <number> beyond 0
+  - conviction : <number> beyond 0
+  - file-type		:	:sexp | :csv
+  - external-format	:	<acl-external-format>
+  - csv-type-spec	:	<list symbol>, type conversion of each column when reading lines from CSV file, e.g. '(string integer double-float double-float)
+  - algorithm : :apriori | :da | :fp-growth | :eclat | :lcm
+*** %association-analyze-apriori (unsp-dataset target-variables key-variable rule-length &key (support 0) (confident 0) (lift 0) (conviction 0))
+Association analyze with apriori algorithm.
+- return: assoc-result-dataset
+- arguments:
+  - unsp-dataset: <unspecialized-dataset>
+  - target-variables : (list of string) column names
+  - key-variable : <string> column name for determining identities
+  - rule-length : <integer> >= 2, maximum length for a rule
+  - support : <number> for percentage
+  - confident : <number> for percentage
+  - lift : <number> beyond 0
+  - conviction : <number> beyond 0
+*** %association-analyze-da-ap-genrule
+Association analyze with da-ap-genrule algorithm. This is developer's idea using double-array for calculation.
+- return value and arguments are same as %association-analyze-apriori
+*** %association-analyze-fp-growth
+Association analyze with frequent pattern growth algorithm
+- return value and arguments are same as %association-analyze-apriori
+*** %association-analyze-eclat
+Association analyze with Eclat algorithm
+- return value and arguments are same as %association-analyze-apriori
+*** %association-analyze-lcm
+Association analyze with Linear time Closed itemset Miner(LCM) algorithm
+- return value and arguments are same as %association-analyze-apriori
+*** QUOTE sample usage
+ ASSOC(25): (association-analyze "sample/pos.sexp" "sample/result.sexp"
+                                '("商品名") "ID番号" 3 :support 2 :external-format #+allegro :932 #-allegro :sjis)
+ #<ASSOC-RESULT-DATASET>
+ THRESHOLDS: SUPPORT 2 | CONFIDENCE 0 | LIFT 0 | CONVICTION 0
+ RULE-LENGTH: 3
+ RESULT: 4532 RULES
+ 
+ ASSOC(6): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+ #<HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET>
+ DIMENSIONS: ID番号 | 商品名 | 数量 | 金額
+ TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+ DATA POINTS: 19929 POINTS
+ 
+ ASSOC(11): (%association-analyze-apriori dataset '("商品名") "ID番号" 3 :support 2)
+ #<ASSOC-RESULT-DATASET>
+ THRESHOLDS: SUPPORT 2 | CONFIDENCE 0 | LIFT 0 | CONVICTION 0
+ RULE-LENGTH: 3
+ RESULT: 4532 RULES
+** Decision-Tree
+*** make-decision-tree (unspecialized-dataset objective-variable-name &key (test #'delta-gini) (epsilon 0))
+  Make a decision tree based on CART
+- return: CONS, a decision tree
+- arguments:
+ - unspecialized-dataset : the inputs data
+ - objective-variable-name : name of the objective variable
+ - test : delta-gini | delta-entropy , split criterion function, default is delta-gini, 
+ - epsilon : parameter for decision tree pre-pruning, default is 0.
+- comments : ???During division, text data is treated as nominal scale data, and numerical data is treated as ordinal scale data.
+- implementation reference : 『集合知プログラミング』(Toby Segaran 著　 當山仁健　鴨澤眞夫　訳　O'REILLY)
+*** print-decision-tree (decision-tree &optional (stream t))
+- return: NIL
+- arguments:
+ - decision-tree : decision tree from make-decision-tree
+ - stream : target output stream, default is t (*standard-output*)
+*** predict-decision-tree (query-vector unspecialized-dataset decision-tree)
+  Predict values using a decision tree
+- return: string, prediction result by the given decision tree
+- arguments:
+ - query-vector : vector consisting of explanatory variables. ???Positions equivalent to objective variables can have any value.
+ - unspecialized-dataset : dataset used for making the decision tree.
+ - decision-tree : 
+- comments : returning a conclusion by answering Yes/No questions based on the decision tree.
+*** QUOTE sample usage
+DECISION-TREE(40): (setf *syobu* (read-data-from-file "sample/syobu.csv" :type :csv 
+                                                     :csv-type-spec
+						    '(string integer integer integer integer)))
+#<UNSPECIALIZED-DATASET>
+DIMENSIONS: 種類 | がく長 | がく幅 | 花びら長 | 花びら幅
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 150 POINTS
+DECISION-TREE(41): (setf *tree* (make-decision-tree *syobu* "種類"))
+(((("花びら長" . 30)
+   (("花びら幅" . 18) ("花びら幅" . 23) ("花びら幅" . 20) ("花びら幅" . 19) ("花びら幅" . 25) ("花びら幅" . 24) ("花びら幅" . 21)
+    ("花びら幅" . 14) ("花びら幅" . 15) ("花びら幅" . 22) ...))
+  (("Virginica" . 50) ("Versicolor" . 50) ("Setosa" . 50))
+  ((149 148 147 146 145 144 143 142 141 140 ...) (49 48 47 46 45 44 43 42 41 40 ...)))
+ (((("花びら幅" . 18) (# # # # # # # # # # ...)) (("Versicolor" . 50) ("Virginica" . 50))
+   ((70 100 101 102 103 104 105 107 108 109 ...) (50 51 52 53 54 55 56 57 58 59 ...)))
+  (((# #) (# #) (# #)) ((#) (149 148 147 146 145 144 143 142 141 140 ...)) ((# # #) (# #) (# #)))
+  (((# #) (# #) (# #)) ((# # #) (# # #) (# #)) ((# # #) (# #) (# #))))
+ ((("Setosa" . 50)) (49 48 47 46 45 44 43 42 41 40 ...)))
+DECISION-TREE(42): (print-decision-tree *tree*)
+[30 <= 花びら長?]((Virginica . 50) (Versicolor . 50) (Setosa . 50))
+   Yes->[18 <= 花びら幅?]((Versicolor . 50) (Virginica . 50))
+      Yes->[49 <= 花びら長?]((Virginica . 45) (Versicolor . 1))
+         Yes->((Virginica . 43))
+         No->[31 <= がく幅?]((Versicolor . 1) (Virginica . 2))
+            Yes->((Versicolor . 1))
+            No->((Virginica . 2))
+      No->[50 <= 花びら長?]((Virginica . 5) (Versicolor . 49))
+         Yes->[16 <= 花びら幅?]((Versicolor . 2) (Virginica . 4))
+            Yes->[53 <= 花びら長?]((Virginica . 1) (Versicolor . 2))
+               Yes->((Virginica . 1))
+               No->((Versicolor . 2))
+            No->((Virginica . 3))
+         No->[17 <= 花びら幅?]((Versicolor . 47) (Virginica . 1))
+            Yes->((Virginica . 1))
+            No->((Versicolor . 47))
+   No->((Setosa . 50))
+NIL
+DECISION-TREE(43): (make-decision-tree *syobu* "種類" :epsilon 0.1);剪定の例
+(((("花びら長" . 30)
+   (("花びら幅" . 18) ("花びら幅" . 23) ("花びら幅" . 20) ("花びら幅" . 19) ("花びら幅" . 25) ("花びら幅" . 24) ("花びら幅" . 21)
+    ("花びら幅" . 14) ("花びら幅" . 15) ("花びら幅" . 22) ...))
+  (("Virginica" . 50) ("Versicolor" . 50) ("Setosa" . 50))
+  ((149 148 147 146 145 144 143 142 141 140 ...) (49 48 47 46 45 44 43 42 41 40 ...)))
+ (((("花びら幅" . 18) (# # # # # # # # # # ...)) (("Versicolor" . 50) ("Virginica" . 50))
+   ((70 100 101 102 103 104 105 107 108 109 ...) (50 51 52 53 54 55 56 57 58 59 ...)))
+  ((("Virginica" . 45) ("Versicolor" . 1)) (70 100 101 102 103 104 105 107 108 109 ...))
+  ((("Virginica" . 5) ("Versicolor" . 49)) (50 51 52 53 54 55 56 57 58 59 ...)))
+ ((("Setosa" . 50)) (49 48 47 46 45 44 43 42 41 40 ...)))
+DECISION-TREE(44): (print-decision-tree *)
+[30 <= 花びら長?]((Virginica . 50) (Versicolor . 50) (Setosa . 50))
+   Yes->[18 <= 花びら幅?]((Versicolor . 50) (Virginica . 50))
+      Yes->((Virginica . 45) (Versicolor . 1))
+      No->((Virginica . 5) (Versicolor . 49))
+   No->((Setosa . 50))
+NIL
+DECISION-TREE(45): (setf *query* #("?" 53 30 33 10));左から「種類,がく長,がく幅,花びら長,花びら幅」の項目を示す質問ベクトル
+#("?" 53 30 33 10)
+DECISION-TREE(46): (predict-decision-tree *query* *syobu* *tree*)
+"Versicolor"
+*** decision-tree-validation (unspecialized-dataset objective-variable-name decision-tree)
+  Validate the prediction performance of the generated decision tree using test dataset
+- return: CONS, validation result
+- arguments:
+ - unspecialized-dataset : test dataset
+ - objective-variable-name : name of the objective variable
+ - decision-tree : decision tree made from the learning data
+- comments : for each element of the returned association list, from
+  left, each data represents: the predicted value by the decision
+  tree, the correct value for the test dataset, and the number of
+  items.
+*** quote sample usage
+decision-tree(64): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+#<unspecialized-dataset>
+dimensions: cl.thickness | cell.size | cell.shape | marg.adhesion | epith.c.size | bare.nuclei | bl.cromatin | normal.nucleoli | mitoses | class
+types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown
+data points: 338 points
+decision-tree(65): (setf *tree* (make-decision-tree *bc-train* "class"))
+(((("cell.size" . 4.0)
+   (("bare.nuclei" . 4.0) ("bare.nuclei" . 1.0) ("bare.nuclei" . 5.0) ("bare.nuclei" . 10.0) ("bare.nuclei" . 2.0) ("bare.nuclei" . 3.0) ("bare.nuclei" . 8.0)
+    ("bare.nuclei" . 6.0) ("bare.nuclei" . 7.0) ("bare.nuclei" . 9.0) ...))
+  (("malignant" . 117) ("benign" . 221)) ((337 334 329 323 317 305 295 292 291 285 ...) (336 335 333 332 331 330 328 327 326 325 ...)))
+ (((("bl.cromatin" . 4.0) (# # # # # # # # # # ...)) (("benign" . 7) ("malignant" . 99))
+   ((2 7 10 18 19 25 28 31 34 35 ...) (0 1 20 23 26 54 74 80 119 122 ...)))
+  (((# #) (# #) (# #)) ((#) (334 329 323 305 295 292 291 280 275 274 ...)) ((# # #) (# #) (# #)))
+  (((# #) (# #) (# #)) ((#) (145 140 133 119 80 54 26 23)) ((# # #) (# #) (# # #))))
+ (((("bare.nuclei" . 6.0) (# # # # # # # # # # ...)) (("malignant" . 18) ("benign" . 214)) ((11 32 60 72 86 128 142 165 170 217) (3 4 5 6 8 9 12 13 14 15 ...)))
+  ((("malignant" . 10)) (11 32 60 72 86 128 142 165 170 217)) (((# #) (# #) (# #)) ((#) (131 51 50 27)) ((# # #) (# # #) (# # #)))))
+decision-tree(66): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+#<unspecialized-dataset>
+dimensions: cl.thickness | cell.size | cell.shape | marg.adhesion | epith.c.size | bare.nuclei | bl.cromatin | normal.nucleoli | mitoses | class
+types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown
+data points: 345 points
+decision-tree(67): (decision-tree-validation *bc-test* "class" *tree*)
+((("benign" . "malignant") . 4) (("malignant" . "malignant") . 118) (("malignant" . "benign") . 9) (("benign" . "benign") . 214))
+*** make-regression-tree (unspecialized-dataset objective-variable-name &key (epsilon 0))
+  return: cons, the regression tree
+- argumrnts:
+  - unspecialized-dataset : dataset to be analyzed
+  - objective-variable-name : name of the objective variable
+  - epsilon : parameter for decision tree pre-pruning, default is 0.
+- comments : ??? 分岐指標には分散差を用いている
+*** print-regression-tree (regression-tree &optional (stream t))
+- return: nil
+- arguments:
+ - regression-tree : 
+ - stream : the output stream, default is t (*standard-output*)
+*** predict-regression-tree (query-vector unspecialized-dataset regression-tree)
+  Predict values using a regression tree
+- return: real, the predicted value by the regression tree
+- arguments:
+ - query-vector : vector consisting of explanatory variables. ???Positions equivalent to objective variables can have any value.
+ - unspecialized-dataset : dataset used for making the decision tree.
+ - regression-tree : 
+- comments : returning a conclusion by answering Yes/No questions based on the decision tree.
+*** quote sample usage
+decision-tree(68): (setf *cars* (read-data-from-file "sample/cars.csv" :type :csv
+						      :csv-type-spec '(double-float double-float)))
+#<unspecialized-dataset>
+dimensions: speed | distance
+types:      unknown | unknown
+data points: 50 points
+decision-tree(69): (setf *tree* (make-regression-tree *cars* "distance" :epsilon 35))
+(((("speed" . 18.0)
+   (("speed" . 25.0) ("speed" . 24.0) ("speed" . 23.0) ("speed" . 22.0) ("speed" . 20.0)
+    ("speed" . 19.0) ("speed" . 17.0) ("speed" . 16.0) ("speed" . 15.0) ("speed" . 14.0) ...))
+  ((85.0 . 1) (120.0 . 1) (93.0 . 1) (92.0 . 1) (70.0 . 1) (66.0 . 1) (64.0 . 1) (52.0 . 1)
+   (48.0 . 1) (68.0 . 1) ...)
+  ((49 48 47 46 45 44 43 42 41 40 ...) (30 29 28 27 26 25 24 23 22 21 ...)))
+ (((("speed" . 24.0) (# # # # # # # # # # ...))
+   ((42.0 . 1) (76.0 . 1) (84.0 . 1) (36.0 . 1) (46.0 . 1) (68.0 . 1) (32.0 . 1) (48.0 . 1)
+    (52.0 . 1) (56.0 . 2) ...)
+   ((45 46 47 48 49) (31 32 33 34 35 36 37 38 39 40 ...)))
+  (((85.0 . 1) (120.0 . 1) (93.0 . 1) (92.0 . 1) (70.0 . 1)) (45 46 47 48 49))
+  (((54.0 . 1) (66.0 . 1) (64.0 . 1) (52.0 . 1) (48.0 . 1) (32.0 . 1) (68.0 . 1) (46.0 . 1)
+    (36.0 . 1) (84.0 . 1) ...)
+   (31 32 33 34 35 36 37 38 39 40 ...)))
+ (((("speed" . 13.0) (# # # # # # # # # # ...))
+   ((2.0 . 1) (4.0 . 1) (22.0 . 1) (16.0 . 1) (10.0 . 2) (18.0 . 1) (17.0 . 1) (14.0 . 1)
+    (24.0 . 1) (28.0 . 2) ...)
+   ((15 16 17 18 19 20 21 22 23 24 ...) (0 1 2 3 4 5 6 7 8 9 ...)))
+  (((50.0 . 1) (40.0 . 2) (32.0 . 2) (54.0 . 1) (20.0 . 1) (80.0 . 1) (60.0 . 1) (36.0 . 1)
+    (46.0 . 1) (34.0 . 2) ...)
+   (15 16 17 18 19 20 21 22 23 24 ...))
+  (((# #) (# # # # # # # # # # ...) (# #)) ((# # # # # # # #) (14 13 12 11 10 9 8 7 6))
+   ((# # # # #) (5 4 3 2 1 0)))))
+decision-tree(70): (print-regression-tree *tree*)
+[18.0 <= speed?] (mean = 42.98, n = 50)
+   yes->[24.0 <= speed?] (mean = 65.26, n = 19)
+      yes->(mean = 92.00, n = 5)
+      no->(mean = 55.71, n = 14)
+   no->[13.0 <= speed?] (mean = 29.32, n = 31)
+      yes->(mean = 39.75, n = 16)
+      no->[10.0 <= speed?] (mean = 18.20, n = 15)
+         yes->(mean = 23.22, n = 9)
+         no->(mean = 10.67, n = 6)
+nil
+decision-tree(71): (setf *query* #(24.1 "?"))
+#(24.1 "?")
+decision-tree(72): (predict-regression-tree *query* *cars* *tree*)
+92.0
+*** regression-tree-validation (unspecialized-dataset objective-variable-name regression-tree)
+  Validate the prediction performance of the generated regression tree using test dataset
+- return: real, error sum of squares
+- arguments:
+ - unspecialized-dataset : test dataset
+ - objective-variable-name : name of the objective variable
+ - regression-tree : regression tree made from the learning data
+*** quote sample usage
+decision-tree(10): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+#<unspecialized-dataset>
+dimensions: cl.thickness | cell.size | cell.shape | marg.adhesion | epith.c.size | bare.nuclei | bl.cromatin | normal.nucleoli | mitoses | class
+types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown
+data points: 338 points
+decision-tree(11): (setf *tree* (make-regression-tree *bc-train* "cell.size"))
+(((("class" . "benign")
+   (("bare.nuclei" . 4.0) ("bare.nuclei" . 1.0) ("bare.nuclei" . 5.0) ("bare.nuclei" . 10.0) ("bare.nuclei" . 2.0)
+    ("bare.nuclei" . 3.0) ("bare.nuclei" . 8.0) ("bare.nuclei" . 6.0) ("bare.nuclei" . 7.0) ("bare.nuclei" . 9.0) ...))
+  ((7.0 . 10) (9.0 . 3) (3.0 . 22) (6.0 . 11) (5.0 . 18) (2.0 . 22) (1.0 . 188) (10.0 . 25) (8.0 . 19) (4.0 . 20))
+  ((336 335 333 332 331 330 328 327 326 325 ...) (337 334 329 323 305 295 292 291 285 280 ...)))
+ (((("cell.shape" . 7.0) (# # # # # # # # # # ...)) ((8.0 . 1) (7.0 . 1) (4.0 . 5) (2.0 . 15) (3.0 . 12) (1.0 . 187))
+   ((1 124) (0 3 4 5 6 8 9 12 13 14 ...)))
+  (((# #) (# #) (# #)) ((#) (1)) ((#) (124))) (((# #) (# # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# #) (# # #))))
+ (((("cell.shape" . 7.0) (# # # # # # # # # # ...))
+   ((1.0 . 1) (2.0 . 7) (9.0 . 3) (3.0 . 10) (6.0 . 11) (4.0 . 15) (5.0 . 18) (7.0 . 9) (10.0 . 25) (8.0 . 18))
+   ((2 23 52 55 71 76 80 83 84 85 ...) (7 10 11 18 19 20 24 25 26 27 ...)))
+  (((# #) (# # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #)))
+  (((# #) (# # # # # # # # #) (# #)) ((# # #) (# #) (# # #)) ((# # #) (# # #) (# # #)))))
+decision-tree(12): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+#<unspecialized-dataset>
+dimensions: cl.thickness | cell.size | cell.shape | marg.adhesion | epith.c.size | bare.nuclei | bl.cromatin | normal.nucleoli | mitoses | class
+types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown
+data points: 345 points
+decision-tree(13): (regression-tree-validation *bc-test* "cell.size" *tree*)
+812.9077777777777
+** random-forest
+*** make-random-forest (unspecialized-dataset objective-variable-name &key (test #'delta-gini) (tree-number 500)) 
+- return: (simple-array t (* )), random forest from the unpruned CART-based decision tree
+- arguments:
+ - unspecialized-dataset : dataset to be analyzed
+ - objective-variable-name : name of the objective variable
+ - test : delta-gini | delta-entropy , split criterion function, default is delta-gini.
+ - tree-number : number of trees in the forest, default value is 500.
+- note : "the elements of statistical learning:data mining, inference, and prediction" (trevor hastie, robert tibshirani, jerome friedman)
+          http://www-stat.stanford.edu/~tibs/elemstatlearn/ Chapter 15 is used as reference during the implementation.
+
+*** predict-forest (query-vector unspecialized-dataset forest)
+  Predict values using a random forest
+- return: string, prediction result by the random forest.
+- arguments:
+ - query-vector : vector consisting of explanatory variables. ???Positions equivalent to objective variables can have any value.
+ - unspecialized-dataset : dataset used for making the random forest.
+ - forest : 
+- comments : prediction result is decided by majority rule from the decision trees in the forest.
+*** forest-validation (unspecialized-dataset objective-variable-name forest)
+  Validate the prediction performance of the generated random forest using test dataset
+- return: cons, validation result
+- arguments:
+ - unspecialized-dataset : dataset for validation
+ - objective-variable-name : name of the objective variable
+ - forest : random forest made from learning data
+- comments : for each element of the returned association list, from
+  left, each data represents: the predicted value by the random
+  forest, the correct value for the test dataset, and the number of
+  items.
+*** quote sample usage
+random-forest(24): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+#<unspecialized-dataset>
+dimensions: cl.thickness | cell.size | cell.shape | marg.adhesion | epith.c.size | bare.nuclei | bl.cromatin | normal.nucleoli | mitoses | class
+types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown
+data points: 338 points
+random-forest(25): (setf *forest* (make-random-forest *bc-train* "class"))
+#((((("normal.nucleoli" . 3.0) nil) (("benign" . 215) ("malignant" . 123)) ((336 335 328 323 322 319 314 310 304 303 ...) (337 334 333 332 331 330 329 327 326 325 ...)))
+   (((# nil) (# #) (# #)) ((# # #) (# #) (# # #)) ((# # #) (# #) (# #))) (((# nil) (# #) (# #)) ((#) (27 43 133 150 163 227 329)) ((# # #) (# #) (# # #))))
+  (((("cell.size" . 3.0) nil) (("benign" . 227) ("malignant" . 111)) ((335 331 329 328 324 322 321 316 313 310 ...) (337 336 334 333 332 330 327 326 325 323 ...)))
+   (((# nil) (# #) (# #)) ((# # #) (# # #) (# # #)) ((#) (39 61 234 255 331))) (((# nil) (# #) (# #)) ((#) (127 164)) ((#) (1 3 4 5 6 7 10 11 13 15 ...))))
+  (((("normal.nucleoli" . 3.0) nil) (("malignant" . 118) ("benign" . 220)) ((337 336 334 320 319 310 308 307 306 301 ...) (335 333 332 331 330 329 328 327 326 325 ...)))
+   (((# nil) (# #) (# #)) ((# # #) (# #) (# # #)) ((# # #) (# #) (# #))) (((# nil) (# #) (# #)) ((#) (8 12 26 91 117 137 180 219 284 298)) ((# # #) (# # #) (# # #))))
+  ...)
+random-forest(26): (setf *query* #(3.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 "?"))
+#(3.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 "?")
+random-forest(27): (predict-forest *query* *bc-train* *forest*)
+"benign"
+random-forest(28): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+#<unspecialized-dataset>
+dimensions: cl.thickness | cell.size | cell.shape | marg.adhesion | epith.c.size | bare.nuclei | bl.cromatin | normal.nucleoli | mitoses | class
+types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown
+data points: 345 points
+random-forest(29): (forest-validation *bc-test* "class" *forest*)
+((("benign" . "malignant") . 3) (("malignant" . "benign") . 7)
+ (("malignant" . "malignant") . 119) (("benign" . "benign") . 216))
+*** make-regression-forest (unspecialized-dataset objective-variable-name &key (tree-number 500))
+- return: (simple-array t (* )), regression forest from the unpruned CART-based regression tree
+- arguments:
+ - unspecialized-dataset : dataset to be analyzed
+ - objective-variable-name : name of the objective variable
+ - tree-number : number of trees in the forest, default value is 500.
+*** predict-regression-forest (query-vector unspecialized-dataset regression-forest)
+  Predict values using a regression forest
+- return: real , predicted value by the regression forest.
+- arguments:
+ - query-vector : vector consisting of explanatory variables. ???Positions equivalent to objective variables can have any value.
+ - unspecialized-dataset : dataset used for making the regression forest.
+ - regression-forest : 
+- comments : prediction result is decided by majority rule from the regression trees in the forest.
+*** regression-forest-validation (unspecialized-dataset objective-variable-name regression-forest)
+  Validate the prediction performance of the generated regression forest using test dataset
+- return: real, error sum of squares
+- arguments:
+ - unspecialized-dataset : test dataset
+ - objective-variable-name : name of the objective variable
+ - regression-forest : regression forest made from learning data
+*** quote sample usage
+random-forest(40): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+#<unspecialized-dataset>
+dimensions: cl.thickness | cell.size | cell.shape | marg.adhesion | epith.c.size | bare.nuclei | bl.cromatin | normal.nucleoli | mitoses | class
+types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown
+data points: 338 points
+random-forest(41):(setf *regression-forest* (make-regression-forest *bc-train* "cell.size"))
+#((((("class" . "malignant") nil)
+    ((9.0 . 2) (6.0 . 7) (7.0 . 12) (8.0 . 22) (5.0 . 20) (3.0 . 23) (4.0 . 25) (1.0 . 164) (2.0 . 32) (10.0 . 31))
+    ((335 327 322 321 320 319 318 314 312 310 ...) (337 336 334 333 332 331 330 329 328 326 ...)))
+   (((# nil) (# # # # # # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #)))
+   (((# nil) (# # # # #) (# #)) ((# # #) (# #) (# # #)) ((# # #) (# #) (# # #))))
+  (((("cell.shape" . 6.0) nil)
+    ((9.0 . 1) (2.0 . 20) (5.0 . 16) (7.0 . 13) (4.0 . 16) (3.0 . 19) (10.0 . 20) (6.0 . 10) (8.0 . 22) (1.0 . 201))
+    ((335 326 325 317 316 314 312 311 307 299 ...) (337 336 334 333 332 331 330 329 328 327 ...)))
+   (((# nil) (# # # # # # #) (# #)) ((# # #) (# # #) (# #)) ((# # #) (# # #) (# # #)))
+   (((# nil) (# # # # # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #))))
+  (((("epith.c.size" . 3.0) nil)
+    ((9.0 . 4) (2.0 . 16) (4.0 . 23) (7.0 . 9) (6.0 . 5) (3.0 . 24) (5.0 . 16) (10.0 . 17) (8.0 . 21) (1.0 . 203))
+    ((334 332 324 320 319 315 314 313 312 308 ...) (337 336 335 333 331 330 329 328 327 326 ...)))
+   (((# nil) (# # # # # # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #)))
+   (((# nil) (# # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# #) (# # #))))
+  ...)
+random-forest(42): (setf *query* #(5.0 "?" 1.0 1.0 2.0 1.0 3.0 1.0 1.0 "benign"))
+#(5.0 "?" 1.0 1.0 2.0 1.0 3.0 1.0 1.0 "benign")
+random-forest(43): (predict-regression-forest *query* *bc-train* *regression-forest*)
+1.0172789943526082
+random-forest(44): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+#<unspecialized-dataset>
+dimensions: cl.thickness | cell.size | cell.shape | marg.adhesion | epith.c.size | bare.nuclei | bl.cromatin | normal.nucleoli | mitoses | class
+types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown
+data points: 345 points
+random-forest(45): (regression-forest-validation *bc-test* "cell.size" *regression-forest*)
+561.9792657670295
+** k-nearest-neighbor
+*** class
+**** k-nn-estimator 
+- accessor:
+  - vec :           data for learning
+  - vec-labels :    explanatories
+  - vec-profiles :  type infomation for each explanatories
+  - vec-weight :    weight for each explanatories
+  - mins :          minimum value for each explanatories
+  - maxs :          maximum value for each explanatories
+  - target :        objective variable
+  - teachers :      values of target
+  - k :             value of parameter k
+  - distance :      
+*** k-nn-analyze (learning-data k target explanatories
+                     &key (distance :euclid)
+                          use-weight weight-init normalize)
+- return: <k-nn-estimator>
+- arguments:
+  - learning-data : <unspecialized-dataset>
+  - k : <integer>
+  - target : <string>
+  - explanatories : <list string> | :all
+  - distance : :euclid | :manhattan
+  - use-weight : nil | :class | :data
+  - weight-init :
+    - if use-weight is :class, it's an assoc-list of form ((class-name . weight) ...) 
+    - if use-weight is :data, then a vector of weight, a list of
+      weight or a column name of input data are allowable. When a
+      column name is passed in, the element in the column is treated
+      as weight.
+  - normalize : t | nil
+*** k-nn-estimate (estimator in-data)
+- return: <unspecialized-dataset>
+- arguments:
+  - estimator : <k-nn-estimator> 
+  - in-data :  <unspecialized-dataset> data to be estimated.
+*** quote sample usage
+ k-nn(12): (setf data-for-learn
+             (read-data-from-file "sample/learn.csv" :type :csv 
+                                  :csv-type-spec (cons 'string (make-list 105 :initial-element 'double-float))))
+ #<hjs.learn.read-data::unspecialized-dataset>
+ dimensions: id | a/c clutch | a/c pressure | a/c pressure sensor | a/c switch | af b1 lambda cmd | af b2 lambda cmd | ...
+ types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | ...
+ data points: 344 points
+ 
+ k-nn(13): (setf estimator
+             (k-nn-analyze data-for-learn 2 "id" :all :distance :manhattan :normalize t))
+ number of self-misjudgement : 277
+ #<k-nn-estimator @ #x2144ae72>
+ 
+ k-nn(14): (setf data-for-estimate
+             (read-data-from-file "sample/estimate.csv" :type :csv
+                                  :csv-type-spec (make-list 105 :initial-element 'double-float)))
+ #<hjs.learn.read-data::unspecialized-dataset>
+ dimensions: a/c clutch | a/c pressure | a/c pressure sensor | a/c switch | af b1 lambda cmd | af b2 lambda cmd | af fb cmd | ...
+ types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | ...
+ data points: 23 points
+ 
+ k-nn(15): (k-nn-estimate estimator data-for-estimate)
+ #<hjs.learn.read-data::unspecialized-dataset>
+ dimensions: estimated-id | a/c clutch | a/c pressure | a/c pressure sensor | a/c switch | af b1 lambda cmd | af b2 lambda cmd | ...
+ types:      unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | unknown | ...
+ data points: 23 points
+*** note
+When target, the objective variable's type is string, discriminant
+analysis is used, when type is number, regression analysis is used. In
+the case of discriminant analysis, the number of self-misjudgement from
+self analysis is displayed.
+** support-vector-machine
+   package for support vector machine
+*** class for kernel-fn
+**** polynomial-kernel
+- reader:
+  - dimension : 
+  - homogeneousp : homogeneous polynomial or not
+- generator:
+  - polynomial-kernel (dimension homogeneousp)
+**** radial-kernel
+- reader:
+  - gamma : <number> above 0
+- generator:
+  - radial-kernel (gamma)
+  - gaussian-kernel (sigma2)
+**** sigmoid-kernel
+- reader:
+  - kappa : <number>
+  - shift : <number>
+- generator:
+  - sigmoid-kernel (kappa shift)
+*** quote parameter
+ svm(18): +linear-kernel+
+ #<polynomial-kernel : d = 1 homogeneous>
+*** svm (kernel positive-data negative-data &key (iterations 100) (lagrange-iterations 20) (tolerance 1.0d-20))
+- return: <closure>
+  - return of <closure>: two values, (result number)
+    - result : t(positive) | nil(negative)
+    - number : value of kernel-fn
+  - argument of <closure>: <seq>, estimation target
+- arguments:
+  - kernel : <kernel-fn>
+  - positive-data :  <seq seq>, training data e.g. '((8 8) (8 20) (8 44))
+  - negative-data :  <seq seq>, training data
+  - iterations : <integer>
+  - lagrange-iterations : <integer>
+  - tolerance : <number>, error tolerance
+*** quote sample usage
+svm(8): (defparameter *positive-set*
+  '((8.0 8.0) (8.0 20.0) (8.0 44.0) (8.0 56.0) (12.0 32.0) (16.0 16.0) (16.0 48.0)
+    (24.0 20.0) (24.0 32.0) (24.0 44.0) (28.0 8.0) (32.0 52.0) (36.0 16.0)))
+svm(9): (defparameter *negative-set*
+  '((36.0 24.0) (36.0 36.0) (44.0 8.0) (44.0 44.0) (44.0 56.0)
+    (48.0 16.0) (48.0 28.0) (56.0 8.0) (56.0 44.0) (56.0 52.0)))
+svm(21): (setf linear-fcn
+              (svm +linear-kernel+ *positive-set* *negative-set*))
+	      #<closure (:internal decision 0) @ #x212ebfc2>
+svm(22): (funcall linear-fcn (car (last *positive-set*)))
+nil
+-46.88582273865575
+svm(23): (setf polynomial-fcn
+           (svm (polynomial-kernel 3 nil) *positive-set* *negative-set*))
+ #<closure (:internal decision 0) @ #x20b7c122>
+svm(24): (funcall polynomial-fcn (car (last *positive-set*)))
+t
+4.849458930036461e+7
+svm(25): (funcall polynomial-fcn '(30.0 20.0))
+t
+2.3224182219070548e+8
+** self-organizing-map
+   package for self-organizing map
+*** do-som-by-filename (in-data-file s-topol s-neigh xdim ydim randomize length ialpha iradius num-labels directory &key debug)
+- return: nil
+- arguments:
+  - in-data-file : <string>, input data
+  - s-topol : "hexa" | "rect", topology type
+  - s-neigh : "bubble" | "gaussian", neighborhood type
+  - xdim : <integer>, x size of output map
+  - ydim : <integer>, y size of output map
+  - randomize : random seed for initialization
+  ;; training parameters 
+  - length : how many times train for path1
+  - ialpha : learning rate for path1 x100
+  - iradius : learning radius for path1 x100
+  ;; visualization parameters
+  - num-labels : number of labels on same map point 
+  ;; output ps directory
+  - directory : <string>
+  - debug : t | nil
+*** quote sample usage
+som(27): (do-som-by-filename "som/animal.dat" "hexa" "gaussian"
+                             24 16 123 10000 5 2400 10
+                             '(:absolute #+unix "tmp" #+mswindows "temp"))
+in-data-file [som/animal.dat]
+s-topol[hexa] s-neigh[gaussian] xdim[24] ydim[16] nrand[123]
+num-label[10]
+step 1 : initialization 
+step 2 : learning 
+step 3 : calibration 
+step 4 : labeling 
+step 5 : making sammon map
+384 entries in codebook
+xma-xmi 3.074987831736982 yma-ymi 2.129596273225805
+#p"/tmp/out"
+#p"/tmp/tempa175816032024.ps"
+** time-series-read-data
+   package for reading time series data
+*** structure
+**** ts-point (time series data points)
+- time : time for the data point, integer larger than 1.
+- freq : nth period of the data point, integer larger than 1.
+- label : name of the data point. e.g. "2009/jan/5th"
+- pos : coordinate of the data point
+*** class
+**** time-series-dataset (time series data)
+- accessor
+  - ts-points : vector of ts-point
+  - ts-freq : number of observed values per unit of time
+  - ts-start : time for the first observed value, ts-point is represented as list of time and freq. Please refer to the sample usage.
+  - ts-end : time for the last observed value, ??? same as ts-start
+*** time-series-data ((d unspecialized-dataset) &key (start 1) end (frequency 1) (range :all) except time-label)
+- return: <time-series-dataset>
+- arguments:
+  - d          : <unspecialized-dataset>
+  - start      : <list integer integer> | integer, specify the start time, integer larger than 1 or a list of integer of such kind. e.g. (1861 3)
+  - end        : <list integer integer> | integer, specify the end time, format same as start. When unspecified, all the lines will be read in.
+  - frequency  : integer >= 1, specify the frequency 
+  - range      : :all | <list integer>, indices of columns used in the result, start from 0, e.g. '(0 1 3 4)
+  - except     : <list integer>, the opposite of :range, indices of columns which will be excluded from the result, start from 0. e.g. '(2)
+  - time-label : integer, index of column which represents the labels of time series data points, no labels when not specified.
+*** ts-cleaning ((d time-series-dataset) &key interp-types outlier-types outlier-values)
+- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>
+  - interp-types   : <list, nil | :zero | :min | :max | :mean | :median | :spline>
+  - outlier-types  : <list, nil | :std-dev | :mean-dev | :user | :smirnov-grubbs>
+  - outlier-values : <list, nil | value according to outlier-type>
+- comment:
+  read-data の dataset-cleaning と内容は同じ。外れ値検出, 欠損値補間を行なう。
+*** quote sample usage
+ ts-read-data(26): (setf d (read-data-from-file "sample/msi-access-stat/access-log-stat.sexp"))
+ #<unspecialized-dataset>
+ dimensions: date/time | hits
+ types:      unknown | unknown
+ data points: 9068 points
+ ts-read-data(27): (setf msi-access (time-series-data d :range '(1) :time-label 0
+                                    :frequency 24 :start '(18 3)))
+ #<time-series-dataset>
+ dimensions: hits
+ types:      numeric
+ frequency:  24
+ start:      (18 3)
+ end:        (25 2)
+ points:     168
+ time-label: date/time
+ ts-read-data(28): (setf msi-access (time-series-data d :range '(1) :time-label 0
+                                    :frequency 24 :start '(18 3) :end '(18 24)))
+ #<time-series-dataset>
+ dimensions: hits
+ types:      numeric
+ frequency:  24
+ start:      (18 3)
+ end:        (18 24)
+ points:     22
+ time-label: date/time
+ ts-read-data(29): (setf msi-access (time-series-data d :range '(1) :time-label 0
+                                    :frequency 3))
+ #<time-series-dataset>
+ dimensions: hits
+ types:      numeric
+ frequency:  3
+ start:      (1 1)
+ end:        (56 3)
+ points:     168
+ time-label: date/time
+ ts-read-data(29): (ts-points msi-access)
+ #(#s(ts-point :time 1 :freq 1 :label "12/may/2008 03:00-03:59" :pos #(210.0))
+   #s(ts-point :time 1 :freq 2 :label "12/may/2008 04:00-04:59" :pos #(265.0))
+   #s(ts-point :time 1 :freq 3 :label "12/may/2008 05:00-05:59" :pos #(219.0))
+   #s(ts-point :time 2 :freq 1 :label "12/may/2008 06:00-06:59" :pos #(284.0))
+   #s(ts-point :time 2 :freq 2 :label "12/may/2008 07:00-07:59" :pos #(287.0))
+   #s(ts-point :time 2 :freq 3 :label "12/may/2008 08:00-08:59" :pos #(829.0))
+   #s(ts-point :time 3 :freq 1 :label "12/may/2008 09:00-09:59" :pos #(1039.0))
+   #s(ts-point :time 3 :freq 2 :label "12/may/2008 10:00-10:59" :pos #(1765.0))
+   #s(ts-point :time 3 :freq 3 :label "12/may/2008 11:00-11:59" :pos #(2021.0))
+   #s(ts-point :time 4 :freq 1 :label "12/may/2008 12:00-12:59" :pos #(1340.0)) ...)
+** time-series-statistics
+時系列データ(time-series-dataset) を対象とした解析 package
+*** diff ((d time-series-dataset) &key (lag 1) (differences 1))
+- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>
+  - lag : <integer>, degree of lag
+  - differences : <integer> >= 1, number of difference
+- comments:
+  差分をとる。例えば時系列のトレンドが 1 次式であれば、differences 1 でトレンドを除去できる。
+*** ts-ratio ((d time-series-dataset) &key (lag 1))
+- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>
+  - lag : <integer>, degree of lag
+- comments:
+  lag で指定された幅を周期とみなし、同期比をとる。
+*** ts-log ((d time-series-dataset) &key (logit-transform nil))
+- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>
+  - logit-transform : t | nil, logit transformation is effective for (0, 1) values ts data
+- comments
+  logit-transform は、0 から 1 の値をとる時系列データを定常化するのに有効。
+*** ts-min, ts-max, ts-mean, ts-median
+- argument: <time-series-dataset>
+*** ts-covariance, ts-correlation ((d time-series-dataset) &key (k 0))
+- return: <matrix>, auto-covariance or auto-correlation matrix with lag k
+- arguments:
+  - d : <time-series-dataset>
+  - k : <positive integer>, degree of lag
+*** acf ((d time-series-dataset) &key (type :correlation) (plot nil) (print t) max-k)
+- return: nil | <list>
+- arguments:
+  - d     : <time-series-dataset>
+  - type  : :covariance | :correlation
+  - max-k : <positive integer>
+  - plot  : nil | t, when plot is t, result will be plotted by r.
+  - print : nil | t, when print is t, result will be printed.
+*** ccf (d1 d2 &key (type :correlation) (plot t) (print nil) max-k)
+- return: nil | <list>
+- arguments:
+  - d1, d2 : <time-series-dataset>, one dimensional
+  - type  : :covariance | :correlation
+  - max-k : <positive integer>
+  - plot  : nil | t, when plot is t, result picture will be plotted by r.
+  - print : nil | t, when print is t, result will be printed.  
+*** ma ((d time-series-dataset) &key (k 5) weight)
+- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>, one dimensional
+  - k : <positive integer>, range of calculation for average
+  - weight : nil | <list>, when weight is nil, it will be all same weight.
+*** periodgram ((d time-series-dataset) &key (print t) (plot nil) (log t) (smoothing :raw) step)
+- return: nil | <list>
+- arguments:
+  - d     : <time-series-dataset>
+  - plot  : nil | t, when plot is t, result picture will be plotted by r.
+  - print : nil | t, when print is t, result will be printed.  
+  - log   : nil | t, when log is t, the value of p(f) will be logarized.
+  - smoothing : :raw | :mean | :hanning | :hamming, the way of smoothing
+  - step  : nil | <positive integer>, parameter for smoothing :mean
+- comments:
+  高速フーリエ変換のアルゴリズムが古く、その入力を 2^n の長さの seq にしなければならないことから、周期 m / 2^n (m,n : 自然数)の周波数成分の強度しか求められない。
+*** quote sample usage
+ ts-stat(90): (setq ukgas (time-series-data (read-data-from-file "sample/ukgas.sexp") :range '(1) :time-label 0)
+                    useco (time-series-data (read-data-from-file "sample/useconomic.sexp")))
+
+ ts-stat(91): (acf useco)
+ log(m1)
+ log(m1) log(gnp) rs rl
+ 1.000 (0.000) 0.573 (0.000) 0.090 (0.000) 0.167 (0.000)
+ 0.949 (1.000) 0.540 (-1.000) 0.113 (-1.000) 0.154 (-1.000)
+ 0.884 (2.000) 0.503 (-2.000) 0.123 (-2.000) 0.141 (-2.000)
+ 0.807 (3.000) 0.463 (-3.000) 0.132 (-3.000) 0.128 (-3.000)
+ 0.725 (4.000) 0.422 (-4.000) 0.139 (-4.000) 0.117 (-4.000)
+ ...
+ ts-stat(92): (ccf (sub-ts useco :range '(0)) (sub-ts useco :range '(1)))
+ log(m1) : log(gnp)
+ 0.195 (-21.000)
+ 0.190 (-20.000)
+ 0.190 (-19.000)
+ 0.193 (-18.000)
+ 0.198 (-17.000)
+ 0.205 (-16.000)
+ ...
+ ts-stat(95): (periodgram ukgas)
+ frequency | log p(f)
+ 0.00781250 | 14.38906769
+ 0.01562500 | 13.00093289
+ 0.02343750 | 12.34768838
+ 0.03125000 | 11.73668589
+ 0.03906250 | 11.20979558
+ 0.04687500 | 10.62278452
+ ...
+** time-series-state-space-model
+状態空間モデル（時系列モデルを抽象化したもの）の package, 
+これを用いて色々な時系列モデルを表現する。
+*** class
+**** state-space-model
+- 状態空間モデル
+- accessors:
+  - ts-data : 観測値時系列
+**** gaussian-stsp-model
+- ガウス型状態空間モデル
+- parent: state-space-model
+**** trend-model
+- parent: gaussian-stsp-model
+- accessors:
+  - diff-k : trend モデルの次数
+  - tau^2  : trend モデルにおけるシステムモデルの分散
+  - aic : モデルの赤池情報量基準 aic
+**** seasonal-model
+- parent: gaussian-stsp-model
+- accessors
+  - s-deg  : seasonal モデルの次数
+  - s-freq : seasonal モデルの周期(通常は時系列データの周期と同じ)
+  - tau^2  : システムモデルの分散
+**** seasonal-adjustment-model
+標準的季節調整モデル( トレンド成分 + 季節成分 )
+- parent: gaussian-stsp-model
+- accessors
+  - trend-model : トレンド成分を表す trend モデル
+  - seasonal-model : 季節成分を表す seasonal モデル
+*** trend ((d time-series-dataset) &key (k 1) (t^2 0d0) (opt-t^2 nil) (delta 0.1d0) (search-width 10))
+- return: <trend-model>
+- arguments:
+  - d            : <time-series-dataset>
+  - k            : <positive-integer>
+  - t^2          : <positive-number>
+  - opt-t^2      : nil | t
+  - delta        : <positive-number>
+  - search-width : <positive-integer>
+- comments:
+  - モデルの次数 k は一般的には 1 か 2 で十分だと言われている。k = 1 なら局
+    所的にはトレンドは一定、k = 2 なら局所的にはトレンドは直線的に変化する
+    時系列データに適している。
+  - opt-t^2 が t なら delta, search-width に従って t^2 の値を自動推定する。
+    具体的には t^2 で指定された値を中心に、正負方向に (* delta search-width)
+    の範囲において delta 刻みで t^2 の値を動かし、model の aic が一番小さか
+    った t^2 を採用する。
+*** seasonal-adj ((d time-series-dataset) &key (tr-k 1) (tr-t^2 0d0) (s-deg 1) s-freq (s-t^2 0d0) (s^2 1d0))
+- return: <seasonal-adjustment-model>
+- arguments:
+  - d            : <time-series-dataset>
+  - tr-k         : <positive-integer>, トレンド成分の次数
+  - tr-t^2       : <positive-number>, トレンド成分の分散
+  - s-deg        : <positive-integer>, 季節成分の次数
+  - s-freq       : <positive-integer>, 周期, 指定しない場合は入力時系列データの周期が適用される
+  - s-t^2        : <positive-number>, システムモデルの分散
+  - s^2          : <positive-number>, 観測モデルの分散
+- comments:
+  - 与えられた時系列データ(１次元)をトレンド、季節成分に分解したモデルを構築する。
+  - 季節成分の次数は、季節成分に顕著な傾向的変化が見られない限り、1 次のモデルを使用する。
+  - 周期は 2 以上でなければならない。
+*** predict ((model gaussian-stsp-model) &key (n-ahead 0))
+- return: (values <time-series-dataset> <time-series-dataset>)
+  - first value is a prediction by model, second is a standard error of the model.
+- arguments:
+  - n-ahead : <non-negative-integer>
+- comments:
+  - model が trend-model のとき、n-ahead で指定した観測時系列データより先の値すなわち予測値については、
+    観測値の最後における trend が保たれる。
+*** quote sample usage
+ ts-stsp(123): (defparameter tokyo
+                  (time-series-data
+                   (read-data-from-file "sample/tokyo-temperature.sexp")))
+ tokyo
+
+ ts-stsp(7): (trend tokyo :k 2 :opt-t^2 t)
+ #<trend-model>
+ k:   2
+ t^2: 0.1
+ aic: 2395.073754930766
+
+ ts-stsp(8): (predict * :n-ahead 10)
+ #<time-series-dataset>
+ dimensions: trend
+ types:      numeric
+ frequency:  1
+ start:      (1 1)
+ end:        (458 1)
+ points:     458
+ #<time-series-dataset>
+ dimensions: standard error
+ types:      numeric
+ frequency:  1
+ start:      (1 1)
+ end:        (458 1)
+ points:     458
+** time-series-auto-regression
+時系列解析における自己回帰モデルの package
+*** class
+**** ar-model
+- parent: gaussian-stsp-model
+- accessors:
+  - ar-coefficients : ar パラメータ
+  - sigma^2 : ar model の分散推定値
+  - aic : モデルの赤池情報量基準 aic 
+  - ar-method : ar パラメータの推定方式
+*** ar ((d time-series-dataset) &key order-max (method :burg) (aic t) (demean t))
+- return: <ar-model>
+- arguments:
+  - d         : <time-series-dataset>
+  - order-max : <positive integer>
+  - method    : :yule-walker | :burg
+  - aic       : nil | t
+  - demean    : nil | t
+- comments:
+  aic が t なら order-max までの次数のモデルを推定し、aic が一番小さなモデルを選択する。
+  aic が nil なら order-max で指定された次数のモデルを推定し、選択する。
+*** predict ((model ar-model) &key (n-ahead 0))
+- return: (values <time-series-dataset> <time-series-dataset>)
+  - first value is a prediction by model, second is a standard error of the model.
+- arguments:
+  - model : <ar-model>
+  - n-ahead : <non-negative integer>
+*** ar-prediction ((d time-series-dataset) &key (method :yule-walker) (aic t) order-max n-learning (n-ahead 0) (demean t) target-col)
+- return: (values <time-series-dataset> <ar-model> <time-series-dataset>)
+- arguments:
+  - d : <time-series-dataset>
+  - order-max : <positive integer>
+  - method    : :yule-walker | :burg
+  - aic       : nil | t
+  - demean    : nil | t
+  - n-ahead   : <non-negative integer>
+  - n-learning : nil | <positive integer>, number of points for learning
+  - target-col : nil | <string>, name of target parameter
+*** parcor-filtering ((ts time-series-dataset) &key (divide-length 15) (parcor-order 1) (n-ahead 10) ppm-fname)
+- return: <time-series-dataset>, values for parcor picture
+- arguments:
+  - ts : <time-series-dataset>
+  - divide-length : <positive integer>
+  - parcor-order : <positive integer> below divide-length
+  - n-ahead : <non-negative integer>, number for ar-prediction on parcor picture
+  - ppm-fname : <string> | <pathname>, name for parcor picture
+- comments:
+  論文 http://www.neurosci.aist.go.jp/~kurita/lecture/statimage.pdf
+  の 3.2.1 節を参考にした。時系列を divide-length で区切って各区間を一つの動画と捉え
+  parcor 画像を各区間ごとに作成する。
+*** quote sample usage
+ ts-ar(128): (defparameter ukgas 
+                (time-series-data
+                 (read-data-from-file "sample/ukgas.sexp")
+                 :range '(1) :time-label 0
+                 :start 1960 :frequency 4))
+
+ ts-ar(14): (setq model (ar ukgas))
+ #<ar-model>
+ method: burg
+ coefficients:
+ a1 0.17438913366790465
+ a2 -0.20966263354643136
+ a3 0.459202505071864
+ a4 1.0144694385486095
+ a5 0.2871426375860843
+ a6 -0.09273505423571009
+ a7 -0.13087574744684466
+ a8 -0.34467398543738703
+ a9 -0.1765456124104221
+ order selected 9, sigma^2 estimated as 1231.505368951319
+
+ ts-ar(15): (predict model :n-ahead 12)
+ #<time-series-dataset>
+ dimensions: ukgas
+ types:      numeric
+ frequency:  4
+ start:      (1962 2)
+ end:        (1989 4)
+ points:     111
+ time-label: year season
+ #<time-series-dataset>
+ dimensions: standard error
+ types:      numeric
+ frequency:  4
+ start:      (1962 2)
+ end:        (1989 4)
+ points:     111
+ time-label: year season
+
+ ts-ar(16): (ar-prediction ukgas :method :burg :n-learning 80 :n-ahead 12)
+ #<time-series-dataset>
+ dimensions: ukgas
+ types:      numeric
+ frequency:  4
+ start:      (1962 2)
+ end:        (1983 1)
+ points:     84
+ time-label: year season
+ #<ar-model>
+ method: burg
+ coefficients:
+ a1 0.03855018085036885
+ a2 -0.16131564249720193
+ a3 0.43498481388230215
+ a4 1.050917089787715
+ a5 0.5797305440261313
+ a6 -0.13363258905263287
+ a7 -0.16163235104434967
+ a8 -0.3748978324320104
+ a9 -0.3151508389321235
+ order selected 9, sigma^2 estimated as 741.5626361893945
+ #<time-series-dataset>
+ dimensions: standard error
+ types:      numeric
+ frequency:  4
+ start:      (1962 2)
+ end:        (1983 1)
+ points:     84
+ time-label: year season
+
+ ts-ar(6): (setq traffic (time-series-data
+                          (read-data-from-file "sample/mawi-traffic/pointf-20090330-0402.sexp")
+                          :except '(0) :time-label 0))
+ #<time-series-dataset>
+ dimensions: [   32-   63] | [   64-  127] | [  128-  255] | [  256-  511] | [  512- 1023] | ...
+ types:      numeric | numeric | numeric | numeric | numeric | numeric | numeric | numeric | ...
+ frequency:  1
+ start:      (1 1)
+ end:        (385 1)
+ points:     385
+ time-label: time
+
+ ts-ar(7): (parcor-filtering traffic :ppm-fname "traffic.ppm")
+ #<time-series-dataset>
+ dimensions: [   32-   63] | [   64-  127] | [  128-  255] | [  256-  511] | [  512- 1023] | ...
+ types:      numeric | numeric | numeric | numeric | numeric | numeric | numeric | numeric | ...
+ frequency:  1
+ start:      (1 1)
+ end:        (35 1)
+ points:     35
+ time-label: time
+
+** exponential-smoothing (holtwinters)
+時系列解析における指数平滑化法の package
+*** class
+**** holtwinters-model
+- accessors:
+  - exp-type : 指数平滑化法のタイプ :single, :double or :triple 
+  - 3-params : alpha, beta, gamma の値
+  - err-info : 誤差評価関数およびモデルのその値
+  - seasonal : 季節成分の適用方法 :additive or :multiplicative
+*** holtwinters ((d time-series-dataset) &key alpha beta gamma (err-measure 'mse) 
+                                              (optim-step 0.1d0) (seasonal :additive))
+- return: <holtwinters-model>
+- arguments:
+  - alpha : nil | 0 <= <double-float> <= 1
+  - beta  : nil | 0 <= <double-float> <= 1
+  - gamma : nil | 0 <= <double-float> <= 1
+  - err-measure : 'mse | 'mape | 'rae | 're | 'rr
+  - optim-step  : 0 <= <double-float> <= 1, step for optimizing alpha, beta and gamma
+  - seasonal    : :additive | :multiplicative
+- comments:
+  alpha, beta, gamma を指定しなければ、alpha, beta, gamma の値を 0 から optim-step ずつ増やして
+  いき、一番 err-measure 値が小さかった alpha, beta, gamma を選ぶ。
+  よって optim-step を例えば 0.001d0 などとすると非常に時間がかかる。
+*** predict ((model holtwinters-model) &key (n-ahead 0))
+- return: <time-series-dataset>
+- arguments:
+  - model : <holtwinters-model>
+  - n-ahead : <non-negative integer>
+*** holtwinters-prediction
+- return: (values <time-series-dataset> <holtwinters-model>)
+- arguments:
+  - d : <time-series-dataset>
+  - alpha : nil | 0 <= <double-float> <= 1
+  - beta  : nil | 0 <= <double-float> <= 1
+  - gamma : nil | 0 <= <double-float> <= 1
+  - err-measure : 'mse | 'mape | 'rae | 're | 'rr
+  - optim-step  : 0 <= <double-float> <= 1
+  - seasonal    : :additive | :multiplicative
+  - n-ahead   : <non-negative integer>
+  - n-learning : nil | <positive integer>, number of points for learning
+  - target-col : nil | <string>, name of target parameter  
+*** quote sample usage
+ expl-smthing(106): (setq ukgas (time-series-data (read-data-from-file "sample/ukgas.sexp")
+                                                  :range '(1) :time-label 0
+                                                  :frequency 4))
+ #<time-series-dataset>
+ dimensions: ukgas
+ types:      numeric
+ frequency:  4
+ start:      (1 1)
+ end:        (27 4)
+ points:     108
+ time-label: year season
+
+ expl-smthing(108): (setq model (holtwinters ukgas :seasonal :multiplicative))
+ #<holtwinters-model>
+ alpha: 0.1, beta: 0.2, gamma: 0.7999999999999999
+ seasonal: multiplicative
+ error: 1132.6785446257877 ( mse )
+
+ expl-smthing(109): (predict model :n-ahead 12)
+ #<time-series-dataset>
+ dimensions: ukgas
+ types:      numeric
+ frequency:  4
+ start:      (1 2)
+ end:        (30 4)
+ points:     119
+
+ expl-smthing(110): (holtwinters-prediction ukgas :seasonal :multiplicative
+                                            :n-learning 80
+                                            :n-ahead 12)
+ #<time-series-dataset>
+ dimensions: ukgas
+ types:      numeric
+ frequency:  4
+ start:      (1 2)
+ end:        (30 4)
+ points:     119
+ #<holtwinters-model>
+ alpha: 0.1, beta: 0.2, gamma: 0.7999999999999999
+ seasonal: multiplicative
+ error: 1132.6785446257877 ( mse )
+
+** notes
+*** optics
+近傍探索アルゴリズムが naive なので遅い。m-tree という方法で早くなる。
+*** svm
+- ここでは訓練サンプルは二種類( positive-data, negative-data )であり推定結果も二値だが、vms では二種類以上の訓練サンプルでも推定ができる。
+- 判別分析が未実装
+- 現状ハードマージンのみ、ソフトマージンもあれば有効。
+*** som
+- 現状 do-som-by-filename は、分析結果の画像ファイルと map データを指定されたディレクトリ以下に出力するが、map データを出力する部分とそれを画像に変換する部分とに分ける予定。
+*** cluster-validation
+- 現状 k-means の結果にしか適用できないが、optics の結果にも適用できるようにする予定。
+- silhouette index の計算に時間がかかる。dunn および davies-bouldin も metrics によっては時間がかかる。
+- :intercluster を :average-to-centroids にしたときの値が vms と違う。
+- 以下の指標が未実装(vms にはある)
+  - ratkowsky and lance
+  - scott and symons
+  - marriot
+  - c index
+  - likelihood
+*** handling missing value
+- ieee 754 に従う処理系を前提 (e.g. acl, sbcl, lispworks 現状 acl のみ対応)
+- 欠損値の種類
+  - not available:*na* ( :na )
+    - not a number (numeric):*nan* (処理系で定義される not a number)
+    - not a number (category):*c-nan* ( 0 )
+- 欠損値のあるデータも読み込める。欠損値を含むデータの例としては、sample/original-airquality.sexp
+- 欠損値補間(ゼロ・平均・中央・3次スプラインなど)、外れ値検定(標準偏差、平均偏差、スミルノフ・グラッブズ検定など)がある。
+- todo: 計算結果として無限大・欠損(divided by zero など)が生じるような場合の処理
+*** read-data
+- todo: カテゴリー型データの読み込み
+  - 取り得るデータ値に 1 以上の整数で indexing (欠損値は*c-nan*の通り 0 で表現される)
+  - 必要であれば、-1 以下の整数を用いて、対応する正の整数が意味するデータ値の補集合を意味するようにする。
+  - 現状は、データを read したものをそのまま読み込んでいる。
+*** precision
+基本的には double-float を前提としているが、single-float で sse を使うと 2 倍速く処理できるので、二つのバージョンを作成できるとよい。
+*** 追加予定エンジン
+  - time series analysis
+    - gaussian-state-space-model
+      - 季節調整モデル
+      - 時変係数arモデル
+    - non-gaussian-state-space-model
+  - bayesian network
+*** 追加候補エンジン
+  - non-linear regression analysis
+  - feature selection
+  - neural network
+  - kernel p.c.a. : 非線形な主成分分析
+  - independent component analysis : 独立主成分分析
+  - birch : データをある程度量子化した partitioning method clustering
+* statistics
+** requirements
+the package does not depend on any libraries (yet). any ansi-compliant
+common lisp should be enough. however, to load it easily, you need the
+asdf package (http://www.cliki.net/asdf).
+** usage
+*** one-valued data
+there is a range of functions that operate on a sequence of data.
+**** mean (seq)
+returns the mean of seq.
+**** median (seq)
+returns the median of seq.
+(variant: median-on-sorted (sorted-seq))
+**** discrete-quantile (seq cuts)
+returns the quantile(s) of seq at the given cut point(s). cuts can be a
+single value or a list.
+(variant: discrete-quantile-on-sorted (sorted-seq cuts))
+**** five-number-summary (seq)
+returns the "five number summary" of seq, ie. the discrete quantiles at the
+cut points 0, 1/4, 1/2, 3/4 and 1.
+(variant: five-number-summary-on-sorted (sorted-seq))
+**** range (seq)
+returns the difference of the maximal and minimal element of seq.
+**** interquartile-range (seq)
+returns the interquartile range of seq, ie. the difference of the discrete
+quantiles at 3/4 and 1/4.
+(variant: interquartile-range-on-sorted (sorted-seq))
+**** mean-deviation (seq)
+returns the mean deviation of seq.
+**** variance (seq)
+returns the variance of seq.
+**** standard-deviation (seq &key populationp)
+returns the standard deviation of seq.
+if populationp is true, the returned value is the population standard deviation.
+otherwise, it is the sample standard deviation.
+*** two-valued data
+these functions operate on two sequences.
+**** covariance (seq1 seq2)
+returns the covariance of seq1 and seq2.
+**** linear-regression (seq1 seq2)
+fits a line y = a + bx on the data points from seq1 x seq2. returns (a b).
+**** correlation-coefficient (seq1 seq2)
+returns the correlation coefficient of seq1 and seq2, ie.
+covariance / (standard-deviation1 * standard-deviation2).
+**** spearman-rank-correlation (seq1 seq2)
+returns the spearman rank correlation, ie. the coefficient based on just
+the relative size of the given values.
+**** kendall-rank-correlation (seq1 seq2)
+returns the kendall "tau" rank correlation coefficient.
+*** distributions
+distributions are clos objects, and they are created by the constructor
+of the same name. the objects support the methods cdf (cumulative
+distribution function), density (mass for discrete distributions),
+quantile, rand (gives a random number according to the given distribution),
+rand-n (convenience function that gives n random numbers), mean and
+variance (giving the distribution's mean and variance, respectively).
+these take the distribution as their first parameter.
+
+most distributions can also be created with an estimator constructor.
+the estimator function has the form <distribution>-estimate, unless noted.
+
+the following distributions are supported:
+**** beta-distribution
+- parameters: shape1 shape2
+**** binomial-distribution
+- parameters: size, probability
+**** cauchy-distribution
+- parameters: location, scale
+**** chi-square-distribution
+- parameters: degree
+- estimators: [none]
+**** exponential-distribution
+- parameters: hazard (or scale)
+**** f-distribution
+- parameters: degree1 degree2
+- estimators: [none]
+**** gamma-distribution
+- parameters: scale, shape
+- (variant: erlang-distribution [shape is an integer])
+**** geometric-distribution
+- parameters: probability
+- (supported on k = 1, 2, ... (the # of trials until a success, inclusive))
+**** hypergeometric-distribution
+- parameters: elements, successes, samples
+- estimators: hypergeometric-distribution-estimate-successes-unbiased,
+    hypergeometric-distribution-estimate-successes-maximum-likelihood,
+    hypergeometric-distribution-estimate-elements
+**** logistic-distribution
+- parameters: location, scale
+**** log-normal-distribution
+- parameters: expected-value, deviation
+- estimators: log-normal-distribution-estimate-unbiased,
+    log-normal-distribution-estimate-maximum-likelihood
+**** negative-binomial-distribution
+- parameters: successes, probability, failuresp
+- estimators: negative-binomial-distribution-estimate-unbiased,
+    negative-binomial-distribution-estimate-maximum-likelihood
+- when failuresp is nil, the distribution is supported on k = s, s+1, ...
+  (the # of trials until a given number of successes, inclusive))
+- when failuresp is t (the default), it is supported on k = 0, 1, ...
+  (the # of failures until a given number of successes, inclusive)
+- estimators also have the failuresp parameter
+- (variant: geometric-distribution [successes = 1, failuresp = nil])
+**** normal-distribution
+- parameters: expected-value, deviation
+- estimators: normal-distribution-estimate-unbiased,
+    normal-distribution-estimate-maximum-likelihood
+- (variant: standard-normal-distribution)
+**** poisson-distribution
+- parameters: rate
+**** t-distribution
+- parameters: degree
+- estimators: [none]
+**** uniform-distribution
+- parameters: from, to
+- estimators: uniform-distribution-estimate-moments,
+    uniform-distribution-estimate-maximum-likelihood
+- (variant: standard-uniform-distribution)
+**** weibull-distribution
+- parameters: scale, shape
+*** distribution tests
+**** normal-dist-test
+- input: frequation sequence, infimum of the first class, class width, precision
+- output( 3 values of property-list )
+    - result (:total 全度数 :mean 平均 :variance 分散 :sd 標準偏差)
+    - table (:mid 各階級の中心値 :freq 各級の度数 :z 級限界の標準化得点 :cdf 累積確率 :expectation 期待値)
+    - result2 (:chi-sq カイ二乗統計量 :d.f. 自由度 :p-value p-値)
+**** poisson-dist-test
+- input: sequence of frequency
+- output( 3 values of p-list )
+    - result (:n 全度数 :mean 平均)
+    - table (:c-id 仮の階級値 :freq 度数 :p 確率 :e 期待値)
+    - result2 (:chi-sq カイ二乗統計量 :d.f. 自由度 :p-value p-値)
+**** binom-dist-test
+- input: sequence of frequency, sequence of class-value, size of bernoulli trials
+- output( 3 values of p-list )
+    - result (:d-size サンプルサイズ :probability 母比率)
+    - table (:freq 度数分布 :p 確率 :e 期待値)
+    - result2 (:chi-sq カイ二乗統計量 :d.f. 自由度 :p-value p-値)
+
+*** outlier verification
+外れ値検定
+**** smirnov-grubbs (seq alpha &key (type :max) (recursive nil))
+smirnov-grubbs の棄却検定
+- return: nil | sequence
+- arguments:
+  - seq   : <sequence of number>
+  - alpha : <number> , significance level
+  - type  : :min | :max, which side of outlier value
+  - recursive : nil | t
+- reference: http://aoki2.si.gunma-u.ac.jp/lecture/grubbs/grubbs.html
+
+*** sample listener log
+**** quote loading without asdf
+(assuming you are in the directory where the library resides)
+cl-user> (load "package")
+t
+cl-user> (load "utilities")
+t
+cl-user> (load "math")
+t
+cl-user> (load "statistics")
+t
+cl-user> (load "distribution-test")
+t
+cl-user> (in-package :statistics)
+#<package "statistics">
+stat> 
+**** quote loading with asdf
+(assuming that the path to statistics.asd is in asdf:*central-registry*)
+cl-user> (asdf:operate 'asdf:load-op 'statistics)
+; loading system definition from ~/.sbcl/systems/statistics.asd
+; into #<package "asdf0">
+; registering #<system :statistics {b65c489}> as statistics
+nil
+cl-user> (in-package :statistics)
+#<package "statistics">
+stat> 
+**** simple usage (examples taken from "lisp-statによる統計解析入門" by 垂水共之)
+***** quote one-valued data
+stat> (defparameter height '(148 160 159 153 151 140 156 137 149 160 151 157 157 144))
+height
+stat> (mean height)
+1061/7
+stat> (+ (mean height) 0.0d0)
+151.57142857142858d0
+stat> (median height)
+152
+stat> (five-number-summary height)
+(137 297/2 152 157 160)
+stat> (mapcar (lambda (x) (discrete-quantile height x)) '(0 1/4 1/2 3/4 1))
+(137 297/2 152 157 160)
+stat> (interquartile-range height)
+17/2
+stat> (+ (mean-deviation height) 0.0d0)
+5.857142857142857d0
+stat> (+ (variance height) 0.0d0)
+50.10204081632653d0
+stat> (standard-deviation height)
+7.345477789500419d0
+stat> 
+***** quote two-valued data
+stat> (defparameter weight '(41 49 45 43 42 29 49 31 47 47 42 39 48 36))
+weight
+stat> (linear-regression height weight)
+(-70.15050916496945d0 0.7399185336048879d0)
+stat> (+ (covariance height weight) 0.0d0)
+39.92307692307692d0
+stat> (correlation-coefficient height weight)
+0.851211920646571d0
+stat> (defparameter baseball-teams '((3 2 1 5 4 6) (2 6 3 5 1 4))
+	"six baseball teams are ranked by two people in order of liking.")
+baseball-teams
+stat> (+ (apply #'spearman-rank-correlation baseball-teams) 0.0d0)
+0.02857142857142857d0
+stat> (+ (apply #'kendall-rank-correlation baseball-teams) 0.0d0)
+-0.06666666666666667d0
+stat> 
+***** quote distributions
+stat> (quantile (standard-normal-distribution) 0.025d0)
+-1.9599639551896222d0
+stat> (density (standard-uniform-distribution) 1.5d0)
+0
+stat> (cdf (standard-uniform-distribution) 0.3d0)
+0.3d0
+stat> (defparameter normal-random (rand-n (standard-normal-distribution) 1000))
+normal-random
+stat> (five-number-summary normal-random)
+(-3.048454339464769d0 -0.6562483981626692d0 -0.0378855048937908d0
+ 0.6292440569288786d0 3.3461196116924925d0)
+stat> (mean normal-random)
+-0.003980893528421081d0
+stat> (standard-deviation normal-random)
+0.9586638291006542d0
+stat> (quantile (t-distribution 5) 0.05d0)
+-2.0150483733330242d0
+stat> (density (t-distribution 10) 1.0d0)
+0.23036198922913856d0
+stat> (defparameter chi-random (rand-n (chi-square-distribution 10) 1000))
+chi-random
+stat> (mean chi-random)
+10.035727383909936d0
+stat> (standard-deviation chi-random)
+4.540307733714504d0
+stat> 
+***** quote distribution tests (examples taken from http://aoki2.si.gunma-u.ac.jp/r/)
+stat(6): (normal-dist-test '(4 19 86 177 105 33 2) 40 5 0.1)
+(:total 426 :mean 57.931225 :variance 26.352928 :sd 5.13351)
+(:mid (37.45 42.45 47.45 52.45 57.45 62.45 67.45 72.45 77.45) :freq
+(0 4 19 86 177 105 33 2 0) :z
+(-3.5027153 -2.5287228 -1.5547304 -0.58073795 0.3932545 1.3672462
+ 2.3412387 3.315231 4.2892237)
+:cdf
+(2.3027066827641107d-4 0.005493650023016494d0 0.0542812231219722d0
+ 0.2207033969433026d0 0.3722256949242654d0 0.2612916822967053d0
+ 0.07616414571442975d0 0.009152099332533692d0 4.578369754981715d-4)
+:expectation
+(0.09809530468575112d0 2.4383902144907776d0 23.123801049960157d0
+ 94.01964709784691d0 158.56814603773705d0 111.31025665839645d0
+ 32.44592607434708d0 4.093832867221574d0 0.19503855156222105d0))
+(:chi-sq 6.000187256825313d0 :d.f. 4 :p-value 0.19913428945535006d0)
+
+stat(10): (poisson-dist-test '(27 61 77 71 54 35 20 11 6 2 1))
+(:n 365 :mean 1092/365)
+(:c-id (0 1 2 3 4 5 6 7 8 9 ...) :freq (27 61 77 71 54 35 20 11 6 2 ...)
+ :p
+ (0.050197963 0.1501813 0.22465476 0.22403927 0.1675691 0.100266
+  0.04999565 0.021368004 0.0079910485 0.002656385 ...)
+ :e
+ (18.322256 54.816174 81.998985 81.77434 61.162724 36.59709 18.248411
+  7.7993217 2.9167328 0.96958053 ...))
+(:chi-sq 14.143778 :d.f. 8 :p-value 0.07809402061210624d0)
+
+stat(16): (binom-dist-test '(2 14 20 34 22 8) '(0 1 2 3 4 5) 5)
+                           (binom-dist-test '(2 14 20 34 22 8) '(0 1 2 3 4 5) 5)
+(:size 6 :probability 0.568)
+(:freq (2 14 20 34 22 8) :p
+ (0.015045918 0.098912984 0.26010454 0.3419893 0.22482634 0.059121) :e
+ (1.5045917 9.891298 26.010454 34.198933 22.482634 5.9121003))
+(:chi-sq 4.007576 :d.f. 4 :p-value 0.4049815220790788d0)
+***** quote outlier verification
+stat(6): (defparameter *sample*
+             '(133 134 134 134 135 135 139 140 140 140 141 142 142 144 144 147 147 149 150 164))
+
+stat(7): (smirnov-grubbs *sample* 0.05 :type :max)
+data: max = 164.000
+t= 3.005, p-value = 2.557, df = 18
+
+stat(8): (smirnov-grubbs *sample* 0.05 :type :min)
+data: min = 133.000
+t= 1.172, p-value = 2.557, df = 18
+
+stat(11): (smirnov-grubbs *sample* 0.05 :type :max :recursive t)
+(133 134 134 134 135 135 139 140 140 140 ...)
+
+stat(12): (set-difference *sample* *)
+(164)
+** notes
+- numbers are not converted to (double) floats, for better accuracy with
+  whole number data. this should be ok, since double data will generate
+  double results (the number type is preserved).
+- places marked with todo are not optimal or not finished (see the todo
+  file for more details).
+* test package
+テストスクリプト package としては stefil または lisp-unit を用いている。
+必要動作チェック os : linux32, linux64, win32, sparc/solaris32
+** lisp-unit
+*** how to use
+- 1. read the documentation in 
+   http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html
+
+- 2. make a file of define-test's. see exercise-tests.lisp for many examples. if you want, start your test file with (remove-tests) to clear any previously defined tests.
+
+- 2. (use-package :lisp-unit)
+
+- 3. load your code file and your file of tests.
+
+- 4. test your code with (run-tests test-name1 test-name2 ...) -- no quotes! -- or simply (run-tests) to run all defined tests.
+
+- a summary of how many tests passed and failed will be printed, with details on the failures.
+
+- note: nothing is compiled until run-tests is expanded. redefining functions or even macros does not require reloading any tests.
+** stefil
+- http://common-lisp.net/project/stefil/
+
+* licensing
+
+the msi software license agreement governs the use of cl
+machine-learning and is available for review by clicking
+http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/license.html.
+
+
+** commercial licenses
+
+for pricing, contact mailto:clml-info@msi.co.jp.
+
+- cl machine-learning standard \\
+  including all machine learning packages.
+  one year technical support and version ups are included.
+
+- cl machine-learning with intel mkl \\
+  including all machine learning packages and intel mkl based matrix libraries.
+  one year technical support and version ups are included.
+
+- cl machine-learning with fork-future \\
+  including all machine learning packages and fork-future.
+  one year technical support and version ups are included.
+
+- cl machine-learning with source codes \\
+  including all machine learning packages and source codes.
+  one year technical support and version ups are included.
+
+
+** free license
+
+- cl machine-learning free edition \\
+  you can download and use compiled fasl images freely for any purpose.
+  see download section of this page.  source codes or technical supports
+  are not included in free edition.
+
+* supported cl implementations
+we're supporting only ansi common lisp.
+if you need support for cl dialect such as allegro's mlisp,
+contact mailto:clml-info@msi.co.jp. 
+
+- allegro cl 8.1 enterprise 32 edition (ansi mode, any platforms)
+- allegro cl 8.1 enterprise 64 edition (ansi mode, any platforms)
+- lispworks-6-0-0-amd64-linux
+- lispworks-6-0-0-x86-linux
+- sbcl-1.0.24-x86-64-linux
+
+* download
+** fasl packages
+*** allegro
+- windows 64 \\
+  http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.64wfasl.gz
+- linux 64 \\
+  http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.64ufasl.gz
+- windows 32 \\
+  http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.32wfasl.gz
+- linux 32 \\
+  http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.32ufasl.gz
+*** lispworks
+- linux 64 \\
+  http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-lw60.64ufasl.gz
+- linux 32 \\
+  http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-lw60.ufasl.gz
+*** sbcl
+- linux 64 \\
+  http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-sbcl.64ufasl.gz
+** sample data
+- http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-sample.tgz
+- http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-eyes-sample.tgz
+- http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-faces-sample.tgz
+- http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-articles-sample.tgz
+** test scripts
+- http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-test.tgz

@@ -1,0 +1,184 @@
+<html lang="en">
+<head>
+<title>Finders - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Gathering-Clauses.html#Gathering-Clauses" title="Gathering Clauses">
+<link rel="prev" href="Accumulations.html#Accumulations" title="Accumulations">
+<link rel="next" href="Aggregated-Boolean-Tests.html#Aggregated-Boolean-Tests" title="Aggregated Boolean Tests">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Finders"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Aggregated-Boolean-Tests.html#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Accumulations.html#Accumulations">Accumulations</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Gathering-Clauses.html#Gathering-Clauses">Gathering Clauses</a>
+<hr>
+</div>
+
+<h4 class="subsection">2.3.3 Finders</h4>
+
+<p>A <em>finder</em> is a clause whose value is an expression that meets
+some condition.
+
+   <p><a name="index-finding_0040dots_007b_007dsuch_002dthat-73"></a>
+
+<div class="defun">
+&mdash; Clause: <b>finding</b><var> expr </var><strong>such-that</strong><var> test </var><code>&amp;optionally</code> <code>into</code><var> var </var><code>on-failure</code><var> failure-value<a name="index-finding-74"></a></var><br>
+<blockquote>
+<p>If <var>test</var> (which is an expression) ever evaluates to
+non-<code>nil</code>, the loop is terminated, the epilogue code is run and
+the value of <var>expr</var> is returned.  Otherwise, <code>nil</code> (or
+<var>failure-value</var>, if provided) is returned.  If <var>var</var> is
+provided, it will have either the non-<code>nil</code> value of <var>expr</var>
+or <var>failure-value</var> when the epilogue code is run.
+
+        <p>As a special case, if the <var>test</var> expression is a sharp-quoted
+function, then it is applied to <var>expr</var> instead of being simply
+evaluated.  E.g. <code>(finding x such-that #'evenp)</code> is equivalent to
+<code>(finding x such-that (evenp x))</code>.
+
+     <!-- \cpar although @var{test} need have nothing to do with ~@c expr~ as in -->
+<!-- |(finding j such-that (> i 3))|, it usually -->
+<!-- will: |(finding (length el) such-that (oddp (length el)))|.  to -->
+<!-- avoid performing the |length| computation twice, you could write -->
+<!-- |(finding (length el) such-that \#'oddp)| or |(finding (length -->
+<!-- el) such-that 'oddp)|; for these cases, @iter{} generates code that -->
+<!-- executes @var{expr} only once.  the code for |\#'oddp| -->
+<!-- is slightly different from that for {\lisp 'oddp}; see the discussion -->
+<!-- under {\lisp for\dots in} and {\lisp for\dots on}. -->
+<p><code>On-failure</code> is a misnomer.  Because it is always evaluated, it
+behaves more like the default third argument to the <code>gethash</code>
+function.  As a result, <code>on-failure (error "Not found")</code> makes no
+sense.  Instead, the clauses <code>leave</code> or <code>thereis</code> can be used
+in conjunction with <code>finally</code> as follows:
+
+     <pre class="lisp">       (iter (for x in '(1 2 3))
+             (if (evenp x) (leave x))
+             (finally (error "not found")))
+  </pre>
+        <p>This clause may appear multiple times when all defaults are
+identical.  It can also be used together with either
+<code>always</code>/<code>never</code> or <code>thereis</code> if their defaults
+match.  More specifically, <code>on-failure nil</code> is compatible with
+<code>thereis</code>, while <code>on-failure t</code> is compatible with
+<code>always</code> and <code>never</code> clauses.
+
+     <pre class="lisp">       (iter (for i in '(7 -4 2 -3))
+             (if (plusp i)
+               (finding i such-that (evenp i))
+               (finding (- i) such-that (oddp i))))
+  </pre>
+        </blockquote></div>
+
+   <p><a name="index-finding_0040dots_007b_007dmaximizing-75"></a>
+<a name="index-finding_0040dots_007b_007dminimizing-76"></a>
+
+<div class="defun">
+&mdash; Clause: <b>finding</b><var> expr </var><strong>maximizing</strong><var> m-expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-finding-77"></a></var><br>
+&mdash; Clause: <b>finding</b><var> expr </var><strong>minimizing</strong><var> m-expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-finding-78"></a></var><br>
+<blockquote>
+<p>Computes the extremum (maximum or minimum) value of <var>m-expr</var> over
+all iterations, and returns the value of <var>expr</var> corresponding to
+the extremum.  <var>expr</var> is evaluated inside the loop at the time the
+new extremum is established.  If <var>m-expr</var> is never evaluated (due
+to, for example, being embedded in a conditional clause), then the
+returned value depends on the type, if any, of <var>expr</var> (or
+<var>var</var>, if one is supplied).  If there is no type, the returned
+value will be <code>nil</code>; if the type is numeric, the returned value
+will be zero.
+
+        <p>For these two clauses, <var>var</var> may be a list of two symbols; in that
+case, the first is used to record <var>expr</var> and the second,
+<var>m-expr</var>.
+
+        <p>As with <code>finding... such-that</code>, if <var>m-expr</var> is a
+sharp-quoted function, then it is called on <var>expr</var> instead of
+being evaluated. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+</body></html>
+

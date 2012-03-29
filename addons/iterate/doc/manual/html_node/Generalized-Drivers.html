@@ -1,0 +1,145 @@
+<html lang="en">
+<head>
+<title>Generalized Drivers - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Drivers.html#Drivers" title="Drivers">
+<link rel="prev" href="Sequence-Iteration.html#Sequence-Iteration" title="Sequence Iteration">
+<link rel="next" href="Generators.html#Generators" title="Generators">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Generalized-Drivers"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Generators.html#Generators">Generators</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Sequence-Iteration.html#Sequence-Iteration">Sequence Iteration</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Drivers.html#Drivers">Drivers</a>
+<hr>
+</div>
+
+<h4 class="subsection">2.1.3 Generalized Drivers</h4>
+
+<p>These are primarily useful for writing drivers that can also be used
+as generators (see <a href="Generators.html#Generators">Generators</a>).
+
+   <p><a name="index-terminate-32"></a>
+<a name="index-for_0040dots_007b_007dnext-33"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>next</strong><var> expr<a name="index-for-34"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to <var>expr</var> each time through the loop. 
+Destructuring is performed.  When the clause is used as a generator,
+<var>expr</var> is the code that is executed when <code>(next </code><em>var</em><code>)</code>
+is encountered (see <a href="Generators.html#Generators">Generators</a>).  <var>expr</var> should compute the
+first value for <var>var</var>, as well as all subsequent values, and is
+responsible for terminating the loop.  For compatibility with future
+versions of <code>iterate</code>, this termination should be done with
+<code>terminate</code>, which can be considered a synonym for <code>finish</code>
+(see <a href="Control-Flow.html#Control-Flow">Control Flow</a>).
+
+        <p>As an example, the following clauses are equivalent to <code>(for i
+from 1 to 10)</code>:
+
+     <pre class="lisp">       (initially (setq i 0))
+       (for i next (if (&gt; i 10) (terminate) (incf i)))
+  </pre>
+        </blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007ddo_002dnext-35"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><code>do-next</code><var> form<a name="index-for-36"></a></var><br>
+<blockquote>
+<p><var>form</var> is evaluated each time through the loop.  Its value is
+<var>not</var> set to <var>var</var>; that is <var>form</var>'s job.  <var>var</var> is
+only present so that <code>iterate</code> knows it is a driver variable. <br>
+<code>(for </code><var>var</var><code> next </code><var>expr</var><code>)</code> is equivalent to <code>(for
+</code><var>var</var><code> do-next (dsetq </code><var>var</var> <var>expr</var><code>))</code>.  (See
+<a href="Destructuring.html#Destructuring">Destructuring</a> for an explanation of <code>dsetq</code>.) 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+</body></html>
+

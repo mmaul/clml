@@ -1,0 +1,266 @@
+<html lang="en">
+<head>
+<title>Types and Declarations - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Other-Features.html#Other-Features" title="Other Features">
+<link rel="next" href="Problems-with-Code-Movement.html#Problems-with-Code-Movement" title="Problems with Code Movement">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Types-and-Declarations"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Problems-with-Code-Movement.html#Problems-with-Code-Movement">Problems with Code Movement</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Other-Features.html#Other-Features">Other Features</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="chapter">4 Types and Declarations</h2>
+
+<h3 class="section">4.1 Discussion</h3>
+
+<p>Sometimes efficiency dictates that the types of variables be declared. 
+This type information needs to be communicated to <code>iterate</code> so it can
+bind variables to appropriate values.  Furthermore, <code>iterate</code> must often
+generate internal variables invisible to the user; there needs to be a
+way for these to be declared.
+
+   <p>As an example, consider this code, which will return the number of
+odd elements in <code>number-list</code>:
+
+<pre class="lisp">  (iter (for el in number-list)
+        (count (oddp el)))
+</pre>
+   <p>In processing this form, <code>iterate</code> will create an internal variable, let
+us call it <code>list17</code>, to hold the successive <code>cdr</code>s of
+<code>number-list</code>, and will bind the variable to <code>number-list</code>. 
+It will also generate a default binding for <code>el</code>; only inside the
+body of the loop will <code>el</code> be set to the <code>car</code> of
+<code>list17</code>.  Finally, <code>iterate</code> will generate a variable, call it
+<code>result</code>, to hold the result of the count, and will bind it to
+zero.
+
+   <p>When dealing with type declarations, <code>iterate</code> observes one simple rule:
+<em>it will never generate a declaration unless requested to do so</em>. 
+The reason is that such declarations might mask errors in compiled
+code by avoiding error-checks; the resulting problems would be doubly
+hard to track down because the declarations would be hidden from the
+programmer.  Of course, a compiler might omit error-checks even in the
+absence of declarations, though this behavior can usually be avoided,
+e.g. by saying <code>(declaim (optimize (safety 3)))</code>.
+
+   <p>So, the above <code>iterate</code> form will generate code with no declarations. 
+But say we wish to declare the types of <code>el</code> and the internal
+variables <code>list17</code> and <code>result</code>.  How is this done?
+
+   <p>Declaring the type of <code>el</code> is easy, since the programmer knows
+the variable's name:
+
+<pre class="lisp">  (iter (for el in number-list)
+        (declare (fixnum el))
+        (counting (oddp el)))
+</pre>
+   <p><code>iterate</code> can read variable type declarations like this one.  Before
+processing any clauses, it scans the entire top-level form for type
+declarations and records the types, so that variable bindings can be
+performed correctly.  In this case, <code>el</code> will be bound to zero
+instead of <code>nil</code>.  Also, <code>iterate</code> collects all the top-level
+declarations and puts them at the begining of the generated code, so
+it is not necessary to place all declarations at the beginning of an
+<code>iterate</code> form; instead, they can be written near the variables whose
+types they declare.
+
+   <p>Since <code>iterate</code> is not part of the compiler, it will not know
+about declarations that occur outside an <code>iterate</code> form; these
+declarations must be repeated inside the form.
+
+   <p>Here is another way we could have declared the type of <code>el</code>:
+
+<pre class="lisp">  (iter (for (the fixnum el) in number-list)
+        (counting (oddp el)))
+</pre>
+   <p><a name="index-the-117"></a><code>iterate</code> extends the Common Lisp <code>the</code> form to apply to variables
+as well as value-producing forms; anywhere a variable is allowed&mdash;in
+a <code>with</code> clause, as the iteration variable in a driver clause, as
+the <code>into</code> argument of an accumulation clause, even inside a
+destructuring template&mdash;you can write <code>(the </code><var>type</var>
+<var>symbol</var><code>)</code> instead.
+
+   <p>There is one crucial difference between using a <code>the</code> form and
+actually declaring the variable: explicit declarations are always
+placed in the generated code, but type information from a <code>the</code>
+form is not turned into an actual declaration unless you tell <code>iterate</code>
+to do so using <code>iterate:declare-variables</code>.  See below.
+
+   <p>Declaring the types of internal variables is harder than declaring the
+types of explicitly mentioned variables, since their names are
+unknown.  You do it by declaring <code>iterate:declare-variables</code>
+somewhere inside the top level of the <code>iterate</code> form.  (This will also
+generate declarations for variables declared using <code>the</code>.) 
+<code>iterate</code> does not provide much selectivity here: it's all or none.  And
+unfortunately, since <code>iterate</code> is not privy to compiler information but
+instead reads declarations itself, it will not hear if you
+<code>(declaim (iterate:declare-variables))</code>.  Instead, set the
+variable <code>iterate::*always-declare-variables*</code> to <code>t</code> at
+compile-time, using <code>eval-when</code>.
+
+   <p>To determine the appropriate types for internal variables, <code>iterate</code>
+uses three sources of information:
+
+     <ul>
+<li>Often, the particular clause dictates a certain type for a
+variable; <code>iterate</code> will use this information when available.  In the
+current example, the variable <code>list17</code> will be given the type
+<code>list</code>, since that is the only type that makes sense; and the
+variable <code>result</code> will be given the type <code>fixnum</code>, on the
+assumption that you will not be counting high enough to need bignums. 
+You can override this assumption only by using and explicitly declaring a
+variable:
+
+     <pre class="lisp">       (iter (declare (iterate:declare-variables))
+             (for el in number-list)
+             (count (oddp el) into my-result)
+             (declare (integer my-result))
+             (finally (return my-result)))
+  </pre>
+     <p>Other examples of the type assumptions that <code>iterate</code> makes are: type
+<code>list</code> for <code>into</code> variables of collection clauses; type
+<code>list</code> for expressions that are to be destructured; type
+<code>vector</code> for the variable holding the vector in a
+<code>for... in-vector</code> clause, and similarly for <code>string</code>
+and the <code>for... in-string</code> clause; and the
+implementation-dependent type <code>(type-of array-dimension-limit)</code>
+for the index and limit variables generated by sequence iteration
+drivers like <code>for... in-vector</code> and <code>for... 
+in-string</code> (but not <code>for... in-sequence</code>, because it may be
+used to iterate over a list).
+
+     <li>Sometimes, <code>iterate</code> will examine expressions and try to determine their
+types in a simple-minded way.  If the expression is self-evaluating
+(like a number, for instance), <code>iterate</code> knows that the expression's
+type is the same as the type of the value it denotes, so it can use
+that type.  If the expression is of the form <code>(the </code><var>type</var>
+<var>expr</var><code>)</code>, <code>iterate</code> is smart enough to extract <var>type</var> and use
+it.  However, the current version of <code>iterate</code> does not examine
+declarations of function result types or do any type inference.  It
+will not determine, for example, that the type of <code>(+ 3 4)</code> is
+<code>fixnum</code>, or even <code>number</code>.
+
+     <li>In some cases, the type of an internal variable should match the type
+of some other variable.  For instance, <code>iterate</code> generates an internal
+variable for <code>(f x)</code> in the clause <code>(for i from 1 to (f
+x))</code>, and in the absence of other information will give it the same
+type as <code>i</code>.  If, however, the expression had been written
+<code>(the fixnum (f x))</code>, then <code>iterate</code> would have given the internal
+variable the type <code>fixnum</code> regardless of <code>i</code>'s type.  The
+type incompatibility errors that could arise in this situation are not
+checked for. 
+</ul>
+
+   <p>Note that if you do declare <code>iterate:declare-variables</code>, then
+<code>iterate</code> may declare user variables as well as internal ones if they do
+not already have declarations, though only for variables that it
+binds.  For instance, in this code:
+
+<pre class="lisp">  (iter (declare (iterate:declare-variables))
+        (for i from 1 to 10)
+        (collect i into var))
+</pre>
+   <p>the variable <code>var</code> will be declared to be of type <code>list</code>.
+
+<h3 class="section">4.2 Summary</h3>
+
+<p><a name="index-declare_002dvariables-118"></a><a name="index-g_t_002aalways_002ddeclare_002dvariables_002a-119"></a><code>iterate</code> understands standard Common Lisp variable type declarations
+that occur within an <code>iterate</code> form and will pass them through to the
+generated code.  If the declaration <code>(iterate:declare-variables)</code>
+appears at the top level of an <code>iterate</code> form, or if
+<code>iterate::*always-declare-variables*</code> is non-<code>nil</code>, then
+<code>iterate</code> will use the type information gleaned from user declarations,
+self-evaluating expressions and <code>the</code> expressions, combined with
+reasonable assumptions, to determine variable types and declare them.
+
+<!-- =================================================================== -->
+</body></html>
+

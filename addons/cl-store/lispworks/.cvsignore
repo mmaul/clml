@@ -1,0 +1,11 @@
+*.fasl
+*.x86f
+*.ufsl
+filetest.cls
+*.fas
+*.lib
+clean.sh
+wc.sh
+*.fsl
+*.ofasl
+*.ufasl

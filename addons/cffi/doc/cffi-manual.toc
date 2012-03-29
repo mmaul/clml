@@ -1,0 +1,107 @@
+@numchapentry{Introduction}{1}{Introduction}{1}
+@numchapentry{Installation}{2}{Installation}{2}
+@numchapentry{Implementation Support}{3}{Implementation Support}{3}
+@numsecentry{Limitations}{3.1}{}{3}
+@numchapentry{An Introduction to Foreign Interfaces and @acronym {CFFI}}{4}{Tutorial}{4}
+@numsecentry{What makes Lisp different}{4.1}{Tutorial-Comparison}{4}
+@numsecentry{Getting a @acronym {URL}}{4.2}{Tutorial-Getting a URL}{5}
+@numsecentry{Loading foreign libraries}{4.3}{Tutorial-Loading}{5}
+@numsecentry{Initializing @code {libcurl}}{4.4}{Tutorial-Initializing}{6}
+@numsecentry{Setting download options}{4.5}{Tutorial-easy_setopt}{7}
+@numsecentry{Breaking the abstraction}{4.6}{Tutorial-Abstraction}{9}
+@numsecentry{Option functions in Lisp}{4.7}{Tutorial-Lisp easy_setopt}{10}
+@numsecentry{Memory management}{4.8}{Tutorial-Memory}{12}
+@numsecentry{Calling Lisp from C}{4.9}{Tutorial-Callbacks}{15}
+@numsecentry{A complete @acronym {FFI}?}{4.10}{Tutorial-Completion}{17}
+@numsecentry{Defining new types}{4.11}{Tutorial-Types}{18}
+@numsecentry{What's next?}{4.12}{Tutorial-Conclusion}{20}
+@numchapentry{Wrapper generators}{5}{Wrapper generators}{21}
+@numchapentry{Foreign Types}{6}{Foreign Types}{22}
+@numsecentry{Built-In Types}{6.1}{Built-In Types}{22}
+@numsecentry{Other Types}{6.2}{Other Types}{23}
+@numsecentry{Defining Foreign Types}{6.3}{Defining Foreign Types}{24}
+@numsecentry{Foreign Type Translators}{6.4}{Foreign Type Translators}{25}
+@numsecentry{Optimizing Type Translators}{6.5}{Optimizing Type Translators}{26}
+@numsecentry{Foreign Structure Types}{6.6}{Foreign Structure Types}{27}
+@numsecentry{Allocating Foreign Objects}{6.7}{Allocating Foreign Objects}{28}
+@unnsecentry{convert-from-foreign}{10000.8}{convert-from-foreign}{29}
+@unnsecentry{convert-to-foreign}{10000.9}{convert-to-foreign}{30}
+@unnsecentry{defbitfield}{10000.10}{defbitfield}{31}
+@unnsecentry{defcstruct}{10000.11}{defcstruct}{33}
+@unnsecentry{defcunion}{10000.12}{defcunion}{35}
+@unnsecentry{defctype}{10000.13}{defctype}{36}
+@unnsecentry{defcenum}{10000.14}{defcenum}{37}
+@unnsecentry{define-foreign-type}{10000.15}{define-foreign-type}{38}
+@unnsecentry{define-parse-method}{10000.16}{define-parse-method}{39}
+@unnsecentry{foreign-bitfield-symbols}{10000.17}{foreign-bitfield-symbols}{40}
+@unnsecentry{foreign-bitfield-value}{10000.18}{foreign-bitfield-value}{41}
+@unnsecentry{foreign-enum-keyword}{10000.19}{foreign-enum-keyword}{42}
+@unnsecentry{foreign-enum-value}{10000.20}{foreign-enum-value}{43}
+@unnsecentry{foreign-slot-names}{10000.21}{foreign-slot-names}{44}
+@unnsecentry{foreign-slot-offset}{10000.22}{foreign-slot-offset}{45}
+@unnsecentry{foreign-slot-pointer}{10000.23}{foreign-slot-pointer}{46}
+@unnsecentry{foreign-slot-value}{10000.24}{foreign-slot-value}{47}
+@unnsecentry{foreign-type-alignment}{10000.25}{foreign-type-alignment}{48}
+@unnsecentry{foreign-type-size}{10000.26}{foreign-type-size}{49}
+@unnsecentry{free-converted-object}{10000.27}{free-converted-object}{50}
+@unnsecentry{free-translated-object}{10000.28}{free-translated-object}{51}
+@unnsecentry{translate-from-foreign}{10000.29}{translate-from-foreign}{52}
+@unnsecentry{translate-to-foreign}{10000.30}{translate-to-foreign}{53}
+@unnsecentry{with-foreign-slots}{10000.31}{with-foreign-slots}{54}
+@numchapentry{Pointers}{7}{Pointers}{55}
+@numsecentry{Basic Pointer Operations}{7.1}{Basic Pointer Operations}{55}
+@numsecentry{Allocating Foreign Memory}{7.2}{Allocating Foreign Memory}{55}
+@numsecentry{Accessing Foreign Memory}{7.3}{Accessing Foreign Memory}{55}
+@unnsecentry{foreign-free}{10000.4}{foreign-free}{57}
+@unnsecentry{foreign-alloc}{10000.5}{foreign-alloc}{58}
+@unnsecentry{foreign-symbol-pointer}{10000.6}{foreign-symbol-pointer}{60}
+@unnsecentry{inc-pointer}{10000.7}{inc-pointer}{61}
+@unnsecentry{incf-pointer}{10000.8}{incf-pointer}{62}
+@unnsecentry{make-pointer}{10000.9}{make-pointer}{63}
+@unnsecentry{mem-aref}{10000.10}{mem-aref}{64}
+@unnsecentry{mem-ref}{10000.11}{mem-ref}{65}
+@unnsecentry{null-pointer}{10000.12}{null-pointer}{66}
+@unnsecentry{null-pointer-p}{10000.13}{null-pointer-p}{67}
+@unnsecentry{pointerp}{10000.14}{pointerp}{68}
+@unnsecentry{pointer-address}{10000.15}{pointer-address}{69}
+@unnsecentry{pointer-eq}{10000.16}{pointer-eq}{70}
+@unnsecentry{with-foreign-object}{10000.17}{with-foreign-object}{71}
+@unnsecentry{with-foreign-pointer}{10000.18}{with-foreign-pointer}{72}
+@numchapentry{Strings}{8}{Strings}{73}
+@unnsecentry{*default-foreign-encoding*}{10000.1}{*default-foreign-encoding*}{74}
+@unnsecentry{foreign-string-alloc}{10000.2}{foreign-string-alloc}{75}
+@unnsecentry{foreign-string-free}{10000.3}{foreign-string-free}{76}
+@unnsecentry{foreign-string-to-lisp}{10000.4}{foreign-string-to-lisp}{77}
+@unnsecentry{lisp-string-to-foreign}{10000.5}{lisp-string-to-foreign}{78}
+@unnsecentry{with-foreign-string}{10000.6}{with-foreign-string}{79}
+@unnsecentry{with-foreign-pointer-as-string}{10000.7}{with-foreign-pointer-as-string}{80}
+@numchapentry{Variables}{9}{Variables}{81}
+@unnsecentry{defcvar}{10000.1}{defcvar}{82}
+@unnsecentry{get-var-pointer}{10000.2}{get-var-pointer}{84}
+@numchapentry{Functions}{10}{Functions}{85}
+@unnsecentry{defcfun}{10000.1}{defcfun}{86}
+@unnsecentry{foreign-funcall}{10000.2}{foreign-funcall}{88}
+@unnsecentry{foreign-funcall-pointer}{10000.3}{foreign-funcall-pointer}{90}
+@numchapentry{Libraries}{11}{Libraries}{91}
+@numsecentry{Defining a library}{11.1}{Defining a library}{91}
+@numsecentry{Library definition style}{11.2}{Library definition style}{91}
+@unnsecentry{close-foreign-library}{10000.3}{close-foreign-library}{92}
+@unnsecentry{*darwin-framework-directories*}{10000.4}{*darwin-framework-directories*}{93}
+@unnsecentry{define-foreign-library}{10000.5}{define-foreign-library}{94}
+@unnsecentry{*foreign-library-directories*}{10000.6}{*foreign-library-directories*}{95}
+@unnsecentry{load-foreign-library}{10000.7}{load-foreign-library}{97}
+@unnsecentry{load-foreign-library-error}{10000.8}{load-foreign-library-error}{99}
+@unnsecentry{use-foreign-library}{10000.9}{use-foreign-library}{100}
+@numchapentry{Callbacks}{12}{Callbacks}{101}
+@unnsecentry{callback}{10000.1}{callback}{102}
+@unnsecentry{defcallback}{10000.2}{defcallback}{103}
+@unnsecentry{get-callback}{10000.3}{get-callback}{105}
+@numchapentry{The Groveller}{13}{The Groveller}{106}
+@numsecentry{Building FFIs with CFFI-Grovel}{13.1}{}{106}
+@numsecentry{Specification File Syntax}{13.2}{Groveller Syntax}{106}
+@numsecentry{ASDF Integration}{13.3}{Groveller ASDF Integration}{108}
+@numsecentry{Implementation Notes}{13.4}{Groveller Implementation Notes}{108}
+@numchapentry{Limitations}{14}{Limitations}{110}
+@appentry{Platform-specific features}{A}{Platform-specific features}{111}
+@appentry{Glossary}{B}{Glossary}{112}
+@unnchapentry{Index}{10001}{Comprehensive Index}{113}

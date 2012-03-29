@@ -1,0 +1,66 @@
+* supporting files
+  
+  - utils.cl
+  - vector.cl
+  - matrix.cl
+
+  Please use the following defined types and utility functions (where
+  I think is quite general) whenever appropriate (currently they are
+  guaranteed to be efficient). This will make the source code less
+  verbose and more readable.
+
+  Currently utilities that are not as efficient as possible will be
+  optimized and added later.
+
+* types
+
+  - dvec  == (simple-array double-float (*))
+  - cvec  == (simple-array string (*))
+  - dmat  == (simple-array double-float (* *))
+  - array-index  (better than fixnum for array indices)
+ 
+* macros
+
+  - with-unique-names (for defining macros)
+  - once-only (for defining macros)
+  - dfloat (coerce to double-float)
+  - defun-speedy (automatically add inline (compiler macro for allegrocl) and optimization declaration)
+  - defdoublefunc (automatically add double-float return value tagging for allegrocl)
+  - gethash-or-set
+  - +fl (the double-float ...)
+  - -fl (the double-float ...)
+  - *fl (the double-float ...) 
+  - /fl (the double-float ...)
+  - safe-/ (return 0d0 when divider is 0)
+  - do-vec (efficient vector iterator)
+  - do-vecs (efficient multi-vector iterator)
+
+* functions
+
+  - d-expt (double-float specific)
+  - d-exp  (double-float specific)
+  - make-dvec
+  - make-dmat
+  - copy-vec
+  - copy-mat
+  - nrow
+  - ncol
+  - specialize-vec
+  - specialize-mat
+  - fill-vec
+  - v+
+  - v-
+  - v-scale
+  - inner-product
+  - inner-product-unsafe
+  - euclid-distance
+  - manhattan-distance
+  - cosine-distance
+  - hausdorff-distance
+  - reorder-vec
+  - reorder-dvec
+  - vecs2mat (turn vector of dvecs to dmat)
+  - vecs2flatmat (turn vector of dvecs to dvec)
+  - mat2vecs (turn dmat to vector of dvecs)
+  - flatmat2vecs (turn dvec to vector of dvecs)
+  - get-underlying-1d-array (turn dmat to dvec without copying)

@@ -1,0 +1,181 @@
+<html lang="en">
+<head>
+<title>Writing Drivers - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Rolling-Your-Own.html#Rolling-Your-Own" title="Rolling Your Own">
+<link rel="next" href="Extensibility-Aids.html#Extensibility-Aids" title="Extensibility Aids">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Writing-Drivers"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Extensibility-Aids.html#Extensibility-Aids">Extensibility Aids</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Rolling-Your-Own.html#Rolling-Your-Own">Rolling Your Own</a>
+<hr>
+</div>
+
+<h3 class="section">7.2 Writing Drivers</h3>
+
+<p>In principle, drivers can be implemented just as easily as other
+<code>iterate</code> clauses.  In practice, they are a little harder to get right. 
+As an example, consider writing a driver that iterates over all the
+elements of a vector, ignoring its fill-pointer.  <code>for... 
+in-vector</code> won't work for this, because it observes the fill-pointer. 
+It's necessary to use <code>array-dimension</code> instead of <code>length</code>
+to obtain the size of the vector.  Here is one approach:
+
+<pre class="lisp">  (defmacro-clause (FOR var IN-WHOLE-VECTOR v)
+    "All the elements of a vector (disregards fill-pointer)"
+    (let ((vect (gensym))
+          (index (gensym)))
+      `(progn
+         (with ,vect = ,v)
+         (for ,index from 0 below (array-dimension ,vect 0))
+         (for ,var = (aref ,vect ,index)))))
+</pre>
+   <p>Note that we immediately put <code>v</code> in a variable, in case it is an
+expression.  Again, this is just good Lisp macrology.  It also has a
+subtle effect on the semantics of the driver: <code>v</code> is evaluated
+only once, at the beginning of the loop, so changes to <code>v</code> in the
+loop have no effect on the driver.  Similarly, the bounds for
+numerical iteration e.g. the above <code>array-dimension</code> are also
+evaluated once only.  This is how all of <code>iterate</code>'s drivers work.
+
+   <p>There is an important point concerning the <code>progn</code> in this code. 
+We need the <code>progn</code>, of course, because we are returning several
+forms, one of which is a driver.  But <code>iterate</code> drivers must occur at
+top-level.  Is this code in error?  No, because <em>top-level</em> is
+defined in <code>iterate</code> to include forms inside a <code>progn</code>.  This is
+just the definition of top-level that Common Lisp uses, and for the
+same reason: to allow macros to return multiple forms at top-level.
+
+   <p>While our <code>for... in-whole-vector</code> clause will work, it is
+not ideal.  In particular, it does not support generating.  Do do so,
+we need to use <code>for... next</code> or <code>for... do-next</code>. 
+The job is simplified by the <code>defmacro-driver</code> macro.
+
+   <p><a name="index-defmacro_002ddriver-122"></a>
+
+<div class="defun">
+&mdash; Macro: <b>defmacro-driver</b><var> arglist </var><code>&amp;body</code><var> body<a name="index-defmacro_002ddriver-123"></a></var><br>
+<blockquote>
+<p>Defines a driver clause in both the <code>for</code> and <code>generate</code>
+forms, and provides a parameter <code>generate</code> which <var>body</var> can
+examine to determine how it was invoked.  <var>arglist</var> is as in
+<code>defmacro-clause</code>, and should begin with the symbol <code>for</code>. 
+</p></blockquote></div>
+
+   <p>With <code>defmacro-driver</code>, our driver looks like this:
+
+<pre class="lisp">  (defmacro-driver (FOR var IN-WHOLE-VECTOR v)
+    "All the elements of a vector (disregards fill-pointer)"
+     (let ((vect (gensym))
+           (end (gensym))
+           (index (gensym))
+           (kwd (if generate 'generate 'for)))
+       `(progn
+          (with ,vect = ,v)
+          (with ,end = (array-dimension ,vect 0))
+          (with ,index = -1)
+          (,kwd ,var next (progn (incf ,index)
+                                 (if (&gt;= ,index ,end) (terminate))
+                                 (aref ,vect ,index))))))
+</pre>
+   <p>We are still missing one thing: the <code>&amp;sequence</code> keywords. 
+We can get them easily enough, by writing
+
+<pre class="lisp">  (defmacro-driver (FOR var IN-WHOLE-VECTOR v &amp;sequence)
+    ...)
+</pre>
+   <p>We can now refer to parameters <code>from</code>, <code>to</code>, <code>by</code>,
+etc. which contain either the values for the corresponding keyword, or
+<code>nil</code> if the keyword was not supplied.  Implementing the right
+code for these keywords is cumbersome but not difficult; it is left as
+an exercise.  But before you begin, see <code>defclause-sequence</code>
+below for an easier way.
+
+<!-- =================================================================== -->
+</body></html>
+

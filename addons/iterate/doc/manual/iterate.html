@@ -1,0 +1,3068 @@
+<html lang="en">
+<head>
+<title>The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="top" href="#Top">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's "The
+     Iterate Manual", MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled "Don't Loop, Iterate."
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<h1 class="settitle">The Iterate Manual and Paper</h1>
+   <div class="contents">
+<h2>Table of Contents</h2>
+<ul>
+<li><a name="toc_Top" href="#Top">iterate</a>
+<li><a name="toc_Introduction" href="#Introduction">1 Introduction</a>
+<li><a name="toc_Clauses" href="#Clauses">2 Clauses</a>
+<ul>
+<li><a href="#Drivers">2.1 Drivers</a>
+<ul>
+<li><a href="#Numerical-Iteration">2.1.1 Numerical Iteration</a>
+<li><a href="#Sequence-Iteration">2.1.2 Sequence Iteration</a>
+<li><a href="#Generalized-Drivers">2.1.3 Generalized Drivers</a>
+<li><a href="#Generators">2.1.4 Generators</a>
+<li><a href="#Previous-Values-of-Driver-Variables">2.1.5 Previous Values of Driver Variables</a>
+</li></ul>
+<li><a href="#Variable-Binding-and-Setting">2.2 Variable Binding and Setting</a>
+<li><a href="#Gathering-Clauses">2.3 Gathering Clauses</a>
+<ul>
+<li><a href="#Reductions">2.3.1 Reductions</a>
+<li><a href="#Accumulations">2.3.2 Accumulations</a>
+<li><a href="#Finders">2.3.3 Finders</a>
+<li><a href="#Aggregated-Boolean-Tests">2.3.4 Aggregated Boolean Tests</a>
+</li></ul>
+<li><a href="#Control-Flow">2.4 Control Flow</a>
+<li><a href="#Predicates">2.5 Predicates</a>
+<li><a href="#Code-Placement">2.6 Code Placement</a>
+</li></ul>
+<li><a name="toc_Other-Features" href="#Other-Features">3 Other Features</a>
+<ul>
+<li><a href="#Other-Features">3.1 Multiple Accumulations</a>
+<li><a href="#Named-Blocks">3.2 Named Blocks</a>
+<li><a href="#Destructuring">3.3 Destructuring</a>
+<li><a href="#On_002dline-Help">3.4 On-line Help</a>
+<li><a href="#Parallel-Binding-and-Stepping">3.5 Parallel Binding and Stepping</a>
+</li></ul>
+<li><a name="toc_Types-and-Declarations" href="#Types-and-Declarations">4 Types and Declarations</a>
+<ul>
+<li><a href="#Types-and-Declarations">4.1 Discussion</a>
+<li><a href="#Types-and-Declarations">4.2 Summary</a>
+</li></ul>
+<li><a name="toc_Problems-with-Code-Movement" href="#Problems-with-Code-Movement">5 Problems with Code Movement</a>
+<li><a name="toc_Differences-Between-Iterate-and-Loop" href="#Differences-Between-Iterate-and-Loop">6 Differences Between <code>Iterate</code> and <code>Loop</code></a>
+<li><a name="toc_Rolling-Your-Own" href="#Rolling-Your-Own">7 Rolling Your Own</a>
+<ul>
+<li><a href="#Rolling-Your-Own">7.1 Introduction</a>
+<li><a href="#Writing-Drivers">7.2 Writing Drivers</a>
+<li><a href="#Extensibility-Aids">7.3 Extensibility Aids</a>
+<li><a href="#Subtleties">7.4 Subtleties</a>
+</li></ul>
+<li><a name="toc_Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029" href="#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">8 Non-portable Extensions to Iterate (Contribs)</a>
+<ul>
+<li><a href="#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">8.1 An SQL Query Driver for Iterate</a>
+</li></ul>
+<li><a name="toc_Obtaining-Iterate" href="#Obtaining-Iterate">9 Obtaining <code>Iterate</code></a>
+<li><a name="toc_Acknowledgements" href="#Acknowledgements">10 Acknowledgements</a>
+<li><a name="toc_Don_0027t-Loop-Iterate" href="#Don_0027t-Loop-Iterate">Appendix A Don't Loop, Iterate</a>
+<ul>
+<li><a href="#Don_0027t-Loop-Iterate">A.1 Introduction</a>
+<li><a href="#Don_0027t-Loop-Iterate">A.2 More about <code>iterate</code></a>
+<li><a href="#Don_0027t-Loop-Iterate">A.3 Comparisons With Other Iteration Methods</a>
+<ul>
+<li><a href="#Don_0027t-Loop-Iterate">A.3.1 <code>do</code>, <code>dotimes</code> and <code>dolist</code></a>
+<li><a href="#Don_0027t-Loop-Iterate">A.3.2 Tail Recursion</a>
+<li><a href="#Don_0027t-Loop-Iterate">A.3.3 High-order Functions</a>
+<li><a href="#Don_0027t-Loop-Iterate">A.3.4 Streams and Generators</a>
+<li><a href="#Don_0027t-Loop-Iterate">A.3.5 Series</a>
+<li><a href="#Don_0027t-Loop-Iterate">A.3.6 <code>Prog</code> and <code>Go</code></a>
+<li><a href="#Don_0027t-Loop-Iterate">A.3.7 <code>Loop</code></a>
+</li></ul>
+<li><a href="#Don_0027t-Loop-Iterate">A.4 Implementation</a>
+<li><a href="#Don_0027t-Loop-Iterate">A.5 Conclusion</a>
+<li><a href="#Don_0027t-Loop-Iterate">A.6 Acknowledgments</a>
+<li><a href="#Don_0027t-Loop-Iterate">A.7 Bibliography</a>
+</li></ul>
+<li><a name="toc_Comprehensive-Index" href="#Comprehensive-Index">Index</a>
+</li></ul>
+</div>
+
+
+
+<div class="node">
+<p><hr>
+<a name="Top"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Introduction">Introduction</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#dir">(dir)</a>
+
+</div>
+
+<h2 class="unnumbered">iterate</h2>
+
+<p>Copyright &copy; 1989 Jonathan Amsterdam &lt;jba at ai.mit.edu&gt; <br>
+<!-- Copyright @copyright{} 2006 Lu@'{@dotless{i}}s Oliveira -->
+<!-- <loliveira at common-lisp.net> @* -->
+
+   <blockquote>
+The present manual is a conversion of Jonathan Amsterdam's &ldquo;The
+Iterate Manual&rdquo;, <acronym>MIT</acronym> <acronym>AI</acronym> Memo No. 1236.  Said memo
+mentioned the following contract information:
+
+        <p><em>This report describes research done at the Artificial
+Intelligence Laboratory of the Massachusetts Institute of Technology. 
+Support for the laboratory's artificial intelligence research is
+provided in part by the Advanced Research Projects Agency of the
+Department of Defense under Office of Naval Research contract
+N00014-85-K-0124.</em>
+
+        <p>The appendix includes Jonathan Amsterdam's Working Paper 324,
+MIT AI Lab entitled &ldquo;Don't Loop, Iterate.&rdquo;
+</blockquote>
+
+<ul class="menu">
+<li><a accesskey="1" href="#Introduction">Introduction</a>
+<li><a accesskey="2" href="#Clauses">Clauses</a>
+<li><a accesskey="3" href="#Other-Features">Other Features</a>
+<li><a accesskey="4" href="#Types-and-Declarations">Types and Declarations</a>
+<li><a accesskey="5" href="#Problems-with-Code-Movement">Problems with Code Movement</a>
+<li><a accesskey="6" href="#Differences-Between-Iterate-and-Loop">Differences Between Iterate and Loop</a>
+<li><a accesskey="7" href="#Rolling-Your-Own">Rolling Your Own</a>
+<li><a accesskey="8" href="#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">Non-portable Extensions to Iterate (Contribs)</a>
+<li><a accesskey="9" href="#Obtaining-Iterate">Obtaining Iterate</a>
+<li><a href="#Acknowledgements">Acknowledgements</a>
+<li><a href="#Don_0027t-Loop-Iterate">Don't Loop Iterate</a>
+<li><a href="#Comprehensive-Index">Comprehensive Index</a>
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Introduction"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Clauses">Clauses</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Top">Top</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">1 Introduction</h2>
+
+<p>This manual describes <code>iterate</code>, a powerful iteration facility for
+Common Lisp.  <code>iterate</code> provides abstractions for many common iteration
+patterns and allows for the definition of additional patterns. 
+<code>iterate</code> is a macro that expands into ordinary Lisp at compile-time, so
+it is more efficient than higher-order functions like <code>map</code> and
+<code>reduce</code>.  While it is similar to <code>loop</code>, <code>iterate</code> offers a
+more Lisp-like syntax and enhanced extensibility.  (For a more
+complete comparison of <code>iterate</code> with other iteration constructs, see
+<acronym>MIT</acronym> <acronym>AI</acronym> Lab Working Paper No. 324, <em>Don't
+Loop, Iterate.</em> also included in this manual in <a href="#Don_0027t-Loop-Iterate">Don't Loop Iterate</a>.)
+
+   <p>An <code>iterate</code> form consists of the symbol <code>iter</code><a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>
+followed by one or more forms, some of which may be <code>iterate</code>
+<em>clauses</em>.  Here is a simple example of <code>iterate</code> which collects
+the numbers from 1 to 10 into a list, and returns the list.  The
+return value is shown following the arrow.
+
+<pre class="lisp">  (iter (for i from 1 to 10)
+        (collect i))          =&gt; (1 2 3 4 5 6 7 8 9 10)
+</pre>
+   <p>This form contains two clauses: a <code>for</code> clause that steps the
+variable <code>i</code> over the integers from 1 to 10, and a <code>collect</code>
+clause that accumulates its argument into a list.  With a few
+exceptions, all <code>iterate</code> clauses have the same format: alternating
+symbols (called <em>keywords</em>) and expressions (called
+<em>arguments</em>).  The syntax and terminology are those of Common
+Lisp's keyword lambda lists.  One difference is that <code>iterate</code>'s keywords
+do not have to begin with a colon&mdash;though they may, except for the
+first symbol of a clause.  So you can also write <code>(for i :from 1
+:to 10)</code> if you prefer.
+
+   <p>Any Lisp form can appear in the body of an <code>iterate</code>, where it will have
+its usual meaning.  <code>iterate</code> walks the entire body, expanding macros,
+and recognizing clauses at any level.  This example collects all the
+odd numbers in a list:
+
+<pre class="lisp">  (iter (for el in list)
+        (if (and (numberp el) (oddp el))
+            (collect el)))
+</pre>
+   <p>There are clauses for iterating over numbers, lists, arrays and other
+objects, and for collecting, summing, counting, maximizing and other
+useful operations.  <code>iterate</code> also supports the creation of new variable
+bindings, stepping over multiple sequences at once, destructuring, and
+compiler declarations of variable types.  The following example
+illustrates some of these features:
+
+<pre class="lisp">  (iter (for (key . item) in alist)
+        (for i from 0)
+        (declare (fixnum i))
+        (collect (cons i key)))
+</pre>
+   <p>This loop takes the keys of an alist and returns a new alist
+associating the keys with their positions in the original list.  The
+compiler declaration for <code>i</code> will appear in the generated code in
+the appropriate place.
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Clauses"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Other-Features">Other Features</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Introduction">Introduction</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">2 Clauses</h2>
+
+<p>Most of <code>iterate</code>'s clauses will be familiar to <code>loop</code> programmers. 
+(<code>loop</code> is an iteration macro that has been incorporated into
+Common Lisp.  See Guy Steele's <em>Common Lisp, 2nd Edition</em>.)  In
+nearly all cases they behave the same as their <code>loop</code>
+counterparts, so a <code>loop</code> user can switch to <code>iterate</code> with little
+pain (and much gain).
+
+   <p>All clauses with the standard keyword-argument syntax consist of two
+parts: a <em>required</em> part, containing keywords that must be present and
+in the right order; and an <em>optional</em> part, containing keywords that
+may be omitted and, if present, may occur in any order.  In the
+descriptions below, the parts are separated by the Lisp lambda-list
+keyword <code>&amp;optional</code>.
+
+<ul class="menu">
+<li><a accesskey="1" href="#Drivers">Drivers</a>
+<li><a accesskey="2" href="#Variable-Binding-and-Setting">Variable Binding and Setting</a>
+<li><a accesskey="3" href="#Gathering-Clauses">Gathering Clauses</a>
+<li><a accesskey="4" href="#Control-Flow">Control Flow</a>
+<li><a accesskey="5" href="#Predicates">Predicates</a>
+<li><a accesskey="6" href="#Code-Placement">Code Placement</a>
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Drivers"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Variable-Binding-and-Setting">Variable Binding and Setting</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Clauses">Clauses</a>
+
+</div>
+
+<h3 class="section">2.1 Drivers</h3>
+
+<p>An iteration-driving clause conceptually causes the iteration to go
+forward.  Driver clauses in <code>iterate</code> allow iteration over numbers,
+lists, vectors, hashtables, packages, files and streams. 
+Iteration-driving clauses must appear at the top level of an <code>iterate</code>
+form; they cannot be nested inside another clause.  The driver
+variable is updated at the point where the driver clause occurs. 
+Before the clause is executed for the first time, the value of the
+variable is undefined.
+
+<!-- Also, regardless of where the driver clause appears in the body, -->
+<!-- the driver variable is stepped at the top of the loop; hence it is -->
+<!-- stylistically preferable, though not required, to place driver -->
+<!-- clauses at the beginning of the @iter{}. -->
+<p>Multiple drivers may appear in a single <code>iterate</code> form, in which case all
+of the driver variables are updated each time through the loop, in the
+order in which the clauses appear.  The first driver to terminate will
+terminate the entire loop.
+
+   <p>In all cases, the value of the driver variable on exit from the loop,
+including within the epilogue code (see the <code>finally</code> clause), is
+undefined.
+
+   <p>All the parameters of a driver clause are evaluated once, before the
+loop begins.  Hence it is not possible to change the bounds or other
+properties of an iteration by side-effect from within the loop.
+
+   <p>With one exception, driver clauses begin with the word <code>for</code> (or
+the synonym <code>as</code>) and mention an iteration variable, which is
+given a binding within the <code>iterate</code> form.  The exception is
+<code>repeat</code>, which just executes a loop a specified number of times:
+
+   <p><a name="index-repeat-1"></a>
+
+<div class="defun">
+&mdash; Clause: <b>repeat</b><var> n<a name="index-repeat-2"></a></var><br>
+<blockquote>
+<p>Repeat the loop <var>n</var> times.  For example:
+
+     <pre class="lisp">       (iter (repeat 100)
+             (print "I will not talk in class."))
+  </pre>
+        <p>If <em>n &lt;= 0</em>
+, then loop will never be executed.  If <var>n</var> is
+not an integer, the actual number of executions will be <em>ceil(n)</em>
+. 
+</p></blockquote></div>
+
+<ul class="menu">
+<li><a accesskey="1" href="#Numerical-Iteration">Numerical Iteration</a>
+<li><a accesskey="2" href="#Sequence-Iteration">Sequence Iteration</a>
+<li><a accesskey="3" href="#Generalized-Drivers">Generalized Drivers</a>
+<li><a accesskey="4" href="#Generators">Generators</a>
+<li><a accesskey="5" href="#Previous-Values-of-Driver-Variables">Previous Values of Driver Variables</a>
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Numerical-Iteration"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Sequence-Iteration">Sequence Iteration</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Drivers">Drivers</a>
+
+</div>
+
+<h4 class="subsection">2.1.1 Numerical Iteration</h4>
+
+<p><a name="index-for-3"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><code>&amp;sequence</code><var><a name="index-for-4"></a></var><br>
+<blockquote>
+<p>The general form for iterating over a sequence of numbers requires a
+variable and, optionally, one or more keywords that provide the bounds
+and step size of the iteration.  The <code>&amp;sequence</code> lambda-list
+keyword is a shorthand for these sequence keywords.  They are:
+<code>from</code>, <code>upfrom</code>, <code>downfrom</code>, <code>to</code>, <code>downto</code>,
+<code>above</code>, <code>below</code> and <code>by</code>.  <code>from</code> provides the
+starting value for <var>var</var> and defaults to zero.  <code>to</code> provides
+a final value and implies that the successive values of <var>var</var> will
+be increasing; <code>downto</code> implies that they will be decreasing. 
+The loop terminates when <var>var</var> passes the final value
+(i.e. becomes smaller or larger than it, depending on the direction of
+iteration); in other words, the loop body will never be executed for
+values of <var>var</var> past the final value.  <code>below</code> and
+<code>above</code> are similar to <code>to</code> and <code>downto</code>, except that
+the loop terminates when <var>var</var> equals or passes the final value.
+
+        <p>If no final value is specified, the variable will be stepped forever. 
+Using <code>from</code> or <code>upfrom</code> will result in increasing values,
+while <code>downfrom</code> will give decreasing values.
+
+        <p>On each iteration, <var>var</var> is incremented or decremented by the
+value of the sequence keyword <code>by</code>, which defaults to 1.  It
+should always be a positive number, even for downward iterations.
+
+        <p>In the following examples, the sequence of numbers generated is shown
+next to the clause.
+
+     <pre class="lisp">       (for i upfrom 0) =&gt; 0 1 2 ...
+       (for i from 5) =&gt; 5 6 7 ...    ; either from or upfrom is okay
+       (for i downfrom 0) =&gt; 0 -1 -2 ...
+       (for i from 1 to 3) =&gt; 1 2 3
+       (for i from 1 below 3) =&gt; 1 2
+       (for i from 1 to 3 by 2) =&gt; 1 3
+       (for i from 1 below 3 by 2) =&gt; 1
+       (for i from 5 downto 3) =&gt; 5 4 3
+  </pre>
+        </blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Sequence-Iteration"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Generalized-Drivers">Generalized Drivers</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Numerical-Iteration">Numerical Iteration</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Drivers">Drivers</a>
+
+</div>
+
+<h4 class="subsection">2.1.2 Sequence Iteration</h4>
+
+<p>There are a number of clauses for iterating over sequences.  In all of
+them, the argument following <code>for</code> may be a list instead of a
+symbol, in which case destructuring is performed.  See
+<a href="#Destructuring">Destructuring</a>.
+
+   <p><a name="index-for_0040dots_007b_007din-5"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in</strong><var> list </var><code>&amp;optional</code> <code>by</code><var> step-function<a name="index-for-6"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to successive elements of list. <var>step-function</var>,
+which defaults to <code>cdr</code>, is used to obtain the next sublist.
+
+        <p>This clause uses <code>endp</code> to test for the end of a list, hence
+should signal an error when processing an improper list whose final
+<code>cdr</code> is not <code>nil</code>&mdash;like <code>loop</code>.  Prior to 2007,
+<code>iterate</code> would default to <code>atom</code> and silently exit.
+
+        <p><a name="index-g_t_002alist_002dend_002dtest_002a-7"></a><blockquote>
+<b>Compatibility Note:</b> The original implementation used the variable
+<code>iterate::*list-end-test*</code>, defaulting to <code>atom</code>.  Years
+later, it was deemed unacceptable for the semantics <em>not</em> to be
+lexically apparent from the iteration form so this variable was
+removed.  If your application depends on the original behaviour, the
+ancient <code>for </code><var>var</var><code> in</code> is equivalent to
+<code>for (</code><var>var</var><code>) on</code>. 
+</blockquote>
+        </p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007don-8"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>on</strong><var> list </var><code>&amp;optional</code> <code>by</code><var> step-function<a name="index-for-9"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to successive sublists of list.  <var>step-function</var>
+(default <code>cdr</code>) is used as in <code>for... in</code>.
+
+        <p>This clause uses <code>atom</code> to test for the end of a list, so it can
+be used with dotted lists&mdash;like <code>loop</code>. 
+</p></blockquote></div>
+
+<!-- These two clauses use @code{atom} to test for the end of a list. -->
+<!-- Hence, given a list whose final @code{cdr} is not @code{nil}, they -->
+<!-- will silently ignore the last @code{cdr}.  Other choices are -->
+<!-- @code{endp}, which would signal an error, and @code{null}, which would -->
+<!-- probably result in an error somewhere else.  If you wish to use an -->
+<!-- end-test other than @code{atom}, set the variable -->
+<!-- @code{iterate::*list-end-test*} to the name of the desired function. -->
+<p><a name="index-for_0040dots_007b_007din_002dvector-10"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-vector</strong><var> vector </var><code>&amp;sequence</code><var><a name="index-for-11"></a></var><br>
+<blockquote>
+<p><var>var</var> takes on successive elements from <var>vector</var>.  The vector's
+fill-pointer is observed.  Here and in subsequent clauses, the
+<code>&amp;sequence</code> keywords include <code>with-index</code>, which takes a
+symbol as argument and uses it for the index variable instead of an
+internally generated symbol.  The other <code>&amp;sequence</code> keywords
+behave as in numerical iteration, except that the default iteration
+bounds are the bounds of the vector.  E.g. in <code>(for i in-vector v
+downto 3)</code>, <code>i</code> will start off being bound to the last element in
+<code>v</code>, and will be set to preceding elements down to and including
+the element with index 3. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dsequence-12"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-sequence</strong><var> seq </var><code>&amp;sequence</code><var><a name="index-for-13"></a></var><br>
+<blockquote>
+<p>This uses Common Lisp's generalized sequence functions, <code>elt</code> and
+<code>length</code>, to obtain elements and determine the length of
+<var>seq</var>.  Hence it will work for any sequence, including lists, and
+will observe the fill-pointers of vectors. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dstring-14"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-string</strong><var> string </var><code>&amp;sequence</code><var><a name="index-for-15"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to successive characters of <var>string</var>. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007dindex_002dof_002dvector-16"></a>
+<a name="index-for_0040dots_007b_007dindex_002dof_002dsequence-17"></a>
+<a name="index-for_0040dots_007b_007dindex_002dof_002dstring-18"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>index-of-vector</strong><var> vector </var><code>&amp;sequence</code><var><a name="index-for-19"></a></var><br>
+&mdash; Clause: <b>for</b><var> var </var><strong>index-of-sequence</strong><var> sequence </var><code>&amp;sequence</code><var><a name="index-for-20"></a></var><br>
+&mdash; Clause: <b>for</b><var> var </var><strong>index-of-string</strong><var> string </var><code>&amp;sequence</code><var><a name="index-for-21"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to successive indices of the sequence.  These clauses
+avoid the overhead of accessing the sequence elements for those
+applications where they do not need to be examined, or are examined
+rarely.  They admit all the optional keywords of the other sequence
+drivers except the (redundant) <code>with-index</code> keyword. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dhashtable-22"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b> (<var>key value</var>) <strong>in-hashtable</strong><var> table<a name="index-for-23"></a></var><br>
+<blockquote>
+<p><var>key</var> and <var>value</var>, which must appear as shown in a list and
+may be destructuring templates, are set to the keys and values of
+<var>table</var>.  If <var>key</var> is <code>nil</code>, then the hashtable's keys
+will be ignored; similarly for <var>value</var>.  The order in which
+elements of <var>table</var> will be retrieved is unpredictable. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dpackage-24"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-package</strong><var> package </var><code>&amp;optional</code> <code>external-only</code><var> ext<a name="index-for-25"></a></var><br>
+<blockquote>
+<p>Iterates over all the symbols in <var>package</var>, or over only the
+external symbols if <var>ext</var> is specified and non-<code>nil</code>. 
+<var>ext</var> is not evaluated.  The same symbol may appear more than
+once. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dpackages-26"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-packages</strong> <code>&amp;optional</code> <code>having-access</code><var> symbol-types<a name="index-for-27"></a></var><br>
+<blockquote>
+<p>Iterates over all the symbols from the list of packages denoted by the
+descriptor <var>packages</var> and having accessibility (or visibility)
+given by <var>symbol-types</var>.  This defaults to the list
+<code>(:external :internal :inherited)</code> and is not evaluated. 
+<var>var</var> must be a list of up to three variables: in each iteration,
+these will be set to a symbol, its access-type and package (as per
+<code>with-package-iterator</code> in ANSI CL).  The same symbol may appear
+more than once. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dfile-28"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-file</strong><var> name </var><code>&amp;optional</code> <code>using</code><var> reader<a name="index-for-29"></a></var><br>
+<blockquote>
+<p>Opens the file <var>name</var> (which may be a string or pathname) for
+input, and iterates over its contents.  <var>reader</var> defaults to
+<code>read</code>, so by default <em>var</em> will be bound to the successive
+forms in the file.  The <code>iterate</code> body is wrapped in an
+<code>unwind-protect</code> to ensure that the file is closed no matter how
+the <code>iterate</code> is exited. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dstream-30"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-stream</strong><var> stream </var><code>&amp;optional</code> <code>using</code><var> reader<a name="index-for-31"></a></var><br>
+<blockquote>
+<p>Like <code>for... in-file</code>, except that <var>stream</var> should be an
+existing stream object that supports input operations. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Generalized-Drivers"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Generators">Generators</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Sequence-Iteration">Sequence Iteration</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Drivers">Drivers</a>
+
+</div>
+
+<h4 class="subsection">2.1.3 Generalized Drivers</h4>
+
+<p>These are primarily useful for writing drivers that can also be used
+as generators (see <a href="#Generators">Generators</a>).
+
+   <p><a name="index-terminate-32"></a>
+<a name="index-for_0040dots_007b_007dnext-33"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>next</strong><var> expr<a name="index-for-34"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to <var>expr</var> each time through the loop. 
+Destructuring is performed.  When the clause is used as a generator,
+<var>expr</var> is the code that is executed when <code>(next </code><em>var</em><code>)</code>
+is encountered (see <a href="#Generators">Generators</a>).  <var>expr</var> should compute the
+first value for <var>var</var>, as well as all subsequent values, and is
+responsible for terminating the loop.  For compatibility with future
+versions of <code>iterate</code>, this termination should be done with
+<code>terminate</code>, which can be considered a synonym for <code>finish</code>
+(see <a href="#Control-Flow">Control Flow</a>).
+
+        <p>As an example, the following clauses are equivalent to <code>(for i
+from 1 to 10)</code>:
+
+     <pre class="lisp">       (initially (setq i 0))
+       (for i next (if (&gt; i 10) (terminate) (incf i)))
+  </pre>
+        </blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007ddo_002dnext-35"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><code>do-next</code><var> form<a name="index-for-36"></a></var><br>
+<blockquote>
+<p><var>form</var> is evaluated each time through the loop.  Its value is
+<var>not</var> set to <var>var</var>; that is <var>form</var>'s job.  <var>var</var> is
+only present so that <code>iterate</code> knows it is a driver variable. <br>
+<code>(for </code><var>var</var><code> next </code><var>expr</var><code>)</code> is equivalent to <code>(for
+</code><var>var</var><code> do-next (dsetq </code><var>var</var> <var>expr</var><code>))</code>.  (See
+<a href="#Destructuring">Destructuring</a> for an explanation of <code>dsetq</code>.) 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Generators"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Previous-Values-of-Driver-Variables">Previous Values of Driver Variables</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Generalized-Drivers">Generalized Drivers</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Drivers">Drivers</a>
+
+</div>
+
+<h4 class="subsection">2.1.4 Generators</h4>
+
+<p>In all of the above clauses, the driver variable is updated on each
+iteration.  Sometimes it is desirable to have greater control over
+updating.  For instance, consider the problem of associating numbers,
+in increasing order and with no gaps, with the non-<code>nil</code> elements
+of a list.  One obvious first pass at writing this is:
+
+<pre class="lisp">  (iter (for el in list)
+        (for i upfrom 1)
+        (if el (collect (cons el i))))
+</pre>
+   <p>But on the list <code>(a b nil c)</code> this produces <code>((a . 1) (b
+. 2) (c .  4))</code> instead of the desired <code>((a . 1) (b . 2) (c
+. 3))</code>.  The problem is that <code>i</code> is incremented each time through
+the loop, even when <code>el</code> is <code>nil</code>.
+
+   <p>The problem could be solved elegantly if we could step <code>i</code> only
+when we wished to.  This can be accomplished for any <code>iterate</code> driver by
+writing <code>generate</code> (or its synonym <code>generating</code>) instead of
+<code>for</code>.  Doing so produces a <em>generator</em>&mdash;a driver whose
+values are yielded explicitly.  To obtain the next value of a
+generator variable <var>v</var>, write <code>(next </code><var>v</var><code>)</code>.  The value of
+a <code>next</code> form is the next value of <em>v</em>, as determined by its
+associated driver clause.  <code>next</code> also has the side-effect of
+updating <var>v</var> to that value.  If there is no next value,
+<code>next</code> will terminate the loop, just as with a normal driver.
+
+   <p>Using generators, we can now write our example like this:
+
+<pre class="lisp">  (iter (for el in list)
+        (generate i upfrom 1)
+        (if el (collect (cons el (next i)))))
+</pre>
+   <p>Now <code>i</code> is updated only when <code>(next i)</code> is executed, and
+this occurs only when <code>el</code> is non-<code>nil</code>.
+
+   <p>To better understand the relationship between ordinary drivers and
+generators, observe that we can rewrite an ordinary driver using its
+generator form immediately followed by <code>next</code>, as this example
+shows:
+
+<pre class="lisp">  (iter (generating i from 1 to 10)
+        (next i)
+        ...)
+</pre>
+   <p>Provided that the loop body contains no <code>(next i)</code> forms, this
+will behave just as if we had written <code>(for i from 1 to 10)</code>.
+
+   <p>We can still refer to a driver variable <var>v</var> without using
+<code>next</code>; in this case, its value is that given to it by the last
+evaluation of <code>(next </code><var>v</var><code>)</code>.  Before <code>(next </code><var>v</var><code>)</code> has
+been called the first time, the value of <var>v</var> is undefined.
+
+   <p>This semantics is more flexible than one in which <var>v</var> begins the
+loop bound to its first value and calls of <code>next</code> supply
+subsequent values, because it means the loop will not terminate too
+soon if the generator's sequence is empty.  For instance, consider the
+following code, which tags non-<code>nil</code> elements of a list using a
+list of tags, and also counts the null elements.  (We assume there are
+at least as many tags as non-<code>nil</code> elements.)
+
+<pre class="lisp">  (let* ((counter 0)
+         (tagged-list (iter (for el in list)
+                            (generating tag in tag-list)
+                            (if (null el)
+                                (incf counter)
+                                (collect (cons el (next tag)))))))
+    ...)
+</pre>
+   <p>It may be that there are just as many tags as non-null elements of
+<code>list</code>.  If all the elements of <code>list</code> are null, we still
+want the counting to proceed, even though <code>tag-list</code> is
+<code>nil</code>.  If <code>tag</code> had to be assigned its first value before
+the loop begins, we would have had to terminate the loop before the
+first iteration, since when <code>tag-list</code> is <code>nil</code>, <code>tag</code>
+has no first value.  With the existing semantics, however, <code>(next
+tag)</code> will never execute, so the iteration will cover all the elements
+of <code>list</code>.
+
+   <p>When the &ldquo;variable&rdquo; of a driver clause is actually a destructuring
+template containing several variables, all the variables are eligible
+for use with <code>next</code>.  As before, <code>(next </code><var>v</var><code>)</code> evaluates
+to <var>v</var>'s next value; but the effect is to update all of the
+template's variables.  For instance, the following code will return
+the list <code>(a 2 c)</code>.
+
+<pre class="lisp">  (iter (generating (key . item) in '((a . 1) (b . 2) (c . 3)))
+        (collect (next key))
+        (collect (next item)))
+</pre>
+   <p>Only driver clauses with variables can be made into generators.  This
+includes all clauses mentioned so far except for <code>repeat</code>.  It
+does <em>not</em> include <code>for... previous</code>, <code>for... 
+=</code>, <code>for... initially... then</code> or <code>for... 
+first... then</code> (see below).
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Previous-Values-of-Driver-Variables"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Generators">Generators</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Drivers">Drivers</a>
+
+</div>
+
+<h4 class="subsection">2.1.5 Previous Values of Driver Variables</h4>
+
+<p>Often one would like to access the value of a variable on a previous
+iteration.  <code>iterate</code> provides a special clause for accomplishing this.
+
+   <p><a name="index-for_0040dots_007b_007dprevious-37"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> pvar </var><strong>previous</strong><var> var </var><code>&amp;optional</code> <code>initially</code><var> init </var><code>back</code><var> n<a name="index-for-38"></a></var><br>
+<blockquote>
+<p>Sets <var>pvar</var> to the previous value of <var>var</var>, which should be a
+driver variable, a variable from another <code>for... previous</code>
+clause, or a variable established by a <code>for... =</code>,
+<code>for...  initially... then</code> or <code>for... 
+first... then</code> clause (see <a href="#Variable-Binding-and-Setting">Variable Binding and Setting</a>). 
+Initially, <var>pvar</var> is given the value <var>init</var> (which defaults to
+<code>nil</code>).  The <var>init</var> expression will be moved outside the loop
+body, so it should not depend on anything computed within the loop. 
+<var>pvar</var> retains the value of <var>init</var> until <var>var</var> is set to
+its second value, at which point <var>pvar</var> is set to <var>var</var>'s
+first value; and so on.
+
+        <p>The argument <var>n</var> to <code>back</code> must be a constant, positive
+integer, and defaults to 1.  It determines how many iterations back
+<var>pvar</var> should track <var>var</var>.  For example, when <var>n</var> is 2,
+then <var>pvar</var> will be assigned <var>var</var>'s first value when
+<var>var</var> is set to its third value.
+
+        <p>A <code>for... previous</code> clause may occur after or before its
+associated driver clause.  <code>for... previous</code> works with
+generators as well as ordinary drivers.
+
+        <p>Example:
+
+     <pre class="lisp">       (iter (for el in '(1 2 3 4))
+             (for p-el previous el)
+             (for pp-el previous p-el initially 0)
+             (collect pp-el))
+  </pre>
+        <p>This evaluates to <code>(0 0 1 2)</code>.  It could have been written more
+economically as
+
+     <pre class="lisp">       (iter (for el in '(1 2 3 4))
+             (for pp-el previous el back 2 initially 0)
+             (collect pp-el))
+  </pre>
+        </blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Variable-Binding-and-Setting"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Gathering-Clauses">Gathering Clauses</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Drivers">Drivers</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Clauses">Clauses</a>
+
+</div>
+
+<h3 class="section">2.2 Variable Binding and Setting</h3>
+
+<p>Several clauses exist for establishing new variable bindings or for
+setting variables in the loop.  They all support destructuring.
+
+   <p><a name="index-with-39"></a>
+
+<div class="defun">
+&mdash; Clause: <b>with</b><var> var </var><code>&amp;optional</code> <code>=</code><var> value<a name="index-with-40"></a></var><br>
+<blockquote>
+<p>Causes <var>var</var> to be bound to value before the loop body is entered. 
+If <var>value</var> is not supplied, <var>var</var> assumes a default binding,
+which will be <code>nil</code> in the absence of declarations.  Also, if
+<var>value</var> is not supplied, no destructuring is performed; instead,
+<var>var</var> may be a list of symbols, all of which are given default
+bindings.  If <var>value</var> is supplied, <var>var</var> is bound to it, with
+destructuring.
+
+        <p>Because <code>with</code> creates bindings whose scope includes the entire
+<code>iterate</code> form, it is good style to put all <code>with</code> clauses at the
+beginning.
+
+        <p>Successive occurrences of <code>with</code> result in sequential bindings
+(as with <code>let*</code>).  There is no way to obtain parallel bindings;
+see <a href="#Parallel-Binding-and-Stepping">Parallel Binding and Stepping</a> for a rationale. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007d_003d-41"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>=</strong><var> expr<a name="index-for-42"></a></var><br>
+<blockquote>
+<p>On each iteration, <var>expr</var> is evaluated and <var>var</var> is set to its
+value.
+
+        <p>This clause may appear to do the same thing as <code>for... next</code>. 
+In fact, they are quite different.  <code>for... =</code> provides only
+three services: it sets up a binding for <var>var</var>, sets it to
+<var>expr</var> on each iteration, and makes it possible to use
+<code>for...  previous</code> with <var>var</var>.  <code>for... next</code>
+provides these services in addition to the ability to turn the driver
+into a generator.
+
+     <!-- Also, the code which sets @var{var} appears in the loop body in the -->
+<!-- same place as the @code{for@dots{} =} clause; the code for -->
+<!-- @code{for@dots{} next} appears at the top of the loop, as with -->
+<!-- other drivers (except when being used as a generator). -->
+</blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007dinitially_0040dots_007b_007dthen-43"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>initially</strong><var> init-expr </var><strong>then</strong><var> then-expr<a name="index-for-44"></a></var><br>
+<blockquote>
+<p>Before the loop begins, <var>var</var> is set to <var>init-expr;</var> on all
+iterations after the first it is set to <var>then-expr.</var> This clause
+must occur at top-level.  <var>init-expr</var> will be moved outside the
+loop body and <var>then-expr</var> will be moved to the end of the loop
+body, so they are subject to code motion problems (see <a href="#Problems-with-Code-Movement">Problems with Code Movement</a>).
+
+        <p>This clause may appear to be similar to <code>for... next</code>, but in
+fact they differ significantly.  <code>for... initially... 
+then</code> is typically used to give <var>var</var> its first value before the
+loop begins, and subsequent values on following iterations.  This is
+incompatible with generators, whose first value and subsequent values
+must all be computed by <code>(next </code><var>var</var><code>)</code>.  Also, the update of
+<var>var</var> in <code>for... initially... then</code> does not occur at
+the location of the clause.
+
+        <p>Use <code>for... initially... then</code> for one-shot computations
+where its idiom is more convenient, but use <code>for... next</code> for
+extending <code>iterate</code> with new drivers (see <a href="#Rolling-Your-Own">Rolling Your Own</a>). 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007dfirst_0040dots_007b_007dthen-45"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>first</strong><var> first-expr </var><strong>then</strong><var> then-expr<a name="index-for-46"></a></var><br>
+<blockquote>
+<p>The first time through the loop, <var>var</var> is set to <var>first-expr</var>;
+on subsequent iterations, it is set to <var>then-expr</var>.  This differs
+from <code>for... initially</code> in that <var>var</var> is set to
+<var>first-expr</var> inside the loop body, so <var>first-expr</var> may depend
+on the results of other clauses.  For instance,
+
+     <pre class="lisp">       (iter (for num in list)
+             (for i first num then (1+ i))
+             ...)
+  </pre>
+        <p>will set <code>i</code> to the first element of <code>list</code> on the first
+iteration, whereas
+
+     <pre class="lisp">       (iter (for num in list)
+             (for i initially num then (1+ i))
+             ...)
+  </pre>
+        <p>is probably erroneous; <code>i</code> will be bound to <code>num</code>'s default
+binding (usually <code>nil</code>) for the first iteration. 
+</p></blockquote></div>
+
+   <blockquote>
+<b>Compatibility Note:</b> <code>loop</code>'s <code>for... =</code> works like <code>iterate</code>'s, but
+<code>loop</code> used the syntax <code>for... =... then</code> to mean
+<code>for... initially... then</code>.  It was felt that these two
+operations were sufficiently different to warrant different keywords.
+
+        <p>Also, the <code>for</code> in the above three clauses is misleading, since
+none is true driver (e.g. none has a corresponding <code>generate</code>
+form).  <code>setting</code> would have been a better choice, but <code>for</code>
+was used to retain some compatibility with <code>loop</code>. 
+</blockquote>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Gathering-Clauses"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Control-Flow">Control Flow</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Variable-Binding-and-Setting">Variable Binding and Setting</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Clauses">Clauses</a>
+
+</div>
+
+<h3 class="section">2.3 Gathering Clauses</h3>
+
+<p>Many of <code>iterate</code>'s clauses accumulate values into a variable, or set a
+variable under certain conditions.  At the end of the loop, this
+variable contains the desired result.  All these clauses have an
+optional <code>into</code> keyword, whose argument should be a symbol.  If
+the <code>into</code> keyword is not supplied, the accumulation variable
+will be internally generated and its value will be returned at the end
+of the loop; if a variable is specified, that variable is used for the
+accumulation, and is not returned as a result&mdash;it is up to the user
+to return it explicitly, in the loop's epilogue code (see
+<code>finally</code>).  It is safe to examine the accumulation variable
+during the loop, but it should not be modified.
+
+   <p>These clauses all begin with a verb.  When the verb does not conflict
+with an existing Common Lisp function, then it may be used in either
+its infinitival or present-participle form (e.g. <code>sum</code>,
+<code>summing</code>).  However, when there is a conflict with Common Lisp,
+only the present-participle form may be used (e.g. <code>unioning</code>). 
+This is to prevent <code>iterate</code> clauses from clashing with Common Lisp
+functions.
+
+<!-- although these clauses are described as ``producing a value,'' it -->
+<!-- is a mistake to think of the lisp list representing the clause as a -->
+<!-- value-producing form in the usual way.  clauses may legally be -->
+<!-- written where a value is expected, e.g.@: @code{(setq x (sum i))}, -->
+<!-- but the lisp value of a clause in such a context is undefined. -->
+<ul class="menu">
+<li><a accesskey="1" href="#Reductions">Reductions</a>
+<li><a accesskey="2" href="#Accumulations">Accumulations</a>
+<li><a accesskey="3" href="#Finders">Finders</a>
+<li><a accesskey="4" href="#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a>
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Reductions"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Accumulations">Accumulations</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Gathering-Clauses">Gathering Clauses</a>
+
+</div>
+
+<h4 class="subsection">2.3.1 Reductions</h4>
+
+<p><em>Reduction</em> is an extremely common iteration pattern in which the
+results of successive applications of a binary operation are
+accumulated.  For example, a loop that computes the sum of the
+elements of a list is performing a reduction with the addition
+operation.  This could be written in Common Lisp as <code>(reduce #'+
+list)</code> or with <code>iterate</code> as
+
+<pre class="lisp">  (iter (for el in list)
+        (sum el))
+</pre>
+   <p><a name="index-sum-47"></a>
+
+<div class="defun">
+&mdash; Clause: <b>sum</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-sum-48"></a></var><br>
+<blockquote>
+<p>Each time through the loop, <var>expr</var> is evaluated and added to a
+variable, which is bound initially to zero.  If <var>expr</var> has a type,
+it is <em>not</em> used as the type of the sum variable, which is always
+<code>number</code>.  To get the result variable to be of a more specific
+type, use an explicit variable, as in
+
+     <pre class="lisp">       (iter (for el in number-list)
+             (sum el into x)
+             (declare (fixnum x))
+             (finally (return x)))
+  </pre>
+        </blockquote></div>
+
+   <p><a name="index-multiply-49"></a>
+
+<div class="defun">
+&mdash; Clause: <b>multiply</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-multiply-50"></a></var><br>
+<blockquote>
+<p>Like <code>sum</code>, but the initial value of the result variable is
+1, and the variable is updated by multiplying <var>expr</var> into
+it. 
+</p></blockquote></div>
+
+   <p><a name="index-counting-51"></a>
+
+<div class="defun">
+&mdash; Clause: <b>counting</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-counting-52"></a></var><br>
+<blockquote>
+<p><var>expr</var> is evaluated on each iteration.  If it is non-<code>nil</code>,
+the accumulation variable, initially zero, is incremented. 
+</p></blockquote></div>
+
+   <p><a name="index-maximize-53"></a>
+<a name="index-minimize-54"></a>
+
+<div class="defun">
+&mdash; Clause: <b>maximize</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-maximize-55"></a></var><br>
+&mdash; Clause: <b>minimize</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-minimize-56"></a></var><br>
+<blockquote>
+<p><var>expr</var> is evaluated on each iteration and its extremum (maximum or
+minimum) is stored in the accumulation variable.  If <var>expr</var> is
+never evaluated, then the result is <code>nil</code> (if the accumulation
+variable is untyped) or 0 (if it has a numeric type). 
+</p></blockquote></div>
+
+   <p><a name="index-reducing-57"></a>
+
+<div class="defun">
+&mdash; Clause: <b>reducing</b><var> expr </var><code>by</code><var> func </var><code>&amp;optional</code><var><a name="index-reducing-58"></a></var><br>
+<blockquote><p>                       <code>initial-value</code> <var>init-val</var> <code>into</code> <var>var</var>
+
+        <p>This is a general way to perform reductions.  <var>func</var> should be a
+function of two arguments, the first of which will be the value
+computed so far and the second of which will be the value of
+<var>expr</var>.  It should return the new value.  <code>reducing</code> is
+roughly equivalent to the Common Lisp <code>(reduce </code><var>func</var>
+<var>sequence</var><code> :key </code><var>expr-function</var><code>)</code>, where <var>expr-function</var>
+is used to derive values from the successive elements of
+<var>sequence</var>.
+
+        <p>If the <code>reducing</code> clause is never executed, the result is
+undefined.
+
+        <p>It is not necessary to provide an initial value, but better code can
+be generated if one is supplied.  Regardless of its location in the
+<code>iterate</code> body, <var>init-val</var> will be evaluated before the loop is
+entered, so it should not depend on any value computed inside the
+<code>iterate</code> form.
+
+     <!-- if a @var{var} is not specified, you can get @iter{} to declare the -->
+<!-- type of the internal variable by putting a @code{the} expression -->
+<!-- around @var{func}.  see @ref{Types}. -->
+</blockquote></div>
+
+<!-- @impnote{in principle, |maximize| and |minimize| can be thought of -->
+<!-- as reductions where the initial value is the smallest (or largest) -->
+<!-- value that the accumulation variable can assume.  because lisp's -->
+<!-- bignums can represent arbitrary integers, these clauses cannot be -->
+<!-- implemented as reductions in general.  if, however, the type of -->
+<!-- ~expr~ or ~var~ can be determined to be a fixnum or a float, -->
+<!-- @iter{} will implement the clause as a true reduction, using one of -->
+<!-- the constants |most-negative-fixnum|, |@c most-positive-fixnum|, -->
+<!-- |most-negative-short-float|, etc.@: as appropriate.} -->
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Accumulations"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Finders">Finders</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Reductions">Reductions</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Gathering-Clauses">Gathering Clauses</a>
+
+</div>
+
+<h4 class="subsection">2.3.2 Accumulations</h4>
+
+<p>All the predefined accumulation clauses add values to a sequence.  If
+the sequence is a list, they all have the property that the partial
+list is kept in the correct order and available for inspection at any
+point in the loop.
+
+   <p><a name="index-collect-59"></a>
+
+<div class="defun">
+&mdash; Clause: <b>collect</b><var> exptr </var><code>&amp;optional</code><var><a name="index-collect-60"></a></var><br>
+<blockquote><p>                      <code>into</code> <var>var</var> <code>at</code> <var>place</var> <code>result-type</code> <var>type</var>
+
+        <p>Produces a sequence of the values of <var>exptr</var> on each
+iteration.  <var>place</var> indicates where the next value of <var>exptr</var>
+is added to the list and may be one of the symbols <code>start</code>,
+<code>beginning</code> (a synonym for <code>start</code>) or <code>end</code>.  The
+symbol may be quoted, but need not be.  The default is <code>end</code>. 
+For example,
+
+     <pre class="lisp">       (iter (for i from 1 to 5)
+             (collect i))
+  </pre>
+        <p>produces <code>(1 2 3 4 5)</code>, whereas
+
+     <pre class="lisp">       (iter (for i from 1 to 5)
+             (collect i at beginning))
+  </pre>
+        <p>produces <code>(5 4 3 2 1)</code> (and is likely to be faster in most Common
+Lisp implementations).
+
+        <p>If <var>type</var> is provided, it should be a subtype of <code>sequence</code>. 
+The default is <code>list</code>.  Specifying a type other than <code>list</code>
+will result in <code>collect</code> returning a sequence of that type. 
+<em>However</em>, the type of the sequence being constructed when inside
+the loop body is undefined when a non-<code>list</code> type is specified. 
+(As with <var>place</var>, quoting <var>type</var> is optional.) 
+</p></blockquote></div>
+
+   <p><a name="index-adjoining-61"></a>
+
+<div class="defun">
+&mdash; Clause: <b>adjoining</b><var> exptr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>test</code><var> test </var><code>at</code><var> place </var><code>result-type</code><var> type<a name="index-adjoining-62"></a></var><br>
+<blockquote>
+<p>Like <code>collect</code>, but only adds the value of <var>exptr</var> if it is
+not already present.  <var>test</var>, which defaults to <code>#'eql</code>, is
+the test to be used with <code>member</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-appending-63"></a>
+<a name="index-nconcing-64"></a>
+<a name="index-unioning-65"></a>
+<a name="index-nunioning-66"></a>
+
+<div class="defun">
+&mdash; Clause: <b>appending</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>at</code><var> place<a name="index-appending-67"></a></var><br>
+&mdash; Clause: <b>nconcing</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>at</code><var> place<a name="index-nconcing-68"></a></var><br>
+&mdash; Clause: <b>unioning</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>test</code><var> test </var><code>at</code><var> place<a name="index-unioning-69"></a></var><br>
+&mdash; Clause: <b>nunioning</b><var> expr </var><code>&amp;optional</code> <code>into</code><var> var </var><code>test</code><var> test </var><code>at</code><var> place<a name="index-nunioning-70"></a></var><br>
+<blockquote>
+<p>These are like <code>collect</code>, but behave like the Common Lisp
+functions <code>append</code>, <code>nconc</code>, <code>union</code> or <code>nunion</code>. 
+As in Common Lisp, they work only on lists.  Also as in Common Lisp,
+<code>unioning</code> and <code>nunioning</code> assume that the value of
+<var>expr</var> contains no duplicates. 
+</p></blockquote></div>
+
+   <p><a name="index-accumulate-71"></a>
+
+<div class="defun">
+&mdash; Clause: <b>accumulate</b><var> expr </var><code>by</code><var> func </var><code>&amp;optional</code> <code>initial-value</code><var> init-val </var><code>into</code><var> var<a name="index-accumulate-72"></a></var><br>
+<blockquote>
+<p>This is a general-purpose accumulation clause.  <var>func</var> should be a
+function of two arguments, the value of <var>expr</var> and the value
+accumulated so far in the iteration, and it should return the updated
+value.  If no initial value is supplied, <code>nil</code> is used.
+
+     <!-- If a @var{var} is not specified, you can get @iter{} to declare the -->
+<!-- type of the internal variable by putting a @code{the} expression -->
+<!-- around @var{func}.  see section \ref{types}. -->
+<p>The differences between <code>accumulate</code> and <code>reducing</code> are
+slight.  One difference is that the functions take their arguments in
+a different order.  Another is that in the absence of <var>init-val</var>,
+<code>accumulate</code> will use <code>nil</code>, whereas <code>reducing</code> will
+generate different code that avoids any dependence on the initial
+value.  The reason for having both clauses is that one usually thinks
+of reductions (like <code>sum</code>) and accumulations (like
+<code>collect</code>) as different beasts. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Finders"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Accumulations">Accumulations</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Gathering-Clauses">Gathering Clauses</a>
+
+</div>
+
+<h4 class="subsection">2.3.3 Finders</h4>
+
+<p>A <em>finder</em> is a clause whose value is an expression that meets
+some condition.
+
+   <p><a name="index-finding_0040dots_007b_007dsuch_002dthat-73"></a>
+
+<div class="defun">
+&mdash; Clause: <b>finding</b><var> expr </var><strong>such-that</strong><var> test </var><code>&amp;optionally</code> <code>into</code><var> var </var><code>on-failure</code><var> failure-value<a name="index-finding-74"></a></var><br>
+<blockquote>
+<p>If <var>test</var> (which is an expression) ever evaluates to
+non-<code>nil</code>, the loop is terminated, the epilogue code is run and
+the value of <var>expr</var> is returned.  Otherwise, <code>nil</code> (or
+<var>failure-value</var>, if provided) is returned.  If <var>var</var> is
+provided, it will have either the non-<code>nil</code> value of <var>expr</var>
+or <var>failure-value</var> when the epilogue code is run.
+
+        <p>As a special case, if the <var>test</var> expression is a sharp-quoted
+function, then it is applied to <var>expr</var> instead of being simply
+evaluated.  E.g. <code>(finding x such-that #'evenp)</code> is equivalent to
+<code>(finding x such-that (evenp x))</code>.
+
+     <!-- \cpar although @var{test} need have nothing to do with ~@c expr~ as in -->
+<!-- |(finding j such-that (> i 3))|, it usually -->
+<!-- will: |(finding (length el) such-that (oddp (length el)))|.  to -->
+<!-- avoid performing the |length| computation twice, you could write -->
+<!-- |(finding (length el) such-that \#'oddp)| or |(finding (length -->
+<!-- el) such-that 'oddp)|; for these cases, @iter{} generates code that -->
+<!-- executes @var{expr} only once.  the code for |\#'oddp| -->
+<!-- is slightly different from that for {\lisp 'oddp}; see the discussion -->
+<!-- under {\lisp for\dots in} and {\lisp for\dots on}. -->
+<p><code>On-failure</code> is a misnomer.  Because it is always evaluated, it
+behaves more like the default third argument to the <code>gethash</code>
+function.  As a result, <code>on-failure (error "Not found")</code> makes no
+sense.  Instead, the clauses <code>leave</code> or <code>thereis</code> can be used
+in conjunction with <code>finally</code> as follows:
+
+     <pre class="lisp">       (iter (for x in '(1 2 3))
+             (if (evenp x) (leave x))
+             (finally (error "not found")))
+  </pre>
+        <p>This clause may appear multiple times when all defaults are
+identical.  It can also be used together with either
+<code>always</code>/<code>never</code> or <code>thereis</code> if their defaults
+match.  More specifically, <code>on-failure nil</code> is compatible with
+<code>thereis</code>, while <code>on-failure t</code> is compatible with
+<code>always</code> and <code>never</code> clauses.
+
+     <pre class="lisp">       (iter (for i in '(7 -4 2 -3))
+             (if (plusp i)
+               (finding i such-that (evenp i))
+               (finding (- i) such-that (oddp i))))
+  </pre>
+        </blockquote></div>
+
+   <p><a name="index-finding_0040dots_007b_007dmaximizing-75"></a>
+<a name="index-finding_0040dots_007b_007dminimizing-76"></a>
+
+<div class="defun">
+&mdash; Clause: <b>finding</b><var> expr </var><strong>maximizing</strong><var> m-expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-finding-77"></a></var><br>
+&mdash; Clause: <b>finding</b><var> expr </var><strong>minimizing</strong><var> m-expr </var><code>&amp;optional</code> <code>into</code><var> var<a name="index-finding-78"></a></var><br>
+<blockquote>
+<p>Computes the extremum (maximum or minimum) value of <var>m-expr</var> over
+all iterations, and returns the value of <var>expr</var> corresponding to
+the extremum.  <var>expr</var> is evaluated inside the loop at the time the
+new extremum is established.  If <var>m-expr</var> is never evaluated (due
+to, for example, being embedded in a conditional clause), then the
+returned value depends on the type, if any, of <var>expr</var> (or
+<var>var</var>, if one is supplied).  If there is no type, the returned
+value will be <code>nil</code>; if the type is numeric, the returned value
+will be zero.
+
+        <p>For these two clauses, <var>var</var> may be a list of two symbols; in that
+case, the first is used to record <var>expr</var> and the second,
+<var>m-expr</var>.
+
+        <p>As with <code>finding... such-that</code>, if <var>m-expr</var> is a
+sharp-quoted function, then it is called on <var>expr</var> instead of
+being evaluated. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Aggregated-Boolean-Tests"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Finders">Finders</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Gathering-Clauses">Gathering Clauses</a>
+
+</div>
+
+<h4 class="subsection">2.3.4 Aggregated Boolean Tests</h4>
+
+<p><a name="index-always-79"></a>
+
+<div class="defun">
+&mdash; Clause: <b>always</b><var> expr<a name="index-always-80"></a></var><br>
+<blockquote>
+<p>If <var>expr</var> ever evaluates to <code>nil</code>, then <code>nil</code> is
+immediately returned; the epilogue code is not executed.  If
+<var>expr</var> never evaluates to <code>nil</code>, the epilogue code is
+executed and the last value of <var>expr</var> (or <code>t</code> if <var>expr</var>
+was never evaluated) is returned (whereas <code>loop</code> would constantly
+return <code>t</code>).
+
+     <!-- mention last evaluated clause when multiple always clauses? -->
+</blockquote></div>
+
+   <p><a name="index-never-81"></a>
+
+<div class="defun">
+&mdash; Clause: <b>never</b><var> expr<a name="index-never-82"></a></var><br>
+<blockquote>
+<p>Like <code>(always (not </code><var>expr</var><code>))</code>, except it does not influence
+the last value returned by a possible other <code>always</code> clause.  That
+is,
+
+     <pre class="lisp">       (iter (repeat 2)
+             (always 2)
+             (never nil)) =&gt; 2 ; not t
+  </pre>
+        </blockquote></div>
+
+   <p><a name="index-thereis-83"></a>
+
+<div class="defun">
+&mdash; Clause: <b>thereis</b><var> expr<a name="index-thereis-84"></a></var><br>
+<blockquote>
+<p>If <var>expr</var> is ever non-<code>nil</code>, its value is immediately
+returned without running epilogue code.  Otherwise, the epilogue code
+is performed and <code>nil</code> is returned.
+
+        <p>This clause cannot be used together with <code>always</code> or
+<code>never</code>, because their defaults are opposed (similarly,
+<code>(loop always 3 thereis nil)</code> refuses to compile in some
+implementations of <code>loop</code>). 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Control-Flow"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Predicates">Predicates</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Gathering-Clauses">Gathering Clauses</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Clauses">Clauses</a>
+
+</div>
+
+<h3 class="section">2.4 Control Flow</h3>
+
+<p>Several clauses can be used to alter the usual flow of control in a
+loop.
+
+   <blockquote>
+<b>Note:</b> The clauses of this and subsequent sections don't adhere to
+<code>iterate</code>'s usual syntax, but instead use standard Common Lisp syntax. 
+Hence the format for describing syntax subsequently is like the
+standard format used in the Common Lisp manual, not like the
+descriptions of clauses above. 
+</blockquote>
+
+   <p><a name="index-finish-85"></a>
+
+<div class="defun">
+&mdash; Clause: <b>finish</b><var><a name="index-finish-86"></a></var><br>
+<blockquote>
+<p>Stops the loop and runs the epilogue code. 
+</p></blockquote></div>
+
+<!-- for example: -->
+<!-- @lisp -->
+<!-- (iter (with answer = nil) -->
+<!-- (initially (make-a-mess)) -->
+<!-- (for i from 1 to 10) -->
+<!-- (when (correct? i) -->
+<!-- (setq answer i) -->
+<!-- (finish)) -->
+<!-- (finally (cleanup))) -->
+<!-- @end lisp -->
+<!-- this code will execute |cleanup| whether or not the test |(correct? -->
+<!-- i)| ever succeeds. -->
+<!-- the (more elegant) formulation, -->
+<!-- @lisp -->
+<!-- (iter (initially (make-a-mess)) -->
+<!-- (for i from 1 to 10) -->
+<!-- (finding i such-that (correct? i)) -->
+<!-- (finally (cleanup))) -->
+<!-- @end lisp -->
+<!-- would not execute |cleanup| if |(correct? i)| succeeded; it -->
+<!-- would do an immediate return. -->
+<p><a name="index-leave-87"></a>
+
+<div class="defun">
+&mdash; Clause: <b>leave</b> <code>&amp;optional</code><var> value<a name="index-leave-88"></a></var><br>
+<blockquote>
+<p>Immediately returns <var>value</var> (default <code>nil</code>) from the current
+<code>iterate</code> form, skipping the epilogue code.  Equivalent to using
+<code>return-from</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-next_002diteration-89"></a>
+
+<div class="defun">
+&mdash; Clause: <b>next-iteration</b><var><a name="index-next_002diteration-90"></a></var><br>
+<blockquote>
+<p>Skips the remainder of the loop body and begins the next iteration of
+the loop. 
+</p></blockquote></div>
+
+   <p><a name="index-while-91"></a>
+
+<div class="defun">
+&mdash; Clause: <b>while</b><var> expr<a name="index-while-92"></a></var><br>
+<blockquote>
+<p>If <var>expr</var> ever evaluates to <code>nil</code>, the loop is terminated and
+the epilogue code executed.  Equivalent to <code>(if (not </code><var>expr</var><code>)
+(finish))</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-until-93"></a>
+
+<div class="defun">
+&mdash; Clause: <b>until</b><var> expr<a name="index-until-94"></a></var><br>
+<blockquote>
+<p>Equivalent to <code>(if </code><var>expr</var><code> (finish))</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-if_002dfirst_002dtime-95"></a>
+
+<div class="defun">
+&mdash; Clause: <b>if-first-time</b><var> then </var><code>&amp;optional</code><var> else<a name="index-if_002dfirst_002dtime-96"></a></var><br>
+<blockquote>
+<p>If this clause is being executed for the first time in this invocation
+of the <code>iterate</code> form, then the <var>then</var> code is evaluated; otherwise
+the <var>else</var> code is evaluated.
+
+        <p><code>(for </code><var>var</var><code> first </code><var>expr1</var><code> then </code><var>expr2</var><code>)</code> is almost
+equivalent to
+
+     <pre class="lisp">       (if-first-time (dsetq <var>var</var> <var>expr1</var>)
+                      (dsetq <var>var</var> <var>expr2</var>))
+  </pre>
+        <p>The only difference is that the <code>for</code> version makes <var>var</var>
+available for use with <code>for... previous</code>. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Predicates"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Code-Placement">Code Placement</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Control-Flow">Control Flow</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Clauses">Clauses</a>
+
+</div>
+
+<h3 class="section">2.5 Predicates</h3>
+
+<blockquote>
+<b>Compatibility Note:</b> The clauses in this section were added in the twenty-first century and
+not part of Jonathan Amsterdam's original design. 
+</blockquote>
+
+   <p><a name="index-first_002diteration_002dp-97"></a>
+
+<div class="defun">
+&mdash; Clause: <b>first-iteration-p</b><var><a name="index-first_002diteration_002dp-98"></a></var><br>
+<blockquote>
+<p>Returns <code>t</code> in the first iteration of the loop, otherwise <code>nil</code>. 
+</p></blockquote></div>
+
+   <p><a name="index-first_002dtime_002dp-99"></a>
+
+<div class="defun">
+&mdash; Clause: <b>first-time-p</b><var><a name="index-first_002dtime_002dp-100"></a></var><br>
+<blockquote>
+<p>Returns <code>t</code> the first time the expression is evaluated, and then
+<code>nil</code> forever.  This clause comes handy when printing (optional)
+elements separated by a comma:
+
+     <pre class="lisp">       (iter (for el in '(nil 1 2 nil 3))
+             (when el
+               (unless (first-time-p)
+                 (princ ", "))
+               (princ el)))
+       -| 1, 2, 3
+  </pre>
+        </blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Code-Placement"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Predicates">Predicates</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Clauses">Clauses</a>
+
+</div>
+
+<h3 class="section">2.6 Code Placement</h3>
+
+<p>When fine control is desired over where code appears in a loop
+generated by <code>iterate</code>, the following special clauses may be useful. 
+They are all subject to code-motion problems (see <a href="#Problems-with-Code-Movement">Problems with Code Movement</a>).
+
+   <p><a name="index-initially-101"></a>
+
+<div class="defun">
+&mdash; Clause: <b>initially</b> <code>&amp;rest</code><var> forms<a name="index-initially-102"></a></var><br>
+<blockquote>
+<p>The lisp <var>forms</var> are placed in the prologue section of the loop,
+where they are executed once, before the loop body is entered. 
+</p></blockquote></div>
+
+   <p><a name="index-after_002deach-103"></a>
+
+<div class="defun">
+&mdash; Clause: <b>after-each</b> <code>&amp;rest</code><var> forms<a name="index-after_002deach-104"></a></var><br>
+<blockquote>
+<p>The <var>forms</var> are placed at the end of the loop body, where they
+are executed after each iteration.  Unlike the other clauses in this
+section, <var>forms</var> may contain <code>iterate</code> clauses. 
+</p></blockquote></div>
+
+   <p><a name="index-else-105"></a>
+
+<div class="defun">
+&mdash; Clause: <b>else</b> <code>&amp;rest</code><var> forms<a name="index-else-106"></a></var><br>
+<blockquote>
+<p>The lisp <var>forms</var> are placed in the epilogue section of the loop,
+where they are executed if this <code>else</code> clause is never met during
+execution of the loop and the loop terminates normally. 
+</p></blockquote></div>
+
+   <p><a name="index-finally-107"></a>
+
+<div class="defun">
+&mdash; Clause: <b>finally</b> <code>&amp;rest</code><var> forms<a name="index-finally-108"></a></var><br>
+<blockquote>
+<p>The lisp <var>forms</var> are placed in the epilogue section of the loop,
+where they are executed after the loop has terminated normally. 
+</p></blockquote></div>
+
+   <p><a name="index-finally_002dprotected-109"></a>
+
+<div class="defun">
+&mdash; finally-protected: <code>&amp;rest</code><var> forms<a name="index-g_t_0040k_007b_0026rest_007d-110"></a></var><br>
+<blockquote>
+<p>The lisp <var>forms</var> are placed in the second form of an
+<code>unwind-protect</code> outside the loop.  They are always executed
+after the loop has terminated, regardless of how the termination
+occurred. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Other-Features"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Types-and-Declarations">Types and Declarations</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Clauses">Clauses</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">3 Other Features</h2>
+
+<h3 class="section">3.1 Multiple Accumulations</h3>
+
+<p>It is permitted to have more than one clause accumulate into the same
+variable, as in the following:
+
+<pre class="lisp">  (iter (for i from 1 to 10)
+        (collect i into nums)
+        (collect (sqrt i) into nums)
+        (finally (return nums)))
+</pre>
+   <p>Clauses can only accumulate into the same variable if they are
+compatible.  <code>collect</code>, <code>adjoining</code>, <code>appending</code>,
+<code>nconcing</code>, <code>unioning</code> and <code>nunioning</code> are compatible
+with each other; <code>sum</code>, <code>multiply</code> and <code>counting</code> are
+compatible; <code>always</code> and <code>never</code> are compatible;
+<code>finding</code><small class="dots">...</small> <code>such-that</code> is compatible with either
+<code>thereis</code> or <code>always</code> and <code>never</code> when their defaults
+match; and <code>maximize</code> and <code>minimize</code> clauses are compatible
+only with other <code>maximize</code> and <code>minimize</code> clauses,
+respectively.
+
+<!-- note that the same variable ~cannot~ be both an accumulation -->
+<!-- variable and an ordinary variable; there can be only one variable -->
+<!-- with a given name within an @iter{} form. -->
+<ul class="menu">
+<li><a accesskey="1" href="#Named-Blocks">Named Blocks</a>
+<li><a accesskey="2" href="#Destructuring">Destructuring</a>
+<li><a accesskey="3" href="#On_002dline-Help">On-line Help</a>
+<li><a accesskey="4" href="#Parallel-Binding-and-Stepping">Parallel Binding and Stepping</a>
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Named-Blocks"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Destructuring">Destructuring</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Other-Features">Other Features</a>
+
+</div>
+
+<h3 class="section">3.2 Named Blocks</h3>
+
+<p>Like Common Lisp <code>block</code>s, <code>iterate</code> forms can be given names.  The
+name should be a single symbol, and it must be the first form in the
+<code>iterate</code>.  The generated code behaves exactly like a named block; in
+particular, <code>(return-from </code><var>name</var><code>)</code> can be used to exit it:
+
+<pre class="lisp">  (iter fred
+        (for i from 1 to 10)
+        (iter barney
+              (for j from i to 10)
+              (if (&gt; (* i j) 17)
+                  (return-from fred j))))
+</pre>
+   <p>An <code>iterate</code> form that is not given a name is implicitly named
+<code>nil</code>.
+
+   <p>Sometimes one would like to write an expression in an inner <code>iterate</code>
+form, but have it processed by an outer <code>iterate</code> form.  This is
+possible with the <code>in</code> clause.
+
+   <p><a name="index-in-111"></a>
+
+<div class="defun">
+&mdash; Clause: <b>in</b><var> name </var><code>&amp;rest</code><var> forms<a name="index-in-112"></a></var><br>
+<blockquote>
+<p>Evaluates <var>forms</var> as if they were part of the <code>iterate</code> form named
+<var>name</var>.  In other words, <code>iterate</code> clauses are processed by the
+<code>iterate</code> form named <var>name</var>, and not by any <code>iterate</code> forms that occur
+inside <var>name</var>.
+
+        <p>As an example, consider the problem of collecting a list of the
+elements in a two-dimensional array.  The naive solution,
+     <pre class="lisp">       (iter (for i below (array-dimension ar 0))
+             (iter (for j below (array-dimension ar 1))
+                   (collect (aref ar i j))))
+  </pre>
+        <p>is wrong because the list created by the inner <code>iterate</code> is simply
+ignored by the outer one.  But using <code>in</code> we can write:
+     <pre class="lisp">       (iter outer (for i below (array-dimension ar 0))
+             (iter (for j below (array-dimension ar 1))
+                   (in outer (collect (aref ar i j)))))
+  </pre>
+        <p>which has the desired result. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Destructuring"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#On_002dline-Help">On-line Help</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Named-Blocks">Named Blocks</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Other-Features">Other Features</a>
+
+</div>
+
+<h3 class="section">3.3 Destructuring</h3>
+
+<p>In many places within <code>iterate</code> clauses where a variable is expected, a
+list can be written instead.  In these cases, the value to be assigned
+is <em>destructured</em> according to the pattern described by the list. 
+As a simple example, the clause
+<pre class="lisp">  (for (key . item) in alist)
+</pre>
+   <p>will result in <code>key</code> being set to the <code>car</code> of each element
+in <code>alist</code>, and <code>item</code> being set to the <code>cdr</code>.  The
+pattern list may be nested to arbitrary depth, and (as the example
+shows) need not be terminated with <code>nil</code>; the only requirement is
+that each leaf be a bindable symbol (or <code>nil</code>, in which case no
+binding is generated for that piece of the structure).
+
+   <p>Sometimes, you might like to do the equivalent of a
+<code>multiple-value-setq</code> in a clause.  This &ldquo;multiple-value
+destructuring&rdquo; can be expressed by writing <code>(values </code><var>pat_1</var>
+<var>pat_2</var><code> ...)</code> for a destructuring pattern, as in
+
+<pre class="lisp">  (for (values (a . b) c d) = (three-valued-function ...))
+</pre>
+   <p>Note that the <var>pat_i</var> can themselves be destructuring patterns
+(though not multiple-value destructuring patterns).  You can't do
+multiple-value destructuring in a <code>with</code> clause; instead wrap the
+whole <code>iterate</code> form in a <code>multiple-value-bind</code>.
+
+   <blockquote>
+<b>Rationale:</b> There are subtle interactions between variable declarations and
+evaluation order that make the correct implementation of
+multiple-value destructuring in a <code>with</code> somewhat tricky. 
+</blockquote>
+
+   <p>The destructuring feature of <code>iterate</code> is available as a separate
+mechanism, using the <code>dsetq</code> macro:
+
+   <p><a name="index-dsetq-113"></a>
+
+<div class="defun">
+&mdash; Macro: <b>dsetq</b><var> template expr<a name="index-dsetq-114"></a></var><br>
+<blockquote>
+<p>Performs destructuring of <var>expr</var> using <var>template</var>.  May be
+used outside of an <code>iterate</code> form.  Yields the primary value of
+<var>expr</var>. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="On-line-Help"></a>
+<a name="On_002dline-Help"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Parallel-Binding-and-Stepping">Parallel Binding and Stepping</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Destructuring">Destructuring</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Other-Features">Other Features</a>
+
+</div>
+
+<h3 class="section">3.4 On-line Help</h3>
+
+<p>There is a limited facility for on-line help, in the form of the
+<code>display-iterate-clauses</code> function.
+
+   <p><a name="index-display_002diterate_002dclauses-115"></a>
+
+<div class="defun">
+&mdash; Function: <b>display-iterate-clauses</b> <code>&amp;optional</code><var> clause-spec<a name="index-display_002diterate_002dclauses-116"></a></var><br>
+<blockquote>
+<p>Displays a list of <code>iterate</code> clauses.  If <var>clause-spec</var> is not
+provided, all clauses are shown; if it is a symbol, all clauses
+beginning with that symbol are shown; and if it is a list of symbols,
+all clauses for which <var>clause-spec</var> is a prefix are shown. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Parallel-Binding-and-Stepping"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#On_002dline-Help">On-line Help</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Other-Features">Other Features</a>
+
+</div>
+
+<h3 class="section">3.5 Parallel Binding and Stepping</h3>
+
+<p>The parallel binding and stepping of variables is a feature that
+<code>iterate</code> does <em>not</em> have.  This section attempts to provide a
+rationale.
+
+   <p>We say that two variables are bound <em>in parallel</em> if neither
+binding shadows the other.  This is the usual semantics of <code>let</code>
+(as opposed to <code>let*</code>).  Similarly, we can say that iteration
+variables are stepped in parallel if neither variable is updated
+before the other, conceptually speaking; in other words, if the code
+to update each variable can reference the old values of both
+variables.
+
+   <p><code>loop</code> allows parallel binding of variables and parallel stepping
+of driver variables.  My view is that if you are depending on the
+serial/parallel distinction, you are doing something obscure.  If you
+need to bind variables in parallel using <code>with</code>, then you must be
+using a variable name that shadows a name in the existing lexical
+environment.  Don't do that.  The most common use for parallel
+stepping is to track the values of variables on the previous
+iteration, but in fact this does not require parallel stepping at all;
+the following will work:
+
+<pre class="lisp">  (iter (for current in list)
+        (for prev previous current)
+        ...)
+</pre>
+   <!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Types-and-Declarations"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Problems-with-Code-Movement">Problems with Code Movement</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Other-Features">Other Features</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">4 Types and Declarations</h2>
+
+<h3 class="section">4.1 Discussion</h3>
+
+<p>Sometimes efficiency dictates that the types of variables be declared. 
+This type information needs to be communicated to <code>iterate</code> so it can
+bind variables to appropriate values.  Furthermore, <code>iterate</code> must often
+generate internal variables invisible to the user; there needs to be a
+way for these to be declared.
+
+   <p>As an example, consider this code, which will return the number of
+odd elements in <code>number-list</code>:
+
+<pre class="lisp">  (iter (for el in number-list)
+        (count (oddp el)))
+</pre>
+   <p>In processing this form, <code>iterate</code> will create an internal variable, let
+us call it <code>list17</code>, to hold the successive <code>cdr</code>s of
+<code>number-list</code>, and will bind the variable to <code>number-list</code>. 
+It will also generate a default binding for <code>el</code>; only inside the
+body of the loop will <code>el</code> be set to the <code>car</code> of
+<code>list17</code>.  Finally, <code>iterate</code> will generate a variable, call it
+<code>result</code>, to hold the result of the count, and will bind it to
+zero.
+
+   <p>When dealing with type declarations, <code>iterate</code> observes one simple rule:
+<em>it will never generate a declaration unless requested to do so</em>. 
+The reason is that such declarations might mask errors in compiled
+code by avoiding error-checks; the resulting problems would be doubly
+hard to track down because the declarations would be hidden from the
+programmer.  Of course, a compiler might omit error-checks even in the
+absence of declarations, though this behavior can usually be avoided,
+e.g. by saying <code>(declaim (optimize (safety 3)))</code>.
+
+   <p>So, the above <code>iterate</code> form will generate code with no declarations. 
+But say we wish to declare the types of <code>el</code> and the internal
+variables <code>list17</code> and <code>result</code>.  How is this done?
+
+   <p>Declaring the type of <code>el</code> is easy, since the programmer knows
+the variable's name:
+
+<pre class="lisp">  (iter (for el in number-list)
+        (declare (fixnum el))
+        (counting (oddp el)))
+</pre>
+   <p><code>iterate</code> can read variable type declarations like this one.  Before
+processing any clauses, it scans the entire top-level form for type
+declarations and records the types, so that variable bindings can be
+performed correctly.  In this case, <code>el</code> will be bound to zero
+instead of <code>nil</code>.  Also, <code>iterate</code> collects all the top-level
+declarations and puts them at the begining of the generated code, so
+it is not necessary to place all declarations at the beginning of an
+<code>iterate</code> form; instead, they can be written near the variables whose
+types they declare.
+
+   <p>Since <code>iterate</code> is not part of the compiler, it will not know
+about declarations that occur outside an <code>iterate</code> form; these
+declarations must be repeated inside the form.
+
+   <p>Here is another way we could have declared the type of <code>el</code>:
+
+<pre class="lisp">  (iter (for (the fixnum el) in number-list)
+        (counting (oddp el)))
+</pre>
+   <p><a name="index-the-117"></a><code>iterate</code> extends the Common Lisp <code>the</code> form to apply to variables
+as well as value-producing forms; anywhere a variable is allowed&mdash;in
+a <code>with</code> clause, as the iteration variable in a driver clause, as
+the <code>into</code> argument of an accumulation clause, even inside a
+destructuring template&mdash;you can write <code>(the </code><var>type</var>
+<var>symbol</var><code>)</code> instead.
+
+   <p>There is one crucial difference between using a <code>the</code> form and
+actually declaring the variable: explicit declarations are always
+placed in the generated code, but type information from a <code>the</code>
+form is not turned into an actual declaration unless you tell <code>iterate</code>
+to do so using <code>iterate:declare-variables</code>.  See below.
+
+   <p>Declaring the types of internal variables is harder than declaring the
+types of explicitly mentioned variables, since their names are
+unknown.  You do it by declaring <code>iterate:declare-variables</code>
+somewhere inside the top level of the <code>iterate</code> form.  (This will also
+generate declarations for variables declared using <code>the</code>.) 
+<code>iterate</code> does not provide much selectivity here: it's all or none.  And
+unfortunately, since <code>iterate</code> is not privy to compiler information but
+instead reads declarations itself, it will not hear if you
+<code>(declaim (iterate:declare-variables))</code>.  Instead, set the
+variable <code>iterate::*always-declare-variables*</code> to <code>t</code> at
+compile-time, using <code>eval-when</code>.
+
+   <p>To determine the appropriate types for internal variables, <code>iterate</code>
+uses three sources of information:
+
+     <ul>
+<li>Often, the particular clause dictates a certain type for a
+variable; <code>iterate</code> will use this information when available.  In the
+current example, the variable <code>list17</code> will be given the type
+<code>list</code>, since that is the only type that makes sense; and the
+variable <code>result</code> will be given the type <code>fixnum</code>, on the
+assumption that you will not be counting high enough to need bignums. 
+You can override this assumption only by using and explicitly declaring a
+variable:
+
+     <pre class="lisp">       (iter (declare (iterate:declare-variables))
+             (for el in number-list)
+             (count (oddp el) into my-result)
+             (declare (integer my-result))
+             (finally (return my-result)))
+  </pre>
+     <p>Other examples of the type assumptions that <code>iterate</code> makes are: type
+<code>list</code> for <code>into</code> variables of collection clauses; type
+<code>list</code> for expressions that are to be destructured; type
+<code>vector</code> for the variable holding the vector in a
+<code>for... in-vector</code> clause, and similarly for <code>string</code>
+and the <code>for... in-string</code> clause; and the
+implementation-dependent type <code>(type-of array-dimension-limit)</code>
+for the index and limit variables generated by sequence iteration
+drivers like <code>for... in-vector</code> and <code>for... 
+in-string</code> (but not <code>for... in-sequence</code>, because it may be
+used to iterate over a list).
+
+     <li>Sometimes, <code>iterate</code> will examine expressions and try to determine their
+types in a simple-minded way.  If the expression is self-evaluating
+(like a number, for instance), <code>iterate</code> knows that the expression's
+type is the same as the type of the value it denotes, so it can use
+that type.  If the expression is of the form <code>(the </code><var>type</var>
+<var>expr</var><code>)</code>, <code>iterate</code> is smart enough to extract <var>type</var> and use
+it.  However, the current version of <code>iterate</code> does not examine
+declarations of function result types or do any type inference.  It
+will not determine, for example, that the type of <code>(+ 3 4)</code> is
+<code>fixnum</code>, or even <code>number</code>.
+
+     <li>In some cases, the type of an internal variable should match the type
+of some other variable.  For instance, <code>iterate</code> generates an internal
+variable for <code>(f x)</code> in the clause <code>(for i from 1 to (f
+x))</code>, and in the absence of other information will give it the same
+type as <code>i</code>.  If, however, the expression had been written
+<code>(the fixnum (f x))</code>, then <code>iterate</code> would have given the internal
+variable the type <code>fixnum</code> regardless of <code>i</code>'s type.  The
+type incompatibility errors that could arise in this situation are not
+checked for. 
+</ul>
+
+   <p>Note that if you do declare <code>iterate:declare-variables</code>, then
+<code>iterate</code> may declare user variables as well as internal ones if they do
+not already have declarations, though only for variables that it
+binds.  For instance, in this code:
+
+<pre class="lisp">  (iter (declare (iterate:declare-variables))
+        (for i from 1 to 10)
+        (collect i into var))
+</pre>
+   <p>the variable <code>var</code> will be declared to be of type <code>list</code>.
+
+<h3 class="section">4.2 Summary</h3>
+
+<p><a name="index-declare_002dvariables-118"></a><a name="index-g_t_002aalways_002ddeclare_002dvariables_002a-119"></a><code>iterate</code> understands standard Common Lisp variable type declarations
+that occur within an <code>iterate</code> form and will pass them through to the
+generated code.  If the declaration <code>(iterate:declare-variables)</code>
+appears at the top level of an <code>iterate</code> form, or if
+<code>iterate::*always-declare-variables*</code> is non-<code>nil</code>, then
+<code>iterate</code> will use the type information gleaned from user declarations,
+self-evaluating expressions and <code>the</code> expressions, combined with
+reasonable assumptions, to determine variable types and declare them.
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Problems-with-Code-Movement"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Differences-Between-Iterate-and-Loop">Differences Between Iterate and Loop</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Types-and-Declarations">Types and Declarations</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">5 Problems with Code Movement</h2>
+
+<p>Some <code>iterate</code> clauses, or parts of clauses, result in code being moved
+from the location of the clause to other parts of the loop.  Drivers
+behave this way, as do code-placement clauses like <code>initially</code>
+and <code>finally</code>.  When using these clauses, there is a danger of
+writing an expression that makes sense in its apparent location but
+will be invalid or have a different meaning in another location.  For
+example:
+
+<pre class="lisp">  (iter (for i from 1 to 10)
+        (let ((x 3))
+          (initially (setq x 4))))
+</pre>
+   <p>While it may appear that the <code>x</code> of <code>(initially (setq x 4))</code>
+is the same as the <code>x</code> of <code>(let ((x 3)) ...</code>, in fact
+they are not: <code>initially</code> moves its code outside the loop body,
+so <code>x</code> would refer to a global variable.  Here is another example
+of the same problem:
+
+<pre class="lisp">  (iter (for i from 1 to 10)
+        (let ((x 3))
+          (collect i into x)))
+</pre>
+   <p>If this code were executed, <code>collect</code> would create a binding for
+its <code>x</code> at the top level of the <code>iterate</code> form that the <code>let</code>
+will shadow.
+
+   <p>Happily, <code>iterate</code> is smart enough to catch these errors; it walks all
+problematical code to ensure that free variables are not bound inside
+the loop body, and checks all variables it binds for the same problem.
+
+   <p>However, some errors cannot be caught:
+
+<pre class="lisp">  (iter (with x = 3)
+        (for el in list)
+        (setq x 1)
+        (reducing el by #'+ initial-value x))
+</pre>
+   <p><code>reducing</code> moves its <code>initial-value</code> argument to the
+initialization part of the loop in order to produce more efficient
+code.  Since <code>iterate</code> does not perform data-flow analysis, it cannot
+determine that <code>x</code> is changed inside the loop; all it can
+establish is that <code>x</code> is not bound internally.  Hence this code
+will not signal an error and will use 3 as the initial value of
+the reduction.
+
+   <p>The following list summarizes all cases that are subject to these code
+motion and variable-shadowing problems.
+
+     <ul>
+<li>Any variable for which <code>iterate</code> creates a binding, including those used
+in <code>with</code> and the <code>into</code> keyword of many clauses.
+
+     <li>The special clauses which place code: <code>initially</code>,
+<code>after-each</code>, <code>else</code>, <code>finally</code> and
+<code>finally-protected</code>.
+
+     <li>The variables of a <code>next</code> or <code>do-next</code> form.
+
+     <li>The <code>initially</code> arguments of <code>for... initially... 
+then</code> and <code>for... previous</code>.
+
+     <li>The <code>then</code> argument of <code>for... initially... then</code>.
+
+     <li>The <code>initial-value</code> arguments of <code>reducing</code> and
+<code>accumulate</code>.
+
+     <li>The <code>on-failure</code> argument of <code>finding... such-that</code>. 
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Differences-Between-Iterate-and-Loop"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Rolling-Your-Own">Rolling Your Own</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Problems-with-Code-Movement">Problems with Code Movement</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">6 Differences Between <code>Iterate</code> and <code>Loop</code></h2>
+
+<p><code>loop</code> contains a great deal of complexity which <code>iterate</code> tries to
+avoid.  Hence many esoteric features of <code>loop</code> don't exist in
+<code>iterate</code>.  Other features have been carried over, but in a cleaned-up
+form.  And of course, many new features have been added; they are not
+mentioned in this list.
+
+     <ul>
+<li><code>iterate</code>'s syntax is more Lisp-like than <code>loop</code>'s, having a higher
+density of parens.
+
+     <li>The current implementation of <code>iterate</code>, unlike the standardised version
+of <code>loop</code>, is extensible (see <a href="#Rolling-Your-Own">Rolling Your Own</a>).
+
+     <li><code>loop</code> puts the updates of all driver variables at the top of the
+loop; <code>iterate</code> leaves them where the driver clauses appear.  In
+particular, <code>iterate</code> allows to place drivers after <code>while</code> clauses.
+
+     <li>While for the most part <code>iterate</code> clauses that resemble <code>loop</code>
+clauses behave similarly, there are some differences.  For instance,
+there is no <code>for... =... then</code> in <code>iterate</code>; instead use
+<code>for... initially... then</code>.
+
+     <li><code>loop</code> binds the variable <code>it</code> at certain times to allow
+pseudo-English expressions like <code>when </code><var>expr</var><code> return it</code>.  In
+<code>iterate</code>, you must bind <var>expr</var> to a variable yourself.  Note that
+<code>when </code><var>expr</var><code> return it</code> is like <code>thereis </code><var>expr</var>
+except that the latter is an accumulation clause and therefore
+competes with other accumulations (remember &ldquo;Multiple Accumulations&rdquo;
+in <a href="#Other-Features">Other Features</a>).
+
+     <!-- repeat different behaviour of |always| clause here? -->
+<li><code>loop</code> has a special <code>return</code> clause, illustrated in the
+previous item.  <code>iterate</code> doesn't need one, since an ordinary Lisp
+<code>return</code> has the same effect.
+
+     <li><code>loop</code> allows for parallel binding and stepping of iteration
+variables.  <code>iterate</code> does not.  (See <a href="#Parallel-Binding-and-Stepping">Parallel Binding and Stepping</a>.)
+
+     <li><code>loop</code> and <code>iterate</code> handle variable type declarations very
+differently.  <code>loop</code> provides a special syntax for declaring
+variable types, and does not examine declarations.  Moreover, the
+standard implementation of <code>loop</code> will generate declarations when
+none are requested.  <code>iterate</code> parses standard Common Lisp type
+declarations, and will never declare a variable itself unless
+declarations are specifically requested. 
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Rolling-Your-Own"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">Non-portable Extensions to Iterate (Contribs)</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Differences-Between-Iterate-and-Loop">Differences Between Iterate and Loop</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">7 Rolling Your Own</h2>
+
+<h3 class="section">7.1 Introduction</h3>
+
+<p><code>iterate</code> is extensible&mdash;you can write new clauses that embody new
+iteration patterns.  You might want to write a new driver clause for a
+data structure of your own, or you might want to write a clause that
+collects or manipulates elements in a way not provided by <code>iterate</code>.
+
+   <p>This section describes how to write clauses for <code>iterate</code>.  Writing a
+clause is like writing a macro.  In fact, writing a clause <em>is</em>
+writing a macro: since <code>iterate</code> code-walks its body and macroexpands,
+you can add new abstractions to <code>iterate</code> with good old <code>defmacro</code>.
+
+   <p>Actually, there are two extensions you can make to <code>iterate</code> that are
+even easier than writing a macro.  They are adding a synonym for an
+existing clause and defining a driver clause for an indexable
+sequence.  These can be done with <code>defsynonym</code> and
+<code>defclause-sequence</code>, respectively.  See <a href="#Extensibility-Aids">Extensibility Aids</a>.
+
+   <p>The rest of this section explains how to write macros that expand into
+<code>iterate</code> clauses.  Here's how you could add a simplified version of
+<code>iterate</code>'s <code>multiply</code> clause, if <code>iterate</code> didn't already have one:
+
+<pre class="lisp">  (defmacro multiply (expr)
+    `(reducing ,expr by #'* initial-value 1))
+</pre>
+   <p>If you found yourself summing the square of an expression often, you
+might want to write a macro for that.  A first cut might be
+
+<pre class="lisp">  (defmacro sum-of-squares (expr)
+    `(sum (* ,expr ,expr)))
+</pre>
+   <p>but if you are an experienced macro writer, you will realize that this
+code will evaluate <var>expr</var> twice, which is probably a bad idea.  A
+better version would use a temporary:
+
+<pre class="lisp">  (defmacro sum-of-squares (expr)
+    (let ((temp (gensym)))
+      `(let ((,temp ,expr))
+         (sum (* ,temp ,temp)))))
+</pre>
+   <p>Although this may seem complex, it is just the sort of thing you'd
+have to go through to write any macro, which illustrates the point of
+this section: if you can write macros, you can extend <code>iterate</code>.
+
+   <p>Our macros don't use <code>iterate</code>'s keyword-argument syntax.  We could just
+use keywords with <code>defmacro</code>, but we would still not be using
+<code>iterate</code>'s clause indexing mechanism.  Unlike Lisp, which uses just the
+first symbol of a form to determine what function to call, <code>iterate</code>
+individuates clauses by the list of required keywords.  For instance,
+<code>for... in</code> and <code>for... in-vector</code> are different
+clauses implemented by distinct Lisp functions.
+
+   <p>To buy into this indexing scheme, as well as the keyword-argument
+syntax, use <code>defmacro-clause</code>:
+
+   <p><a name="index-defmacro_002dclause-120"></a>
+
+<div class="defun">
+&mdash; Macro: <b>defmacro-clause</b><var> arglist </var><code>&amp;body</code><var> body<a name="index-defmacro_002dclause-121"></a></var><br>
+<blockquote>
+<p>Defines a new <code>iterate</code> clause.  <var>arglist</var> is a list of symbols
+which are alternating keywords and arguments.  <code>&amp;optional</code> may be
+used, and the list may be terminated by <code>&amp;sequence</code>.  <var>body</var>
+is an ordinary macro body, as with <code>defmacro</code>.  If the first form
+of <var>body</var> is a string, it is considered a documentation string and
+will be shown by
+<code>display-iterate-clauses</code>.  <code>defmacro-clause</code> will signal an
+error if defining the clause would result in an ambiguity.  E.g. you
+cannot define the clause <code>for... from</code> because there would be
+no way to distinguish it from a use of the <code>for</code> clause with
+optional keyword <code>from</code>. 
+</p></blockquote></div>
+
+   <p>Here is <code>multiply</code> using <code>defmacro-clause</code>.  The keywords
+are capitalized for readability.
+
+<pre class="lisp">  (defmacro-clause (MULTIPLY expr &amp;optional INTO var)
+    `(reducing ,expr by #'* into ,var initial-value 1))
+</pre>
+   <p>You don't have to worry about the case when <code>var</code> is not
+supplied; for any clause with an <code>into</code> keyword, saying
+<code>into nil</code> is equivalent to omitting the <code>into</code> entirely.
+
+   <p>As another, more extended example, consider the fairly common
+iteration pattern that involves finding the sequence element that
+maximizes (or minimizes) some function.  <code>iterate</code> provides this as
+<code>finding... maximizing</code>, but it's instructive to see how to
+write it.  Here, in pseudocode, is how you might write such a loop for
+maximizing a function F:
+
+<pre class="example">  <span class="roman">set variable MAX-VAL to NIL;</span>
+  <span class="roman">set variable WINNER to NIL;</span>
+  <span class="roman">for each element EL in the sequence</span>
+      <span class="roman">if MAX-VAL is NIL or F(EL) &gt; MAX-VAL then</span>
+          <span class="roman">set MAX-VAL to F(EL);</span>
+          <span class="roman">set WINNER to EL;</span>
+      <span class="roman">end if;</span>
+  <span class="roman">end for;</span>
+  <span class="roman">return WINNER.</span>
+</pre>
+   <p>Here is the macro:
+
+<pre class="lisp">  (defmacro-clause (FINDING expr MAXIMIZING func &amp;optional INTO var)
+    "Simple FINDING... MAXIMIZING implementation"
+    (let ((max-val (gensym "MAX-VAL"))
+          (temp1 (gensym "EL"))
+          (temp2 (gensym "VAL"))
+          (winner (or var iterate::*result-var*)))
+      `(progn
+         (with ,max-val = nil)
+         (with ,winner = nil)
+         (let* ((,temp1 ,expr)
+                (,temp2 (funcall ,func ,temp1)))
+           (when (or (null ,max-val) (&gt; ,temp2 ,max-val))
+             (setq ,winner ,temp1 ,max-val ,temp2))))))
+</pre>
+   <!-- This example differs from the built-in finder: -->
+<!--  The built-in one specifies the clause's value (el so far) -->
+<!-- (trivial to implement: add ,winner at end of progn) -->
+<!--  The built-in one accepts an (el max-val) tuple var spec. -->
+<!--  Influence of (the type var) on type declarations -->
+<p>Note that if no <code>into</code> variable is supplied, we use
+<code>iterate::*result-var*</code>, which contains the internal variable
+into which all clauses place their results.  If this variable is bound
+by some clause, then <code>iterate</code> will return its value automatically;
+otherwise, <code>nil</code> will be returned.
+
+<!-- The original example had four flaws: -->
+<!--  ,expr and ,func occured twice in expansion -->
+<!--  (finally (leave ,winner)) breaks because FINALLY does not walk -->
+<!-- its forms, so LEAVE does not work inside FINALLY. -->
+<!--  Do not use (finally (return ,winner)) either, as that would -->
+<!-- always return winner, even in case of ... INTO nil. -->
+<!--  Value of clause as form undefined, unlike all built-in clauses -->
+<ul class="menu">
+<li><a accesskey="1" href="#Writing-Drivers">Writing Drivers</a>
+<li><a accesskey="2" href="#Extensibility-Aids">Extensibility Aids</a>
+<li><a accesskey="3" href="#Subtleties">Subtleties</a>
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Writing-Drivers"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Extensibility-Aids">Extensibility Aids</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Rolling-Your-Own">Rolling Your Own</a>
+
+</div>
+
+<h3 class="section">7.2 Writing Drivers</h3>
+
+<p>In principle, drivers can be implemented just as easily as other
+<code>iterate</code> clauses.  In practice, they are a little harder to get right. 
+As an example, consider writing a driver that iterates over all the
+elements of a vector, ignoring its fill-pointer.  <code>for... 
+in-vector</code> won't work for this, because it observes the fill-pointer. 
+It's necessary to use <code>array-dimension</code> instead of <code>length</code>
+to obtain the size of the vector.  Here is one approach:
+
+<pre class="lisp">  (defmacro-clause (FOR var IN-WHOLE-VECTOR v)
+    "All the elements of a vector (disregards fill-pointer)"
+    (let ((vect (gensym))
+          (index (gensym)))
+      `(progn
+         (with ,vect = ,v)
+         (for ,index from 0 below (array-dimension ,vect 0))
+         (for ,var = (aref ,vect ,index)))))
+</pre>
+   <p>Note that we immediately put <code>v</code> in a variable, in case it is an
+expression.  Again, this is just good Lisp macrology.  It also has a
+subtle effect on the semantics of the driver: <code>v</code> is evaluated
+only once, at the beginning of the loop, so changes to <code>v</code> in the
+loop have no effect on the driver.  Similarly, the bounds for
+numerical iteration e.g. the above <code>array-dimension</code> are also
+evaluated once only.  This is how all of <code>iterate</code>'s drivers work.
+
+   <p>There is an important point concerning the <code>progn</code> in this code. 
+We need the <code>progn</code>, of course, because we are returning several
+forms, one of which is a driver.  But <code>iterate</code> drivers must occur at
+top-level.  Is this code in error?  No, because <em>top-level</em> is
+defined in <code>iterate</code> to include forms inside a <code>progn</code>.  This is
+just the definition of top-level that Common Lisp uses, and for the
+same reason: to allow macros to return multiple forms at top-level.
+
+   <p>While our <code>for... in-whole-vector</code> clause will work, it is
+not ideal.  In particular, it does not support generating.  Do do so,
+we need to use <code>for... next</code> or <code>for... do-next</code>. 
+The job is simplified by the <code>defmacro-driver</code> macro.
+
+   <p><a name="index-defmacro_002ddriver-122"></a>
+
+<div class="defun">
+&mdash; Macro: <b>defmacro-driver</b><var> arglist </var><code>&amp;body</code><var> body<a name="index-defmacro_002ddriver-123"></a></var><br>
+<blockquote>
+<p>Defines a driver clause in both the <code>for</code> and <code>generate</code>
+forms, and provides a parameter <code>generate</code> which <var>body</var> can
+examine to determine how it was invoked.  <var>arglist</var> is as in
+<code>defmacro-clause</code>, and should begin with the symbol <code>for</code>. 
+</p></blockquote></div>
+
+   <p>With <code>defmacro-driver</code>, our driver looks like this:
+
+<pre class="lisp">  (defmacro-driver (FOR var IN-WHOLE-VECTOR v)
+    "All the elements of a vector (disregards fill-pointer)"
+     (let ((vect (gensym))
+           (end (gensym))
+           (index (gensym))
+           (kwd (if generate 'generate 'for)))
+       `(progn
+          (with ,vect = ,v)
+          (with ,end = (array-dimension ,vect 0))
+          (with ,index = -1)
+          (,kwd ,var next (progn (incf ,index)
+                                 (if (&gt;= ,index ,end) (terminate))
+                                 (aref ,vect ,index))))))
+</pre>
+   <p>We are still missing one thing: the <code>&amp;sequence</code> keywords. 
+We can get them easily enough, by writing
+
+<pre class="lisp">  (defmacro-driver (FOR var IN-WHOLE-VECTOR v &amp;sequence)
+    ...)
+</pre>
+   <p>We can now refer to parameters <code>from</code>, <code>to</code>, <code>by</code>,
+etc. which contain either the values for the corresponding keyword, or
+<code>nil</code> if the keyword was not supplied.  Implementing the right
+code for these keywords is cumbersome but not difficult; it is left as
+an exercise.  But before you begin, see <code>defclause-sequence</code>
+below for an easier way.
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Extensibility-Aids"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Subtleties">Subtleties</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Writing-Drivers">Writing Drivers</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Rolling-Your-Own">Rolling Your Own</a>
+
+</div>
+
+<h3 class="section">7.3 Extensibility Aids</h3>
+
+<p>This section documents assorted features that may be of use in
+extending <code>iterate</code>.
+
+   <p><a name="index-g_t_002aresult_002dvar_002a-124"></a>
+
+<div class="defun">
+&mdash; Unexported Variable: <b>*result-var*</b><var><a name="index-g_t_002aresult_002dvar_002a-125"></a></var><br>
+<blockquote>
+<p>Holds the variable that is used to return a value as a result of the
+<code>iterate</code> form.  You may examine this and use it in a <code>with</code>
+clause, but you should not change it. 
+</p></blockquote></div>
+
+   <p><a name="index-defsynonym-126"></a>
+
+<div class="defun">
+&mdash; Macro: <b>defsynonym</b><var> syn word<a name="index-defsynonym-127"></a></var><br>
+<blockquote>
+<p>Makes <var>syn</var> a synonym for the existing <code>iterate</code> keyword <var>word</var>. 
+Only the first word in each clause can have synonyms. 
+</p></blockquote></div>
+
+   <p><a name="index-defclause_002dsequence-128"></a>
+
+<div class="defun">
+&mdash; Macro: <b>defclause-sequence</b><var> element-name index-name </var><code>&amp;key</code><var> access-fn size-fn sequence-type element-type element-doc-string index-doc-string<a name="index-defclause_002dsequence-129"></a></var><br>
+<blockquote>
+<p>Provides a simple way to define sequence clauses.  Generates two
+clauses, one for iterating over the sequence's elements, the other for
+iterating over its indices.  The first symbol of both clauses will
+have print-name <code>for</code>.  <var>element-name</var> and <var>index-name</var>
+should be symbols.  <var>element-name</var> is the second keyword of the
+element iterator (typically of the form
+<code>in-</code><var>sequence-type</var>), and <var>index-name</var> is the second
+keyword of the index-iterator (typically of the form
+<code>index-of-</code><var>sequence-type</var>).  Either name may be <code>nil</code>,
+in which case the corresponding clause is not defined.  If both
+symbols are supplied, they should be in the same package.  The
+<code>for</code> that begins the clauses will be in this package.
+
+        <p><var>access-fn</var> is the function to be used to access elements of the
+sequence in the element iterator.  The function should take two
+arguments, a sequence and an index, and return the appropriate
+element.  <var>size-fn</var> should denote a function of one argument, a
+sequence, that returns its size.  Both <var>access-fn</var> and
+<var>size-fn</var> are required for the element iterator, but only
+<var>size-fn</var> is needed for the index iterator.
+
+        <p>The <var>sequence-type</var> and <var>element-type</var> keywords are used to
+suggest types for the variables used to hold the sequence and the
+sequence elements, respectively.  The usual rules about <code>iterate</code>'s
+treatment of variable type declarations apply (see <a href="#Types-and-Declarations">Types and Declarations</a>).
+
+        <p><var>element-doc-string</var> and <var>index-doc-string</var> are the
+documentation strings, for use with <code>display-iterate-clauses</code>.
+
+        <p>The generated element-iterator performs destructuring on the element
+variable. 
+</p></blockquote></div>
+
+   <p>As an example, the above <code>for... in-whole-vector</code> example
+could have been written:
+
+<pre class="lisp">  (defclause-sequence IN-WHOLE-VECTOR INDEX-OF-WHOLE-VECTOR
+    :access-fn 'aref
+    :size-fn (lambda (v) (array-dimension v 0))
+    :sequence-type 'vector
+    :element-type t
+    :element-doc-string "Elements of a vector, disregarding fill-pointer"
+    :index-doc-string  "Indices of vector, disregarding fill-pointer")
+</pre>
+   <!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Subtleties"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Extensibility-Aids">Extensibility Aids</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Rolling-Your-Own">Rolling Your Own</a>
+
+</div>
+
+<h3 class="section">7.4 Subtleties</h3>
+
+<p>There are some subtleties to be aware of when writing <code>iterate</code> clauses. 
+First, the code returned by your macros may be <code>nconc</code>'ed into a
+list, so you should always returned freshly consed lists, rather than
+constants.  Second, <code>iterate</code> matches clauses by using <code>eq</code> on the
+first symbol and <code>string=</code> on the subsequent ones, so the package
+of the first symbol of a clause is relevant.  All of the clauses in
+this manual have their first word in the <code>iterate</code> package.  You can use
+the package system in the usual way to shadow <code>iterate</code> clauses without
+replacing them.
+
+<!-- say more here, about the badness that only the first word of a -->
+<!-- clause is packagey. -->
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Non-portable-Extensions-to-Iterate-(Contribs)"></a>
+<a name="Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Obtaining-Iterate">Obtaining Iterate</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Rolling-Your-Own">Rolling Your Own</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">8 Non-portable Extensions to Iterate (Contribs)</h2>
+
+<p>Currently, there is only one non-portable extension to iterate in the
+distribution: <code>iterate-pg</code>.  If you have made an extension that
+depends on non-portable features, feel free to send them to
+the <code>iterate</code> project team for inclusion in the iterate distribution.
+
+<h3 class="section">8.1 An SQL Query Driver for Iterate</h3>
+
+<p>The pg package by Eric Marsden (see <a href="http://cliki.net/pg">http://cliki.net/pg</a>)
+provides an interface to the PostgreSQL database.  Using the
+<code>in-relation</code> driver, it is possible to handle the results of SQL
+queries with <code>iterate</code>.
+
+   <p>This usage example should give you an idea of how to use it:
+
+<pre class="lisp">  (pg:with-pg-connection (c "somedb" "someuser")
+    (iter (for (impl version date) in-relation "select * from version"
+                                   on-connection *dbconn*)
+          (collect version)))
+</pre>
+   <p>The distribution now contains an <samp><span class="file">iterate.asd</span></samp> system definition
+file for the <code>iterate</code> package. 
+To use the extension via <acronym title="Another System Definition
+Facility">ASDF</acronym> (Another System Definition
+Facility), simply make your system depend on the <code>iterate-pg</code>
+system instead of the <code>iterate</code> system.  To load it manually,
+use:
+
+<pre class="lisp">  (asdf:oos 'asdf:load-op :iterate-pg)
+</pre>
+   <!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Obtaining-Iterate"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Acknowledgements">Acknowledgements</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Non_002dportable-Extensions-to-Iterate-_0028Contribs_0029">Non-portable Extensions to Iterate (Contribs)</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">9 Obtaining <code>Iterate</code></h2>
+
+<p><code>iterate</code> has been successfully ported to most implementations that
+purport to conform to ANSI CL.  Since 2006, source and project
+information is available from
+<a href="http://common-lisp.net/project/iterate/">http://common-lisp.net/project/iterate/</a>.  The mailing list for
+all purposes is <a href="mailto:iterate-devel@common-lisp.net">iterate-devel@common-lisp.net</a>, but you need
+to subscribe to it before posting.
+
+   <p>The source file was split into two files in 2003: <samp><span class="file">package.lisp</span></samp>
+contains the package definition, <samp><span class="file">iterate.lisp</span></samp> the main code. 
+Other files in the distribution contain user contributions, test cases
+and documentation.
+
+   <p><code>iterate</code> resides in the <code>iterate</code> package (nickname <code>iter</code>). 
+Just say <code>(use-package :iterate)</code> to make all the necessary
+symbols available.  If a symbol is not exported, it appears in this
+manual with an &ldquo;<code>iterate::</code>&rdquo; prefix.
+
+   <p>The regression test suite in <samp><span class="file">iterate-test.lisp</span></samp>, based on
+<acronym>MIT</acronym>'s <code>RT</code> package, contains many examples.
+
+   <blockquote>
+<b>Note:</b> The rest of this chapter serves history. 
+</blockquote>
+
+   <p><code>iterate</code> currently runs on Lisp Machines, and on HP's, Sun3's and
+Sparcstations under Lucid.  <code>iterate</code> source and binaries are available
+at the <acronym>MIT</acronym> <acronym>AI</acronym> Lab in the subdirectories of
+<samp><span class="file">/src/local/lisplib/</span></samp>. 
+The source file, <code>iterate.lisp</code>, is also available for anonymous
+FTP in the directory <samp><span class="file">/com/ftp/pub/</span></samp> on the machine
+<code>TRIX.AI.MIT.EDU</code> (Internet number 128.52.32.6).  If you are
+unable to obtain <code>iterate</code> in one of these ways, send mail to
+<a href="mailto:jba@ai.mit.edu">jba@ai.mit.edu</a> and I will send you the source file.
+
+   <p>Send bug reports to <a href="mailto:bug-iterate@ai.mit.edu">bug-iterate@ai.mit.edu</a>.  The
+<code>info-iterate</code> mailing list will have notices of changes and
+problems; to have yourself added, send mail to
+<a href="mailto:info-iterate-request@ai.mit.edu">info-iterate-request@ai.mit.edu</a>.
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Acknowledgements"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Don_0027t-Loop-Iterate">Don't Loop Iterate</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Obtaining-Iterate">Obtaining Iterate</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="chapter">10 Acknowledgements</h2>
+
+<p>Richard Waters provided invaluable criticism which spurred me to
+improve <code>iterate</code> greatly.  As early users, David Clemens, Oren Etzioni
+and Jeff Siskind helped ferret out many bugs.
+
+   <p>Thanks to Andreas Fuch, J&ouml;rg H&ouml;hle and Attila Lendvai, who more
+than a decade after the original release, ported the code to ANSI CL
+and fixed long-standing bugs.
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Don't-Loop-Iterate"></a>
+<a name="Don_0027t-Loop-Iterate"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="#Comprehensive-Index">Comprehensive Index</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Acknowledgements">Acknowledgements</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="appendix">Appendix A Don't Loop, Iterate</h2>
+
+<blockquote>
+<b>Note:</b> This appendix is a Texinfo conversion performed by Lu&iacute;s
+Oliveira of Jonathan Amsterdam's Working Paper 324, MIT AI Lab
+entitled &ldquo;Don't Loop, Iterate.&rdquo;
+</blockquote>
+
+<h3 class="section">A.1 Introduction</h3>
+
+<p>Above all the wonders of Lisp's pantheon stand its metalinguistic
+tools; by their grace have Lisp's acolytes been liberated from the
+rigid asceticism of lesser faiths.  Thanks to Macro and kin, the
+jolly, complacent Lisp hacker can gaze through a fragrant cloud of
+setfs and defstructs at the emaciated unfortunates below, scraping out
+their meager code in inflexible notation, and sneer superciliously. 
+It's a good feeling.
+
+   <p>But all's not joy in Consville.  For&mdash;I beg your pardon, but&mdash;there
+really is no good way to <em>iterate</em> in Lisp.  Now, some are happy
+to map their way about, whether for real with <code>mapcar</code> and
+friends, or with the make-believe of Series; others are so satisfied
+with <code>do</code> it's a wonder they're not C hackers.<a rel="footnote" href="#fn-2" name="fnd-2"><sup>2</sup></a>  Still others have gotten by with <code>loop</code>, but are
+getting tired of looking up the syntax in the manual over and over
+again.  And in the elegant schemes of some, only tail recursion and
+lambdas figure.  But that still leaves a sizeable majority of
+folk&mdash;well, me, at least&mdash;who would simply like to <em>iterate</em>,
+thank you, but in a way that provides nice abstractions, is
+extensible, and looks like honest-to-God Lisp.
+
+   <p>In what follows I describe a macro package, called <code>iterate</code>, that
+provides the power and convenient abstractions of <code>loop</code> but in a
+more syntactically palatable way.  <code>iter</code> also has many features
+that <code>loop</code> lacks, like generators and better support for nested
+loops.  <code>iterate</code> generates inline code, so it's more efficient than
+using the higher-order function approach.  And <code>iterate</code> is also
+extensible&mdash;it's easy to add new clauses to its vocabulary in order
+to express new patterns of iteration in a convenient way.
+
+<!-- \iter\ is fully documented in AI Lab Memo No.@: 1236, \iman. -->
+<h3 class="section">A.2 More about <code>iterate</code></h3>
+
+<p>A Common Lisp programmer who wonders what's lacking with present-day
+iteration features would do well to consider <code>setf</code>.  Of course,
+<code>setf</code> doesn't iterate, but it has some other nice properties. 
+It's easy to use, for one thing.  It's extensible&mdash;you can define new
+<code>setf</code> methods very easily, so that <code>setf</code> will work with
+new forms.  <code>setf</code> is also efficient, turning into code that's as
+good as anyone could write by hand.  Arguably, <code>setf</code> provides a
+nice abstraction: it allows you to view value-returning forms, like
+<code>(car ...)</code> or <code>(get ...)</code> as locations that can be
+stored into.  Finally and most obviously, <code>setf</code> <em>looks</em>
+like Lisp; it's got a syntax right out of <code>setq</code>.
+
+   <p><code>iterate</code> attempts to provide all of these properties.  Here is a simple
+use of <code>iterate</code> that returns all the elements of <code>num-list</code> that
+are greater than three:
+
+<pre class="lisp">  (iterate (for el in num-list)
+           (when (&gt; el 3)
+             (collect el)))
+</pre>
+   <p>An <code>iterate</code> form consists of the symbol <code>iterate</code> followed by some Lisp
+forms.  Any legal Lisp form is allowed, as well as certain forms that
+<code>iterate</code> treats specially, called <em>clauses</em>.  <code>for...in</code>
+and <code>collect</code> are the two clauses in the above example.  An
+<code>iterate</code> clause can appear anywhere a Lisp form can appear; <code>iterate</code>
+walks its body, looking inside every form, processing <code>iterate</code> clauses
+when it finds them.  It even expands macros, so you can write macros
+that contain <code>iterate</code> clauses.  Almost all clauses use the syntax of
+function keyword-argument lists: alternating keywords and arguments. 
+<code>iterate</code> keywords don't require a preceding colon, but you can use one
+if you like.
+
+   <p><code>iterate</code> provides many convenient iteration abstractions, most of them
+familiar to <code>loop</code> users.  Iteration-driving clauses (those
+beginning with <code>for</code>) can iterate over numbers, lists, arrays,
+hashtables, packages and files.  There are clauses for collecting
+values into a list, summing and counting, maximizing, finding maximal
+elements, and various other things.  Here are a few examples, for
+extra flavor.
+
+   <p>To sum a list of numbers:
+
+<pre class="lisp">  (iterate (for i in list)
+           (sum i))
+</pre>
+   <p>To find the length of the shortest element in a list:
+
+<pre class="lisp">  (iterate (for el in list)
+           (minimize (length el)))
+</pre>
+   <p>To find the shortest element in a list:
+
+<pre class="lisp">  (iterate (for el in list)
+           (finding el minimizing (length el)))
+</pre>
+   <p>To return <code>t</code> only if every other element of a list is odd:
+
+<pre class="lisp">  (iterate (for els on list by #'cddr)
+           (always (oddp (car els))))
+</pre>
+   <p>To split an association list into two separate lists (this example
+uses <code>iterate</code>'s ability to do destructuring):
+
+<pre class="lisp">  (iterate (for (key . item) in alist)
+           (collect key into keys)
+           (collect item into items)
+           (finally (return (values keys items))))
+</pre>
+   <h3 class="section">A.3 Comparisons With Other Iteration Methods</h3>
+
+<p>As with any aspect of coding, how to iterate is a matter of taste.  I
+do not wish to dictate taste or even to suggest that <code>iterate</code> is a
+&ldquo;better&rdquo; way to iterate than other methods.  I would, however, like
+to examine the options, and explain why I prefer <code>iterate</code> to its
+competitors.
+
+<h4 class="subsection">A.3.1 <code>do</code>, <code>dotimes</code> and <code>dolist</code></h4>
+
+<p>The <code>do</code> form has long been a Lisp iteration staple.  It provides
+for binding of iteration variables, an end-test, and a body of
+arbitrary code.  It can be a bit cumbersome for simple applications,
+but the most common special cases&mdash;iterating over the integers from
+zero and over the members of a list&mdash;appear more conveniently as
+<code>dotimes</code> and <code>dolist</code>.
+
+   <p><code>do</code>'s major problem is that it provides no abstraction.  For
+example, collection is typically handled by binding a variable to
+<code>nil</code>, pushing elements onto the variable, and <code>nreverse</code>ing
+the result before returning it.  Such a common iteration pattern
+should be easier to write.  (It is, using <code>mapcar</code>&mdash;but see
+below.)
+
+   <p>Another problem with <code>do</code>, for me at least, is that it's hard to
+read.  The crucial end-test is buried between the bindings and the
+body, marked off only by an extra set of parens (and some
+indentation).  It is also unclear, until after a moment of
+recollection, whether the end-test has the sense of a &ldquo;while&rdquo; or an
+&ldquo;until.&rdquo;
+
+   <p>Despite its flaws, <code>do</code> is superior to the iteration facilities
+of every other major programming language except CLU.  Perhaps that is
+the reason many Lisp programmers don't mind using it.
+
+<h4 class="subsection">A.3.2 Tail Recursion</h4>
+
+<!-- FIXME: removed citation due to laziness -->
+<p>Tail-recursive implementations of loops, like those found in Scheme
+code [SchemeBook], are parsimonious and illuminating.  They have the
+advantage of looking like recursion, hence unifying the notation for
+two different types of processes.  For example, if only tail-recursion
+is used, a loop that operates on list elements from front to back
+looks very much like a recursion that operates on them from back to
+front.
+
+   <p>However, using tail-recursion exclusively can lead to cumbersome code
+and a proliferation of functions, especially when one would like to
+embed a loop inside a function.  Tail-recursion also provides no
+abstraction for iteration; in Scheme, that is typically done with
+higher-order functions.
+
+<h4 class="subsection">A.3.3 High-order Functions</h4>
+
+<p>Lisp's age-old mapping functions, recently revamped for Common Lisp
+[CLM], are another favorite for iteration.  They provide a pleasing
+abstraction, and it's easy to write new higher-order functions to
+express common iteration patterns.  Common Lisp already comes with
+many such useful functions, for removing, searching, and performing
+reductions on lists.  Another Common Lisp advantage is that these
+functions work on any sequence&mdash;vectors as well as lists.
+
+   <p>One problem with higher-order functions is that they are inefficient,
+requiring multiple calls on their argument function.  While the the
+built-ins, like <code>map</code> and <code>mapcar</code>, can be open-coded, that
+cannot be so easily done for user-written functions.  Also, using
+higher-order functions often results in the creation of intermediate
+sequences that could be avoided if the iteration were written out
+explicitly.
+
+   <p>The second problem with higher-order functions is very much a matter
+of personal taste.  While higher-order functions are theoretically
+elegant, they are often cumbersome to read and write.  The unpleasant
+sharp-quote required by Common Lisp is particularly annoying here, and
+even in Scheme, I find the presence of a lambda with its argument list
+visually distracting.
+
+   <p>Another problem is that it's difficult to express iteration of
+sequences of integers without creating such sequences explicitly as
+lists or arrays.  One could resort to tail-recursion or
+<code>dotimes</code>&mdash;but then it becomes very messy to express double
+iterations where one driver is over integers.  Multiple iteration is
+easy in <code>iterate</code>, as illustrated by the following example, which creates
+an alist of list elements and their positions:
+
+<pre class="lisp">  (iterate (for el in list)
+           (for i from 0)
+           (collect (cons el i)))
+</pre>
+   <h4 class="subsection">A.3.4 Streams and Generators</h4>
+
+<p>For really heavy-duty iteration jobs, nothing less than a
+coroutine-like mechanism will do.  Such mechanisms hide the state of
+the iteration behind a convenient abstraction.  A <em>generator</em> is
+a procedure that returns the next element in the iteration each time
+it is called.  A <em>stream</em> (in the terminology of [SchemeBook]) is
+a data structure which represents the iteration, but which computes
+the next element only on demand.  Generators and streams support a
+similar style of programming.  Here, for example, is how you might
+enumerate the leaves of a tree (represented as a Lisp list with atoms
+at the leaves) using streams:
+
+<pre class="lisp">  (defun tree-leaves (tree)
+    (if (atom tree)
+        (stream-cons tree empty-stream)
+        (stream-append (tree-leaves (car tree))
+                       (tree-leaves (cdr tree)))))
+</pre>
+   <p>Although <code>tree-leaves</code> looks like an ordinary recursion, it will
+only do enough work to find the first leaf before returning.  The
+stream it returns can be accessed with <code>stream-car</code>, which will
+yield the (already computed) first leaf of the tree, or with
+<code>stream-cdr</code>, which will initiate computation of the next leaf.
+
+   <p>Such a computation would be cumbersome to write using <code>iterate</code>, or any
+of the other standard iteration constructs; in fact, it is not even
+technically speaking an iteration, if we confine that term to
+processes that take constant space and linear time.  Streams, then,
+are definitely more powerful than standard iteration machinery.
+
+   <p>Unfortunately, streams are very expensive, since they must somehow
+save the state of the computation.  Generators are typically cheaper,
+but are less powerful and still require at least a function call.  So
+these powerful tools should be used only when necessary, and that is
+not very often; most of the time, ordinary iteration suffices.
+
+   <p>There is one aspect of generators that <code>iterate</code> can capture, and that
+is the ability to produce elements on demand.  Say we wish to create
+an alist that pairs the non-null elements of a list with the positive
+integers.  We saw above that it is easy to iterate over a list and a
+series of numbers simultaneously, but here we would like to do
+something a little different: we want to iterate over the list of
+elements, but only draw a number when we need one (namely, when a list
+element is non-null).  The solution employs the <code>iterate</code> <code>generate</code>
+keyword in place of <code>for</code> and the special clause <code>next</code>:
+
+<pre class="lisp">  (iterate (for el in list)
+           (generate i from 1)
+           (if el
+               (collect (cons el (next i)))))
+</pre>
+   <p>Using <code>next</code> with any driver variable changes how that driver
+works.  Instead of supplying its values one at a time on each
+iteration, the driver computes a value only when a <code>next</code> clause
+is executed.  This ability to obtain values on demand greatly
+increases <code>iterate</code>'s power.  Here, <code>el</code> is set to the next element
+of the list on each iteration, as usual; but <code>i</code> is set only when
+<code>(next i)</code> is executed.
+
+<h4 class="subsection">A.3.5 Series</h4>
+
+<p>Richard C. Waters has developed a very elegant notation called Series
+which allows iteration to be expressed as sequence-mapping somewhat in
+the style of APL, but which compiles to efficient looping code
+[Series].
+
+   <p>My reasons for not using Series are, again, matters of taste.  Like
+many elegant notations, Series can be somewhat cryptic.  Understanding
+what a Series expression does can require some effort until one has
+mastered the idiom.  And if you wish to share your code with others,
+they will have to learn Series as well.  <code>iterate</code> suffers from this
+problem to some extent, but since the iteration metaphor it proposes
+is much more familiar to most programmers than that of Series, it is
+considerably easier to learn and read.
+
+<h4 class="subsection">A.3.6 <code>Prog</code> and <code>Go</code></h4>
+
+<p>Oh, don't be silly.
+
+<h4 class="subsection">A.3.7 <code>Loop</code></h4>
+
+<p><code>loop</code> is the iteration construct most similar to <code>iterate</code> in
+appearance.  <code>loop</code> is a macro written originally for MacLisp and
+in widespread use [Loop].  It has been adopted as part of Common Lisp. 
+<code>loop</code> provides high-level iteration with abstractions for
+collecting, summing, maximizing and so on.  Recall our first <code>iterate</code>
+example:
+
+<pre class="lisp">  (iterate (for el in num-list)
+           (when (&gt; el 3)
+             (collect el)))
+</pre>
+   <p>Expressed with <code>loop</code>, it would read
+
+<pre class="lisp">  (loop for el in list
+        when (&gt; el 3)
+          collect el)
+</pre>
+   <p>The similarity between the two macros should immediately be apparent. 
+Most of <code>iterate</code>'s clauses were borrowed from <code>loop</code>.  But
+compared to <code>iterate</code>, <code>loop</code> has a paucity of parens.  Though
+touted as more readable than heavily-parenthesized code, <code>loop</code>'s
+Pascalish syntax creates several problems.  First, many
+dyed-in-the-wool Lisp hackers simply find it ugly.  Second, it
+requires learning the syntax of a whole new sublanguage.  Third, the
+absence of parens makes it hard to parse, both by machine and, more
+importantly, by human.  Fourth, one often has to consult the manual to
+recall lesser-used aspects of the strange syntax.  Fifth, there is no
+good interface with the rest of Lisp, so <code>loop</code> clauses cannot
+appear inside Lisp forms and macros cannot expand to pieces of
+<code>loop</code>.  And Sixth, pretty-printers and indenters that don't know
+about <code>loop</code> will invariably display it wrongly.  This is
+particularly a problem with program-editor indenters.  A reasonably
+clever indenter, like that of Gnu Emacs, can indent nearly any normal
+Lisp form correctly, and can be easily customized for most new forms. 
+But it can't at present handle <code>loop</code>.  The syntax of <code>iterate</code> was
+designed to keep parens to a minimum, but conform close enough to Lisp
+so as not to confuse code-display tools.  Gnu Emacs indents <code>iterate</code>
+reasonably with no modifications.
+
+   <p>Indenting is a mere annoyance; <code>loop</code>'s lack of extensibility is
+a more serious problem.  The original <code>loop</code> was completely
+extensible, but the Symbolics version only provides for the definition
+of new iteration-driving clauses, and the Common Lisp specification
+does not have any extension mechanism.  But extensibility is a boon. 
+Consider first the problem of adding the elements of a list together,
+which can be accomplished with <code>iterate</code> by
+
+<pre class="lisp">  (iterate (for el in list)
+           (sum el))
+</pre>
+   <p>and in <code>loop</code> with
+
+<pre class="lisp">  (loop for el in list
+        sum el)
+</pre>
+   <p>But now, say that you wished to compute the sum of the square roots of
+the elements.  You could of course write, in either <code>loop</code> or
+<code>iterate</code>,
+
+<pre class="lisp">  (iterate (for el in list)
+           (sum (sqrt el)))
+</pre>
+   <p>But perhaps you find yourself writing such loops often enough to make
+it worthwhile to create a new abstraction.  There is nothing you can
+do in <code>loop</code>, but in <code>iterate</code> you could simply write a macro:
+
+<pre class="lisp">  (defmacro (sum-of-sqrts expr &amp;optional into-var)
+    `(sum (sqrt ,expr) into ,into-var))
+</pre>
+   <p><code>sum-of-sqrts</code> is a perfectly ordinary Lisp macro.  Since <code>iterate</code>
+expands all macros and processes the results, <code>(sum-of-sqrts el)</code>
+will behave exactly as if we'd written <code>(sum (sqrt el))</code>.
+
+   <p>There's also a way to define macros that use <code>iterate</code>'s clause syntax. 
+<!-- removed citation again -->
+
+<!-- Just to beat a dead horse, I'd like to point out that there's no -->
+<!-- way to define {\lisp for...maximizing} in \looP.\footnote{In fact, -->
+<!-- it was in part the frustration of knowing that \looP\ could -->
+<!-- generate code to maximize a value, but could not be easily altered -->
+<!-- to supply the element associated with that maximum, that prompted -->
+<!-- me to write \iter.} -->
+<h3 class="section">A.4 Implementation</h3>
+
+<p>A Common Lisp implementation of <code>iterate</code> has existed for well over a
+year.  It runs under Lucid for HP 300's, Sun 3's and SPARCstations,
+and on Symbolics Lisp machines. 
+<!-- See \iman\ for details. -->
+
+<h3 class="section">A.5 Conclusion</h3>
+
+<p>Iteration is a matter of taste.  I find <code>iterate</code> more palatable than
+other iteration constructs: it's more readable, more efficient than
+most, provides nice abstractions, and can be extended.
+
+   <p>If you're new to Lisp iteration, start with <code>iterate</code>&mdash;look before you
+<code>loop</code>.  If you're already using <code>loop</code> and like the power
+that it offers, but have had enough of its syntax and inflexibility,
+then my advice to you is, don't <code>loop</code>&mdash;<code>iterate</code>.
+
+<h3 class="section">A.6 Acknowledgments</h3>
+
+<p>Thanks to David Clemens for many helpful suggestions and for the
+egregious pun near the end.  Conversations with Richard Waters
+prompted me to add many improvements to <code>iterate</code>.  Alan Bawden, Sundar
+Narasimhan, and Jerry Roylance also provided useful comments.  David
+Clemens and Oren Etzioni shared with me the joys of beta-testing.
+
+<h3 class="section">A.7 Bibliography</h3>
+
+     <ul>
+<li>[SchemeBook] Abelson, Harold and Gerald Jay Sussman.  <em>Structure
+and Interpretation of Computer Programs.</em> Cambridge, MA: The MIT
+Press, 1985.
+
+     <li>[Loop] &ldquo;The loop Iteration Macro.&rdquo; In <em>Symbolics Common
+Lisp&mdash;Language Concepts</em>, manual 2A of the Symbolics documentation,
+pp. 541&ndash;567.
+
+     <li>[CLM] Steele, Guy L.  <em>Common Lisp: The Language</em>.  Bedford, MA:
+Digital Press, 1984.
+
+     <li>[Series] Waters, Richard C.  <em>Optimization of Series Expressions:
+Part I: User's Manual for the Series Macro Package</em>.  MIT AI Lab Memo
+No. 1082. 
+</ul>
+
+<!-- =================================================================== -->
+<div class="node">
+<p><hr>
+<a name="Comprehensive-Index"></a>
+Previous:&nbsp;<a rel="previous" accesskey="p" href="#Don_0027t-Loop-Iterate">Don't Loop Iterate</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="#Top">Top</a>
+
+</div>
+
+<h2 class="unnumbered">Index</h2>
+
+<ul class="index-cp" compact>
+<li><a href="#index-g_t_002aalways_002ddeclare_002dvariables_002a-119">*always-declare-variables*</a>: <a href="#Types-and-Declarations">Types and Declarations</a></li>
+<li><a href="#index-g_t_002alist_002dend_002dtest_002a-7"><code>*list-end-test*</code></a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-g_t_002aresult_002dvar_002a-125"><code>*result-var*</code></a>: <a href="#Extensibility-Aids">Extensibility Aids</a></li>
+<li><a href="#index-accumulate-71">accumulate</a>: <a href="#Accumulations">Accumulations</a></li>
+<li><a href="#index-adjoining-61">adjoining</a>: <a href="#Accumulations">Accumulations</a></li>
+<li><a href="#index-after_002deach-103">after-each</a>: <a href="#Code-Placement">Code Placement</a></li>
+<li><a href="#index-always-79">always</a>: <a href="#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a></li>
+<li><a href="#index-appending-63">appending</a>: <a href="#Accumulations">Accumulations</a></li>
+<li><a href="#index-collect-59">collect</a>: <a href="#Accumulations">Accumulations</a></li>
+<li><a href="#index-counting-51">counting</a>: <a href="#Reductions">Reductions</a></li>
+<li><a href="#index-declare_002dvariables-118">declare-variables</a>: <a href="#Types-and-Declarations">Types and Declarations</a></li>
+<li><a href="#index-defclause_002dsequence-128">defclause-sequence</a>: <a href="#Extensibility-Aids">Extensibility Aids</a></li>
+<li><a href="#index-defmacro_002dclause-120">defmacro-clause</a>: <a href="#Rolling-Your-Own">Rolling Your Own</a></li>
+<li><a href="#index-defmacro_002ddriver-122">defmacro-driver</a>: <a href="#Writing-Drivers">Writing Drivers</a></li>
+<li><a href="#index-defsynonym-126">defsynonym</a>: <a href="#Extensibility-Aids">Extensibility Aids</a></li>
+<li><a href="#index-display_002diterate_002dclauses-115">display-iterate-clauses</a>: <a href="#On_002dline-Help">On-line Help</a></li>
+<li><a href="#index-dsetq-113">dsetq</a>: <a href="#Destructuring">Destructuring</a></li>
+<li><a href="#index-else-105">else</a>: <a href="#Code-Placement">Code Placement</a></li>
+<li><a href="#index-finally-107">finally</a>: <a href="#Code-Placement">Code Placement</a></li>
+<li><a href="#index-finally_002dprotected-109">finally-protected</a>: <a href="#Code-Placement">Code Placement</a></li>
+<li><a href="#index-finding_0040dots_007b_007dmaximizing-75">finding<small class="dots">...</small>maximizing</a>: <a href="#Finders">Finders</a></li>
+<li><a href="#index-finding_0040dots_007b_007dminimizing-76">finding<small class="dots">...</small>minimizing</a>: <a href="#Finders">Finders</a></li>
+<li><a href="#index-finding_0040dots_007b_007dsuch_002dthat-73">finding<small class="dots">...</small>such-that</a>: <a href="#Finders">Finders</a></li>
+<li><a href="#index-finish-85">finish</a>: <a href="#Control-Flow">Control Flow</a></li>
+<li><a href="#index-first_002diteration_002dp-97">first-iteration-p</a>: <a href="#Predicates">Predicates</a></li>
+<li><a href="#index-first_002dtime_002dp-99">first-time-p</a>: <a href="#Predicates">Predicates</a></li>
+<li><a href="#index-for-3">for</a>: <a href="#Numerical-Iteration">Numerical Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007d_003d-41">for<small class="dots">...</small>=</a>: <a href="#Variable-Binding-and-Setting">Variable Binding and Setting</a></li>
+<li><a href="#index-for_0040dots_007b_007ddo_002dnext-35">for<small class="dots">...</small>do-next</a>: <a href="#Generalized-Drivers">Generalized Drivers</a></li>
+<li><a href="#index-for_0040dots_007b_007dfirst_0040dots_007b_007dthen-45">for<small class="dots">...</small>first<small class="dots">...</small>then</a>: <a href="#Variable-Binding-and-Setting">Variable Binding and Setting</a></li>
+<li><a href="#index-for_0040dots_007b_007din-5">for<small class="dots">...</small>in</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007din_002dfile-28">for<small class="dots">...</small>in-file</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007din_002dhashtable-22">for<small class="dots">...</small>in-hashtable</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007din_002dpackage-24">for<small class="dots">...</small>in-package</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007din_002dpackages-26">for<small class="dots">...</small>in-packages</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007din_002dsequence-12">for<small class="dots">...</small>in-sequence</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007din_002dstream-30">for<small class="dots">...</small>in-stream</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007din_002dstring-14">for<small class="dots">...</small>in-string</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007din_002dvector-10">for<small class="dots">...</small>in-vector</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007dindex_002dof_002dsequence-17">for<small class="dots">...</small>index-of-sequence</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007dindex_002dof_002dstring-18">for<small class="dots">...</small>index-of-string</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007dindex_002dof_002dvector-16">for<small class="dots">...</small>index-of-vector</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007dinitially_0040dots_007b_007dthen-43">for<small class="dots">...</small>initially<small class="dots">...</small>then</a>: <a href="#Variable-Binding-and-Setting">Variable Binding and Setting</a></li>
+<li><a href="#index-for_0040dots_007b_007dnext-33">for<small class="dots">...</small>next</a>: <a href="#Generalized-Drivers">Generalized Drivers</a></li>
+<li><a href="#index-for_0040dots_007b_007don-8">for<small class="dots">...</small>on</a>: <a href="#Sequence-Iteration">Sequence Iteration</a></li>
+<li><a href="#index-for_0040dots_007b_007dprevious-37">for<small class="dots">...</small>previous</a>: <a href="#Previous-Values-of-Driver-Variables">Previous Values of Driver Variables</a></li>
+<li><a href="#index-if_002dfirst_002dtime-95">if-first-time</a>: <a href="#Control-Flow">Control Flow</a></li>
+<li><a href="#index-in-111">in</a>: <a href="#Named-Blocks">Named Blocks</a></li>
+<li><a href="#index-initially-101">initially</a>: <a href="#Code-Placement">Code Placement</a></li>
+<li><a href="#index-leave-87">leave</a>: <a href="#Control-Flow">Control Flow</a></li>
+<li><a href="#index-maximize-53">maximize</a>: <a href="#Reductions">Reductions</a></li>
+<li><a href="#index-minimize-54">minimize</a>: <a href="#Reductions">Reductions</a></li>
+<li><a href="#index-multiply-49">multiply</a>: <a href="#Reductions">Reductions</a></li>
+<li><a href="#index-nconcing-64">nconcing</a>: <a href="#Accumulations">Accumulations</a></li>
+<li><a href="#index-never-81">never</a>: <a href="#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a></li>
+<li><a href="#index-next_002diteration-89">next-iteration</a>: <a href="#Control-Flow">Control Flow</a></li>
+<li><a href="#index-nunioning-66">nunioning</a>: <a href="#Accumulations">Accumulations</a></li>
+<li><a href="#index-reducing-57">reducing</a>: <a href="#Reductions">Reductions</a></li>
+<li><a href="#index-repeat-1">repeat</a>: <a href="#Drivers">Drivers</a></li>
+<li><a href="#index-sum-47">sum</a>: <a href="#Reductions">Reductions</a></li>
+<li><a href="#index-terminate-32">terminate</a>: <a href="#Generalized-Drivers">Generalized Drivers</a></li>
+<li><a href="#index-the-117">the</a>: <a href="#Types-and-Declarations">Types and Declarations</a></li>
+<li><a href="#index-thereis-83">thereis</a>: <a href="#Aggregated-Boolean-Tests">Aggregated Boolean Tests</a></li>
+<li><a href="#index-unioning-65">unioning</a>: <a href="#Accumulations">Accumulations</a></li>
+<li><a href="#index-until-93">until</a>: <a href="#Control-Flow">Control Flow</a></li>
+<li><a href="#index-while-91">while</a>: <a href="#Control-Flow">Control Flow</a></li>
+<li><a href="#index-with-39">with</a>: <a href="#Variable-Binding-and-Setting">Variable Binding and Setting</a></li>
+   </ul><div class="footnote">
+<hr>
+<a name="texinfo-footnotes-in-document"></a><h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> You can
+also use <code>iterate</code>, but <code>iter</code> is preferred because it
+avoids potential conflicts with possible future additions to Common
+Lisp, and because it saves horizontal space when writing code.</p>
+
+   <p class="footnote"><small>[<a name="fn-2" href="#fnd-2">2</a>]</small> Hey,
+don't get mad&mdash;I'll be much more polite later, when the real paper
+starts.</p>
+
+   <p><hr></div>
+
+</body></html>
+

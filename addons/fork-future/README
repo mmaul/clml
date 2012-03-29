@@ -1,0 +1,116 @@
+-*- mode: org -*-
+
+* Description
+
+Fork-future is a posix fork() based future parallel library (forked
+from cl-future)
+
+by Jianshi Huang @ Mathematical Systems Inc. (huang@msi.co.jp)
+
+
+* Purpose
+
+Fork() based parallelism has the merit that it makes mutual exclusion
+unnecessary since each process has its own memory space. Second, The
+copy-on-write semantics of memory management is also convenient for
+concurrency which doesn't need synchronization. In other words, the OS
+will help us manage the resource for sharing data and isolating the
+execution context.
+
+There is a similar library by Jeff Palmucci called cl-future
+(http://github.com/jpalmucci/cl-future). fork-future is a fork of
+cl-future and they share same implementation ideas.
+
+The reason to fork it is:
+
+  - simplifying the implementation
+
+  - better APIs and documentations
+
+    You can almost guess the meaning just by looking at the function
+    name. Also borrow the API from PLT-scheme's future library, which
+    is 'future' and 'touch'.
+
+  - thorough testing
+
+    Since it will be used in our commercial products, tests are very
+    important. Tests on multiple implementations and stress tests are
+    very important for us.
+
+* Supported implementations/platforms
+
+  |-------------+------+-----------+-----------+-----------|
+  |             | SBCL | AllegroCL | Lispworks | ClozureCL |
+  |-------------+------+-----------+-----------+-----------|
+  | Linux-x86   | Yes  | Yes       | Untested  | Yes       |
+  | Linux-x8664 | Yes  | Yes       | Untested  | Yes       |
+  |             |      |           |           |           |
+  |-------------+------+-----------+-----------+-----------|
+
+
+* Library dependencies
+
+Fork-future depends on cl-store, cffi and cl-containers. In the future
+releases, I may remove the dependency of cl-containers.
+
+Tests depends on Stefil test framework.
+
+* APIs
+
+The followings are public APIs:
+
+  future
+  touch
+  wait-for-future
+  wait-for-any-future
+  wait-for-all-futures
+  kill-future
+  kill-all-futures
+  initialize-environment
+  with-new-environment
+  *before-fork-hooks*
+  *after-fork-hooks*
+  *future-result-file-template*
+  *fork-future-max-processes*
+
+
+** Major APIs
+
+- future : Macro
+
+  (future &body body) is used to create a future object that evaluates
+  the body.
+
+- touch : Function
+
+  (touch future) is to obtain the evaluation result of the future, it
+  will block if the future is not finished yet.
+
+- initialize-environment : Function
+
+  (initialize-environment &key kill-current-futures-p force-p) will
+  clean up the environment which is essential for the precondition of
+  later futures to run properly.
+
+  It is strongly suggested to call initialize-environment before
+  starting a paralleled task.
+
+- with-new-environment : Macro
+
+  (with-new-environment () &body body) will create new environments
+  and process pools that does not interfere current running and
+  pending futures.
+
+  A common practice is to write the following code:
+
+  (with-new-environment ()
+    ...body)
+
+  in new paralleled tasks. with-new-environment will insert
+  initialize-environment before body.
+
+
+** Misc
+
+:fork-future will be pushed to *features* after loading.
+

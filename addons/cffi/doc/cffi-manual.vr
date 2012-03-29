@@ -1,0 +1,3 @@
+\entry{*default-foreign-encoding*}{74}{\code {\xeatspaces {*default-foreign-encoding*}}}
+\entry{*darwin-framework-directories*}{93}{\code {\xeatspaces {*darwin-framework-directories*}}}
+\entry{*foreign-library-directories*}{95}{\code {\xeatspaces {*foreign-library-directories*}}}

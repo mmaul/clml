@@ -1,0 +1,265 @@
+<html lang="en">
+<head>
+<title>Sequence Iteration - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="up" href="Drivers.html#Drivers" title="Drivers">
+<link rel="prev" href="Numerical-Iteration.html#Numerical-Iteration" title="Numerical Iteration">
+<link rel="next" href="Generalized-Drivers.html#Generalized-Drivers" title="Generalized Drivers">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Sequence-Iteration"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Generalized-Drivers.html#Generalized-Drivers">Generalized Drivers</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Numerical-Iteration.html#Numerical-Iteration">Numerical Iteration</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="Drivers.html#Drivers">Drivers</a>
+<hr>
+</div>
+
+<h4 class="subsection">2.1.2 Sequence Iteration</h4>
+
+<p>There are a number of clauses for iterating over sequences.  In all of
+them, the argument following <code>for</code> may be a list instead of a
+symbol, in which case destructuring is performed.  See
+<a href="Destructuring.html#Destructuring">Destructuring</a>.
+
+   <p><a name="index-for_0040dots_007b_007din-5"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in</strong><var> list </var><code>&amp;optional</code> <code>by</code><var> step-function<a name="index-for-6"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to successive elements of list. <var>step-function</var>,
+which defaults to <code>cdr</code>, is used to obtain the next sublist.
+
+        <p>This clause uses <code>endp</code> to test for the end of a list, hence
+should signal an error when processing an improper list whose final
+<code>cdr</code> is not <code>nil</code>&mdash;like <code>loop</code>.  Prior to 2007,
+<code>iterate</code> would default to <code>atom</code> and silently exit.
+
+        <p><a name="index-g_t_002alist_002dend_002dtest_002a-7"></a><blockquote>
+<b>Compatibility Note:</b> The original implementation used the variable
+<code>iterate::*list-end-test*</code>, defaulting to <code>atom</code>.  Years
+later, it was deemed unacceptable for the semantics <em>not</em> to be
+lexically apparent from the iteration form so this variable was
+removed.  If your application depends on the original behaviour, the
+ancient <code>for </code><var>var</var><code> in</code> is equivalent to
+<code>for (</code><var>var</var><code>) on</code>. 
+</blockquote>
+        </p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007don-8"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>on</strong><var> list </var><code>&amp;optional</code> <code>by</code><var> step-function<a name="index-for-9"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to successive sublists of list.  <var>step-function</var>
+(default <code>cdr</code>) is used as in <code>for... in</code>.
+
+        <p>This clause uses <code>atom</code> to test for the end of a list, so it can
+be used with dotted lists&mdash;like <code>loop</code>. 
+</p></blockquote></div>
+
+<!-- These two clauses use @code{atom} to test for the end of a list. -->
+<!-- Hence, given a list whose final @code{cdr} is not @code{nil}, they -->
+<!-- will silently ignore the last @code{cdr}.  Other choices are -->
+<!-- @code{endp}, which would signal an error, and @code{null}, which would -->
+<!-- probably result in an error somewhere else.  If you wish to use an -->
+<!-- end-test other than @code{atom}, set the variable -->
+<!-- @code{iterate::*list-end-test*} to the name of the desired function. -->
+<p><a name="index-for_0040dots_007b_007din_002dvector-10"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-vector</strong><var> vector </var><code>&amp;sequence</code><var><a name="index-for-11"></a></var><br>
+<blockquote>
+<p><var>var</var> takes on successive elements from <var>vector</var>.  The vector's
+fill-pointer is observed.  Here and in subsequent clauses, the
+<code>&amp;sequence</code> keywords include <code>with-index</code>, which takes a
+symbol as argument and uses it for the index variable instead of an
+internally generated symbol.  The other <code>&amp;sequence</code> keywords
+behave as in numerical iteration, except that the default iteration
+bounds are the bounds of the vector.  E.g. in <code>(for i in-vector v
+downto 3)</code>, <code>i</code> will start off being bound to the last element in
+<code>v</code>, and will be set to preceding elements down to and including
+the element with index 3. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dsequence-12"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-sequence</strong><var> seq </var><code>&amp;sequence</code><var><a name="index-for-13"></a></var><br>
+<blockquote>
+<p>This uses Common Lisp's generalized sequence functions, <code>elt</code> and
+<code>length</code>, to obtain elements and determine the length of
+<var>seq</var>.  Hence it will work for any sequence, including lists, and
+will observe the fill-pointers of vectors. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dstring-14"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-string</strong><var> string </var><code>&amp;sequence</code><var><a name="index-for-15"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to successive characters of <var>string</var>. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007dindex_002dof_002dvector-16"></a>
+<a name="index-for_0040dots_007b_007dindex_002dof_002dsequence-17"></a>
+<a name="index-for_0040dots_007b_007dindex_002dof_002dstring-18"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>index-of-vector</strong><var> vector </var><code>&amp;sequence</code><var><a name="index-for-19"></a></var><br>
+&mdash; Clause: <b>for</b><var> var </var><strong>index-of-sequence</strong><var> sequence </var><code>&amp;sequence</code><var><a name="index-for-20"></a></var><br>
+&mdash; Clause: <b>for</b><var> var </var><strong>index-of-string</strong><var> string </var><code>&amp;sequence</code><var><a name="index-for-21"></a></var><br>
+<blockquote>
+<p><var>var</var> is set to successive indices of the sequence.  These clauses
+avoid the overhead of accessing the sequence elements for those
+applications where they do not need to be examined, or are examined
+rarely.  They admit all the optional keywords of the other sequence
+drivers except the (redundant) <code>with-index</code> keyword. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dhashtable-22"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b> (<var>key value</var>) <strong>in-hashtable</strong><var> table<a name="index-for-23"></a></var><br>
+<blockquote>
+<p><var>key</var> and <var>value</var>, which must appear as shown in a list and
+may be destructuring templates, are set to the keys and values of
+<var>table</var>.  If <var>key</var> is <code>nil</code>, then the hashtable's keys
+will be ignored; similarly for <var>value</var>.  The order in which
+elements of <var>table</var> will be retrieved is unpredictable. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dpackage-24"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-package</strong><var> package </var><code>&amp;optional</code> <code>external-only</code><var> ext<a name="index-for-25"></a></var><br>
+<blockquote>
+<p>Iterates over all the symbols in <var>package</var>, or over only the
+external symbols if <var>ext</var> is specified and non-<code>nil</code>. 
+<var>ext</var> is not evaluated.  The same symbol may appear more than
+once. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dpackages-26"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-packages</strong> <code>&amp;optional</code> <code>having-access</code><var> symbol-types<a name="index-for-27"></a></var><br>
+<blockquote>
+<p>Iterates over all the symbols from the list of packages denoted by the
+descriptor <var>packages</var> and having accessibility (or visibility)
+given by <var>symbol-types</var>.  This defaults to the list
+<code>(:external :internal :inherited)</code> and is not evaluated. 
+<var>var</var> must be a list of up to three variables: in each iteration,
+these will be set to a symbol, its access-type and package (as per
+<code>with-package-iterator</code> in ANSI CL).  The same symbol may appear
+more than once. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dfile-28"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-file</strong><var> name </var><code>&amp;optional</code> <code>using</code><var> reader<a name="index-for-29"></a></var><br>
+<blockquote>
+<p>Opens the file <var>name</var> (which may be a string or pathname) for
+input, and iterates over its contents.  <var>reader</var> defaults to
+<code>read</code>, so by default <em>var</em> will be bound to the successive
+forms in the file.  The <code>iterate</code> body is wrapped in an
+<code>unwind-protect</code> to ensure that the file is closed no matter how
+the <code>iterate</code> is exited. 
+</p></blockquote></div>
+
+   <p><a name="index-for_0040dots_007b_007din_002dstream-30"></a>
+
+<div class="defun">
+&mdash; Clause: <b>for</b><var> var </var><strong>in-stream</strong><var> stream </var><code>&amp;optional</code> <code>using</code><var> reader<a name="index-for-31"></a></var><br>
+<blockquote>
+<p>Like <code>for... in-file</code>, except that <var>stream</var> should be an
+existing stream object that supports input operations. 
+</p></blockquote></div>
+
+<!-- =================================================================== -->
+</body></html>
+

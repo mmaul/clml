@@ -1,0 +1,208 @@
+* Profiling
+
+Before code optimization we need to find the hot spot of the code and
+start optimizing from there step by step to make sure our changes
+doesn't break the code.
+
+dataset: "sample/bc-train-for-svm.csv"
+kernel: (setf rbf-kernel (make-rbf-kernel :gamma 0.05)), #'linear-kernel
+benchmark code: (excl:gc t) (time (setf svm (make-svm-learner training-vector rbf-kernel 100)))
+
+|----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+|                      |   (1) |   (2) |   (3) |   (4) |   (5) |   (6) |   (7) |   (8) |   (9) |   avg |
+|----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel-original  | 1.967 | 3.008 | 2.308 | 2.174 | 2.566 | 1.885 | 1.963 | 2.707 | 2.594 | 2.352 |
+|----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+
+(prof:with-profiling (:type :time) (...) (prof:show-flat-profile))
+...
+
+* Type declaration
+
+Adding type declaration not only increases performance, reduces
+garbages, but also let the compiler diagnose type errors in compile
+time. You can also turn type specialization to type checks by
+compiling the code with (optimize (speed 0) (safety 3)).
+
+So it's strongly recommended to add type declarations to all parts of
+the code when available.
+
+Improvements after type declaration:
+
+|----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+|                      |   (1) |   (2) |   (3) |   (4) |   (5) |   (6) |   (7) |   (8) |   (9) |   avg |
+|----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel-original  | 1.967 | 3.008 | 2.308 | 2.174 | 2.566 | 1.885 | 1.963 | 2.707 | 2.594 | 2.352 |
+|----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel           | 0.363 | 0.329 | 0.387 | 0.341 | 0.289 | 0.310 | 0.293 | 0.293 | 0.287 | 0.321 |
+| + type declaration   |       |       |       |       |       |       |       |       |       |       |
+|----------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+
+
+* Avoid using global special bindings in loops 
+
+Especially important for array bindings
+
+Improvements after avoiding global special bindings:
+
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+|                                   |   (1) |   (2) |   (3) |   (4) |   (5) |   (6) |   (7) |   (8) |   (9) |   avg |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel-original               | 1.967 | 3.008 | 2.308 | 2.174 | 2.566 | 1.885 | 1.963 | 2.707 | 2.594 | 2.352 |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel                        | 0.363 | 0.329 | 0.387 | 0.341 | 0.289 | 0.310 | 0.293 | 0.293 | 0.287 | 0.321 |
+| + type declaration                |       |       |       |       |       |       |       |       |       |       |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel                        | 0.296 | 0.312 | 0.207 | 0.332 | 0.353 | 0.293 | 0.301 | 0.331 | 0.214 | 0.293 |
+| + type declaration                |       |       |       |       |       |       |       |       |       |       |
+| + avoid special binding reference |       |       |       |       |       |       |       |       |       |       |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+
+
+* Inlining and avoid boxing 
+
+Inlining will make more optimization opportunities for the compiler.
+
+Functions returning double-float needs to be boxed usually, either
+inline them or tag the functions with Allegro CL's internal hacks.
+
+1. small function are better declared inclined.
+2. profiling space usages first
+3. AllegroCL will ignore inline declaration, use compiler macros instead
+4. be careful of code explosion.
+5. use AllegroCL's internal hack to tag the functions to avoid boxing.
+6. for closures that return boxed double-float, store the result in a
+   1d double-float array (e.g. *kernel-function-result*)
+
+
+(prof:with-profiling (:type :space) ... (prof:show-call-graph))
+...
+
+it showed, the EXP function in the rbf-kernel function causes most of
+the new-double-float garbages.
+
+After optimization, EXP function is responsible for 99% of the boxings
+in AllegroCL. The arguments for EXP needs to be boxed and the result
+is also an boxed double-float. AllegroCL cannot optimize EXP properly.
+
+In SBCL, the boxing of EXP will be optimized by the compiler.
+
+Linear kernel can be optimized in both AllegroCL and SBCL, it now only
+generates 2,260,928 bytes of garbages, which is very good.
+
+
+- make kernel-function store result in an 1d double-float array
+- tag compute-obj-fun since it takes 12 double-float as inputs
+
+Improvement after optimization:
+
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+|                                   |   (1) |   (2) |   (3) |   (4) |   (5) |   (6) |   (7) |   (8) |   (9) |   avg |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel-original               | 1.967 | 3.008 | 2.308 | 2.174 | 2.566 | 1.885 | 1.963 | 2.707 | 2.594 | 2.352 |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel                        | 0.363 | 0.329 | 0.387 | 0.341 | 0.289 | 0.310 | 0.293 | 0.293 | 0.287 | 0.321 |
+| + type declaration                |       |       |       |       |       |       |       |       |       |       |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel                        | 0.296 | 0.312 | 0.207 | 0.332 | 0.353 | 0.293 | 0.301 | 0.331 | 0.214 | 0.293 |
+| + type declaration                |       |       |       |       |       |       |       |       |       |       |
+| + avoid special binding reference |       |       |       |       |       |       |       |       |       |       |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel                        | 0.234 | 0.222 | 0.242 | 0.219 | 0.318 | 0.219 | 0.234 | 0.305 | 0.388 | 0.265 |
+| + type declaration                |       |       |       |       |       |       |       |       |       |       |
+| + avoid special binding reference |       |       |       |       |       |       |       |       |       |       |
+| + avoid boxing                    |       |       |       |       |       |       |       |       |       |       |
+|-----------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+
+
+current garbages generated using rbf-kernel is about:
+  3,499 cons cells, 76,990,656 other bytes, 0 static bytes
+
+current garbages generated using linear-kernel is about:
+  11,476 cons cells, 1,945,760 other bytes, 0 static bytes
+
+So the remaining problem is Franz's EXP implementation.
+
+
+** Update (2010/2/5/18:00)
+
+We have to use foreign functions if the compiler cannot do
+specialization correctly.
+
+By defining code like the followings:
+
+(declaim (inline d-exp))
+#+allegro
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (ff:def-foreign-call (d-exp "lisp_exp") ((arg :double))
+    :returning :double
+    :arg-checking nil
+    :call-direct t))
+  
+#-allegro
+(defun d-exp (x)
+  (declare (type double-float x))
+  (exp x))
+
+We reduce the garbages to 128,448 for rbf-kernel.
+
+Here's the latest benchmark:
+
+|--------------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+|                                      |   (1) |   (2) |   (3) |   (4) |   (5) |   (6) |   (7) |   (8) |   (9) |   avg |
+|--------------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel-original                  | 1.967 | 3.008 | 2.308 | 2.174 | 2.566 | 1.885 | 1.963 | 2.707 | 2.594 | 2.352 |
+|--------------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel                           | 0.363 | 0.329 | 0.387 | 0.341 | 0.289 | 0.310 | 0.293 | 0.293 | 0.287 | 0.321 |
+| + type declaration                   |       |       |       |       |       |       |       |       |       |       |
+|--------------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel                           | 0.296 | 0.312 | 0.207 | 0.332 | 0.353 | 0.293 | 0.301 | 0.331 | 0.214 | 0.293 |
+| + type declaration                   |       |       |       |       |       |       |       |       |       |       |
+| + avoid special binding reference    |       |       |       |       |       |       |       |       |       |       |
+|--------------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+| rbf-kernel                           | 0.180 | 0.139 | 0.211 | 0.187 | 0.173 | 0.239 | 0.169 | 0.165 | 0.205 | 0.185 |
+| + type declaration                   |       |       |       |       |       |       |       |       |       |       |
+| + avoid special binding reference    |       |       |       |       |       |       |       |       |       |       |
+| + avoid boxing (use or define double |       |       |       |       |       |       |       |       |       |       |
+| float only functions)                |       |       |       |       |       |       |       |       |       |       |
+|--------------------------------------+-------+-------+-------+-------+-------+-------+-------+-------+-------+-------|
+
+** Update (2010/2/8 12:00)
+
+- Trick:
+
+Allegro cannot optimize the follow code:
+
+(+ ...
+   (the double-float
+      (loop for ...
+            sum ... into result of-type double-float
+            finally (return result))))
+
+The value loop returned will always be boxed.
+
+The only way to remove the boxing is to use let-form:
+
+(+ ...
+   (let ((result 0d0))
+     (declare (type double-float result))
+     (loop for ...
+           do (incf result ...))
+     result))
+
+
+* Common expression reduction
+I've noticed several (- *c* *epsilon*) in one function. Since it's a
+constant, bind it to a local variable.
+
+Duplicated array accesses are definitely needed to be optimized.
+
+Since it will change the code by fairly a bit, I intend not to do this
+optimization now.
+
+
+* Compile in SBCL to get more optimization notes
+
+Currently my SBCL cannot compile read-data.cl... so I'll do it later.
+
+

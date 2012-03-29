@@ -1,0 +1,69 @@
+;;; -*- Mode: LISP; Syntax: ANSI-Common-Lisp; Base: 10 -*-
+;; See the file LICENCE for licence information.
+
+;; THIS BACKEND IS DEPRECATED AND WILL NOT WORK.
+(in-package #:cl-user)
+
+(defpackage #:cl-store-xml.system
+  (:use #:cl #:asdf))
+
+(in-package #:cl-store-xml.system)
+
+(defclass non-required-file (cl-source-file) ()
+  (:documentation
+   "File containing implementation dependent code which may or may not be there."))
+
+(defun lisp-system-shortname ()
+  #+mcl mcl #+lispworks :lispworks #+cmu :cmucl #+clisp :clisp #+sbcl :sbcl)
+
+(defmethod component-pathname ((component non-required-file))
+  (let ((pathname (call-next-method))
+        (name (string-downcase (lisp-system-shortname))))
+    (merge-pathnames
+     (make-pathname :directory (list :relative name))
+     pathname)))
+
+(defmethod perform ((op compile-op) (component non-required-file))
+  (when (probe-file (component-pathname component))
+    (call-next-method)))
+
+(defmethod perform ((op load-op) (component non-required-file))
+  (when (probe-file (component-pathname component))
+    (call-next-method)))
+
+(defmethod operation-done-p ((o operation) (c non-required-file))
+  (when (probe-file (component-pathname c))
+    (call-next-method)))
+
+
+(defsystem cl-store-xml
+  :name "CL-STORE-XML"
+  :author "Sean Ross <sdr@jhb.ucs.co.za>"
+  :maintainer "Sean Ross <sdr@jhb.ucs.co.za>"
+  :description "Xml Backend for cl-store"
+  :version "0.2.9"
+  :licence "MIT"
+  :components ((:file "xml-package")
+               (:file "xml-backend" :depends-on ("xml-package"))
+               (:non-required-file "custom-xml" :depends-on ("xml-backend")))
+  :depends-on (:cl-store :xmls))
+
+(defmethod perform :after ((o load-op) (c (eql (find-system :cl-store-xml))))
+  (provide 'cl-store-xml))
+
+(defmethod perform ((op test-op) (sys (eql (find-system :cl-store-xml))))
+  (oos 'load-op :cl-store-xml-tests)
+  (oos 'test-op :cl-store-xml-tests))
+
+(defsystem cl-store-xml-tests
+  :components ((:file "xml-tests"))
+  :depends-on (cl-store-tests cl-store-xml))
+
+(defmethod perform ((op test-op) 
+                    (sys (eql (find-system :cl-store-xml-tests))))
+  (or (funcall (find-symbol "RUN-TESTS" "CL-STORE-TESTS")
+               (symbol-value (find-symbol "*XML-BACKEND*" "CL-STORE-XML")))
+      (error "Test-op Failed.")))
+
+
+;; EOF

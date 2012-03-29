@@ -1,0 +1,10 @@
+@numchapentry{Introduction}{1}{Introduction}{1}
+@numchapentry{Built-In Foreign Types}{2}{Built-In Foreign Types}{2}
+@numchapentry{Operations on Built-in Foreign Types}{3}{Operations on Foreign Types}{3}
+@numchapentry{Basic Pointer Operations}{4}{Basic Pointer Operations}{4}
+@numchapentry{Foreign Memory Allocation}{5}{Foreign Memory Allocation}{5}
+@numchapentry{Memory Access}{6}{Memory Access}{6}
+@numchapentry{Foreign Function Calling}{7}{Foreign Function Calling}{7}
+@numchapentry{Loading Foreign Libraries}{8}{Loading Foreign Libraries}{8}
+@numchapentry{Foreign Globals}{9}{Foreign Globals}{9}
+@unnchapentry{Symbol Index}{10001}{Symbol Index}{10}

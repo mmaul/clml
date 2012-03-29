@@ -1,0 +1,519 @@
+<html lang="en">
+<head>
+<title>Don't Loop Iterate - The Iterate Manual and Paper</title>
+<meta http-equiv="Content-Type" content="text/html">
+<meta name="description" content="The Iterate Manual and Paper">
+<meta name="generator" content="makeinfo 4.8">
+<link title="Top" rel="start" href="index.html#Top">
+<link rel="prev" href="Acknowledgements.html#Acknowledgements" title="Acknowledgements">
+<link rel="next" href="Comprehensive-Index.html#Comprehensive-Index" title="Comprehensive Index">
+<link href="http://www.gnu.org/software/texinfo/" rel="generator-home" title="Texinfo Homepage">
+<!--
+Copyright (C) 1989 Jonathan Amsterdam <jba at ai.mit.edu>
+
+
+     The present manual is a conversion of Jonathan Amsterdam's ``The
+     Iterate Manual'', MIT AI Memo No. 1236.  Said memo mentioned the
+     following contract information:
+
+     _This report describes research done at the Artificial
+     Intelligence Laboratory of the Massachusetts Institute of
+     Technology.  Support for the laboratory's artificial intelligence
+     research is provided in part by the Advanced Research Projects
+     Agency of the Department of Defense under Office of Naval Research
+     contract N00014-85-K-0124._
+
+     The appendix includes Jonathan Amsterdam's Working Paper 324, MIT
+     AI Lab entitled ``Don't Loop, Iterate.''
+-->
+<meta http-equiv="Content-Style-Type" content="text/css">
+<style type="text/css"><!--
+  pre.display { font-family:inherit }
+  pre.format  { font-family:inherit }
+  pre.smalldisplay { font-family:inherit; font-size:smaller }
+  pre.smallformat  { font-family:inherit; font-size:smaller }
+  pre.smallexample { font-size:smaller }
+  pre.smalllisp    { font-size:smaller }
+  span.sc    { font-variant:small-caps }
+  span.roman { font-family:serif; font-weight:normal; } 
+  span.sansserif { font-family:sans-serif; font-weight:normal; } 
+body {font-family: century schoolbook, serif;
+      line-height: 1.3;
+      padding-left: 5em; padding-right: 1em;
+      padding-bottom: 1em; max-width: 60em;}
+table {border-collapse: collapse}
+span.roman { font-family: century schoolbook, serif; font-weight: normal; }
+h1, h2, h3, h4, h5, h6 {font-family:  Helvetica, sans-serif}
+/*h4 {padding-top: 0.75em;}*/
+dfn {font-family: inherit; font-variant: italic; font-weight: bolder }
+kbd {font-family: monospace; text-decoration: underline}
+/*var {font-family: Helvetica, sans-serif; font-variant: slanted}*/
+var {font-variant: slanted;}
+td  {padding-right: 1em; padding-left: 1em}
+sub {font-size: smaller}
+.node {padding: 0; margin: 0}
+
+.lisp { font-family: monospace;
+        background-color: #F4F4F4; border: 1px solid #AAA;
+        padding-top: 0.5em; padding-bottom: 0.5em; }
+
+/* coloring */
+
+.lisp-bg { background-color: #F4F4F4 ; color: black; }
+.lisp-bg:hover { background-color: #F4F4F4 ; color: black; }
+
+.symbol { font-weight: bold; color: #770055; background-color : transparent; border: 0px; margin: 0px;}
+a.symbol:link { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:active { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:visited { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+a.symbol:hover { font-weight: bold; color : #229955; background-color : transparent; text-decoration: none; border: 0px; margin: 0px; }
+.special { font-weight: bold; color: #FF5000; background-color: inherit; }
+.keyword { font-weight: bold; color: #770000; background-color: inherit; }
+.comment { font-weight: normal; color: #007777; background-color: inherit; }
+.string  { font-weight: bold; color: #777777; background-color: inherit; }
+.character   { font-weight: bold; color: #0055AA; background-color: inherit; }
+.syntaxerror { font-weight: bold; color: #FF0000; background-color: inherit; }
+span.paren1 { font-weight: bold; color: #777777; }
+span.paren1:hover { color: #777777; background-color: #BAFFFF; }
+span.paren2 { color: #777777; }
+span.paren2:hover { color: #777777; background-color: #FFCACA; }
+span.paren3 { color: #777777; }
+span.paren3:hover { color: #777777; background-color: #FFFFBA; }
+span.paren4 { color: #777777; }
+span.paren4:hover { color: #777777; background-color: #CACAFF; }
+span.paren5 { color: #777777; }
+span.paren5:hover { color: #777777; background-color: #CAFFCA; }
+span.paren6 { color: #777777; }
+span.paren6:hover { color: #777777; background-color: #FFBAFF; }
+--></style>
+</head>
+<body>
+<div class="node">
+<p>
+<a name="Don't-Loop-Iterate"></a>
+<a name="Don_0027t-Loop-Iterate"></a>
+Next:&nbsp;<a rel="next" accesskey="n" href="Comprehensive-Index.html#Comprehensive-Index">Comprehensive Index</a>,
+Previous:&nbsp;<a rel="previous" accesskey="p" href="Acknowledgements.html#Acknowledgements">Acknowledgements</a>,
+Up:&nbsp;<a rel="up" accesskey="u" href="index.html#Top">Top</a>
+<hr>
+</div>
+
+<h2 class="appendix">Appendix A Don't Loop, Iterate</h2>
+
+<blockquote>
+<b>Note:</b> This appendix is a Texinfo conversion performed by Lu&iacute;s
+Oliveira of Jonathan Amsterdam's Working Paper 324, MIT AI Lab
+entitled &ldquo;Don't Loop, Iterate.&rdquo;
+</blockquote>
+
+<h3 class="section">A.1 Introduction</h3>
+
+<p>Above all the wonders of Lisp's pantheon stand its metalinguistic
+tools; by their grace have Lisp's acolytes been liberated from the
+rigid asceticism of lesser faiths.  Thanks to Macro and kin, the
+jolly, complacent Lisp hacker can gaze through a fragrant cloud of
+setfs and defstructs at the emaciated unfortunates below, scraping out
+their meager code in inflexible notation, and sneer superciliously. 
+It's a good feeling.
+
+   <p>But all's not joy in Consville.  For&mdash;I beg your pardon, but&mdash;there
+really is no good way to <em>iterate</em> in Lisp.  Now, some are happy
+to map their way about, whether for real with <code>mapcar</code> and
+friends, or with the make-believe of Series; others are so satisfied
+with <code>do</code> it's a wonder they're not C hackers.<a rel="footnote" href="#fn-1" name="fnd-1"><sup>1</sup></a>  Still others have gotten by with <code>loop</code>, but are
+getting tired of looking up the syntax in the manual over and over
+again.  And in the elegant schemes of some, only tail recursion and
+lambdas figure.  But that still leaves a sizeable majority of
+folk&mdash;well, me, at least&mdash;who would simply like to <em>iterate</em>,
+thank you, but in a way that provides nice abstractions, is
+extensible, and looks like honest-to-God Lisp.
+
+   <p>In what follows I describe a macro package, called <code>iterate</code>, that
+provides the power and convenient abstractions of <code>loop</code> but in a
+more syntactically palatable way.  <code>iter</code> also has many features
+that <code>loop</code> lacks, like generators and better support for nested
+loops.  <code>iterate</code> generates inline code, so it's more efficient than
+using the higher-order function approach.  And <code>iterate</code> is also
+extensible&mdash;it's easy to add new clauses to its vocabulary in order
+to express new patterns of iteration in a convenient way.
+
+<!-- \iter\ is fully documented in AI Lab Memo No.@: 1236, \iman. -->
+<h3 class="section">A.2 More about <code>iterate</code></h3>
+
+<p>A Common Lisp programmer who wonders what's lacking with present-day
+iteration features would do well to consider <code>setf</code>.  Of course,
+<code>setf</code> doesn't iterate, but it has some other nice properties. 
+It's easy to use, for one thing.  It's extensible&mdash;you can define new
+<code>setf</code> methods very easily, so that <code>setf</code> will work with
+new forms.  <code>setf</code> is also efficient, turning into code that's as
+good as anyone could write by hand.  Arguably, <code>setf</code> provides a
+nice abstraction: it allows you to view value-returning forms, like
+<code>(car ...)</code> or <code>(get ...)</code> as locations that can be
+stored into.  Finally and most obviously, <code>setf</code> <em>looks</em>
+like Lisp; it's got a syntax right out of <code>setq</code>.
+
+   <p><code>iterate</code> attempts to provide all of these properties.  Here is a simple
+use of <code>iterate</code> that returns all the elements of <code>num-list</code> that
+are greater than three:
+
+<pre class="lisp">  (iterate (for el in num-list)
+           (when (&gt; el 3)
+             (collect el)))
+</pre>
+   <p>An <code>iterate</code> form consists of the symbol <code>iterate</code> followed by some Lisp
+forms.  Any legal Lisp form is allowed, as well as certain forms that
+<code>iterate</code> treats specially, called <em>clauses</em>.  <code>for...in</code>
+and <code>collect</code> are the two clauses in the above example.  An
+<code>iterate</code> clause can appear anywhere a Lisp form can appear; <code>iterate</code>
+walks its body, looking inside every form, processing <code>iterate</code> clauses
+when it finds them.  It even expands macros, so you can write macros
+that contain <code>iterate</code> clauses.  Almost all clauses use the syntax of
+function keyword-argument lists: alternating keywords and arguments. 
+<code>iterate</code> keywords don't require a preceding colon, but you can use one
+if you like.
+
+   <p><code>iterate</code> provides many convenient iteration abstractions, most of them
+familiar to <code>loop</code> users.  Iteration-driving clauses (those
+beginning with <code>for</code>) can iterate over numbers, lists, arrays,
+hashtables, packages and files.  There are clauses for collecting
+values into a list, summing and counting, maximizing, finding maximal
+elements, and various other things.  Here are a few examples, for
+extra flavor.
+
+   <p>To sum a list of numbers:
+
+<pre class="lisp">  (iterate (for i in list)
+           (sum i))
+</pre>
+   <p>To find the length of the shortest element in a list:
+
+<pre class="lisp">  (iterate (for el in list)
+           (minimize (length el)))
+</pre>
+   <p>To find the shortest element in a list:
+
+<pre class="lisp">  (iterate (for el in list)
+           (finding el minimizing (length el)))
+</pre>
+   <p>To return <code>t</code> only if every other element of a list is odd:
+
+<pre class="lisp">  (iterate (for els on list by #'cddr)
+           (always (oddp (car els))))
+</pre>
+   <p>To split an association list into two separate lists (this example
+uses <code>iterate</code>'s ability to do destructuring):
+
+<pre class="lisp">  (iterate (for (key . item) in alist)
+           (collect key into keys)
+           (collect item into items)
+           (finally (return (values keys items))))
+</pre>
+   <h3 class="section">A.3 Comparisons With Other Iteration Methods</h3>
+
+<p>As with any aspect of coding, how to iterate is a matter of taste.  I
+do not wish to dictate taste or even to suggest that <code>iterate</code> is a
+&ldquo;better&rdquo; way to iterate than other methods.  I would, however, like
+to examine the options, and explain why I prefer <code>iterate</code> to its
+competitors.
+
+<h4 class="subsection">A.3.1 <code>do</code>, <code>dotimes</code> and <code>dolist</code></h4>
+
+<p>The <code>do</code> form has long been a Lisp iteration staple.  It provides
+for binding of iteration variables, an end-test, and a body of
+arbitrary code.  It can be a bit cumbersome for simple applications,
+but the most common special cases&mdash;iterating over the integers from
+zero and over the members of a list&mdash;appear more conveniently as
+<code>dotimes</code> and <code>dolist</code>.
+
+   <p><code>do</code>'s major problem is that it provides no abstraction.  For
+example, collection is typically handled by binding a variable to
+<code>nil</code>, pushing elements onto the variable, and <code>nreverse</code>ing
+the result before returning it.  Such a common iteration pattern
+should be easier to write.  (It is, using <code>mapcar</code>&mdash;but see
+below.)
+
+   <p>Another problem with <code>do</code>, for me at least, is that it's hard to
+read.  The crucial end-test is buried between the bindings and the
+body, marked off only by an extra set of parens (and some
+indentation).  It is also unclear, until after a moment of
+recollection, whether the end-test has the sense of a &ldquo;while&rdquo; or an
+&ldquo;until.&rdquo;
+
+   <p>Despite its flaws, <code>do</code> is superior to the iteration facilities
+of every other major programming language except CLU.  Perhaps that is
+the reason many Lisp programmers don't mind using it.
+
+<h4 class="subsection">A.3.2 Tail Recursion</h4>
+
+<!-- FIXME: removed citation due to laziness -->
+<p>Tail-recursive implementations of loops, like those found in Scheme
+code [SchemeBook], are parsimonious and illuminating.  They have the
+advantage of looking like recursion, hence unifying the notation for
+two different types of processes.  For example, if only tail-recursion
+is used, a loop that operates on list elements from front to back
+looks very much like a recursion that operates on them from back to
+front.
+
+   <p>However, using tail-recursion exclusively can lead to cumbersome code
+and a proliferation of functions, especially when one would like to
+embed a loop inside a function.  Tail-recursion also provides no
+abstraction for iteration; in Scheme, that is typically done with
+higher-order functions.
+
+<h4 class="subsection">A.3.3 High-order Functions</h4>
+
+<p>Lisp's age-old mapping functions, recently revamped for Common Lisp
+[CLM], are another favorite for iteration.  They provide a pleasing
+abstraction, and it's easy to write new higher-order functions to
+express common iteration patterns.  Common Lisp already comes with
+many such useful functions, for removing, searching, and performing
+reductions on lists.  Another Common Lisp advantage is that these
+functions work on any sequence&mdash;vectors as well as lists.
+
+   <p>One problem with higher-order functions is that they are inefficient,
+requiring multiple calls on their argument function.  While the the
+built-ins, like <code>map</code> and <code>mapcar</code>, can be open-coded, that
+cannot be so easily done for user-written functions.  Also, using
+higher-order functions often results in the creation of intermediate
+sequences that could be avoided if the iteration were written out
+explicitly.
+
+   <p>The second problem with higher-order functions is very much a matter
+of personal taste.  While higher-order functions are theoretically
+elegant, they are often cumbersome to read and write.  The unpleasant
+sharp-quote required by Common Lisp is particularly annoying here, and
+even in Scheme, I find the presence of a lambda with its argument list
+visually distracting.
+
+   <p>Another problem is that it's difficult to express iteration of
+sequences of integers without creating such sequences explicitly as
+lists or arrays.  One could resort to tail-recursion or
+<code>dotimes</code>&mdash;but then it becomes very messy to express double
+iterations where one driver is over integers.  Multiple iteration is
+easy in <code>iterate</code>, as illustrated by the following example, which creates
+an alist of list elements and their positions:
+
+<pre class="lisp">  (iterate (for el in list)
+           (for i from 0)
+           (collect (cons el i)))
+</pre>
+   <h4 class="subsection">A.3.4 Streams and Generators</h4>
+
+<p>For really heavy-duty iteration jobs, nothing less than a
+coroutine-like mechanism will do.  Such mechanisms hide the state of
+the iteration behind a convenient abstraction.  A <em>generator</em> is
+a procedure that returns the next element in the iteration each time
+it is called.  A <em>stream</em> (in the terminology of [SchemeBook]) is
+a data structure which represents the iteration, but which computes
+the next element only on demand.  Generators and streams support a
+similar style of programming.  Here, for example, is how you might
+enumerate the leaves of a tree (represented as a Lisp list with atoms
+at the leaves) using streams:
+
+<pre class="lisp">  (defun tree-leaves (tree)
+    (if (atom tree)
+        (stream-cons tree empty-stream)
+        (stream-append (tree-leaves (car tree))
+                       (tree-leaves (cdr tree)))))
+</pre>
+   <p>Although <code>tree-leaves</code> looks like an ordinary recursion, it will
+only do enough work to find the first leaf before returning.  The
+stream it returns can be accessed with <code>stream-car</code>, which will
+yield the (already computed) first leaf of the tree, or with
+<code>stream-cdr</code>, which will initiate computation of the next leaf.
+
+   <p>Such a computation would be cumbersome to write using <code>iterate</code>, or any
+of the other standard iteration constructs; in fact, it is not even
+technically speaking an iteration, if we confine that term to
+processes that take constant space and linear time.  Streams, then,
+are definitely more powerful than standard iteration machinery.
+
+   <p>Unfortunately, streams are very expensive, since they must somehow
+save the state of the computation.  Generators are typically cheaper,
+but are less powerful and still require at least a function call.  So
+these powerful tools should be used only when necessary, and that is
+not very often; most of the time, ordinary iteration suffices.
+
+   <p>There is one aspect of generators that <code>iterate</code> can capture, and that
+is the ability to produce elements on demand.  Say we wish to create
+an alist that pairs the non-null elements of a list with the positive
+integers.  We saw above that it is easy to iterate over a list and a
+series of numbers simultaneously, but here we would like to do
+something a little different: we want to iterate over the list of
+elements, but only draw a number when we need one (namely, when a list
+element is non-null).  The solution employs the <code>iterate</code> <code>generate</code>
+keyword in place of <code>for</code> and the special clause <code>next</code>:
+
+<pre class="lisp">  (iterate (for el in list)
+           (generate i from 1)
+           (if el
+               (collect (cons el (next i)))))
+</pre>
+   <p>Using <code>next</code> with any driver variable changes how that driver
+works.  Instead of supplying its values one at a time on each
+iteration, the driver computes a value only when a <code>next</code> clause
+is executed.  This ability to obtain values on demand greatly
+increases <code>iterate</code>'s power.  Here, <code>el</code> is set to the next element
+of the list on each iteration, as usual; but <code>i</code> is set only when
+<code>(next i)</code> is executed.
+
+<h4 class="subsection">A.3.5 Series</h4>
+
+<p>Richard C. Waters has developed a very elegant notation called Series
+which allows iteration to be expressed as sequence-mapping somewhat in
+the style of APL, but which compiles to efficient looping code
+[Series].
+
+   <p>My reasons for not using Series are, again, matters of taste.  Like
+many elegant notations, Series can be somewhat cryptic.  Understanding
+what a Series expression does can require some effort until one has
+mastered the idiom.  And if you wish to share your code with others,
+they will have to learn Series as well.  <code>iterate</code> suffers from this
+problem to some extent, but since the iteration metaphor it proposes
+is much more familiar to most programmers than that of Series, it is
+considerably easier to learn and read.
+
+<h4 class="subsection">A.3.6 <code>Prog</code> and <code>Go</code></h4>
+
+<p>Oh, don't be silly.
+
+<h4 class="subsection">A.3.7 <code>Loop</code></h4>
+
+<p><code>loop</code> is the iteration construct most similar to <code>iterate</code> in
+appearance.  <code>loop</code> is a macro written originally for MacLisp and
+in widespread use [Loop].  It has been adopted as part of Common Lisp. 
+<code>loop</code> provides high-level iteration with abstractions for
+collecting, summing, maximizing and so on.  Recall our first <code>iterate</code>
+example:
+
+<pre class="lisp">  (iterate (for el in num-list)
+           (when (&gt; el 3)
+             (collect el)))
+</pre>
+   <p>Expressed with <code>loop</code>, it would read
+
+<pre class="lisp">  (loop for el in list
+        when (&gt; el 3)
+          collect el)
+</pre>
+   <p>The similarity between the two macros should immediately be apparent. 
+Most of <code>iterate</code>'s clauses were borrowed from <code>loop</code>.  But
+compared to <code>iterate</code>, <code>loop</code> has a paucity of parens.  Though
+touted as more readable than heavily-parenthesized code, <code>loop</code>'s
+Pascalish syntax creates several problems.  First, many
+dyed-in-the-wool Lisp hackers simply find it ugly.  Second, it
+requires learning the syntax of a whole new sublanguage.  Third, the
+absence of parens makes it hard to parse, both by machine and, more
+importantly, by human.  Fourth, one often has to consult the manual to
+recall lesser-used aspects of the strange syntax.  Fifth, there is no
+good interface with the rest of Lisp, so <code>loop</code> clauses cannot
+appear inside Lisp forms and macros cannot expand to pieces of
+<code>loop</code>.  And Sixth, pretty-printers and indenters that don't know
+about <code>loop</code> will invariably display it wrongly.  This is
+particularly a problem with program-editor indenters.  A reasonably
+clever indenter, like that of Gnu Emacs, can indent nearly any normal
+Lisp form correctly, and can be easily customized for most new forms. 
+But it can't at present handle <code>loop</code>.  The syntax of <code>iterate</code> was
+designed to keep parens to a minimum, but conform close enough to Lisp
+so as not to confuse code-display tools.  Gnu Emacs indents <code>iterate</code>
+reasonably with no modifications.
+
+   <p>Indenting is a mere annoyance; <code>loop</code>'s lack of extensibility is
+a more serious problem.  The original <code>loop</code> was completely
+extensible, but the Symbolics version only provides for the definition
+of new iteration-driving clauses, and the Common Lisp specification
+does not have any extension mechanism.  But extensibility is a boon. 
+Consider first the problem of adding the elements of a list together,
+which can be accomplished with <code>iterate</code> by
+
+<pre class="lisp">  (iterate (for el in list)
+           (sum el))
+</pre>
+   <p>and in <code>loop</code> with
+
+<pre class="lisp">  (loop for el in list
+        sum el)
+</pre>
+   <p>But now, say that you wished to compute the sum of the square roots of
+the elements.  You could of course write, in either <code>loop</code> or
+<code>iterate</code>,
+
+<pre class="lisp">  (iterate (for el in list)
+           (sum (sqrt el)))
+</pre>
+   <p>But perhaps you find yourself writing such loops often enough to make
+it worthwhile to create a new abstraction.  There is nothing you can
+do in <code>loop</code>, but in <code>iterate</code> you could simply write a macro:
+
+<pre class="lisp">  (defmacro (sum-of-sqrts expr &amp;optional into-var)
+    `(sum (sqrt ,expr) into ,into-var))
+</pre>
+   <p><code>sum-of-sqrts</code> is a perfectly ordinary Lisp macro.  Since <code>iterate</code>
+expands all macros and processes the results, <code>(sum-of-sqrts el)</code>
+will behave exactly as if we'd written <code>(sum (sqrt el))</code>.
+
+   <p>There's also a way to define macros that use <code>iterate</code>'s clause syntax. 
+<!-- removed citation again -->
+
+<!-- Just to beat a dead horse, I'd like to point out that there's no -->
+<!-- way to define {\lisp for...maximizing} in \looP.\footnote{In fact, -->
+<!-- it was in part the frustration of knowing that \looP\ could -->
+<!-- generate code to maximize a value, but could not be easily altered -->
+<!-- to supply the element associated with that maximum, that prompted -->
+<!-- me to write \iter.} -->
+<h3 class="section">A.4 Implementation</h3>
+
+<p>A Common Lisp implementation of <code>iterate</code> has existed for well over a
+year.  It runs under Lucid for HP 300's, Sun 3's and SPARCstations,
+and on Symbolics Lisp machines. 
+<!-- See \iman\ for details. -->
+
+<h3 class="section">A.5 Conclusion</h3>
+
+<p>Iteration is a matter of taste.  I find <code>iterate</code> more palatable than
+other iteration constructs: it's more readable, more efficient than
+most, provides nice abstractions, and can be extended.
+
+   <p>If you're new to Lisp iteration, start with <code>iterate</code>&mdash;look before you
+<code>loop</code>.  If you're already using <code>loop</code> and like the power
+that it offers, but have had enough of its syntax and inflexibility,
+then my advice to you is, don't <code>loop</code>&mdash;<code>iterate</code>.
+
+<h3 class="section">A.6 Acknowledgments</h3>
+
+<p>Thanks to David Clemens for many helpful suggestions and for the
+egregious pun near the end.  Conversations with Richard Waters
+prompted me to add many improvements to <code>iterate</code>.  Alan Bawden, Sundar
+Narasimhan, and Jerry Roylance also provided useful comments.  David
+Clemens and Oren Etzioni shared with me the joys of beta-testing.
+
+<h3 class="section">A.7 Bibliography</h3>
+
+     <ul>
+<li>[SchemeBook] Abelson, Harold and Gerald Jay Sussman.  <em>Structure
+and Interpretation of Computer Programs.</em> Cambridge, MA: The MIT
+Press, 1985.
+
+     <li>[Loop] &ldquo;The loop Iteration Macro.&rdquo; In <em>Symbolics Common
+Lisp&mdash;Language Concepts</em>, manual 2A of the Symbolics documentation,
+pp. 541&ndash;567.
+
+     <li>[CLM] Steele, Guy L.  <em>Common Lisp: The Language</em>.  Bedford, MA:
+Digital Press, 1984.
+
+     <li>[Series] Waters, Richard C.  <em>Optimization of Series Expressions:
+Part I: User's Manual for the Series Macro Package</em>.  MIT AI Lab Memo
+No. 1082. 
+</ul>
+
+<!-- =================================================================== -->
+<div class="footnote">
+<hr>
+<h4>Footnotes</h4><p class="footnote"><small>[<a name="fn-1" href="#fnd-1">1</a>]</small> Hey,
+don't get mad&mdash;I'll be much more polite later, when the real paper
+starts.</p>
+
+   <p><hr></div>
+
+   </body></html>
+

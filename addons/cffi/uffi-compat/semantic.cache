@@ -1,0 +1,15 @@
+;; Object uffi-compat/
+;; SEMANTICDB Tags save file
+(semanticdb-project-database-file "uffi-compat/"
+  :tables (list 
+   (semanticdb-table "uffi.asd"
+    :major-mode 'lisp-mode
+    :tags '(("defsystem" code nil nil [35 82]))
+    :file "uffi.asd"
+    :pointmax 83
+    )
+   )
+  :file "semantic.cache"
+  :semantic-tag-version "2.0pre3"
+  :semanticdb-version "2.0pre3"
+  )
