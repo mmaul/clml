@@ -41,8 +41,11 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (pushnew :mkl *features*))
 
-;; #+(version>= 8 2)
-;; (setq excl:*fasl-default-type* "fasl82")
+#+(version= 8 2)
+(setq excl:*fasl-default-type* "fasl82")
+
+#+(and (not smp) (version= 9 0))
+(setq excl:*fasl-default-type* "fasl90")
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   #+lispworks
@@ -506,7 +509,9 @@
            "test-ts-ar"
            "test-ts-read-data"
            "test-ts-stat"
-           "test-ts-stsp"   
+           "test-ts-stsp"
+           "test-changefinder"
+           "test-ts-anomaly-detection"
            "test-classifier"
            "test-matrix"
            "test-text-utils"
@@ -514,8 +519,10 @@
            "test-wss3-svm"
            "test-svr"
            "test-one-class-svm"
+           "test-nbayes"
            "test-hdp-lda"
            "test-dpm"
+           "test-ts-burst-detection"
            ))
   
 (defsystem :machine-learning (:default-pathname ".")
@@ -565,17 +572,21 @@
            "ts-stat" 
            "ts-state-space-model"
            "ts-ar"
-           "exponential-smoothing"
+           "exponential-smoothing"           
+           "changefinder"
+           "ts-anomaly-detection"
            "face-recognition"
            "smo-svm"
            "wss3-svm"
            "svr"
            "one-class-svm"
+           "nbayes"
            :nonparametric
            "hdp-lda"
            "dpm"
-           :graph-mining
-	   :nearest-search
+           :graph-mining           
+           :nearest-search
+           "ts-burst-detection"
            :ml-test
            ))
 

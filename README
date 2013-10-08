@@ -35,14 +35,37 @@ on your Linux system is 2.X. Or check that libc6 package has been
 installed.
 
 
+# (let ((*read-default-float-format* 'double-float))
+#   (load "defsystem.cl")
+#   (load-system :machine-learning :compile t))
+# or (in AllegroCL)
+#   CL-USER(2): (setf *read-default-float-format* 'double-float)
+#   CL-USER(3): :ld defsystem
+#   CL-USER(4): (excl:load-system :machine-learning :compile t)
 * QUOTE Loading/Using the library
-(let ((*read-default-float-format* 'double-float))
-  (load "defsystem.cl")
-  (load-system :machine-learning :compile t))
-or (in AllegroCL)
-  CL-USER(2): (setf *read-default-float-format* 'double-float)
-  CL-USER(3): :ld defsystem
-  CL-USER(4): (excl:load-system :machine-learning :compile t)
+CL-USER(8): (load "defsystem.cl")
+#P"/home/kuroda/prj/statistics/machine-learning/defsystem.cl":
+Error: Please set *read-default-float-format* to 'double-float before loading/compiling the
+       system.
+  [condition type: SIMPLE-ERROR]
+
+Restart actions (select using :continue):
+ 0: Set double-float to *read-default-float-format*.
+ 1: retry the load of defsystem
+ 2: skip loading defsystem
+ 3: recompile /home/kuroda/prj/statistics/machine-learning/defsystem.cl
+ 4: Return to Top Level (an "abort" restart).
+ 5: Abort entirely from this (lisp) process.
+[1] CL-USER(9): :cont 0
+
+To build, execute this:
+(load-system :machine-learning :compile t :module-keys '(:external-format #+allegro :932 #-allegro :sjis))
+T
+CL-USER(10): (load-system :machine-learning :compile t :module-keys '(:external-format #+allegro :932 #-allegro :sjis))
+; Loading system: "MACHINE-LEARNING".
+......
+T
+
 * Machine-Learning Packages
 ** Read-Data
    機械学習対象データを読み込むための package
@@ -1807,6 +1830,68 @@ ONE-CLASS-SVM(19): (loop
  #(10.0 2.0 2.0 1.0 2.0 6.0 1.0 1.0 2.0 -1.0) 
  #(5.0 7.0 10.0 10.0 5.0 10.0 10.0 10.0 1.0 -1.0) 
  NIL
+** Naive-Bayes
+   多変数ベルヌーイナイーブベイズおよび多項ナイーブベイズの package
+*** mbnb-learn (training-vector &key (alpha 1.0d0)
+- 多変数ベルヌーイナイーブベイズモデルのパラメータを求める
+- return List:(p-wc classes):条件付き確率値からなる配列とクラスラベル
+- arguments
+ - training-vector:documentsを行、wordsを列とするBOW行列データ、クラスラベルは最終列にあるものとする
+ - alpha :スムージングパラメータ、デフォルト値は1.0(word出現頻度に仮想的に+1の下駄を履かせている)
+*** make-mbnb-learner (p-wc classes)
+- 多変数ベルヌーイナイーブベイズモデルの学習器(クロージャ)を作成する
+- return Closure
+- arguments
+ - p-wc:条件付き確率値の配列
+ - classes:学習用データにおけるクラスラベルのリスト  
+*** mnb-learn (training-vector &key (alpha 1.0d0)
+- 多項ナイーブベイズのパラメータを求める
+- return List:(q-wc classes):条件付き確率値からなる配列とクラスラベル
+- arguments
+ - training-vector:documentsを行、wordsを列とするBOW行列データ、クラスラベルは最終列にあるものとする
+ - alpha :スムージングパラメータ、デフォルト値は1.0(word出現頻度に仮想的に+1の下駄を履かせている)
+*** make-mnb-learner (q-wc classes):条件付き確率値からなる配列とクラスラベル
+- 多項ナイーブベイズの(クロージャ)を作成する
+- return Closure
+- arguments
+ - q-wc:条件付き確率値の配列
+ - classes:学習用データにおけるクラスラベルのリスト
+*** QUOTE sample usage
+NBAYES(15): (setf bow-train (dataset-points (read-data-from-file "~/old-tool/dump-train-csv/bow-train.csv"
+						     :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string))))
+ #(#(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...) ...)
+NBAYES(16): (setf bow-test (dataset-points (read-data-from-file "~/old-tool/dump-train-csv/bow-test.csv"
+						    :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string))))
+ #(#(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 3.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 0.0 0.0 0.0 6.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 2.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...) ...)
+NBAYES(17): (mbnb-learn bow-train)
+(#(#(0.02702702702702703 0.02702702702702703 0.40540540540540543 0.40540540540540543 0.02702702702702703 0.02702702702702703 0.08108108108108109 0.02702702702702703
+     0.02702702702702703 0.02702702702702703 ...)
+   #(0.0196078431372549 0.0196078431372549 0.0392156862745098 0.0196078431372549 0.0196078431372549 0.0196078431372549 0.2549019607843137 0.0392156862745098 0.0196078431372549
+     0.0196078431372549 ...))
+ ("cobol" "lisp"))
+NBAYES(18): (setf mbnb-learner (apply #'make-mbnb-learner *))
+ #<Closure (:INTERNAL MAKE-MBNB-LEARNER 0) @ #x1001356d8d2>
+NBAYES(19): (learner-validation mbnb-learner bow-test)
+((("cobol" . "lisp") . 1) (("lisp" . "lisp") . 60) (("cobol" . "cobol") . 9))
+98.57142857142858
 ** Self-Organizing-Map
    自己組織化マップの package
 *** do-som-by-filename (in-data-file s-topol s-neigh xdim ydim randomize length ialpha iradius num-labels directory &key debug)
@@ -2342,6 +2427,345 @@ xma-xmi 3.074987831736982 yma-ymi 2.129596273225805
  seasonal: MULTIPLICATIVE
  error: 1132.6785446257877 ( MSE )
 
+** ChangeFinder
+オンライン変化点検出エンジン ChangeFinder の package
+*** Class
+**** changefinder
+- accessors:
+  - score-type : 変化点スコア算出方法
+  - ts-wsize : 1次平滑化ウィンドウサイズ
+  - score-wsize : 2次平滑化ウィンドウサイズ
+  - discount : 忘却パラメータ
+*** init-changefinder ((ts time-series-dataset) &key (score-type :log) (ts-wsize 5) (score-wsize 5) (sdar-k 4) (discount 0.005d0)
+- return: <changefinder>
+- arguments:
+  - ts          : <time-series-dataset>
+  - score-type  : :log | :hellinger, スコア算出手法 :logなら対数損失、:hellingerならヘリンジャー距離
+  - ts-wsize    : <positive integer>, 1段階目の平滑化における窓幅
+  - score-wsize : <positive integer>, 2段階目の平滑化における窓幅
+  - sdar-k      : <positive integer>, ARモデルの次数
+  - discount    : 0 < <double-float> < 1, 忘却パラメータ
+*** update-changefinder ((cf changefinder) new-dvec)
+- return: (values 変化点スコア 未平滑化変化点スコア)
+- arguments:
+  - cf       : <changefinder>, init-changefinder の返り値
+  - new-dvec : 時系列データ点ベクトル
+*** QUOTE sample usage
+ CHANGEFINDER(189): (setf sample-ts
+                      (time-series-data 
+                       (read-data-from-file
+                        "sample/traffic-balance.csv" 
+                        :type :csv
+                        :csv-type-spec (cons 'string
+                                             (make-list 6 :initial-element 'double-float)))
+                       :except '(0) :time-label 0))
+ #<TIME-SERIES-DATASET >
+ DIMENSIONS: IF1 | IF2 | IF3 | IF4 | IF5 | IF6
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMBER OF DIMENSIONS: 6
+ FREQUENCY:  1
+ START:      (1 1)
+ END:        (1015 1)
+ POINTS:     1015
+ TIME-LABEL: TIME
+ CHANGEFINDER(191): (setf changefinder (init-changefinder (sub-ts sample-ts :start 0 :end 24)))
+ #<CHANGEFINDER @ #x1003506cb2>
+ CHANGEFINDER(192): (loop for p across (ts-points (sub-ts sample-ts :start 24))
+                        as new-dvec = (ts-p-pos p)
+                        collect (update-changefinder changefinder new-dvec))
+ (-1.3799530152768038 -1.3800702390966202 -1.3799904291394032 -1.380927096163571 -1.3812136176981418
+  -1.3811039423658487 -1.381135210396757 -1.3812016491428545 -1.3815388293872684 -1.381304668982984
+  ...)
+
+*** Note
+**** comments
+- スコア算出の際、逆行列計算の安定性のために共分散行列の対角成分に 0.01 という値を加えている。
+  そのためスコアは理論値とは多少異なる。この値は*stabilizer*というスペシャル変数で変更できる。
+**** reference
+- J. Takeuchi, K. Yamanishi "A Unifying framework for detecting outliers and change points from time series"
+- K. Yamanishi "データマイニングによる異常検知" p.45-58
+
+** Time-Series-Anomaly-detection
+時系列データにおける異常検知アルゴリズムの package
+*** Class
+**** snn : Stochastic Nearest Neighbors を表すクラス
+- accessors:
+  - names   : モデル構築時の対象パラメータ
+  - snn-k   : 近傍数 k の値
+  - sigma-i : ラグランジュ乗数 * const. の値
+  - graphs  : 局所グラフ情報のリスト
+- reference:
+  - T.Ide, S.Papadimitriou, M.Vlachos "Computing Correlation Anomaly Scores using Stochastic Nearest Neighbors"
+*** make-db-detector ((ts time-series-dataset) &key beta (typical :svd) (pc 0.005d0) (normalize t))
+- return: <Closure>
+- arguments:
+  - ts          : <time-series-dataset>, 初期化のための時系列データ
+  - beta        : 0 < <double-float> < 1, 忘却パラメータ, nilなら 1/(tsのデータ点数)
+  - typical     : :svd | :mean, 典型パターン抽出手法, :svdなら特異値分解, :meanなら平均
+  - pc          : 0 < <double-float> < 1, しきい値算出のためのガンマ分布上側累積確率
+  - normalize   : nil | t, データベクトルを標準化するか(t)しないか(nil)
+- arguments for <Closure>:
+  - new-dvec : 時系列データ点ベクトル
+- return of <Closure>: (values 異常スコア しきい値 典型ベクトル)
+- descriptions:
+  - ベクトルの方向に基づいた(Direction-Based)異常検知アルゴリズム
+  - reference:
+    T.Ide and H.Kashima "Eigenspace-based Anomaly Detection in Computer Systems" section 5
+  - ts のデータ点数が移動窓の窓幅とみなされる。
+*** make-periodic-detector ((ts time-series-dataset) &key (r 0.5d0))
+- return: <Closure>
+- arguments:
+  - ts : <time-series-dataset>, 初期化のための時系列データ
+  - r  : 0 < <double-float> < 1, 忘却パラメータ 
+- arguments for <Closure>:
+  - new-dvec : 時系列データ点ベクトル
+- return of <Closure>: plist (keyとして:scoreが異常スコア、 :local-scoresが局所異常スコアに対応)
+- descriptions:
+  - 周期性を考慮した異常検知アルゴリズム
+  - 1周期内の各点に多次元正規分布を定義し、マハラノビス距離を異常スコア、条件付きガウス分布の標準得点を局所異常スコアとする。
+  - 多次元正規分布の更新は、rの値を忘却パラメータとして行う。
+  - 1周期におけるデータ点数は入力値 ts の ts-freq 値が採用される。
+*** QUOTE sample usage for make-db-detector and make-periodic-detector
+ TS-ANOMALY-DETECTION(4): (setf sample-ts
+                            (time-series-data
+                             (read-data-from-file
+                              "sample/traffic-balance.csv" 
+                              :type :csv
+                              :csv-type-spec (cons 'string
+                                                   (make-list 6 :initial-element 'double-float)))
+                             :frequency 12 :except '(0) :time-label 0))
+ ; Autoloading for (SETF EOL-CONVENTION):
+ ; Fast loading from bundle code/efmacs.fasl.
+ ; Fast loading from bundle code/ef-e-anynl.fasl.
+ ;   Fast loading from bundle code/ef-e-crlf.fasl.
+ ;   Fast loading from bundle code/ef-e-cr.fasl.
+ ; Fast loading from bundle code/ef-e-crcrlf.fasl.
+ #<TIME-SERIES-DATASET >
+ DIMENSIONS: IF1 | IF2 | IF3 | IF4 | IF5 | IF6
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMBER OF DIMENSIONS: 6
+ FREQUENCY:  12
+ START:      (1 1)
+ END:        (85 7)
+ POINTS:     1015
+ TIME-LABEL: TIME
+ TS-ANOMALY-DETECTION(5): (loop with detector = (make-db-detector 
+                                                 (sub-ts sample-ts :start '(1 1) :end '(2 12)))
+                              for p across (ts-points (sub-ts sample-ts :start '(3 1)))
+                              collect (funcall detector (ts-p-pos p)))
+ (7.689004308083502e-4 8.690742068634405e-4 0.0014640360422599752 9.645504419952822e-4 0.002189430044882701 0.0022804402419548397 8.653971028227403e-4 0.0021245846566718685 0.0021297890535286745
+  0.003035579690776613 ...)
+ TS-ANOMALY-DETECTION(6): (loop with detector = (make-periodic-detector
+                                                 (sub-ts sample-ts :start '(1 1) :end '(2 12)))
+                              for p across (ts-points (sub-ts sample-ts :start '(3 1)))
+                              collect (funcall detector (ts-p-pos p)))
+ ((:SCORE 0.15980001156818346 :LOCAL-SCORES (-0.011247495797210605 0.04067641708837213 0.07657475988236122 0.026173388386296143 -0.001005722797717759 -0.13117336322290166))
+  (:SCORE 0.16606559269099325 :LOCAL-SCORES (-0.04404576382434579 0.08836079938698248 0.06427181525186569 0.008060984870295258 6.037724071195098e-5 -0.11672432427082227))
+  (:SCORE 0.0835963350476519 :LOCAL-SCORES (0.02860344056963936 0.02049834345000817 0.018558627759386243 0.005805395166900154 -1.7563302955435247e-4 -0.07329208280202894))
+  (:SCORE 0.10895276517361178 :LOCAL-SCORES (0.06171796944486013 0.02627577908981959 -0.0013938026860552477 7.108933807211727e-4 -0.0015292225676566903 -0.08581498358943485))
+  (:SCORE 0.14372822478142372 :LOCAL-SCORES (0.019119719424318164 0.06530386435337952 -0.03223066630047898 0.05779465755012304 -0.0021226015789952857 -0.10789806554381363))
+  (:SCORE 0.1214316386275602 :LOCAL-SCORES (0.08180945936566704 -0.01666669357385849 0.01789677418744477 -0.08623381474472612 -5.783555512765765e-4 0.003743461124108086))
+  (:SCORE 0.16328621183435152 :LOCAL-SCORES (0.09252923344792947 0.04206473653695766 0.03524081165133149 -0.10442527700870255 -6.866050459105892e-4 -0.06471611713622019))
+  (:SCORE 0.17165824330218574 :LOCAL-SCORES (0.1124055553487212 -0.04483642919806279 0.06943579226133692 -0.08609866163195316 -1.3815655640593742e-4 -0.05081348776600684))
+  (:SCORE 0.14705276128118872 :LOCAL-SCORES (0.03176665855145954 -0.05169044126068538 0.11199895677113193 -0.020881754613730465 -0.0013360512015534781 -0.06969391195126472))
+  (:SCORE 0.1753941034019109 :LOCAL-SCORES (0.0926869320817864 -0.04500698002481467 0.08111355541737571 -0.010867820410934509 -0.0027675310185543865 -0.11509576770374046)) ...)
+*** make-snn ((ts time-series-dataset) k &key (sigma-i 1d0))
+- return: <snn>
+- arguments:
+  - ts      : <time-series-dataset>
+  - k       : 近傍数
+  - sigma-i : ラグランジュ乗数*const. の値
+*** e-scores ((target-snn snn) (reference-snn snn))
+- return: alist (key:パラメータ名, value:E-score)
+- arguments:
+  - target-snn    : <snn>, 異常判定対象SNN
+  - reference-snn : <snn>, 基準となるSNN
+- descriptions:
+  - reference:
+    T.Ide, S.Papadimitriou, M.Vlachos "Computing Correlation Anomaly Scores using Stochastic Nearest Neighbors"
+  - 相関に基づいたグラフ構造による異常検知アルゴリズム
+*** make-eec-detector ((ts time-series-dataset) window-size &key (xi 0.8d0) (global-m 3))
+- return: <Closure>
+- arguments:
+  - ts : <time-series-dataset>, 初期化のための時系列データ
+  - window-size : positive integer, 相関強度算出のための移動窓幅
+  - xi : 0 < <double-float> < 1, 相関強度しきい値
+  - global-m : positive integer, 大域的特徴量にいくつの固有値を用いるか
+- arguments for <Closure>:
+  - new-dvec : 時系列データ点ベクトル
+- return of <Closure>: plist (keyとして:scoreが異常スコア、 :local-scoresが局所異常スコアに対応)
+- descriptions:
+  - reference:
+    S.Hirose, et.al "Network Anomaly Detection based on Eigen Equation Compression"
+  - 相関に基づいた異常検知アルゴリズム
+*** QUOTE sample usage for SNN and EEC
+ TS-ANOMALY-DETECTION(8): (setf exchange 
+                            (time-series-data
+                             (read-data-from-file
+                              "sample/exchange.csv" 
+                              :type :csv
+                              :csv-type-spec (cons 'string
+                                                   (make-list 10 :initial-element 'double-float)))
+                             :except '(0) :time-label 0))
+ #<TIME-SERIES-DATASET >
+ DIMENSIONS: CAD/USD | EUR/USD | JPY/USD | GBP/USD | CHF/USD | AUD/USD | HKD/USD | NZD/USD | KRW/USD | MXN/USD
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMBER OF DIMENSIONS: 10
+ FREQUENCY:  1
+ START:      (1 1)
+ END:        (753 1)
+ POINTS:     753
+ TIME-LABEL: YYYY/MM/DD
+ TS-ANOMALY-DETECTION(9): (let ((target-snn (make-snn (sub-ts exchange :start 1 :end 150) 3))
+                                (reference-snn (make-snn (sub-ts exchange :start 600 :end 700) 3)))
+                            (e-scores target-snn reference-snn))
+ (("AUD/USD" . 0.47406298323897705) ("CAD/USD" . 0.5240011355714634) ("CHF/USD" . 0.5325785438502517) ("EUR/USD" . 0.731769158687747) ("GBP/USD" . 0.596827444239165) ("HKD/USD" . 0.5766733684269696)
+  ("JPY/USD" . 0.5117506042665696) ("KRW/USD" . 0.5198055610159624) ("MXN/USD" . 0.7027828954312578) ("NZD/USD" . 0.2842836687583187))
+ TS-ANOMALY-DETECTION(10): (loop with detector = (make-eec-detector
+                                                  (sub-ts exchange :start 1 :end 60) 20)
+                               for p across (ts-points (sub-ts exchange :start 60))
+                               collect (funcall detector (ts-p-pos p)))
+ ((:SCORE 2.700571112024573 :LOCAL-SCORES
+   (-3.7189814823543945 1.0326461685226247 -0.09199334202340251 -1.5304334860393167 1.6336817412409927 0.09973192007442783 -1.7705007982055647 -1.3659133055436354 1.6229166989275772 -2.456418564898763))
+  (:SCORE 2.2333558257821577 :LOCAL-SCORES
+   (-3.905638387254389 1.0111353552477693 -0.16180107817711298 -0.06211424245500806 2.444035892878855 -0.7941221366494797 -2.0601881585490758 -0.6032554617242315 1.3644194991066583 -2.94095956222471))
+  (:SCORE 1.9868164604264957 :LOCAL-SCORES
+   (-4.071453905957172 0.09987314488820478 -0.5124850991763434 0.3572466274370432 1.985594397643084 -1.2627672914256596 -2.0286025799206437 -2.0180011854462823 1.0031799987968517 -3.349034884667727))
+  (:SCORE 1.99119158115065 :LOCAL-SCORES
+   (-4.21295552995317 3.6696601922048 0.13498367839300002 2.202025796055173 1.5652235278554427 -1.5185993444794728 -1.9951097435792884 -2.141676229907566 0.536949673309007 0.13587904258754527))
+  (:SCORE 1.655330278980456 :LOCAL-SCORES
+   (-3.940751233076124 1.4944533102503788 -1.134801399167889 1.0953740695897256 0.8538413750781987 -2.6483828385806047 -1.9833372992457443 -2.1457229135357965 -0.25535073809135234 -1.1228770376956778))
+  (:SCORE 1.6026376553309072 :LOCAL-SCORES
+   (-0.034554670356311185 1.2292838508330988 1.132721967732395 -0.7371812412223815 -1.2217525313170159 -3.7170161170631384 -0.8394971355287675 -2.309275510777308 -0.6893891878271913 -1.2247368414257422))
+  (:SCORE 1.4921358653856052 :LOCAL-SCORES
+   (-1.1119582168928317 0.13109381389384833 0.03822852402739136 -1.2567269843174933 -1.0016538526115792 -3.7378375887102315 0.0018749768626725657 -2.1904933121802066 -1.0031674527371155
+    -1.8580823578222343))
+  (:SCORE 1.834987095608023 :LOCAL-SCORES
+   (-2.411063158982719 -0.9462790230517837 -0.5412882072844031 -1.8686452258034443 -2.4080116434386505 -4.2224169886297185 -0.19950597770025008 -2.1142292908200604 0.49105626655832846 -1.4030218415732563))
+  (:SCORE 1.0321828011949825 :LOCAL-SCORES
+   (-3.2832950290358296 -1.7201312662081096 -0.806431510082311 -0.49749735373008097 -2.3879869063190085 -4.243481779019334 -1.1894302963419576 -2.5038090216601767 -0.1556970436113533 -1.4378596777323336))
+  (:SCORE 0.5533902042593536 :LOCAL-SCORES
+   (-3.7083233694175766 -1.6133834329235863 -0.01938368944029429 -0.6476096999243521 0.03650134747649691 -3.3240586306405393 -1.8620675130088626 -1.7836998046168742 -0.875130410874981 -1.9750969929005304))
+  ...)
+** Time-Series-Burst-Detection
+時系列データにおけるバースト検知アルゴリズムの package
+
+*** continuous-kleinberg(ts &key (s 2) (gamma 1) (column-number nil) (time-reader 0) (if-overlap :error))
+
+- 時系列データに対して Kleinberg の連続型バースト検知を行ない、バースト index の列を求める。
+
+- return : burst-indices, バースト index と時間のリストのリスト。
+
+- arguments :
+ - ts : <time-series-dataset>
+   - ts の時系列データ点のラベル(ts-p-label)を時間として用いてバースト検知を行なう。time-reader パラメタが指定されている場合には、ラベルをその関数で変換した値を時間として使用する。指定されていない場合には、READ-FROM-STRING 関数を使用して変換する。変換後のデータは integer もしくは double 型でなければならない。
+   - 座標(ts-p-pos)は、column-number パラメタが指定されたときのみ、指定された位置の値を参照する。その値が0より大きい時系列データ点のラベルを時間として用いてバースト検知を行なう。
+ - s : scaling パラメタ (s > 1)
+ - gamma : gamma 値 (gamma > 0)
+ - column-number : nil | 0 以上の整数。default は nil。座標点(ts-p-pos)において、column-number で指定された位置の値が0より大きい時系列データ点のみを用いて、バースト検知を行なう。
+ - time-reader : 時間として用いるラベル(ts-p-label)を integer もしくは double 型に変換する関数を指定する。関数の引数にはラベルを渡し、その戻り値を時間として用いてバースト検知を行なう。
+ - if-overlap : :error | :delete, ts で時間が重複している場合の動作を指定する。:errorの場合はエラー、:delete の場合はそのデータを削除してバースト検知を行なう。
+
+- reference :
+ - [[http://www.cs.cornell.edu/home/kleinber/bhs.pdf][『Bursty and Hierarchical Structure in Streams』(Jon Kleinberg著)]]
+
+
+*** print-burst-indices (burst-indices &key (stream t) (type :graph))
+
+- バースト index の列を指定されたタイプで表示する。
+
+- return : printした list object。:graph の場合は nil。
+
+- arguments :
+ - burst-indices : continuous-kleinberg の戻り値
+ - stream : 結果の出力先
+ - type : :graph | :time-sequence | :burst-index-sequence, 表示タイプ。defaultは :graph。:graph=>グラフ表示、:time-sequence=>時系列順のバーストindex表示、:burst-index-sequence=>バーストindexごとの時間表示。
+
+
+*** QUOTE sample usage
+TS-BURST-DETECTION(12): (setf sample-ts
+                          (time-series-data
+                           (read-data-from-file "sample/burst-data.sexp")
+                           :time-label 0))
+#<TIME-SERIES-DATASET >
+DIMENSIONS: time
+TYPES:      NUMERIC
+NUMBER OF DIMENSIONS: 1
+FREQUENCY:  1
+START:      (1 1)
+END:        (77 1)
+POINTS:     77
+TIME-LABEL: time
+TS-BURST-DETECTION(13): (setf *burst-indices*
+                          (continuous-kleinberg sample-ts :if-overlap :delete))
+((0 0.0) (0 100.0) (0 200.0) (0 300.0) (0 400.0) (0 410.0) (1 415.0)
+ (1 420.0) (1 425.0) (1 430.0) ...)
+TS-BURST-DETECTION(14): (print-burst-indices *burst-indices* :type :burst-index-sequence :stream nil)
+((:INDEX 0 :START 0.0 :END 1000.0) (:INDEX 1 :START 410.0 :END 600.0)
+ (:INDEX 2 :START 450.0 :END 570.0) (:INDEX 3 :START 565.0 :END 570.0)
+ (:INDEX 1 :START 710.0 :END 780.0))
+TS-BURST-DETECTION(15): (print-burst-indices *burst-indices* :type :time-sequence :stream nil)
+((0.0 0) (410.0 1) (450.0 2) (565.0 3) (570.0 1) (600.0 0) (710.0 1)
+ (780.0 0) (1000.0 0))
+TS-BURST-DETECTION(16): (print-burst-indices *burst-indices*)
+   0.0 |
+ 410.0 |+
+ 450.0 |++
+ 565.0 |+++
+ 570.0 |+
+ 600.0 |
+ 710.0 |+
+ 780.0 |
+1000.0 |
+NIL
+TS-BURST-DETECTION(17): (setf ts (time-series-data
+                                  (read-data-from-file
+                                   "sample/burst-nagashima-matsui.sexp")
+                                  :time-label 0
+                                  :except '(0)))
+#<TIME-SERIES-DATASET >
+DIMENSIONS: 長嶋 | 松井 | 長嶋&松井
+TYPES:      NUMERIC | NUMERIC | NUMERIC
+NUMBER OF DIMENSIONS: 3
+FREQUENCY:  1
+START:      (1 1)
+END:        (976 1)
+POINTS:     976
+TIME-LABEL: time
+TS-BURST-DETECTION(18): (setf bi (continuous-kleinberg
+                                   ts
+                                   :time-reader #'date-time-to-ut
+                                   :if-overlap :delete :column-number 0))
+((0 "2012-11-13T20:09:25+09:00") (0 "2012-11-22T21:09:32+09:00")
+ (0 "2012-11-22T21:22:11+09:00") (0 "2012-12-07T12:32:43+09:00")
+ (0 "2012-12-10T21:40:09+09:00") (0 "2012-12-16T09:11:00+09:00")
+ (0 "2012-12-28T07:31:06+09:00") (2 "2012-12-28T07:31:07+09:00")
+ (2 "2012-12-28T08:45:23+09:00") (2 "2012-12-28T11:55:39+09:00") ...)
+TS-BURST-DETECTION(19): (print-burst-indices bi)
+2012-11-13T20:09:25+09:00 |
+2012-12-28T07:31:06+09:00 |++
+2012-12-28T22:15:02+09:00 |
+2013-04-01T15:11:01+09:00 |+++++++
+2013-04-01T22:00:00+09:00 |++++
+2013-04-02T07:42:01+09:00 |+++
+2013-04-03T09:10:27+09:00 |++
+2013-04-04T16:56:16+09:00 |
+2013-04-16T10:12:03+09:00 |++
+2013-04-16T18:55:03+09:00 |
+2013-05-02T13:39:07+09:00 |+
+2013-05-05T05:18:03+09:00 |+++
+2013-05-05T12:55:24+09:00 |+++++
+2013-05-05T13:48:03+09:00 |++++++++
+2013-05-05T14:01:07+09:00 |+++++++
+2013-05-05T14:11:01+09:00 |++++++
+2013-05-05T14:55:02+09:00 |+++++
+2013-05-05T22:41:08+09:00 |++++
+2013-05-06T00:21:07+09:00 |+++
+2013-05-09T00:01:50+09:00 |++
+2013-05-09T18:05:02+09:00 |
+2013-05-14T04:55:05+09:00 |
+NIL
+TS-BURST-DETECTION(20):
 ** Text-Utilities
    テキストユーティリティ関数の package
 *** calculate-string-similarity (str1 str2 &key type)
@@ -3043,46 +3467,23 @@ STAT(12): (set-difference *sample* *)
 
 * Licensing
 
-The MSI Software License Agreement governs the use of CL
-Machine-Learning and is available for review by clicking
-[[http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/LICENSE.html][here]].
+CLML is licensed under the terms of the Lisp Lesser GNU Public
+License, known as the LLGPL and distributed with CLML as the
+file "LICENSE". The LLGPL consists of a preamble and the LGPL, which
+is distributed with CLML as the file "LGPL". Where these
+conflict, the preamble takes precedence.
 
+The LGPL is also available online at:  http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
 
-** Commercial Licenses
-
-For pricing, contact mailto:clml-info@msi.co.jp.
-
-- CL Machine-Learning Standard \\
-  Including all machine learning packages.
-  One year Technical Support and version ups are included.
-
-- CL Machine-Learning with Intel MKL \\
-  Including all machine learning packages and intel MKL based matrix libraries.
-  One year Technical Support and version ups are included.
-
-- CL Machine-Learning with fork-future \\
-  Including all machine learning packages and fork-future.
-  One year Technical Support and version ups are included.
-
-- CL Machine-Learning with Source Codes \\
-  Including all machine learning packages and source codes.
-  One year Technical Support and version ups are included.
-
-
-** Free License
-
-- CL Machine-Learning Free Edition \\
-  You can download and use compiled fasl images freely for any purpose.
-  See Download section of this page.  Source codes or technical supports
-  are not included in Free Edition.
+The LLGPL is also available online at:  http://opensource.franz.com/preamble.html
 
 * Supported CL implementations
 We're supporting only ANSI Common Lisp.
 If you need support for CL dialect such as Allegro's mlisp,
 contact mailto:clml-info@msi.co.jp. 
 
-- Allegro CL 8.1 Enterprise 32 Edition (ANSI mode, any platforms)
-- Allegro CL 8.1 Enterprise 64 Edition (ANSI mode, any platforms)
+- Allegro CL 9.0 (non-SMP) Enterprise 32 Edition (ANSI mode, any platforms)
+- Allegro CL 9.0 (non-SMP) Enterprise 64 Edition (ANSI mode, any platforms)
 - lispworks-6-0-0-amd64-linux
 - lispworks-6-0-0-x86-linux
 - sbcl-1.0.28-x86-64-linux
@@ -3113,6 +3514,7 @@ contact mailto:clml-info@msi.co.jp.
 - http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-articles-sample.tgz
 ** test scripts
 - http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-test.tgz
+
 
 
 

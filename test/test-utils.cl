@@ -24,9 +24,9 @@
              test-sample-pca test-random-forest
              test-sample-read-data test-sample-som
              test-sample-spectral-clustering test-sample-stat
-             test-sample-svm wss3.kernels wss3.svm test-svr test-one-class-svm test-sample-ts-ar
-             test-sample-ts-read-data test-sample-ts-stat
-             test-sample-ts-stsp 
+             test-sample-svm wss3.kernels wss3.svm test-svr test-one-class-svm
+             test-sample-ts-ar test-sample-ts-read-data test-sample-ts-stat
+             test-sample-ts-stsp test-changefinder test-ts-anomaly-detection
              test-sample-hdp-lda
              test-sample-dpm
              test-sample-text-utils))

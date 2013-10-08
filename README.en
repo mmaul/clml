@@ -1888,6 +1888,64 @@ ONE-CLASS-SVM(19): (loop
  #(10.0 2.0 2.0 1.0 2.0 6.0 1.0 1.0 2.0 -1.0) 
  #(5.0 7.0 10.0 10.0 5.0 10.0 10.0 10.0 1.0 -1.0) 
  NIL
+** Naive-Bayes
+   Naive-Bayes package (Multivariate Bernoulli and Multinomial Naive Bayes) 
+*** mbnb-learn (training-vector &key (alpha 1.0d0)
+- return List:(p-wc classes):array of conditional probabilities and class labels
+- arguments
+ - training-vector:bag of words matrix (rows = documents, columns = words) whose class label locates the final column
+ - alpha :smoothing parameter, its default value is 1.0
+*** make-mbnb-learner (p-wc classes)
+- return Closure (learner)
+- arguments
+ - p-wc:array of conditional probabilities
+ - classes:class labels
+*** mnb-learn (training-vector &key (alpha 1.0d0)
+- return List:(q-wc classes):array of conditional probabilities and class labels
+- arguments
+ - training-vector::bag of words matrix (rows = documents, columns = words) whose class label locates the final column
+ - alpha:smoothing parameter, its default value is 1.0
+*** make-mnb-learner (q-wc classes):array of conditional probabilities and class labels
+- return Closure (learner)
+- arguments
+ - q-wc:array of conditional probabilities
+ - classes:class labels
+*** QUOTE sample usage
+NBAYES(15): (setf bow-train (dataset-points (read-data-from-file "~/old-tool/dump-train-csv/bow-train.csv"
+						     :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string))))
+ #(#(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 1.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...) ...)
+NBAYES(16): (setf bow-test (dataset-points (read-data-from-file "~/old-tool/dump-train-csv/bow-test.csv"
+						    :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string))))
+ #(#(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 3.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 1.0 0.0 0.0 0.0 6.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 2.0 0.0 0.0 0.0 ...)
+  #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...) ...)
+NBAYES(17): (mbnb-learn bow-train)
+(#(#(0.02702702702702703 0.02702702702702703 0.40540540540540543 0.40540540540540543 0.02702702702702703 0.02702702702702703 0.08108108108108109 0.02702702702702703
+     0.02702702702702703 0.02702702702702703 ...)
+   #(0.0196078431372549 0.0196078431372549 0.0392156862745098 0.0196078431372549 0.0196078431372549 0.0196078431372549 0.2549019607843137 0.0392156862745098 0.0196078431372549
+     0.0196078431372549 ...))
+ ("cobol" "lisp"))
+NBAYES(18): (setf mbnb-learner (apply #'make-mbnb-learner *))
+ #<Closure (:INTERNAL MAKE-MBNB-LEARNER 0) @ #x1001356d8d2>
+NBAYES(19): (learner-validation mbnb-learner bow-test)
+((("cobol" . "lisp") . 1) (("lisp" . "lisp") . 60) (("cobol" . "cobol") . 9))
+98.57142857142858
 ** Self-Organizing-Map
    package for self-organizing map
 *** do-som-by-filename (in-data-file s-topol s-neigh xdim ydim randomize length ialpha iradius num-labels directory &key debug)
@@ -2418,6 +2476,304 @@ Package for exponential-smoothing
  alpha: 0.1, beta: 0.2, gamma: 0.7999999999999999
  seasonal: MULTIPLICATIVE
  error: 1132.6785446257877 ( MSE )
+
+** ChangeFinder
+Package for "ChangeFinder"
+*** Class
+**** changefinder
+- accessors:
+  - score-type : calculation method for change point score
+  - ts-wsize : window size for 1st smoothing
+  - score-wsize : window size for 2nd smoothing
+  - discount : discounting parameter
+*** init-changefinder ((ts time-series-dataset) &key (score-type :log) (ts-wsize 5) (score-wsize 5) (sdar-k 4) (discount 0.005d0)
+- return: <changefinder>
+- arguments:
+  - ts          : <time-series-dataset>
+  - score-type  : :log | :hellinger, :log for logarithmic loss, :hellinger for hellinger distance
+  - ts-wsize    : <positive integer>, window size for 1st smoothing
+  - score-wsize : <positive integer>, window size for 2nd smoothing
+  - sdar-k      : <positive integer>, degree for AR
+  - discount    : 0 < <double-float> < 1, discounting parameter
+*** update-changefinder ((cf changefinder) new-dvec)
+- return: (values score score-before-smoothing)
+- arguments:
+  - cf       : <changefinder>, return value of #'init-changefinder
+  - new-dvec : vector representing time series data point
+*** QUOTE sample usage
+ CHANGEFINDER(189): (setf sample-ts
+                      (time-series-data 
+                       (read-data-from-file
+                        "sample/traffic-balance.csv" 
+                        :type :csv
+                        :csv-type-spec (cons 'string
+                                             (make-list 6 :initial-element 'double-float)))
+                       :except '(0) :time-label 0))
+ #<TIME-SERIES-DATASET >
+ DIMENSIONS: IF1 | IF2 | IF3 | IF4 | IF5 | IF6
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMBER OF DIMENSIONS: 6
+ FREQUENCY:  1
+ START:      (1 1)
+ END:        (1015 1)
+ POINTS:     1015
+ TIME-LABEL: TIME
+ CHANGEFINDER(191): (setf changefinder (init-changefinder (sub-ts sample-ts :start 0 :end 24)))
+ #<CHANGEFINDER @ #x1003506cb2>
+ CHANGEFINDER(192): (loop for p across (ts-points (sub-ts sample-ts :start 24))
+                        as new-dvec = (ts-p-pos p)
+                        collect (update-changefinder changefinder new-dvec))
+ (-1.3799530152768038 -1.3800702390966202 -1.3799904291394032 -1.380927096163571 -1.3812136176981418
+  -1.3811039423658487 -1.381135210396757 -1.3812016491428545 -1.3815388293872684 -1.381304668982984
+  ...)
+
+*** Note
+**** comments
+- A value of 0.01 has been added to the diagonal elements of the covariance matrix
+  for the stability of the inverse matrix calculation.
+  User can edit this value by the special variable named *stabilizer*.
+**** reference
+- J. Takeuchi, K. Yamanishi "A Unifying framework for detecting outliers and change points from time series"
+- K. Yamanishi "データマイニングによる異常検知" p.45-58
+** Time-Series-Anomaly-detection
+Package for time series anomaly detection tools
+*** Class
+**** snn : Class for Stochastic Nearest Neighbors
+- accessors:
+  - names   : names of parameter
+  - snn-k   : number of neighbors
+  - sigma-i : Lagrange-multiplier * const.
+  - graphs  : list of local graphs
+- reference:
+  - T.Ide, S.Papadimitriou, M.Vlachos "Computing Correlation Anomaly Scores using Stochastic Nearest Neighbors"
+*** make-db-detector ((ts time-series-dataset) &key beta (typical :svd) (pc 0.005d0) (normalize t))
+- return: <Closure>
+- arguments:
+  - ts          : <time-series-dataset>, time series data for initialization
+  - beta        : 0 < <double-float> < 1, discounting parameter
+  - typical     : :svd | :mean, method for typical pattern, :svd for singular valur decomposition, :mean for average
+  - pc          : 0 < <double-float> < 1, upper cumulative probability for threshold calculation
+  - normalize   : nil | t, normalize vector (t) or not (nil)
+- arguments for <Closure>:
+  - new-dvec : vector representing time series data point
+- return of <Closure>: (values score threshold typical-pattern-vector)
+- descriptions:
+  - Direction-based anomaly detection
+  - reference:
+    T.Ide and H.Kashima "Eigenspace-based Anomaly Detection in Computer Systems" section 5
+  - The number of points in ts is window size.
+*** make-periodic-detector ((ts time-series-dataset) &key (r 0.5d0))
+- return: <Closure>
+- arguments:
+  - ts : <time-series-dataset>, time series data for initialization
+  - r  : 0 < <double-float> < 1, discounting parameter
+- arguments for <Closure>:
+  - new-dvec : vector representing time series data point
+- return of <Closure>: plist (:score for anomaly score, :local-scores for local anomaly scores)
+- descriptions:
+  - Anomaly detection in consideration of the periodicity
+  - Define the multidimensional normal distribution at each point within a cycle, to a local anomaly score standard score abnormality score, conditional Gaussian Mahalanobis distance.
+  - The value of r is used for updating of multidimensional normal distribution.
+  - The value of ts-freq for ts is regarded as the number of points in a cycle.
+*** QUOTE sample usage for make-db-detector and make-periodic-detector
+ TS-ANOMALY-DETECTION(4): (setf sample-ts
+                            (time-series-data
+                             (read-data-from-file
+                              "sample/traffic-balance.csv" 
+                              :type :csv
+                              :csv-type-spec (cons 'string
+                                                   (make-list 6 :initial-element 'double-float)))
+                             :frequency 12 :except '(0) :time-label 0))
+ ; Autoloading for (SETF EOL-CONVENTION):
+ ; Fast loading from bundle code/efmacs.fasl.
+ ; Fast loading from bundle code/ef-e-anynl.fasl.
+ ;   Fast loading from bundle code/ef-e-crlf.fasl.
+ ;   Fast loading from bundle code/ef-e-cr.fasl.
+ ; Fast loading from bundle code/ef-e-crcrlf.fasl.
+ #<TIME-SERIES-DATASET >
+ DIMENSIONS: IF1 | IF2 | IF3 | IF4 | IF5 | IF6
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMBER OF DIMENSIONS: 6
+ FREQUENCY:  12
+ START:      (1 1)
+ END:        (85 7)
+ POINTS:     1015
+ TIME-LABEL: TIME
+ TS-ANOMALY-DETECTION(5): (loop with detector = (make-db-detector 
+                                                 (sub-ts sample-ts :start '(1 1) :end '(2 12)))
+                              for p across (ts-points (sub-ts sample-ts :start '(3 1)))
+                              collect (funcall detector (ts-p-pos p)))
+ (7.689004308083502e-4 8.690742068634405e-4 0.0014640360422599752 9.645504419952822e-4 0.002189430044882701 0.0022804402419548397 8.653971028227403e-4 0.0021245846566718685 0.0021297890535286745
+  0.003035579690776613 ...)
+ TS-ANOMALY-DETECTION(6): (loop with detector = (make-periodic-detector
+                                                 (sub-ts sample-ts :start '(1 1) :end '(2 12)))
+                              for p across (ts-points (sub-ts sample-ts :start '(3 1)))
+                              collect (funcall detector (ts-p-pos p)))
+ ((:SCORE 0.15980001156818346 :LOCAL-SCORES (-0.011247495797210605 0.04067641708837213 0.07657475988236122 0.026173388386296143 -0.001005722797717759 -0.13117336322290166))
+  (:SCORE 0.16606559269099325 :LOCAL-SCORES (-0.04404576382434579 0.08836079938698248 0.06427181525186569 0.008060984870295258 6.037724071195098e-5 -0.11672432427082227))
+  (:SCORE 0.0835963350476519 :LOCAL-SCORES (0.02860344056963936 0.02049834345000817 0.018558627759386243 0.005805395166900154 -1.7563302955435247e-4 -0.07329208280202894))
+  (:SCORE 0.10895276517361178 :LOCAL-SCORES (0.06171796944486013 0.02627577908981959 -0.0013938026860552477 7.108933807211727e-4 -0.0015292225676566903 -0.08581498358943485))
+  (:SCORE 0.14372822478142372 :LOCAL-SCORES (0.019119719424318164 0.06530386435337952 -0.03223066630047898 0.05779465755012304 -0.0021226015789952857 -0.10789806554381363))
+  (:SCORE 0.1214316386275602 :LOCAL-SCORES (0.08180945936566704 -0.01666669357385849 0.01789677418744477 -0.08623381474472612 -5.783555512765765e-4 0.003743461124108086))
+  (:SCORE 0.16328621183435152 :LOCAL-SCORES (0.09252923344792947 0.04206473653695766 0.03524081165133149 -0.10442527700870255 -6.866050459105892e-4 -0.06471611713622019))
+  (:SCORE 0.17165824330218574 :LOCAL-SCORES (0.1124055553487212 -0.04483642919806279 0.06943579226133692 -0.08609866163195316 -1.3815655640593742e-4 -0.05081348776600684))
+  (:SCORE 0.14705276128118872 :LOCAL-SCORES (0.03176665855145954 -0.05169044126068538 0.11199895677113193 -0.020881754613730465 -0.0013360512015534781 -0.06969391195126472))
+  (:SCORE 0.1753941034019109 :LOCAL-SCORES (0.0926869320817864 -0.04500698002481467 0.08111355541737571 -0.010867820410934509 -0.0027675310185543865 -0.11509576770374046)) ...)
+*** make-snn ((ts time-series-dataset) k &key (sigma-i 1d0))
+- return: <snn>
+- arguments:
+  - ts      : <time-series-dataset>
+  - k       : number of neighbors
+  - sigma-i : Lagrange-multiplier * const.
+*** e-scores ((target-snn snn) (reference-snn snn))
+- return: alist (key:name-of-parameter, value:E-score)
+- arguments:
+  - target-snn    : <snn>, target SNN
+  - reference-snn : <snn>, reference SNN
+- descriptions:
+  - reference:
+    T.Ide, S.Papadimitriou, M.Vlachos "Computing Correlation Anomaly Scores using Stochastic Nearest Neighbors"
+  - Graph-based (correlation) anomaly detection
+*** make-eec-detector ((ts time-series-dataset) window-size &key (xi 0.8d0) (global-m 3))
+- return: <Closure>
+- arguments:
+  - ts : <time-series-dataset>, time series data for initialization
+  - window-size : positive integer, window size
+  - xi : 0 < <double-float> < 1, threshold for correlation strength
+  - global-m : positive integer, the number of eigen values for global feature
+- arguments for <Closure>:
+  - new-dvec : vector representing time series data point
+- return of <Closure>: plist (:score for anomaly score, :local-scores for local anomaly scores)
+- descriptions:
+  - reference:
+    S.Hirose, et.al "Network Anomaly Detection based on Eigen Equation Compression"
+  - Correlation-based anomaly detection
+*** QUOTE sample usage for SNN and EEC
+ TS-ANOMALY-DETECTION(8): (setf exchange 
+                            (time-series-data
+                             (read-data-from-file
+                              "sample/exchange.csv" 
+                              :type :csv
+                              :csv-type-spec (cons 'string
+                                                   (make-list 10 :initial-element 'double-float)))
+                             :except '(0) :time-label 0))
+ #<TIME-SERIES-DATASET >
+ DIMENSIONS: CAD/USD | EUR/USD | JPY/USD | GBP/USD | CHF/USD | AUD/USD | HKD/USD | NZD/USD | KRW/USD | MXN/USD
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMBER OF DIMENSIONS: 10
+ FREQUENCY:  1
+ START:      (1 1)
+ END:        (753 1)
+ POINTS:     753
+ TIME-LABEL: YYYY/MM/DD
+ TS-ANOMALY-DETECTION(9): (let ((target-snn (make-snn (sub-ts exchange :start 1 :end 150) 3))
+                                (reference-snn (make-snn (sub-ts exchange :start 600 :end 700) 3)))
+                            (e-scores target-snn reference-snn))
+ (("AUD/USD" . 0.47406298323897705) ("CAD/USD" . 0.5240011355714634) ("CHF/USD" . 0.5325785438502517) ("EUR/USD" . 0.731769158687747) ("GBP/USD" . 0.596827444239165) ("HKD/USD" . 0.5766733684269696)
+  ("JPY/USD" . 0.5117506042665696) ("KRW/USD" . 0.5198055610159624) ("MXN/USD" . 0.7027828954312578) ("NZD/USD" . 0.2842836687583187))
+ TS-ANOMALY-DETECTION(10): (loop with detector = (make-eec-detector
+                                                  (sub-ts exchange :start 1 :end 60) 20)
+                               for p across (ts-points (sub-ts exchange :start 60))
+                               collect (funcall detector (ts-p-pos p)))
+ ((:SCORE 2.700571112024573 :LOCAL-SCORES
+   (-3.7189814823543945 1.0326461685226247 -0.09199334202340251 -1.5304334860393167 1.6336817412409927 0.09973192007442783 -1.7705007982055647 -1.3659133055436354 1.6229166989275772 -2.456418564898763))
+  (:SCORE 2.2333558257821577 :LOCAL-SCORES
+   (-3.905638387254389 1.0111353552477693 -0.16180107817711298 -0.06211424245500806 2.444035892878855 -0.7941221366494797 -2.0601881585490758 -0.6032554617242315 1.3644194991066583 -2.94095956222471))
+  (:SCORE 1.9868164604264957 :LOCAL-SCORES
+   (-4.071453905957172 0.09987314488820478 -0.5124850991763434 0.3572466274370432 1.985594397643084 -1.2627672914256596 -2.0286025799206437 -2.0180011854462823 1.0031799987968517 -3.349034884667727))
+  (:SCORE 1.99119158115065 :LOCAL-SCORES
+   (-4.21295552995317 3.6696601922048 0.13498367839300002 2.202025796055173 1.5652235278554427 -1.5185993444794728 -1.9951097435792884 -2.141676229907566 0.536949673309007 0.13587904258754527))
+  (:SCORE 1.655330278980456 :LOCAL-SCORES
+   (-3.940751233076124 1.4944533102503788 -1.134801399167889 1.0953740695897256 0.8538413750781987 -2.6483828385806047 -1.9833372992457443 -2.1457229135357965 -0.25535073809135234 -1.1228770376956778))
+  (:SCORE 1.6026376553309072 :LOCAL-SCORES
+   (-0.034554670356311185 1.2292838508330988 1.132721967732395 -0.7371812412223815 -1.2217525313170159 -3.7170161170631384 -0.8394971355287675 -2.309275510777308 -0.6893891878271913 -1.2247368414257422))
+  (:SCORE 1.4921358653856052 :LOCAL-SCORES
+   (-1.1119582168928317 0.13109381389384833 0.03822852402739136 -1.2567269843174933 -1.0016538526115792 -3.7378375887102315 0.0018749768626725657 -2.1904933121802066 -1.0031674527371155
+    -1.8580823578222343))
+  (:SCORE 1.834987095608023 :LOCAL-SCORES
+   (-2.411063158982719 -0.9462790230517837 -0.5412882072844031 -1.8686452258034443 -2.4080116434386505 -4.2224169886297185 -0.19950597770025008 -2.1142292908200604 0.49105626655832846 -1.4030218415732563))
+  (:SCORE 1.0321828011949825 :LOCAL-SCORES
+   (-3.2832950290358296 -1.7201312662081096 -0.806431510082311 -0.49749735373008097 -2.3879869063190085 -4.243481779019334 -1.1894302963419576 -2.5038090216601767 -0.1556970436113533 -1.4378596777323336))
+  (:SCORE 0.5533902042593536 :LOCAL-SCORES
+   (-3.7083233694175766 -1.6133834329235863 -0.01938368944029429 -0.6476096999243521 0.03650134747649691 -3.3240586306405393 -1.8620675130088626 -1.7836998046168742 -0.875130410874981 -1.9750969929005304))
+  ...)
+** Read-Graph
+*** make-simple-graph (id-name-alist &key edgelist directed)
+- argument:
+  - id-name-alist : association list of node's ID and name. ID is a positive integer, there are no gaps.
+  - edgelist : list of plist, plist is like (:nid1 <initial-vertex-ID> :nid2 <terminal-vertex-ID> :weight <weight-for-edge>)
+  - directed : t | nil, the graph is directed or not.
+*** QUOTE sample usage
+READ-GRAPH(19): (let* ((id-name-alist (loop for i from 1 to 6
+                                          collect (cons i (format nil "~A" i))))
+                       (edgelist (list (list :nid1 1 :nid2 2 :weight 1d0)
+                                       (list :nid1 2 :nid2 3 :weight 1d0)
+                                       (list :nid1 2 :nid2 5 :weight 1d0)
+                                       (list :nid1 4 :nid2 5 :weight 1d0)
+                                       (list :nid1 5 :nid2 6 :weight 1d0)
+                                       (list :nid1 6 :nid2 4 :weight 1d0))))
+                  (make-simple-graph id-name-alist 
+                                     :edgelist edgelist
+                                     :directed nil))
+#<SIMPLE-GRAPH >
+6 nodes
+6 links
+** Graph-Centrality
+*** eccentricity-centrality (graph)
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+- argument:
+  - graph: return value of #'make-simple-graph
+*** closeness-centrality (graph &key standardize)
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+- argument:
+  - graph: return value of #'make-simple-graph
+  - standardize: t | nil, standardize centrality or not
+*** degree-centrality (graph &key mode standardize)
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+- argument:
+  - graph: return value of #'make-simple-graph
+  - mode: :in | :out
+  - standardize: t | nil, standardize centrality or not
+*** eigen-centrality (graph)
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+          DOUBLE-FLOAT, eigenvalue
+- argument:
+  - graph: return value of #'make-simple-graph
+*** pagerank (graph &key (c 0.85d0))
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+- argument:
+  - graph: return value of #'make-simple-graph
+  - c : ratio for transition probability matrix
+- reference:
+  L. Page, S. Brin, R. Motwani, T. Winograd "The PageRank citation ranking: Bringing order to the web." 1999
+*** QUOTE sample usage
+GRAPH-CENTRALITY(36): (setf gr (let* ((id-name-alist (loop for i from 1 to 6
+                                                         collect (cons i (format nil "~A" i))))
+                                      (edgelist (list (list :nid1 1 :nid2 2 :weight 1d0)
+                                                      (list :nid1 2 :nid2 3 :weight 1d0)
+                                                      (list :nid1 2 :nid2 5 :weight 1d0)
+                                                      (list :nid1 4 :nid2 5 :weight 1d0)
+                                                      (list :nid1 5 :nid2 6 :weight 1d0)
+                                                      (list :nid1 6 :nid2 4 :weight 1d0))))
+                                 (make-simple-graph id-name-alist 
+                                                    :edgelist edgelist
+                                                    :directed nil)))
+#<SIMPLE-GRAPH >
+6 nodes
+6 links
+GRAPH-CENTRALITY(37): (eccentricity-centrality gr)
+#(0.3333333333333333 0.5 0.3333333333333333 0.3333333333333333 0.5 0.3333333333333333)
+GRAPH-CENTRALITY(38): (closeness-centrality gr)
+#(0.09090909090909091 0.14285714285714285 0.09090909090909091 0.1 0.14285714285714285 0.1)
+GRAPH-CENTRALITY(39): (degree-centrality gr)
+#(1.0 3.0 1.0 2.0 3.0 2.0)
+GRAPH-CENTRALITY(40): (eigen-centrality gr)
+#(0.18307314221469623 0.41711633875524184 0.18307314221469628 0.45698610699552694
+  0.5842172585338801 0.45698610699552716)
+2.2784136094964444
+GRAPH-CENTRALITY(41): (pagerank gr)
+#(0.22515702990803205 0.5915609362243119 0.22515702990803205 0.3631199718377685 0.5338090057356462
+  0.3631199718377685)
 
 ** Text-Utilities
    text utility functions
@@ -3077,46 +3433,23 @@ Operation check required: linux32, linux64, win32, sparc/solaris32
 
 * Licensing
 
-The MSI Software License Agreement governs the use of CL
-Machine-Learning and is available for review by clicking
-[[http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/LICENSE.html][here]].
+CLML is licensed under the terms of the Lisp Lesser GNU Public
+License, known as the LLGPL and distributed with CLML as the
+file "LICENSE". The LLGPL consists of a preamble and the LGPL, which
+is distributed with CLML as the file "LGPL". Where these
+conflict, the preamble takes precedence.
 
+The LGPL is also available online at:  http://www.gnu.org/licenses/old-licenses/lgpl-2.1.html
 
-** Commercial Licenses
-
-For pricing, contact mailto:clml-info@msi.co.jp.
-
-- CL Machine-Learning Standard \\
-  Including all machine learning packages.
-  One year Technical Support and version ups are included.
-
-- CL Machine-Learning with Intel MKL \\
-  Including all machine learning packages and intel MKL based matrix libraries.
-  One year Technical Support and version ups are included.
-
-- CL Machine-Learning with fork-future \\
-  Including all machine learning packages and fork-future.
-  One year Technical Support and version ups are included.
-
-- CL Machine-Learning with Source Codes \\
-  Including all machine learning packages and source codes.
-  One year Technical Support and version ups are included.
-
-
-** Free License
-
-- CL Machine-Learning Free Edition \\
-  You can download and use compiled fasl images freely for any purpose.
-  See Download section of this page.  Source codes or technical supports
-  are not included in Free Edition.
+The LLGPL is also available online at:  http://opensource.franz.com/preamble.html
 
 * Supported CL implementations
 We're supporting only ANSI Common Lisp.
 If you need support for CL dialect such as Allegro's mlisp,
 contact mailto:clml-info@msi.co.jp. 
 
-- Allegro CL 8.1 Enterprise 32 Edition (ANSI mode, any platforms)
-- Allegro CL 8.1 Enterprise 64 Edition (ANSI mode, any platforms)
+- Allegro CL 9.0 (non-SMP) Enterprise 32 Edition (ANSI mode, any platforms)
+- Allegro CL 9.0 (non-SMP) Enterprise 64 Edition (ANSI mode, any platforms)
 - lispworks-6-0-0-amd64-linux
 - lispworks-6-0-0-x86-linux
 - sbcl-1.0.28-x86-64-linux

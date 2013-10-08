@@ -1,10 +1,10 @@
-(defpackage :anomaly-detection
+(defpackage :graph-anomaly-detection
   (:use :cl :excl :vars :util :vector :matrix :statistics :read-data
         :missing-val :csv :ts-read-data :ts-stat :ts-util :ts-state-space :ts-ar
         :read-graph :graph-centrality :graph-shortest-path)
   (:export ))
 
-(in-package :anomaly-detection)
+(in-package :graph-anomaly-detection)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; benchmark tools 
@@ -734,6 +734,12 @@
                                         `(,name :coupling-probability ,cp
                                                 :dissimilarity ,d))) nbrs)))
              :stream out))))
+#+ignore
+(defun %read-knn-info (fname &key (external-format :default))
+  (loop for plist in (with-open-file (in fname :external-format external-format) (read in))
+      do (destructuring-bind (&key name neighbors) plist
+           )))
+
 
 (defclass snn () ;; Stochastic-Nearest-Neighbor
   ((cnode :initarg :cnode :accessor cnode)  ;; central node id
@@ -917,6 +923,9 @@
 ;;         pc, 閾値のための上側累積確率
 ;;         beta, 閾値のための忘却パラメータ　
 ;;         cor-output, 相関情報出力ファイル名, nilなら出力しない
+;;         local-output, plist (:file 出力ファイル名 :params 対象パラメータ名リスト)
+;;                       局所情報(クラスタリング、特徴量、分布パラメータ)をダンプするか
+;;                       nilならしない
 (defun anomaly-detection-eec (input output window-size
                               &key (format :sexp) ;; :sexp | :csv
                                    (time-label-name "Time")
@@ -935,67 +944,86 @@
                                    (initial-local-moments-list nil)
                                    (external-format :default)
                                    (cor-output nil)
+                                   (local-output nil)
                                    (print-status t)
                                    (benchmarkp nil))
-  (macrolet ((with-cor-out (cor-output &body body)
-               `(if ,cor-output (with-open-file (cor-out ,cor-output 
-                                                 :direction :output :external-format external-format
-                                                 :if-exists :supersede) ,@body)
-                  (let ((cor-out nil)) ,@body))))
-    (with-cor-out cor-output
-      (with-open-file (in input :direction :input :external-format external-format)
-        (with-open-file (out output :direction :output :external-format external-format
-                         :if-exists :supersede)
-          (multiple-value-bind (params time-pos)
-              (read-name-part in time-label-name :format format)
-            (setq params (coerce params 'list))
-            (unless time-pos (error "Unable to find time label: ~A" time-label-name))
-            (let ((dim (length params))
-                  detector)
-              (setq detector
-                (loop repeat (1+ window-size)
-                    as vec = (read-value-part in time-pos dim :format format)
-                    initially (when print-status (format t "Initialize detector...~%"))
-                    collect vec into vecs
-                    finally (return (init-anomaly-detector-eec 
-                                     (coerce vecs 'vector)
-                                     params
-                                     window-size
-                                     :xi xi
-                                     :global-m global-m
-                                     :scoring scoring
-                                     :pc pc
-                                     :beta beta
-                                     :param-graph param-graph
-                                     :sig-alpha sig-alpha
-                                     :smoothing smoothing
-                                     :smoothing-args smoothing-args
-                                     :initial-global-cov initial-global-cov
-                                     :initial-local-covs initial-local-covs
-                                     :initial-global-moments initial-global-moments
-                                     :initial-local-moments-list initial-local-moments-list
-                                     :benchmarkp benchmarkp))))
-              (when print-status (format t "Detecting anomaly...~%"))
-              (loop with ut = (get-universal-time)
-                  for i from 1
-                  for (vec time-label)
-                  = (multiple-value-list (read-value-part in time-pos dim :format format))
-                  initially (format out "(")
-                  while vec
-                  as (result cor-str-mat)
-                  = (multiple-value-list (update-anomaly-detector-eec detector vec))
-                  do (write `(:time ,time-label ,@result) :stream out)
-                     (terpri out)
-                     (when cor-output
-                       (write `(:time ,time-label :names ,(params detector)
-                                      :cor-strength ,cor-str-mat)
-                              :stream cor-out)
-                       (terpri cor-out))
-                  when (and print-status (zerop (mod i *comment-interval*))) do
-                    (format t "Now at ~A : ~,5F sec/line~%"
-                            time-label (/ (- (get-universal-time) ut) i))
-                  finally (format out ")"))
-              detector)))))))
+  (with-open-file (in input :direction :input :external-format external-format)
+    (with-open-file (out output :direction :output :external-format external-format
+                     :if-exists :supersede)
+      (multiple-value-bind (params time-pos)
+          (read-name-part in time-label-name :format format)
+        (setq params (coerce params 'list))
+        (unless time-pos (error "Unable to find time label: ~A" time-label-name))
+        (let ((cor-out (when cor-output
+                         (open cor-output 
+                               :direction :output :external-format external-format
+                               :if-exists :supersede)))
+              (local-out (when local-output
+                           (open (getf local-output :file)
+                                 :direction :output :external-format external-format
+                                 :if-exists :supersede)))
+              (local-params (when local-output (getf local-output :params)))
+              (abortp t)
+              (dim (length params))
+              detector)
+          (unwind-protect
+              (progn 
+                (when (streamp local-out) (setf (getf local-output :file) local-out))
+                (setq detector
+                  (loop repeat (1+ window-size)
+                      as vec = (read-value-part in time-pos dim :format format)
+                      initially (when print-status (format t "Initialize detector...~%"))
+                      collect vec into vecs
+                      finally (return (init-anomaly-detector-eec 
+                                       (coerce vecs 'vector)
+                                       params
+                                       window-size
+                                       :xi xi
+                                       :global-m global-m
+                                       :scoring scoring
+                                       :pc pc
+                                       :beta beta
+                                       :param-graph param-graph
+                                       :sig-alpha sig-alpha
+                                       :smoothing smoothing
+                                       :smoothing-args smoothing-args
+                                       :initial-global-cov initial-global-cov
+                                       :initial-local-covs initial-local-covs
+                                       :initial-global-moments initial-global-moments
+                                       :initial-local-moments-list initial-local-moments-list
+                                       :benchmarkp benchmarkp))))
+                (when print-status (format t "Detecting anomaly...~%"))
+                (loop with ut = (get-universal-time)
+                    for i from 1
+                    for (vec time-label)
+                    = (multiple-value-list (read-value-part in time-pos dim :format format))
+                    initially (format out "(")
+                    while vec
+                    as (result cor-str-mat lfs cls stats)
+                    = (multiple-value-list 
+                       (update-anomaly-detector-eec detector vec :local-params local-params))
+                    do (write `(:time ,time-label ,@result) :stream out)
+                       (terpri out)
+                       (when (streamp cor-output)
+                         (write `(:time ,time-label :names ,(params detector)
+                                        :cor-strength ,cor-str-mat)
+                                :stream cor-out)
+                         (terpri cor-out))
+                       (when (streamp local-out)
+                         (write `(:time ,time-label 
+                                        :local-features ,lfs
+                                        :clustering ,cls
+                                        :lf-stats ,stats)
+                                :stream local-out)
+                         (terpri local-out))
+                    when (and print-status (zerop (mod i *comment-interval*))) do
+                      (format t "Now at ~A : ~,5F sec/line~%"
+                              time-label (/ (- (get-universal-time) ut) i))
+                    finally (format out ")"))
+                (setf abortp nil))
+            (progn (when (streamp cor-out) (close cor-out :abort abortp))
+                   (when (streamp local-out) (close local-out :abort abortp))))
+          detector)))))
 (defun read-name-part (stream time-label-name &key (format :sexp))
   (let ((parsed-names))
     (ecase format
@@ -1095,6 +1123,7 @@
                                         &key (new-param-pos-alist nil)
                                              (removed-params nil)
                                              (new-param-graph nil)
+                                             (local-params nil)
                                              (bench nil))
   (declare (type dvec point))
   (check-type point dvec)
@@ -1105,7 +1134,7 @@
     (when (typep new-param-graph 'simple-graph) (setf (param-graph detector) new-param-graph))
     (update-params detector point new-param-pos-alist removed-params)
     (update-window detector point)
-    (multiple-value-bind (global locals cor-str-mat)
+    (multiple-value-bind (global locals cor-str-mat cls)
         (calc-eec-features detector :bench bench)
       (bench-eec bench :scoring t
                  (let* ((g-score (global-anomaly-score global 
@@ -1116,20 +1145,29 @@
                                       for mu in (mapcar #'mean-mat local-covs)
                                       as score = (local-anomaly-score local mu cov :type scoring)
                                       collect score))
+                        (local-poss 
+                         (mapcar (lambda (param) (position param %params :test #'equal))
+                                 local-params))
                         (g-thld (update-global-moments detector g-score))
                         (l-thlds (update-local-moments detector l-scores)))
                    (multiple-value-prog1
                        (values 
-                           `(:global-score ,g-score :global-threshold ,g-thld
-                                           :locals
-                                           ,(loop for i from 0
-                                                for param in %params
-                                                for l-score in l-scores
-                                                for l-thld in l-thlds
-                                                collect `(:name ,param
-                                                                :score ,l-score
-                                                                :threshold ,l-thld)))
-                           cor-str-mat)
+                        `(:global-score ,g-score :global-threshold ,g-thld
+                                        :locals
+                                        ,(loop for i from 0
+                                             for param in %params
+                                             for l-score in l-scores
+                                             for l-thld in l-thlds
+                                             collect `(:name ,param
+                                                             :score ,l-score
+                                                             :threshold ,l-thld)))
+                        cor-str-mat
+                        (mapcar (lambda (pos) (nth pos locals)) local-poss)
+                        (mapcar (lambda (pos) (nth pos cls)) local-poss)
+                        (mapcar (lambda (pos)
+                                  (let ((cov (nth pos local-covs)))
+                                    (cons (mean-mat cov) (get-matrix-covariance cov))))
+                                local-poss))
                      (update-covariance global-cov global global)
                      (loop for local in locals
                          for cov-obj in local-covs
@@ -1316,10 +1354,10 @@
         (bench-eec bench :compression t
                    (multiple-value-bind (local-features clusterings)
                        (calc-local-features dim princ-eigen-vec aij :xi (xi detector))
-                     (declare (ignore clusterings))
                      (values global-feature
                              local-features
-                             aij)))))))
+                             aij
+                             clusterings)))))))
 (defun calc-global-feature (cor-mat &key (global-m 3) (bench nil) (principal nil) (abstol 1d-12))
   (multiple-value-bind (eigen-vals eigen-mat) 
       (bench-eec bench :eigen t 
@@ -1401,11 +1439,12 @@
     (inner-product (cck psi dim ck2) (%m*v cor-str-mat (cck psi dim ck1)))))
 
 (defun cck (psi dim ck)
-  (declare (type dvec psi))
+  (declare (type dvec psi) (optimize speed))
   (let* ((pck*psi (proj-by-ck psi ck dim))
          (denom (sqrt (inner-product psi pck*psi))))
-    (cond ((zerovecp pck*psi) (make-dvec dim 0d0))
-          ((zerop denom) (error "Unexpected situation : ~A" pck*psi))
+    (declare (type dvec pck*psi) (type double-float denom))
+    (cond ((zerovecp pck*psi) pck*psi)
+          ((zerop denom) (error "Unexpected situation at #'cck : ~A" pck*psi))
           (t (do-vec (val pck*psi :type double-float :setf-var sf :return pck*psi)
                (setf sf (/ val denom)))))))
 (defun proj-by-ck (vec ck dim)
