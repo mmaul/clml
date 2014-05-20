@@ -1,3 +1,12 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Coding:iso-2022-jp -*-
+;;;
+;;; References 
+;;; [D] http://www.w3.org/TR/NOTE-datetime  
+;;; [K] J. Kleinberg, Bursty and Hierarchical Structure in Streams,
+;;;     http://www.cs.cornell.edu/home/kleinber/bhs.pdf , 2002.
+;;; [R] bursts: Markov model for bursty behavior in streams, Version 1.0
+;;;     http://cran.r-project.org/web/packages/bursts/index.html , 2012-10-24.
+
 
 (defpackage :ts-burst-detection
   (:use :cl :read-data :handling-missing-value
@@ -5,28 +14,9 @@
   (:export
    #:continuous-kleinberg
    #:print-burst-indices
-   #:date-time-to-ut
-   #:ut-to-date-time))
+   #:enumerate-kleinberg))
 
 (in-package :ts-burst-detection)
-
-#+allegro
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (require :datetime))
-
-(defun date-time-to-ut (date-time)
-#+allegro
-  (util.date-time:date-time-to-ut date-time)
-#-allegro
-  (error "date-time-to-ut is not supported.")
-  )
-
-(defun ut-to-date-time (date-time)
-#+allegro
-  (format nil "~a" (util.date-time:ut-to-date-time date-time))
-#-allegro
-  (error "ut-to-date-time is not supported.")
-  )
 
 (defun index-of-minimum-value (value-vector &key key)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
@@ -206,3 +196,156 @@
      (let ((result (to-burst-index-sequence burst-indices)))
        (format stream "~s~%" result)
        result))))
+
+; for enumerating burst detection
+
+(defun assert-state-in-enumerate-states (state-index)
+  (assert (or (= state-index 0) (= state-index 1))))
+
+(defun enumerate-burst-state-p (state-index) 
+  (assert-state-in-enumerate-states state-index)
+  (if (= state-index 1) T nil))
+    
+(defun log-factorial (n)
+  (assert (<= 1 n))
+  (do ((i 1 (1+ i))
+       (ret 0 (incf ret (log i))))
+      ((> i n) ret)))
+    
+(defun log-choose (m n)
+  (assert (<= 0 n))
+  (assert (<= n m))
+  (cond 
+   ((= n 0) 0)
+   ((= m n) 0)
+   (t (- (log-factorial m) 
+         (+ (log-factorial n) (log-factorial (- m n)))))))
+
+; p_0: notation in [K] p14.
+(defun func-sigma (p_0 state-index d-on-batch r-on-batch scaling-param)
+  (assert (<= 0 r-on-batch))
+  (assert (<= r-on-batch d-on-batch))
+  ; p_i: notation in [K] p14.
+  (let ((p_i (* p_0 (expt scaling-param state-index))))
+    (- (+ (log-choose d-on-batch r-on-batch) 
+          (* r-on-batch (log p_i))
+          (* (- d-on-batch r-on-batch) (log (- 1 p_i)))))))
+
+(defun get-ratio-of-sum-of-d-and-sum-of-r (batches)
+  (let ((d-list (mapcar #'first batches))
+        (r-list (mapcar #'second batches)))
+    (/ (apply #'+ r-list) (apply #'+ d-list))))
+
+(defun index-of-minimum-value (value-vector &key key)
+  (declare (optimize (speed 3) (debug 0) (safety 0)))
+  (loop for val across value-vector
+      for i fixnum from 0
+      with min-val = *+inf*
+      with index = 0
+      when key
+      do (setq val (funcall key val i))
+      when (< val min-val)
+      do (setq index i)
+         (setq min-val val)
+      finally (return (values index min-val))))
+
+(defun compute-enumerate-burst-index (batches
+                                      &key (scaling-param 2) 
+                                           (gamma 1))
+  (let* ((batches-size (length batches))
+         (gammalogn (* gamma (log batches-size)))
+         (p_0 (get-ratio-of-sum-of-d-and-sum-of-r batches)) 
+         (states-num 2))
+    (assert (<= 0 p_0))
+    (assert (<= (* scaling-param p_0) 1))
+    (flet ((tau (i j)
+             (if (>= i j) 0
+               (* (- j i) gammalogn)))
+           (make-result-index-list (q min-c-index)
+               (loop for current-batch-id from 0 below batches-size by 1
+                   collect (aref q min-c-index current-batch-id))))
+      (loop
+          with c = (make-array states-num :initial-element *+inf*) ; used in [R] R-source under the name of "C" 
+          with q = (make-array (list states-num batches-size)) ; used in [R] R-source under the name of "q"
+          for current-batch-id from 0 below batches-size by 1
+          for (d-on-current-batch r-on-current-batch) in batches
+          initially (setf (aref c 0) 0)
+          do ;(format t "~%- current-batch-id=~d, d=~d, r=~d" current-batch-id d-on-current-batch r-on-current-batch)
+             (loop for state-index-on-current-batch from 0 below states-num
+                 with c-prime = (make-array states-num :initial-element *+inf*) ; used in [R] R-source under the name of "Cprime"
+                 as (ell min-cost)
+                 = (multiple-value-list
+                    (index-of-minimum-value c :key
+                                            #'(lambda (val state-index-on-previous-batch)
+                                                (+ val (tau state-index-on-previous-batch 
+                                                            state-index-on-current-batch)))))
+                 do ;(format t "~%  -- state-index=~d, ell=~d, min-cost=~f" state-index-on-current-batch ell min-cost)
+                    (setf (aref c-prime state-index-on-current-batch) 
+                      (+ min-cost (func-sigma p_0
+                                              state-index-on-current-batch 
+                                              d-on-current-batch r-on-current-batch
+                                              scaling-param)))
+                    (loop for batch-id from 0 below current-batch-id by 1
+                        as val = (aref q ell batch-id)
+                        do ;(format t "~%    --- batch-id=~d, val=~d" batch-id val)
+                           (setf (aref q state-index-on-current-batch batch-id) val)
+                        finally (setf (aref q state-index-on-current-batch current-batch-id) state-index-on-current-batch))
+                 finally (setq c c-prime))
+          finally (return (make-result-index-list q (index-of-minimum-value c)))))))
+
+(defun get-burst-periods (state-indices)
+  (mapcar #'assert-state-in-enumerate-states state-indices)
+  (flet ((get-same-state-batches-size-from (target-batch-id)
+           (loop 
+               with state-index-on-target-batch = (nth target-batch-id state-indices)
+               with same-state-batches-size = 0
+               with loop-state-indices = (subseq state-indices target-batch-id)
+               for state-index-on-current-batch in loop-state-indices
+               while (= state-index-on-current-batch state-index-on-target-batch)
+               do (incf same-state-batches-size)
+               finally (return same-state-batches-size))))
+    (loop
+        with batches-size = (length state-indices)
+        for burst-period-start-batch-id
+        = (if (enumerate-burst-state-p (first state-indices)) 0
+            (get-same-state-batches-size-from 0))
+        then (+ base-period-start-batch-id base-period-length)
+        while (< burst-period-start-batch-id batches-size)
+        for burst-period-length = (get-same-state-batches-size-from burst-period-start-batch-id)
+        for base-period-start-batch-id = (+ burst-period-start-batch-id burst-period-length)
+        for base-period-length = (get-same-state-batches-size-from base-period-start-batch-id)
+        collect (list burst-period-start-batch-id
+                      (+ burst-period-start-batch-id burst-period-length)))))
+
+(defun get-weight-list (batches burst-periods &key (scaling-param 2))
+  (loop 
+      for (burst-period-min burst-period-sup) in burst-periods
+      with p_0 = (get-ratio-of-sum-of-d-and-sum-of-r batches) ; p_0: notation in [K] p14.
+      collect (loop 
+                  with weight = 0
+                  and loop-batches = (subseq batches burst-period-min burst-period-sup)
+                  for (d-on-current-batch r-on-current-batch) in loop-batches
+                  for (sigma-0 sigma-1) = (mapcar #'(lambda (state-index) 
+                                                      (func-sigma p_0 state-index
+                                                                  d-on-current-batch
+                                                                  r-on-current-batch
+                                                                  scaling-param))
+                                                  (list 0 1))
+                  do (incf weight (- sigma-0 sigma-1))
+                  finally (return weight))))
+
+
+(defun enumerate-kleinberg (batches
+                            &key (scaling-param 2)
+                                 (gamma 1))
+  (assert (> scaling-param 1))
+  (assert (> gamma 0))
+  (let* ((optimal-state-indices (compute-enumerate-burst-index batches 
+                                                               :scaling-param scaling-param 
+                                                               :gamma gamma))
+         (burst-periods (get-burst-periods optimal-state-indices))
+         (weight-list-on-burst-periods (get-weight-list batches burst-periods)))
+    (loop 
+        for burst-period in burst-periods
+        and weight-on-burst-period in weight-list-on-burst-periods
+        collect (append burst-period (list weight-on-burst-period)))))

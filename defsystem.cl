@@ -41,10 +41,10 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (pushnew :mkl *features*))
 
-#+(version= 8 2)
+#+(and allegro (version= 8 2))
 (setq excl:*fasl-default-type* "fasl82")
 
-#+(and (not smp) (version= 9 0))
+#+(and allegro (not smp) (version= 9 0))
 (setq excl:*fasl-default-type* "fasl90")
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
@@ -523,6 +523,7 @@
            "test-hdp-lda"
            "test-dpm"
            "test-ts-burst-detection"
+           "test-ts-util"
            ))
   
 (defsystem :machine-learning (:default-pathname ".")

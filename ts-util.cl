@@ -1,3 +1,8 @@
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Coding:iso-2022-jp -*-
+;;;
+;;; References 
+;;; [D] http://www.w3.org/TR/NOTE-datetime  
+
 (defpackage :time-series-util
   (:use :cl 
         :excl
@@ -18,9 +23,15 @@
            #:draw-ppm
            #:*r-stream*
            #:with-r
-           #:open-eps-file))
+           #:open-eps-file
+           #:date-time-to-ut
+           #:ut-to-date-time))
 
 (in-package :time-series-util)
+
+#+allegro
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (require :datetime))
 
 (defclass timeseries-model ()
   ((observed-ts
@@ -363,3 +374,107 @@
     `(,(map 'list #'dimension-name (dataset-dimensions d)))
     (loop for p across (ts-points d)
         collect (coerce (ts-p-pos p) 'list))))
+
+
+
+(defun split (delim str)
+  (loop with delim-size = (length delim)
+      for start = 0 then (and pos (+ pos delim-size))
+      for pos = (and start (search delim str :start2 start))
+      while start
+      collect (subseq str start pos)))
+
+(defun date-time-to-ut (date-time &optional daylight-saving-time-p)
+  (let ((ut
+         #+allegro
+         (util.date-time:date-time-to-ut date-time)
+         #-allegro
+         (labels ((to-YYYY-MM-DD-list (str) 
+                    (let* ((list-split-by-hyphen (split "-" str))
+                           (list-split-by-hyphen-size (length list-split-by-hyphen)))
+                      (case list-split-by-hyphen-size 
+                        (1 (append (mapcar #'parse-integer list-split-by-hyphen) (list 1 1)))
+                        (2 (append (mapcar #'parse-integer list-split-by-hyphen) (list 1)))
+                        (3 (mapcar #'parse-integer list-split-by-hyphen))
+                        (t (error "data-time-to-ut: Argument does not match the format of ISO8691.")))))
+                  (hh-mm-to-hour (str)
+                    (let* ((list-split-by-colon (mapcar #'parse-integer (split ":" str)))
+                           (list-split-by-colon-size (length list-split-by-colon)))
+                      (case list-split-by-colon-size
+                        (1 (first list-split-by-colon))
+                        (2 (+ (first list-split-by-colon) (/ (second list-split-by-colon) 60)))
+                        (t (error "data-time-to-ut: Argument does not match the format of ISO8691.")))))
+                  (split-hh-mm-ss-and-timezone (str)
+                    (let ((list-split-by-plus (split "+" str))
+                          (list-split-by-minus (split "-" str)))
+                      (cond ((= (length list-split-by-plus) 2)
+                             (setf (second list-split-by-plus)
+                               (- (hh-mm-to-hour (second list-split-by-plus))))
+                             list-split-by-plus)
+                            ((= (length list-split-by-minus) 2)
+                             (setf (second list-split-by-minus)
+                               (hh-mm-to-hour (second list-split-by-minus)))
+                             list-split-by-minus)
+                            (t (list str nil)))))
+                  (to-hh-mm-ss-list (str)
+                    (let* ((list-split-by-colon (split ":" str))
+                           (list-split-by-colon-size (length list-split-by-colon)))
+                      (case list-split-by-colon-size
+                        (1 (setf (first list-split-by-colon)
+                             (substitute #\. #\, (first list-split-by-colon)))
+                           (let* ((list-split-by-dot (split "." (pop list-split-by-colon)))
+                                  (hh (parse-integer (pop list-split-by-dot)))
+                                  (mm (let ((hh-decimal (pop list-split-by-dot)))
+                                        (if (null hh-decimal) 0
+                                          (/ (* 60 (parse-integer hh-decimal))
+                                             (expt 10 (length hh-decimal)))))))
+                             (list hh mm 0)))
+                        (2 (setf (second list-split-by-colon)
+                             (substitute #\. #\, (second list-split-by-colon)))
+                           (let* ((hh (parse-integer (pop list-split-by-colon)))
+                                  (list-split-by-dot (split "." (pop list-split-by-colon)))
+                                  (mm (parse-integer (pop list-split-by-dot)))
+                                  (ss (let ((mm-decimal (pop list-split-by-dot)))
+                                        (if (null mm-decimal) 0
+                                          (/ (* 60 (parse-integer mm-decimal))
+                                             (expt 10 (length mm-decimal)))))))
+                             (list hh mm ss)))
+                        (3 (mapcar #'parse-integer list-split-by-colon))
+                        (t (error "data-time-to-ut: Argument does not match the format of ISO8691.")))))
+                  (my-encode-universal-time 
+                      (&key year month day hour minute second time-zone)
+                    (if (null time-zone) (+ (encode-universal-time 0 minute hour day month year) second)
+                      (+ (encode-universal-time 0 0 hour day month year time-zone) 
+                         (* minute 60)
+                         second))))
+           (let* ((list-split-by-T (split "T" date-time))
+                  (YYYY-MM-DD-queue (to-YYYY-MM-DD-list (pop list-split-by-T)))
+                  (list-hh-mm-ss-and-timezone (split-hh-mm-ss-and-timezone (pop list-split-by-T)))
+                  (hh-mm-ss-queue (to-hh-mm-ss-list (pop list-hh-mm-ss-and-timezone)))
+                  (time-zone (pop list-hh-mm-ss-and-timezone)))
+             (my-encode-universal-time 
+              :year (pop YYYY-MM-DD-queue) :month (pop YYYY-MM-DD-queue)
+              :day (pop YYYY-MM-DD-queue) :hour (pop hh-mm-ss-queue)
+              :minute (pop hh-mm-ss-queue) :second (pop hh-mm-ss-queue) :time-zone time-zone)))))
+    (if daylight-saving-time-p
+        (- ut 3600) ut)))
+
+(defun ut-to-date-time (ut &optional daylight-saving-time-p)
+  (when daylight-saving-time-p
+    (setq ut (+ ut 3600)))
+  #+allegro
+  (format nil "~a" (util.date-time:ut-to-date-time ut))
+  #-allegro
+  (assert (>= ut 0))
+  (multiple-value-bind
+      (second minute hour date month year day daylight-p zone)
+      (decode-universal-time ut)
+    (declare (ignore day))
+    (declare (ignore daylight-p))
+    (let* ((zone-sign 
+            (if (<= zone 0) "+" "-"))
+           (zone (abs zone)))
+      (format nil "~d-~2,'0d-~2,'0dT~2,'0d:~2,'0d:~2,'0d~a~2,'0d:00"
+              year month date
+              hour minute second
+              zone-sign zone))))
