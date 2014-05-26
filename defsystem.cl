@@ -37,9 +37,9 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (pushnew :fork-future *features*))
 
-#+(or mswindows linux)
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (pushnew :mkl *features*))
+;#+(or mswindows linux)
+;(eval-when (:compile-toplevel :load-toplevel :execute)
+;  (pushnew :mkl *features*))
 
 #+(and allegro (version= 8 2))
 (setq excl:*fasl-default-type* "fasl82")
@@ -67,131 +67,6 @@
           (system (eval `(lw:defsystem temp () :members ,files))))
      (lw:concatenate-system ,destination system)))
 
-(defsystem :alexandria (:default-pathname "addons/alexandria/")
-  (:serial "package"
-           "strings"
-           "macros"
-           "lists"
-           "symbols"
-           "definitions"
-           "functions"
-           "types"
-           "sequences"
-           "control-flow"
-           "binding"
-           "conditions"
-           "hash-tables"
-           "io"
-           "arrays"
-           "numbers"
-           "features"))
-
-(defsystem :trivial-features (:default-pathname "addons/trivial-features/src/")
-  (:serial #+allegro    "tf-allegro"
-           #+lispworks  "tf-lispworks"
-           #+sbcl       "tf-sbcl"
-           ))
-
-(defsystem :babel (:default-pathname "addons/babel/src/")
-  (:serial "packages"
-           "encodings"
-           "enc-ascii"
-           "enc-ebcdic"
-           "enc-iso-8859"
-           "enc-unicode"
-           "external-format"
-           "strings"
-           "sharp-backslash"))
-
-(defsystem :cffi (:default-pathname "addons/cffi/src/")
-  (:serial :alexandria
-           :trivial-features
-           :babel
-           #+sbcl       "cffi-sbcl"
-           #+lispworks  "cffi-lispworks"
-           #+allegro    "cffi-allegro"
-           "package"
-           "utils"
-           "libraries"
-           "early-types"
-           "types"
-           "enum"
-           "strings"
-           "functions"
-           "foreign-vars"
-           "features"))
-
-(defsystem :cl-store (:default-pathname "addons/cl-store/")
-  (:serial "package"
-           "utils"
-           "backends"
-           "plumbing"
-           "circularities"
-           "default-backend"))
-
-#+ignore
-(defsystem :metatilities-base (:default-pathname "addons/metatilities-base/dev/")
-  (:serial "package"
-           "api"
-           "l0-utils"
-           "l0-strings"
-           "l0-macros"
-           "l0-arrays"
-           "l0-clos"
-           "l0-files"
-           "l0-time"
-           "set-equal"
-           "generic-lisp"
-           "generic-interface"
-           "defclass-star"
-           "copy-file"))
-
-#+ignore
-(defsystem :cl-containers (:default-pathname "addons/cl-containers/dev/")
-  (:serial :metatilities-base
-           "package"
-           "conditions"
-           "container-api"
-           "containers"
-           "basic-operations"
-           "queues"
-           "stacks"
-           "trees"
-           "lists"
-           "bags-and-sets"
-           "ring-buffers"
-           "miscellaneous"
-           "associative"
-           "compatibility"
-           "vectors"
-           "quad-tree"
-           "heaps"
-           "container-mixins"
-           "union-find-container"
-           "package-container"
-           "iterator-api"
-           "iterators"
-           "file-iterators"))
-
-(defsystem :fork-future (:default-pathname "addons/fork-future/src/")
-  (:serial :cl-store
-           :cffi 
-           "package"
-           "simple-queue"
-           "posix-wrapper"
-           "fork-future"))
-
-(defsystem :future (:default-pathname "addons/future/src/")
-  (:serial :alexandria
-           "package"
-           "thread-api"
-           "thread-safe-simple-queue"
-           "thread-pool"
-           "future"))
-
-(defsystem :iterate (:default-pathname "addons/iterate/")
-  (:serial "package"
-           "iterate"))
 
 (defsystem :f2cl-lib (:default-pathname "blas/")
   (:serial "package"
@@ -412,32 +287,6 @@
 (defsystem :mkl-lapack (:default-pathname "addons/blas-lapack-ffi/src/")
            (:serial :mkl-blas
                     "lapack"))
-
-#-allegro
-(defsystem :excl (:default-pathname "allegro/")
-  (:serial "excl.cl"))
-
-#-allegro
-(defsystem :yacc (:default-pathname "allegro/yacc/")
-  (:serial "yacc-defs.cl"
-           "yacc-compile.cl"
-           "yacc-runtime.cl"))
-
-#-allegro
-(defsystem :regexp (:default-pathname "allegro/regexp/")
-  (:serial "regexp2-s.cl"
-           "package.cl"
-           "regexp-parser.cl"
-           "regexp-cset.cl"
-           "regexp-fe.cl"
-           "regexp-vm.cl"
-           "regexp-driver.cl"))
-
-(defsystem :statistics (:default-pathname "statistics/")
-  (:serial "package"
-           "utilities"
-           "math"
-           "statistics"))
 
 (defsystem :som (:default-pathname "som/")
   (:serial "package"
