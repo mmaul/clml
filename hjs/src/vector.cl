@@ -1,29 +1,3 @@
-(defpackage :hjs.util.vector
-  (:use :cl
-	:hjs.util.meta)
-  (:nicknames :vector)
-  (:export #:make-dvec
-	   #:fill-vec
-	   #:do-vec
-	   #:do-vecs
-           #+future #:par-do-vec
-           #:copy-vec
-	   #:v+
-	   #:v-
-	   #:v-scale
-	   #:inner-product
-	   #:inner-product-unsafe
-	   #:distance-to-origin
-	   #:euclid-distance
-	   #:manhattan-distance
-	   #:cosine-distance
-     #:hausdorff-distance
-	   #:normalize-vec
-	   #:reorder-vec
-	   #:reorder-dvec
-	   #:specialize-vec
-     #:mean-points
-	   ))
 
 (in-package :hjs.util.vector)
 
@@ -79,6 +53,8 @@ e.g.
 		 ,@(let ((vector-type-decl
 			  (or (second
 			       (assoc 'type
+                      #+ccl 
+                      (nth-value 3 (ccl:variable-information vector env))
 				      #+allegro
                                       (nth-value 2 (sys:variable-information vector env))
                                       #+sbcl
@@ -177,12 +153,14 @@ e.g.
 			    (let ((vector-type-decl
 				   (second
 				    (assoc 'type
-					   #+allegro
-                                           (nth-value 2 (sys:variable-information vector env))
-                                           #+sbcl
-                                           (nth-value 3 (sb-cltl2:variable-information vector env))
-                                           #+lispworks
-                                           (nth-value 3 (cl::variable-information vector env))
+					   #+ccl 
+                       (nth-value 3 (ccl:variable-information vector env))
+                       #+allegro
+                       (nth-value 2 (sys:variable-information vector env))
+                       #+sbcl
+                       (nth-value 3 (sb-cltl2:variable-information vector env))
+                       #+lispworks
+                       (nth-value 3 (cl::variable-information vector env))
                                            ))))
 			      (when vector-type-decl
 				`((type ,vector-type-decl ,vec-var)))))))
