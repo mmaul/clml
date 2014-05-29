@@ -1,18 +1,26 @@
-
-(in-package "TEST")
-
+(in-package :test)
 (define-test test-decision-tree
     (let (syobu bc-train bc-test cars tree query)
-      (setf syobu (read-data-from-file "sample/syobu.csv" :type :csv :csv-type-spec '(string integer integer integer integer)))
+      
+      ;(setf syobu (read-data-from-file "sample/syobu.csv" :type :csv :csv-type-spec '(string integer integer integer integer)))
+       (setf syobu (read-data-from-file "sample/syobu.csv" :type :csv 
+                                                     :csv-type-spec
+						    '(string integer integer integer integer)))
       
       (setf bc-train (read-data-from-file "sample/bc.train.csv" :type :csv 
-					  :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
+                                          :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
+      
       (setf bc-test (read-data-from-file "sample/bc.test.csv" :type :csv 
 					 :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
       
       (setf cars (read-data-from-file "sample/cars.csv" :type :csv :csv-type-spec '(double-float double-float)))
+      (print "Ží—Þ")
+      (print syobu)
+      ;(setf tree (make-decision-tree *syobu* "‚ª‚­’·"))
+      ;(print tree)
       
-      (setf tree (make-decision-tree syobu "Ží—Þ"))
+      (setf tree (make-decision-tree syobu "Ží—Þ"
+                                     ))
       
       (assert-false (print-decision-tree tree))
 
