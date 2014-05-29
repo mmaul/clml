@@ -1,16 +1,16 @@
-(asdf:defsystem :decision-tree-package
+(asdf:defsystem :clml.decision-tree-package
                 :pathname "src/"
                 :serial t
                 :components (
                              (:file "package")))
 
 
-(asdf:defsystem :decision-tree
+(asdf:defsystem :clml.decision-tree
                 :default-component-class cl-source-file.cl
                 :pathname "src/"
                 :serial t
                 :depends-on ( :hjs
-                             :decision-tree-package
+                             :clml.decision-tree-package
                              )
                 :components (
                              
