@@ -1,32 +1,3 @@
-(defpackage :hjs.util.meta
-  (:use :cl)
-  (:nicknames :util)
-  (:export #:with-unique-names
-	   #:once-only
-           #:defun-speedy
-           #:defdoublefunc
-           #:gethash-or-set
-           #:dmat
-	   #:dvec
-	   #:cvec
-	   #:make-dvec
-	   #:array-index
-           #:dfloat
-	   #:+fl
-	   #:-fl
-	   #:*fl
-	   #:/fl
-           #:safe-/
-	   #:batch-elt
-           #:split-seq-odd-even
-           #:d-expt
-           #:d-exp
-           #:get-underlying-1d-array
-           #:vecs2mat
-           #:vecs2flatmat
-           #:mat2vecs
-           #:flatmat2vecs
-	   ))
 
 (in-package :hjs.util.meta)
 

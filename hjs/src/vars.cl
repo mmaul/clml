@@ -1,11 +1,3 @@
-(defpackage :hjs.learn.vars
-  (:use :cl)
-  (:nicknames :vars)
-  (:export #:*epsilon*
-           #:*workers*
-           #:*most-negative-exp-able-float*
-           #:*most-positive-exp-able-float*
-           ))
 
 (in-package :hjs.learn.vars)
 
