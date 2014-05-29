@@ -1,5 +1,4 @@
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (require 'regexp2))
+
 
 (defpackage :csv
   (:use :common-lisp :iterate :parse-number)
@@ -25,7 +24,7 @@
 (defparameter *csv-separator* #\,)
 (defparameter *csv-quote* #\")
 (defparameter *csv-print-quote-p* nil "print \" when the element is a string?")
-(defparameter *csv-default-external-format* #+allegro :932 #-allegro :sjis)
+(defparameter *csv-default-external-format* #+allegro :932 #+ccl :Windows-31j #+sbcl :sjis) ;#+sbcl allegro :sjis
 
 (defun write-csv-line (record &key stream)
   "Accept a record and print it in one line as a csv record.
@@ -77,8 +76,12 @@ Elements can be any types"
 (defun parse-csv-string (str) ;; refer RFC4180
   (coerce
    ;; (regexp:split-re "," str)
-   (let ((q-count (count *csv-quote* str :test #'char-equal)))
-     (cond ((zerop q-count) (regexp:split-re *csv-separator* str))
+   (let ((q-count (count *csv-quote* str :test #'char-equal))
+         (sep-regex (cl-ppcre:parse-string (string *csv-separator*)))
+        )
+     (cond ((zerop q-count) (cl-ppcre:split sep-regex str) ;(regexp:split-re *csv-separator* str)
+            
+            )
            ((evenp q-count)
             (macrolet ((push-f (fld flds) `(push (coerce (reverse ,fld) 'string) ,flds)))
               (loop with state = :at-first ;; :at-first | :data-nq | :data-q | :q-in-nq | q-in-q
@@ -133,9 +136,11 @@ start and end specifies how many elements per record will be included.
 If start or end is negative, it counts from the end. -1 is the last element.
 "
   (declare (type (or (simple-array function *) null) type-conv-fns map-fns))
-  (let* ((line (read-line stream nil nil)))
-    (when line
-      (let* ((strs (parse-csv-string line))
+  (let* ((rline (read-line stream nil nil)))
+    
+    (when rline
+      (let* ((line (string-trim '(#\Space #\Tab #\Newline #\Return) rline))
+             (strs (parse-csv-string line))
              (strs-size (length strs)))
         (when (< start 0)
           (setf start (+ start strs-size)))
