@@ -1,38 +1,3 @@
-(defpackage :hjs.learn.read-data
-  (:use :cl :hjs.util.meta :hjs.util.vector :hjs.learn.vars :hjs.util.matrix
-        :handling-missing-value)
-  (:nicknames :read-data)
-  (:import-from :handling-missing-value #:interpolate)
-  (:export 
-   #:read-data-from-file
-   #:pick-and-specialize-data
-   #:divide-dataset
-   #:dataset-dimensions
-   #:dataset-points
-   #:unspecialized-dataset
-   #:specialized-dataset
-   #:numeric-dataset
-   #:numeric-matrix-dataset
-   #:dataset-numeric-points
-   #:numeric-and-category-dataset
-   #:numeric-matrix-and-category-dataset
-   #:dataset-category-points
-   #:dimension-name
-   #:dimension-type
-   #:dimension-index
-   #:dimension-metadata
-   #:make-dimension
-   #:copy-dimension
-   #:make-unspecialized-dataset
-   #:make-numeric-dataset
-   #:make-numeric-matrix-dataset
-   #:make-numeric-and-category-dataset
-   #:make-numeric-matrix-and-category-dataset
-   #:choice-a-dimension
-   #:choice-dimensions
-   #:dataset-cleaning
-   #:copy-dataset
-   #:make-bootstrap-sample-datasets))
 
 (in-package :hjs.learn.read-data)
 
@@ -496,6 +461,7 @@
 
 
 
+    
 ;;;; read and process data
 ;;@ function-type: string -> unspecialized-dataset
 (defun read-data-from-file (filename &key
@@ -527,9 +493,11 @@
      (multiple-value-bind (data header)
          (csv:read-csv-file filename :header csv-header-p :type-spec csv-type-spec
                             :external-format (if external-format-p external-format
-                                               #+allegro :932
-                                               #-allegro :sjis))
+                                                 #+allegro :932
+                                                 #+ccl :Windows-31j
+                                               )) ;#-allegro :sjis
        (make-unspecialized-dataset (coerce header 'list) data
+
                                    :missing-value-check missing-value-check
                                    :missing-values-list missing-values-list)))))
 
