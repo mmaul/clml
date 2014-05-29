@@ -1,12 +1,12 @@
 (asdf:defsystem :blas-package 
-                :pathname "blas/"
+                :pathname "src/"
                 :serial :f2cl-lib
                 :components (
                              (:file "package"))
                 )
 
 (asdf:defsystem :blas-hompack
-  :pathname "blas/"
+  :pathname "src/"
   :serial :blas-package
   :components (
                (:file "daxpy")
@@ -18,7 +18,7 @@
            ))
 
 (asdf:defsystem :blas-real
-                :pathname "blas/"
+                :pathname "src/"
                 :serial :blas-package
                 :components (
                              (:file "lsame")
@@ -58,7 +58,7 @@
            ))
 
 (asdf:defsystem :blas-complex
-  :pathname "blas/"
+  :pathname "src/"
   :serial :blas-package
   :components (
                (:file "zaxpy")
@@ -97,7 +97,7 @@
                (:file "ztrsv")))
 
 (asdf:defsystem :blas
-  :pathname "blas/"
+  :pathname "src/"
   :serial :f2cl-lib
   :depends-on (
            :blas-package
