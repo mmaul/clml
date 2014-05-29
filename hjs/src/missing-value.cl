@@ -3,16 +3,9 @@
 
 (declaim (optimize (speed 3) (safety 0) (space 0) (debug 1)))
 
-(defpackage :handling-missing-value
-  (:use :cl :util :vector :statistics :hjs.util.meta)
-  (:nicknames :missing-val)
-  (:export
-   #:*missing-values* #:missing-value-p
-   #:*na* #:*nan* #:*c-nan* #:*+inf* #:*-inf*
-   #:fill-na #:na-p #:nan-p #:c-nan-p
-   #:outlier-verification))
 
-(in-package :missing-val)
+(in-package :hjs.util.missing-value
+            )
 
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; decide missing value ;
@@ -45,14 +38,18 @@
    (remove :invalid (getf (sb-int:get-floating-point-modes) :traps))))
 
 (defconstant *nan* 
+    #+ccl double-float
     #+allegro excl:*nan-double*
     #+sbcl #.(- #.sb-ext:double-float-positive-infinity #.sb-ext:double-float-positive-infinity)
     #+lispworks system::*double-float-nan*)
+    
 (defconstant *+inf*
+    #+ccl 1D++0
     #+allegro excl:*infinity-double*
     #+sbcl #.sb-ext:double-float-positive-infinity
     #+lispworks 1D++0)
 (defconstant *-inf*
+    #+ccl -1d++0
     #+allegro excl:*negative-infinity-double*
     #+sbcl #.sb-ext:double-float-negative-infinity
     #+lispworks -1D++0)
