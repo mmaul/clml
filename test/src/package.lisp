@@ -5,8 +5,8 @@
    "CL" 
     "VARS" "READ-DATA" "STATISTICS"
     ;"ASSOC"
-    ;"CLUSTER-VALIDATION"
-    ;"DECISION-TREE"
+    "CLUSTER-VALIDATION"
+    "DECISION-TREE"
     ;"TS-READ-DATA"
     ;"TS-AUTOREGRESSION"
     ;"TS-UTIL"
@@ -15,16 +15,16 @@
     ;"EXPL-SMTHING"
     ;"CHANGEFINDER"
     ;"TS-ANOMALY-DETECTION" 
-    ;"HC"
+    "HC"
     ;"K-MEANS"
     ;"K-NN"
     ;"LINEAR-REGRESSION"
     ;"MISSING-VAL"
-    ;"NMF"
-    ;"OPTICS"
+    "NMF"
+    "OPTICS"
     ;"PCA"
     ;"SOM"
-    ;"SPECTRAL-CLUSTERING"
+    "SPECTRAL-CLUSTERING"
     ;"SVM.MU"
     ;"SVM.SMO"
     ;"SVM.WSS3"
@@ -32,7 +32,7 @@
     ;"ONE-CLASS-SVM"
     ;"NBAYES"
     ;"MATRIX"
-    ;"RANDOM-FOREST"
+    "RANDOM-FOREST"
     ;"UTIL"
     ;"TS-BURST-DETECTION"
     ;"HDP-LDA"
@@ -46,7 +46,13 @@
                :assert-equalp
                :assert-false
                :assert-eql
-               :print-errors)
+               :print-errors
+               :print-failures
+               :print-summary
+               :ASSERT-EQUALITY
+               :ASSERT-PRINTS
+               :set-equal
+               )
   (:import-from :decision-tree :make-decision-tree :print-decision-tree
                :decision-tree-validation :predict-decision-tree :make-regression-tree
                :predict-regression-tree :print-regression-tree :regression-tree-validation)
