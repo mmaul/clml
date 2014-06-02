@@ -1,3 +1,4 @@
+;-*- coding: utf-8 -*-
 (in-package :test)
 (define-test test-decision-tree
     (let (syobu bc-train bc-test cars tree query)
@@ -6,25 +7,19 @@
        (setf syobu (read-data-from-file "sample/syobu.csv" :type :csv 
                                                      :csv-type-spec
 						    '(string integer integer integer integer)))
-      
-      (setf bc-train (read-data-from-file "sample/bc.train.csv" :type :csv 
+       (setf bc-train (read-data-from-file "sample/bc.train.csv" :type :csv 
                                           :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
       
       (setf bc-test (read-data-from-file "sample/bc.test.csv" :type :csv 
 					 :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
       
       (setf cars (read-data-from-file "sample/cars.csv" :type :csv :csv-type-spec '(double-float double-float)))
-      (print "Ží—Þ")
-      (print syobu)
-      ;(setf tree (make-decision-tree *syobu* "‚ª‚­’·"))
-      ;(print tree)
       
-      (setf tree (make-decision-tree syobu "Ží—Þ"
-                                     ))
+      (setf tree (make-decision-tree syobu "ç¨®é¡ž"))
       
-      (assert-false (print-decision-tree tree))
+      (assert-false (print-decision-tree tree *dev-null*))
 
-      (assert-false (print-decision-tree (make-decision-tree syobu "Ží—Þ" :epsilon 0.1)))
+      (assert-false (print-decision-tree (make-decision-tree syobu "ç¨®é¡ž" :epsilon 0.1) *dev-null*))
       
       (setf query #("?" 53.0 30.0 33.0 10.0))
       
@@ -32,14 +27,14 @@
       
       (setf tree (make-decision-tree bc-train "Class"))
   
-      (assert-false (print-decision-tree tree))
+      (assert-false (print-decision-tree tree *dev-null*))
 
       (assert-equalp '((("benign" . "malignant") . 4) (("malignant" . "malignant") . 118) (("malignant" . "benign") . 9) (("benign" . "benign") . 214))
 		     (decision-tree-validation bc-test "Class" tree))
 
       (setf tree (make-regression-tree cars "distance" :epsilon 35))
       
-      (assert-false (print-regression-tree tree))
+      (assert-false (print-regression-tree tree *dev-null*))
 
       (setf query #(24.1 "?"))
       

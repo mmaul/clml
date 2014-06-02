@@ -1,4 +1,4 @@
-
+;-*- coding: utf-8 -*-
 (in-package "TEST")
 
 (define-test test-random-forest
@@ -14,7 +14,7 @@
       
       (setf cars (read-data-from-file "sample/cars.csv" :type :csv :csv-type-spec '(double-float double-float)))
       
-      (setf forest (make-random-forest syobu "Ží—Þ"))
+      (setf forest (make-random-forest syobu "ç¨®é¡ž"))
       
       (assert-eql 500 (length forest))
       

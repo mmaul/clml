@@ -10,7 +10,7 @@
                        (read-data:read-data-from-file
                         "sample/syobu.csv" :type :csv
                         :csv-type-spec '(string integer integer integer integer)
-                        :external-format #+allegro :932 #-allegro :sjis)
+                        :external-format #+allegro :932 #+sbcl :sjis #+ccl #+ccl :Windows-31j)
                        :except '(0) :data-types (make-list 4
                                                            :initial-element :numeric))
                       :random-state

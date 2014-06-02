@@ -1,4 +1,4 @@
-
+;-*- coding: utf-8 -*-
 (in-package "TEST")
 
 (define-test test-nmf
@@ -35,11 +35,11 @@
 	(read-data-from-file "sample/politics-corpus-data" :external-format :utf-8))
       (assert-true (< 15.29 (c^3m-cluster-number politics-corpus) 15.291))
       (assert-false (nmf-search matrix 113 :type :column))
-      (assert-false (nmf-corpus-search sports-corpus "¼•" :type :term :results 5))
+      (assert-false (nmf-corpus-search sports-corpus "è¥¿æ­¦" :type :term :results 5))
       (assert-false 
        (nmf-corpus-search sports-corpus "00267800" :type :document :results 5))
       (assert-false
-       (nmf-corpus-search politics-corpus "ƒNƒŠƒ“ƒgƒ“" :type :term :results 5))
+       (nmf-corpus-search politics-corpus "ã‚¯ãƒªãƒ³ãƒˆãƒ³" :type :term :results 5))
       ))
 
 

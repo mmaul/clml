@@ -1,8 +1,8 @@
-
+;-*- coding: utf-8 -*-
 (in-package "TEST")
 
 (define-test test-sample-optics
     (assert-true 
-     (optics "sample/syobu.csv" 10 2 10 '("‚ª‚­’·" "‚ª‚­•" "‰Ô‚Ñ‚ç’·" "‰Ô‚Ñ‚ç•")
+     (optics "sample/syobu.csv" 10 2 10 '("ãŒãé•·" "ãŒãå¹…" "èŠ±ã³ã‚‰é•·" "èŠ±ã³ã‚‰å¹…")
              :file-type :csv :csv-type-spec '(string integer integer integer integer) 
-             :distance :manhattan :external-format #+allegro :932 #-allegro :sjis)))
+             :distance :manhattan :external-format #+allegro :932 #+sbcl :sjis #+ccl :Windows-31j)))

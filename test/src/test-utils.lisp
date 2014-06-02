@@ -129,3 +129,9 @@
                      (round-to (aref arr i j) precision))))
          arr))))
 
+(defparameter *dev-null*
+  #-lispm
+  (make-two-way-stream (make-concatenated-stream) (make-broadcast-stream))
+  ;; Since Lisp Machines have a built-in /dev/null which handles
+  ;; additional, non-standard operations, we'll use that instead.
+  #+lispm #'system:null-stream)

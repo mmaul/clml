@@ -14,4 +14,5 @@
       (assert-true (loop for cluster in '(("e") ("f" "z" "y" "x") ("c") ("b" "a") ("w"))
                        always (member cluster result :test (lambda (l1 l2)
                                                              (set-equal l1 l2 :test #'string=)))))))
-      
+
+
