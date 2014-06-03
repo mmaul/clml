@@ -1,19 +1,3 @@
-(defpackage :hc
-  (:use :cl
-	:hjs.learn.read-data
-	:hjs.util.vector
-	:hjs.util.matrix
-        :hjs.util.meta)
-  (:export #:cophenetic-matrix
-	   #:cophenetic-cc
-	   #:distance-matrix
-	   #:hc-average
-	   #:hc-ward
-	   #:hc-single
-	   #:hc-complete
-	   #:hc-centroid
-	   #:hc-median
-	   #:cutree))
 
 (in-package :hc)
 

@@ -1,34 +1,3 @@
-(defpackage :nmf
-  (:use :cl
-	:hc
-	:blas
-	:lapack
-	:hjs.learn.read-data
-	:hjs.util.matrix
-        :hjs.util.meta)
-  (:import-from :hc 
-		#:i-thvector
-		#:vector-sum
-		#:vector-mean
-		#:vector-shift
-		#:product-sum
-		#:square-sum
-		#:max-vector
-		#:min-vector
-		#:pick-up-row
-		#:pick-up-column
-		#:numeric-matrix)
-  (:export #:nmf
-	   #:nmf-clustering
-	   #:rho-k
-	   #:nmf-analysis
-	   #:nmf-corpus-analysis
-	   #:c^3m-cluster-number
-	   #:nmf-search
-	   #:nmf-corpus-search
-	   #:nmf-sc
-	   #:sparseness
-	   #:sample-matrix))
 
 (in-package :nmf)
 

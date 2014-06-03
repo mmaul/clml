@@ -1,27 +1,5 @@
-(defpackage :clml.k-means
-    (:use :cl :hjs.util.vector :hjs.util.meta
-          :statistics :hjs.util.matrix)
-  (:nicknames :k-means)
-  (:export #:k-means
 
-	   #:make-cluster
-	   #:c-center
-	   #:c-size
-	   #:c-points
-	   #:cluster
-
-	   #:pw-points
-	   #:pw-clusters
-
-	   #:p-pos
-	   #:p-owner
-	   #:point
-           
-           #:get-cluster-centroids
-           #:get-cluster-points
-	   ))
-
-(in-package :clml.k-means)
+(in-package :clml.clustering.k-means2)
 
 ;;;; global variables
 (defparameter *num-of-trials* 10)
@@ -50,7 +28,7 @@
   )
 
 (defun k-means ()
-  (loop repeat num-of-trials
+  (loop repeat *num-of-trials*
         do
      (trial)
      (update-best-trial))

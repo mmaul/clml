@@ -8,14 +8,6 @@
 ;;; "OPTICS:Ordering Points To Identify the Clustering Structure."
 ;;; Institute for Computer Science, University of Munich
 
-(defpackage :optics
-  (:use :cl
-        :hjs.learn.read-data
-        :hjs.util.matrix
-        :statistics)
-  (:export :optics
-           :optics-main
-           :make-optics-input))
 
 (in-package :optics)
 

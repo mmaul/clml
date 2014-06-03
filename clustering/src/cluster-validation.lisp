@@ -11,19 +11,6 @@
             :data-types (make-list 12 :initial-element :numeric))))nil)
 ||#
 
-(defpackage :cluster-validation
-  (:use :cl
-        :hjs.learn.k-means
-	:hjs.util.vector :hjs.util.meta
-	:iterate)
-  (:export 
-   :*workspace*
-   :dunn-index
-   :davies-bouldin-index
-   :calinski
-   :hartigan
-   :ball-and-hall
-   :global-silhouette-value))
 
 (in-package :cluster-validation)
 
@@ -361,16 +348,6 @@
     (fill-vec v 0d0)
     v))
 
-(defun centroid ()
-  (let ((c (make-zero-dvec))
-        (n 0)
-        (pw-points (pw-points *workspace*)))
-    (do-vec (p pw-points :type point)
-      (v+ c (p-pos p) c)
-      (incf n))
-    (v-scale c (the double-float (/ 1d0 (coerce n 'double-float))) c)
-    c))
-
 
 (defun calinski (&optional (*workspace* *workspace*))
   (let ((n (length (pw-points *workspace*)))
@@ -433,3 +410,15 @@
         (summing (silhouette c) into s)
         (counting t into n)
         (finally (return (/ s n)))))
+#|
+(defun centroid ()
+  (let ((c (make-zero-dvec))
+        (n 0)
+        (pw-points (pw-points *workspace*)))
+    (do-vec (p pw-points :type #'p-point)
+      (v+ c (p-pos p) c)
+      (incf n))
+    (v-scale c (the double-float (/ 1d0 (coerce n 'double-float))) c)
+    c))
+|#
+

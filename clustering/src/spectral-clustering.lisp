@@ -7,11 +7,6 @@
 ;;;;   First IEEE International Conference on Data Mining (ICDM'01), 2001.
 
 
-(defpackage :spectral-clustering
-    (:use :cl :hjs.util.matrix :hjs.util.meta)
-  (:export #:spectral-clustering-mcut)
-  (:import-from #+allegro "EXCL" #+sbcl "SB-INT" #+lispworks "LISPWORKS"
-                "FIXNUMP"))
 
 
 (in-package :spectral-clustering)
