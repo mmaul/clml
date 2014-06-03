@@ -1,12 +1,5 @@
 
 
-(defpackage :csv
-  (:use :common-lisp :iterate :parse-number)
-  (:export #:read-csv-file
-	   #:read-csv-stream
-	   #:write-csv-file
-	   #:write-csv-stream
-	   #:read-csv-file-and-sort))
 
 (in-package :csv)
 
