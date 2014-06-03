@@ -4,21 +4,8 @@
 ;;;Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin
 
 
-(defpackage :one-class-svm
-  (:use :cl
-	:svm.wss3
-	:hjs.util.meta
-	:hjs.util.vector
-	:hjs.learn.read-data
-        :hjs.util.matrix)
-  (:import-from :svm.wss3
-		#:sign
-		#:call-kernel-function-uncached
-		#:call-kernel-function)
-  (:export #:one-class-svm
-	   ))
 
-(in-package one-class-svm)
+(in-package clml.svm.one-class)
 
 ;; (declaim (optimize speed (safety 0) (debug 1)))
 

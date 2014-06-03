@@ -1,3 +1,4 @@
+;-*- coding: utf-8 -*-
 ;;;Support Vector Machine Package using SMO-type algorithm
 ;;;Abe Yusuke,Jianshi Huang. 2010 June
 ;;;Reference: Working Set Selection Using Second Order Information for Training SVM.
@@ -5,24 +6,8 @@
 ;;;Joint work with Rong-En Fan and Pai-Hsuen Chen.
 
 
-(defpackage :svm.wss3
-  (:use :cl
-	:hjs.util.meta
-	:hjs.util.vector
-	:hjs.learn.read-data
-        :hjs.util.matrix)
-  (:import-from :decision-tree
-		#:sum-up)
-  (:export #:make-svm-learner
-	   #:load-svm-learner
-	   #:make-linear-kernel
-	   #:make-rbf-kernel
-	   #:make-polynomial-kernel
-	   #:make-one-class-svm-kernel
-	   #:svm-validation
-	   ))
 
-(in-package svm.wss3)
+(in-package clml.svm.pwss3)
 
 ;; (declaim (optimize speed (safety 0) (debug 1)))
 
@@ -37,11 +22,14 @@
 (defparameter *kernel-vec-d* (make-dvec 0))
 (defparameter *iteration* 0)
 
+(defparameter *future-pool* (make-array 0))
+
 (declaim (type double-float *eps* *tau*)
          (type fixnum *training-size* *label-index* *iteration*)
          (type dvec *alpha-array* *gradient-array* *kernel-vec-d*)
          (type (simple-array double-float (1)) *kernel-function-result*)
-         ;; (type (or null cache) *kernel-cache*) ; cache is not declared yet
+         ;; (type (or null cache) *kernel-cache*)
+         (type simple-vector *future-pool*)
          )
 
 (declaim (inline eta eta-cached sign update-gradient select-i select-j)
@@ -74,7 +62,7 @@
   (check-type point1-var symbol)
   (check-type point2-var symbol)
   (let ((point2-vec-var (intern (concatenate 'string (string point2-var) "-ARRAY"))))
-    (with-unique-names (result i start end)
+    (with-unique-names (result i start end inner-start inner-end)
       `(make-kernel-function
         :name ,name
         :scalar
@@ -92,12 +80,25 @@
                    (optimize speed (safety 0))
                    (type (or null array-index) ,start ,end))
           (assert (<= (length ,point2-vec-var) (length ,result)))
-          (loop for ,i of-type array-index from (or ,start 0) below (or ,end (length ,point2-vec-var))
-                for ,point2-var of-type dvec = (aref ,point2-vec-var ,i)
-                do
-             (setf (aref ,result ,i) (locally ,@body))
-                finally
-             (return ,result)))))))
+          (labels ((do-it (,inner-start ,inner-end)
+                     (declare (type array-index ,inner-start ,inner-end))
+                     (loop for ,i of-type array-index from ,inner-start below ,inner-end
+                           for ,point2-var of-type dvec = (aref ,point2-vec-var ,i)
+                           do
+                        (setf (aref ,result ,i) (locally ,@body)))))
+            (let* ((,start (or ,start 0))
+                   (,end (or ,end (length ,point2-vec-var)))
+                   (length (- ,end ,start)))
+              (future:wait-for-all-futures
+               (loop for processors of-type array-index downfrom (future:future-max-threads)
+                     for start = ,start then end
+                     for end = (next-end length processors start)
+                     for future-id of-type array-index from 0
+                     while end
+                     collect
+                  (progn
+                    (future:future-funcall #'do-it (list start end) (aref *future-pool* future-id)))))
+              ,result)))))))
 
 #| e.g.
 
@@ -151,6 +152,13 @@
            (,vb ,b))
        (setf ,a ,vb)
        (setf ,b ,va))))
+
+(defun next-end (total-size n-processors start)
+  (declare (type fixnum total-size n-processors start)
+           (optimize speed (safety 0) (debug 1)))
+  (if (>= start total-size)
+      nil
+      (the fixnum (+ start (the fixnum (round (the fixnum (- total-size start)) n-processors))))))
 
 ;;
 (declaim (type (function (cache head) cache) lru-delete lru-insert)
@@ -363,6 +371,9 @@
     (setf *gradient-array* (make-array *training-size* :element-type 'double-float :initial-element -1.0d0))
     (setf *kernel-vec-d* (make-dvec *training-size*))
     (setf *kernel-cache* (make-cache *training-size* (or cache-size-in-bytes (* 100 1024 1024))))
+    (setf *future-pool* (make-array (the fixnum (future:future-max-threads))))
+    (loop for i of-type array-index below (future:future-max-threads)
+          do (setf (aref *future-pool* i) (future::make-future)))
     
     (let ((tau *tau*)
           (training-size *training-size*)

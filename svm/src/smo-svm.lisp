@@ -3,25 +3,8 @@
 ;;;Reference: Jhon C. Platt. "Fast Training of Support Vector Machines using Sequential Minimal Optimization"
 
 
-(defpackage :svm.smo
-  (:use :cl
-	:hjs.learn.read-data
-        :hjs.util.vector
-        :hjs.util.matrix
-        :hjs.util.meta)
-  (:import-from :decision-tree
-		#:sum-up)
-  (:export
-   ;;#:linear-kernel
-   ;;#:make-rbf-kernel
-   ;;#:make-polynomial-kernel
-   ;;#:make-svm-learner
-   ;;#:svm-validation
-   ;;#:load-svm-learner
-   ;;#:call-kernel-function-with-indices
-   ;;#:call-kernel-function-with-vectors))
-   ))
-(in-package svm.smo)
+
+(in-package clml.svm.smo)
 
 ;;; (declaim (optimize speed (safety 0) (debug 1) (compilation-speed 0)))
 ;;; (declaim (optimize (speed 0) safety debug (compilation-speed 0)))

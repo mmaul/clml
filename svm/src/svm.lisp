@@ -16,18 +16,8 @@
 
 ;;; TODO: Regression
 
-(in-package :cl-user)
 
-(defpackage :svm.mu
-  (:use :common-lisp :hjs.util.meta)
-  (:export :kernel
-           :polynomial-kernel 
-           :+linear-kernel+
-           :radial-kernel :gaussian-kernel
-           :sigmoid-kernel
-           :svm))
-
-(in-package :svm.mu)
+(in-package :clml.svm.mu)
 
 #+ignore                                ; too general
 (defun v- (&rest u)
@@ -48,7 +38,8 @@
   (loop for ui in u
       for vi in v
       sum (* (the double-float ui)
-             (the double-float vi)) of-type double-float))
+             (the double-float vi)) of-type double-float)
+  )
 
 #+ignore                                ; use matrix:m*v
 (defun m*v (m v)

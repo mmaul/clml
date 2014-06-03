@@ -16,13 +16,17 @@
                     (reduce #'max negative-data :key #'second)))
          (width (* (+ (- maxx minx) (* 2 border)) scale))
          (height (* (+ (- maxy miny) (* 2 border)) scale)))
-    (with-open-file (s filename :direction :output :if-exists :supersede)
+    
+    (with-open-file;(print (list width height))
+;(print (list width height))
+ (s filename :direction :output :if-exists :supersede)
       (format s "P3~%~d ~d~%255~%" width height)
       (flet ((closep (p q)
                (let ((d (v- p q)))
                  (< (scalar-product d d) 0.5d0))))
-        (dotimes (y height)
-          (dotimes (x width)
+        (dotimes (y (round height))
+          (dotimes (x (round width))
+            
             (let ((pos (list (- (+ minx (/ x scale)) border)
                              (- (+ miny (/ y scale)) border))))
               (cond ((member pos positive-data :test #'closep)
@@ -33,13 +37,17 @@
                      (format s "255 255 255~%"))
                     (t (format s "0 0 0~%"))))))))))
 
+(defun pairs-to-double (l)
+  (mapcar (lambda (n) (list (coerce (first n) 'double-float) (coerce (second n) 'double-float)) )
+          l))
 ;;; Some sample tests
 (defparameter *positive-set*
-  '((8 8) (8 20) (8 44) (8 56) (12 32) (16 16) (16 48)
-    (24 20) (24 32) (24 44) (28 8) (32 52) (36 16)))
+  (pairs-to-double'((8 80) (8 20) (8 44) (8 56) (12 32) (16 16) (16 48)
+                    (24 20) (24 32) (24 44) (28 8) (32 52) (36 16)))
+  )
 (defparameter *negative-set*
-  '((36 24) (36 36) (44 8) (44 44) (44 56)
-    (48 16) (48 28) (56 8) (56 44) (56 52)))
+  (pairs-to-double'((36 24) (36 36) (44 8) (44 44) (44 56)
+                    (48 16) (48 28) (56 8) (56 44) (56 52))))
 
 #+nil
 (test +linear-kernel+ *positive-set* *negative-set* "linear-test.ppm")
