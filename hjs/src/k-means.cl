@@ -1,28 +1,5 @@
 ;;;; Use Elkan's algorithm to avoid excessive distance computation.
 
-(defpackage :hjs.learn.k-means
-  (:use :cl :hjs.util.vector :hjs.util.meta :hjs.learn.read-data
-	:statistics :hjs.util.matrix :iterate
-	:hjs.learn.vars)
-  (:nicknames :k-means)
-  (:export #:k-means
-
-	   #:make-cluster
-	   #:c-center
-	   #:c-size
-	   #:c-points
-	   #:cluster
-
-	   #:pw-points
-	   #:pw-clusters
-
-	   #:p-pos
-	   #:p-owner
-	   #:point
-     
-     #:get-cluster-centroids
-     #:get-cluster-points
-	   ))
 
 (in-package :hjs.learn.k-means)
 
@@ -59,7 +36,8 @@
   (assert (and (integerp seed) (>= seed 0)))
   #+allegro (make-random-state t (1+ seed))
   #+sbcl (make-random-state (sb-ext:seed-random-state seed))
-  #-(or allegro sbcl)
+  #+ccl (make-random-state t)
+  #-(or allegro sbcl ccl)
   (error "I don't know how to make random-state by seed in this lisp.~%
 If you know it, add line in make-random-state-with-seed.~%
 Otherwise, you must use :auto for random-seed."))

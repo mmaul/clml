@@ -472,7 +472,8 @@
                                      (missing-value-check t)
                                      missing-values-list)
   "Convention: first line is column name."
-  (assert (member type '(:sexp :csv))) 
+  (assert (member type '(:sexp :csv)))
+  
   (ecase type
     ((:sexp nil)
      (let (tmp)
@@ -495,7 +496,8 @@
                             :external-format (if external-format-p external-format
                                                  #+allegro :932
                                                  #+ccl :Windows-31j
-                                               )) ;#-allegro :sjis
+                                                 #+sbcl :sjis
+                                               )) 
        (make-unspecialized-dataset (coerce header 'list) data
 
                                    :missing-value-check missing-value-check
