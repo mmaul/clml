@@ -1,18 +1,5 @@
 ;;;
 
-(defpackage :decision-tree
-  (:use :cl
-	:hjs.learn.read-data
-	:hjs.util.matrix)
-  (:export  
-   #:make-decision-tree
-   #:make-regression-tree
-   #:print-decision-tree
-   #:print-regression-tree
-   #:predict-decision-tree
-   #:predict-regression-tree
-   #:decision-tree-validation
-   #:regression-tree-validation))
 	    
 (in-package :decision-tree)
 
@@ -33,7 +20,7 @@
       finally (return alist)))
 
 (defun column-name->column-number (variable-index-hash column-name)
-  (multiple-value-bind (column-number flag)
+      (multiple-value-bind (column-number flag)
       (gethash column-name variable-index-hash)
     (if (null flag)
 	(error "such column-name does not exist.")
@@ -187,8 +174,8 @@
 				      x)) v)))
 				
     (if (<= (second w) epsilon)
-	(values nil '())
-      (values (car w) (remove (car w) split-criterion-list))))) ;:test #'equal)))))
+        (values nil '())
+    (values (car w) (remove (car w) split-criterion-list))))) ;:test #'equal)))))
 
 (defun make-root-node (data-vector variable-index-hash objective-column-index &key (test #'delta-gini) (epsilon 0))
   
@@ -304,7 +291,7 @@
     	 
 (defun print-regression-tree-node (tree-node &optional stream)
   (if (numberp (cdaar tree-node))
-      (format stream "[~A <= ~A?] (mean = ~,2F, n = ~A)~%" 
+      (format stream "[~A <= ~A?] (smean = ~,2F, n = ~A)~%" 
 	      (cdaar tree-node) (caaar tree-node) (mean (second tree-node)) (total (second tree-node)))
     (format stream "[~A:~A?] (mean = ~,2F, n = ~A)~%" 
 	    (caaar tree-node) (cdaar tree-node) (mean (second tree-node)) (total (second tree-node)))))

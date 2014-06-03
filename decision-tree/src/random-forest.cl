@@ -1,31 +1,3 @@
-(defpackage :random-forest
-  (:use :cl
-	:hjs.learn.read-data
-	:decision-tree)
-  (:import-from :decision-tree 
-		#:make-variable-index-hash
-		#:sum-up
-		#:column-name->column-number
-		#:total
-		#:make-split-predicate
-		#:sum-up-results
-		#:gini-index
-		#:entropy
-		#:mean
-		#:variance
-		#:whole-row-numbers-list
-		#:split
-		#:delta-gini
-		#:delta-entropy
-		#:delta-variance)
-  (:export  
-   #:make-random-forest
-   #:make-regression-forest
-   #:predict-forest
-   #:importance
-   #:predict-regression-forest
-   #:forest-validation
-   #:regression-forest-validation))
 
 (in-package :random-forest)
 
