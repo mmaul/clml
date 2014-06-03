@@ -2,43 +2,50 @@
 
 (defpackage "TEST"
   (:use
-   "CL" 
-    "VARS" "READ-DATA" "STATISTICS"
-    ;"ASSOC"
-    "CLUSTER-VALIDATION"
-    "DECISION-TREE"
-    ;"TS-READ-DATA"
-    ;"TS-AUTOREGRESSION"
-    ;"TS-UTIL"
-    ;"TS-STAT"
-    ;"TS-STATE-SPACE"
-    ;"EXPL-SMTHING"
-    ;"CHANGEFINDER"
-    ;"TS-ANOMALY-DETECTION" 
-    "HC"
-    ;"K-MEANS"
-    ;"K-NN"
-    ;"LINEAR-REGRESSION"
-    ;"MISSING-VAL"
-    "NMF"
-    "OPTICS"
-    ;"PCA"
-    ;"SOM"
-    "SPECTRAL-CLUSTERING"
-    ;"SVM.MU"
-    ;"SVM.SMO"
-    ;"SVM.WSS3"
-    ;"SVR"
-    ;"ONE-CLASS-SVM"
-    ;"NBAYES"
-    ;"MATRIX"
-    "RANDOM-FOREST"
-    ;"UTIL"
-    ;"TS-BURST-DETECTION"
-    ;"HDP-LDA"
-    ;"DPM"
-    ;"TEXT-UTILITIES"
-    )
+   :cl
+   :vars
+   :read-data
+   :statistics
+   ;"ASSOC"
+   :CLUSTER-VALIDATION
+   ;"DECISION-TREE"
+   :clml.time-series.util
+   :clml.time-series.read-data
+   :clml.time-series.statistics
+   :clml.time-series.state-space
+   :clml.time-series.autoregression
+   :clml.time-series.anomaly-detection
+   :clml.time-series.exponential-smoothing
+   :clml.time-series.burst-detection
+   ;"TS-UTIL"
+   
+   ;"CHANGEFINDER"
+   
+   
+   :hc
+   ;"K-MEANS"
+   ;"K-NN"
+   ;"LINEAR-REGRESSION"
+   ;"MISSING-VAL"
+   :nmf
+   :optics
+   ;"PCA"
+   ;"SOM"
+   :spectral-clustering
+   ;"SVM.MU"
+   ;"SVM.SMO"
+   ;"SVM.WSS3"
+   ;"SVR"
+   ;"ONE-CLASS-SVM"
+   ;"NBAYES"
+   ;"MATRIX"
+   :random-forest
+   ;"UTIL"
+   ;"TS-BURST-DETECTION"
+   ;"HDP-LDA"
+   ;"DPM"
+   ;"TEXT-UTILITIES"
+   )
   (:import-from :LISP-UNIT
                :define-test
                :run-tests
@@ -53,6 +60,7 @@
                :ASSERT-PRINTS
                :set-equal
                )
+  
   (:import-from :decision-tree :make-decision-tree :print-decision-tree
                :decision-tree-validation :predict-decision-tree :make-regression-tree
                :predict-regression-tree :print-regression-tree :regression-tree-validation)

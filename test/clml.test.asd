@@ -14,6 +14,7 @@
                              :hjs
                              :clml.decision-tree
                              :clml.clustering
+                             :clml.time-series
                              :clml.test-package
                              )
                 :components (
@@ -26,5 +27,14 @@
                              (:file "test-optics")
                              (:file "test-spectral-clustering")
                              (:file "test-cluster-validation")
+                             (:file "test-ts-anomaly-detection")
+                             (:file "test-changefinder")
+                             (:file "test-ts-ar")
+                             (:file "test-ts-burst-detection")
+                             (:file "test-ts-read-data")
+                             (:file "test-ts-stat")
+                             (:file "test-ts-stsp")
+                             (:file "test-expl-smthing")
+                             (:file "test-groups")
                              )
                 )
