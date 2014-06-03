@@ -8,15 +8,8 @@
 ;	realft: fourier transform of a real functions
 ;------------------------------------------------------------------------------
 
-(defpackage :fast-fourier-transform
-  (:use :cl :hjs.util.meta)
-  (:nicknames :fft)
-  (:export
-   #:make-expt-array
-   #:four1
-   #:realft))
 
-(in-package :fast-fourier-transform)
+(in-package :clml.numeric.fast-fourier-transform)
 
 (defmacro fref (arr &rest indices)
   `(aref ,arr ,@(mapcar #'(lambda (x) (list '1- x)) indices)))
