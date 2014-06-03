@@ -226,10 +226,21 @@
   (let* ((stafile (format nil "statvis/~A.sta" fname)))
     (ts-to-sta ts stafile :external-format external-format)
     (let ((stream
+           #+allegro
            (run-shell-command
             (format nil "\"statvis/STATVIS\" -- \"~A\""
-                    stafile) :input :stream :output :stream :wait nil)))
-      (close-cmd-stream stream))))
+                    stafile) :input :stream :output :stream :wait nil)
+           #-allegro
+           (uiop:run-program
+            (format nil "\"statvis/STATVIS\" -- \"~A\""
+                    stafile)  :output nil :wait nil)
+           ))
+      
+      #+allegro
+      (close-cmd-stream stream)
+      #-allegro
+      stream
+      )))
 
 
 ;;;;; for R input/output

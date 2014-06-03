@@ -1,28 +1,5 @@
-(defpackage :ts-read-data
-  (:use :cl :util :vector :vars :read-data :missing-val)
-  (:export 
-   #:time-series-dataset
-   #:time-series-data
-   #:make-constant-time-series-data
-   #:make-ts-point
-   #:ts-p-pos
-   #:ts-p-freq
-   #:ts-p-label
-   #:ts-p-time
-   #:ts-points
-   #:time-label-name
-   #:copy-ts
-   #:ts-start
-   #:ts-end
-   #:ts-freq
-   #:ts-type
-   #:tf-incl
-   #:tf-gap
-   #:ts-cleaning)
-  (:import-from :read-data #:clean-points #:dimension)
-  )
-
-(in-package :ts-read-data)
+;-*- coding: utf-8 -*-
+(in-package :clml.time-series.read-data)
 
 (defclass time-series-dataset (specialized-dataset)
   ((frequency :initarg :frequency

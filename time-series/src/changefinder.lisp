@@ -1,13 +1,8 @@
-;; ref. �R�����i "�f�[�^�}�C�j���O�ɂ��ُ팟�m"
+;-*- coding: utf-8 -*-
+;; ref. 山西健司 "データマイニングによる異常検知"
 
-(defpackage :changefinder
-  (:use :cl :read-data :util :vector :matrix
-        :statistics :ts-util :ts-stat :ts-read-data
-        :handling-missing-value)
-  (:export :init-changefinder
-           :update-changefinder))
 
-(in-package :changefinder)
+(in-package :clml.time-series.changefinder)
 
 (defclass changefinder ()
   ((n-dim :initarg :n-dim :initform nil :accessor n-dim)
@@ -143,8 +138,11 @@
         as val1 = (aref x-m col)
         do (loop for row below dim
                as val = (* val1 (aref x-m row))
-               do (setf (aref x-mx-m col row) val)))
+              do (setf (aref x-mx-m col row) val)))
+    #+mkl
     (mkl.blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
+    #-mkl
+    (blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
     (tr res)))
 ;; hellinger score
 (defmethod hellinger-distance ((pt-1 multi-gaussian) (pt multi-gaussian))
@@ -176,14 +174,14 @@
                                              (m*v (m^-1 s+ss) (vcv sm ssmm :c #'+))))
                      (* -0.5d0 (+ (inner-product m sm)
                                   (inner-product mm ssmm)))))))))))
-;; �l���ۂ߂�
+;; 値を丸める
 (defun round-value (value &key (precision 1e-12))
   (dfloat (* precision (round value precision))))
-;; �x�N�g���̊e�l���ۂ߂�
+;; ベクトルの各値を丸める
 (defun round-vec (vec)
   (do-vec (val vec :type double-float :setf-var sf :return vec)
     (setf sf (round-value val))))
-;; �s��̊e�l���ۂ߂�
+;; 行列の各値を丸める
 (defun round-mat (mat &optional (precision 1e-12))
   (assert (> 1 precision))
   (loop for i below (array-dimension mat 0)

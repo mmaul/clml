@@ -8,15 +8,8 @@
 ;;;     http://cran.r-project.org/web/packages/bursts/index.html , 2012-10-24.
 
 
-(defpackage :ts-burst-detection
-  (:use :cl :read-data :handling-missing-value
-        :ts-util :ts-stat :ts-read-data)
-  (:export
-   #:continuous-kleinberg
-   #:print-burst-indices
-   #:enumerate-kleinberg))
 
-(in-package :ts-burst-detection)
+(in-package :clml.time-series.burst-detection)
 
 (defun index-of-minimum-value (value-vector &key key)
   (declare (optimize (speed 3) (debug 0) (safety 0)))

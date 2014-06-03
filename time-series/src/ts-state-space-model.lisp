@@ -1,15 +1,10 @@
-;;  classes and methods for state-space-model
-;;  reference: "Œn—ñ‰ğÍ“ü–å ’˜:–kìŒ¹l˜Y Šâ”g‘“X" 9 ÍˆÈ~
-(defpackage :ts-state-space
-  (:use :cl :read-data :util :vector :matrix
-        :statistics :ts-util :ts-stat :ts-read-data
-        :handling-missing-value)
-  (:nicknames :ts-stsp)
-  (:export 
-   #:trend #:trend-prediction
-   #:seasonal #:seasonal-adj))
+;-*- coding: utf-8 -*-
 
-(in-package :ts-stsp)
+
+;;  classes and methods for state-space-model
+;;  reference: "æ™‚ç³»åˆ—è§£æå…¥é–€ è‘—:åŒ—å·æºå››éƒ å²©æ³¢æ›¸åº—" 9 ç« ä»¥é™
+
+(in-package :clml.time-series.state-space)
 
 (defclass state-space-model (timeseries-model)
   ((F-matrices :initarg :F-matrices 

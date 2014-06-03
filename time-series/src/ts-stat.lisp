@@ -1,26 +1,5 @@
-(defpackage :time-series-statistics
-  (:use :cl :hjs.learn.read-data :hjs.util.meta :hjs.util.vector
-        :hjs.util.matrix :statistics :hjs.learn.vars
-        :ts-util :ts-read-data :fft)
-  (:nicknames :ts-stat)
-  (:export
-   #:lag
-   #:diff
-   #:ts-ratio
-   #:ts-log                             ; include logit transformation
-   #:ts-min
-   #:ts-max
-   #:ts-mean
-   #:ts-median
-   #:ts-demean
-   #:ts-covariance
-   #:ts-correlation
-   #:ma
-   #:acf
-   #:ccf
-   #:periodgram))
 
-(in-package :time-series-statistics)
+(in-package :clml.time-series.statistics)
 
 (defmethod lag ((d time-series-dataset) &key (k 1))
   (assert (integerp k))

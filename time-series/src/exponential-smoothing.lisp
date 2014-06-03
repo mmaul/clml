@@ -12,17 +12,8 @@ CL-USER> (best-double-exp-parameters
 ;;; (eval-when (:load-toplevel :compile-toplevel :execute)
 ;;;  (asdf:operate 'asdf:load-op 'iterate))
 
-(defpackage :exponential-smoothing
-  (:use :cl :iter :ts-util :ts-stat
-        :read-data :util :vector :vars :ts-read-data)
-  (:nicknames :expl-smthing)
-  (:export
-   #:best-single-exp-parameters
-   #:best-double-exp-parameters
-   #:best-triple-exp-parameters
-   #:holtwinters
-   #:holtwinters-prediction))
-(in-package :exponential-smoothing)
+
+(in-package :clml.time-series.exponential-smoothing)
 
 (defclass holtwinters-model (timeseries-model)
   ((exp-type :initarg :exp-type
