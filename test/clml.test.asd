@@ -15,6 +15,7 @@
                              :clml.decision-tree
                              :clml.clustering
                              :clml.time-series
+                             :clml.svm
                              :clml.test-package
                              )
                 :components (
@@ -35,6 +36,11 @@
                              (:file "test-ts-stat")
                              (:file "test-ts-stsp")
                              (:file "test-expl-smthing")
+                             (:file "test-svm")
+                             (:file "test-smo-svm")
+                             (:file "test-wss3-svm")
+                             (:file "test-pwss3-svm")
+                             (:file "test-one-class-svm")
                              (:file "test-groups")
                              )
                 )

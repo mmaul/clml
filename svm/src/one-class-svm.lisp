@@ -26,7 +26,7 @@
 (defun qp-solver (training-vector kernel-function nu)
   "for one-class-svm"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+	   ;(type function kernel-function)
 	   (type double-float nu))
   
   (setf *training-size* (length training-vector))
@@ -318,9 +318,8 @@
 (defun one-class-svm (data-vector &key nu gamma)
   (assert (and (< 0.0d0 nu 1.0d0) (plusp gamma)))
   (let* ((nu (coerce nu 'double-float))
-	 (gamma (coerce gamma 'double-float))
-	 (kernel-function (make-one-class-svm-kernel :gamma gamma))
-	 (alpha-array (qp-solver data-vector kernel-function nu))
-	 (rho (compute-rho data-vector kernel-function alpha-array)))
-    
+         (gamma (coerce gamma 'double-float))
+         (kernel-function (make-one-class-svm-kernel :gamma gamma))
+         (alpha-array (qp-solver data-vector kernel-function nu))
+         (rho (compute-rho data-vector kernel-function alpha-array)))
     (make-discriminant-function data-vector kernel-function alpha-array rho)))

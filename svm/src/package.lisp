@@ -46,10 +46,12 @@
 		#:call-kernel-function-uncached
 		#:call-kernel-function)
   (:export #:one-class-svm
-	   ))
+           #:qp-solver
+           ))
 
 (defpackage :clml.svm.pwss3
-    (:use :cl
+  (:nicknames :pwss3-svm)
+  (:use :cl
           :hjs.util.meta
           :hjs.util.vector
           :hjs.learn.read-data

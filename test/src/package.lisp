@@ -32,9 +32,11 @@
    ;"PCA"
    ;"SOM"
    :spectral-clustering
-   ;"SVM.MU"
-   ;"SVM.SMO"
-   ;"SVM.WSS3"
+   :clml.svm.mu
+   :clml.svm.smo
+   :clml.svm.wss3
+   ;:clml.svm.pwss3
+   :clml.svm.one-class
    ;"SVR"
    ;"ONE-CLASS-SVM"
    ;"NBAYES"
