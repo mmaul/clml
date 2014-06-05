@@ -15,6 +15,7 @@
                              :f2cl
                              :blas
                              :lapack
+                             :future
                              :statistics
                              :clml.utility
                              :hjs-package)
