@@ -3,19 +3,8 @@
 ;;;(eval-when (:load-toplevel :compile-toplevel :execute)
 ;;;  (setq *locale* (find-locale "japan.932")))
 
-(defpackage :priority-que
-  (:use :cl :excl)
-  (:export #:make-prique
-           #:prique-empty-p
-           #:prique-box-item
-           #:insert-prique
-           #:find-min-prique
-           #:delete-min-prique
-           #:union-prique
-           #:after-decrease-key-prique
-           ))
 
-(in-package :priority-que)
+(in-package :clml.utility.priority-que)
 
 ;; (declaim (optimize (speed 3) (safety 0) (debug 0)))
 

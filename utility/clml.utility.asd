@@ -16,5 +16,6 @@
                              )
                 :components (
                              (:file "csv")
+                             (:file "priority-que")
                              )
                 )
