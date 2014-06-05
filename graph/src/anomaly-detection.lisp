@@ -1,10 +1,5 @@
-(defpackage :graph-anomaly-detection
-  (:use :cl :excl :vars :util :vector :matrix :statistics :read-data
-        :missing-val :csv :ts-read-data :ts-stat :ts-util :ts-state-space :ts-ar
-        :read-graph :graph-centrality :graph-shortest-path)
-  (:export ))
-
-(in-package :graph-anomaly-detection)
+;-*- coding: utf-8 -*-
+(in-package :clml.graph.graph-anomaly-detection)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; benchmark tools 
@@ -64,7 +59,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ide, Kashima "Eigenspace-based Anomaly Detection in Computer Systems"
-;; ‚É‚æ‚éˆÙíŒŸo
+;; ã«ã‚ˆã‚‹ç•°å¸¸æ¤œå‡º
 (defclass anomaly-detector-eb ()
   ((window :initform nil :initarg :window :accessor window)
    (window-size :initform nil :initarg :window-size :accessor window-size)
@@ -80,22 +75,22 @@
    (ar-default-var :initform nil :initarg :ar-default-var :accessor ar-default-var)
    (param-names :initform nil :initarg :param-names :accessor param-names)))
 
-;; input: input, “ü—Íƒf[ƒ^ƒtƒ@ƒCƒ‹–¼, Dependency matrix (‘ÎŠp¬•ª‚É ƒ¿ ‚É‚æ‚éƒmƒCƒY‚Í“ü‚Á‚Ä‚¢‚È‚¢) ‚ÌŒn—ñƒf[ƒ^, 
-;;               ƒf[ƒ^‹LqŒ`®‚Í read-graph-series ‚É€‚¸‚é
-;;        output, o—Íƒf[ƒ^ƒtƒ@ƒCƒ‹–¼
-;;        window-size, ƒEƒBƒ“ƒhƒEƒTƒCƒY
-;;        file-format, :csv | :sexp | :edgelist “ü—Íƒf[ƒ^ƒtƒ@ƒCƒ‹‚ÌŒ`®
-;;        beta, ˜_•¶ (18), nil ‚È‚ç 1/window-size
-;;        pc, ˜_•¶ 5.3
-;;        alpha-order, ˜_•¶ (1) and 6.2
-;;        activity-method, :eigen | :pagerank, activity vector Zo–@
-;;        typical-method, :svd | :mean, “TŒ^“Iƒpƒ^[ƒ“’Šo–@ (:svd SVD, :mean •½‹Ï)
-;;        pagerank-c, ƒy[ƒWƒ‰ƒ“ƒN‚Ìc
-;;        localizep, ARƒ‚ƒfƒ‹‚É‚æ‚é‹ÇŠˆÙíƒXƒRƒAZo‚ğs‚¤‚©
-;;        ar-conf-coef, ‹ÇŠˆÙíƒXƒRƒAZo‚Ì‚½‚ß‚ÌM—Š“xŒW”(0<a<1)
-;;        ar-default-var, ‹ÇŠˆÙíƒXƒRƒAZo‚Ì‚½‚ß‚ÌÅ¬•ªU’l
+;; input: input, å…¥åŠ›ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å, Dependency matrix (å¯¾è§’æˆåˆ†ã« Î± ã«ã‚ˆã‚‹ãƒã‚¤ã‚ºã¯å…¥ã£ã¦ã„ãªã„) ã®ç³»åˆ—ãƒ‡ãƒ¼ã‚¿, 
+;;               ãƒ‡ãƒ¼ã‚¿è¨˜è¿°å½¢å¼ã¯ read-graph-series ã«æº–ãšã‚‹
+;;        output, å‡ºåŠ›ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å
+;;        window-size, ã‚¦ã‚£ãƒ³ãƒ‰ã‚¦ã‚µã‚¤ã‚º
+;;        file-format, :csv | :sexp | :edgelist å…¥åŠ›ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®å½¢å¼
+;;        beta, è«–æ–‡ (18), nil ãªã‚‰ 1/window-size
+;;        pc, è«–æ–‡ 5.3
+;;        alpha-order, è«–æ–‡ (1) and 6.2
+;;        activity-method, :eigen | :pagerank, activity vector ç®—å‡ºæ³•
+;;        typical-method, :svd | :mean, å…¸å‹çš„ãƒ‘ã‚¿ãƒ¼ãƒ³æŠ½å‡ºæ³• (:svd SVD, :mean å¹³å‡)
+;;        pagerank-c, ãƒšãƒ¼ã‚¸ãƒ©ãƒ³ã‚¯ã®c
+;;        localizep, ARãƒ¢ãƒ‡ãƒ«ã«ã‚ˆã‚‹å±€æ‰€ç•°å¸¸ã‚¹ã‚³ã‚¢ç®—å‡ºã‚’è¡Œã†ã‹
+;;        ar-conf-coef, å±€æ‰€ç•°å¸¸ã‚¹ã‚³ã‚¢ç®—å‡ºã®ãŸã‚ã®ä¿¡é ¼åº¦ä¿‚æ•°(0<a<1)
+;;        ar-default-var, å±€æ‰€ç•°å¸¸ã‚¹ã‚³ã‚¢ç®—å‡ºã®ãŸã‚ã®æœ€å°åˆ†æ•£å€¤
 ;; output: list of plist (:time * :score * :threshold *)
-;;         :score ‚ÍˆÙíƒXƒRƒAA:threshold ‚Íè‡’l
+;;         :score ã¯ç•°å¸¸ã‚¹ã‚³ã‚¢ã€:threshold ã¯é–¾å€¤
 (defun anomaly-detection-eb (input output window-size
                              &key (file-format :sexp)
                                   (beta nil)
@@ -218,7 +213,7 @@
         (:eigen (eigen-centrality gr :stabilizer (make-stabilizer size)))
         (:pagerank (pagerank gr :c pagerank-c))))))
 
-;; SVD ‚É‚æ‚é“TŒ^“Iƒpƒ^[ƒ“’Šo
+;; SVD ã«ã‚ˆã‚‹å…¸å‹çš„ãƒ‘ã‚¿ãƒ¼ãƒ³æŠ½å‡º
 (defun typical-pattern-svd (act-vecs)
   (let* ((n (length act-vecs))
          (m (length (car act-vecs)))
@@ -246,7 +241,7 @@
       (declare (ignore _))
       (let ((val (abs (aref result 0 i)))) (setf sf (if (> *epsilon* val) 0d0 val))))
     pattern))
-;; •½‹Ï
+;; å¹³å‡
 (defun typical-pattern-mean (act-vecs)
   (let* ((dim (length (car act-vecs)))
          (size (length act-vecs))
@@ -264,18 +259,18 @@
     (:svd (typical-pattern-svd act-vecs))
     (:mean (typical-pattern-mean act-vecs))))
 
-;; ”ñ—Ş—“x
+;; éé¡ä¼¼åº¦
 (defun dissimilarity (typical-vec act-vec)
   (declare (type dvec typical-vec act-vec))
   (- 1 (inner-product typical-vec act-vec)))
-;; 1Ÿ‚¨‚æ‚Ñ2Ÿ‚Ì moment ‚Ì‘Q‰»®
-;; ref: ˜_•¶‚Ì ® (18), (19)
+;; 1æ¬¡ãŠã‚ˆã³2æ¬¡ã® moment ã®æ¼¸åŒ–å¼
+;; ref: è«–æ–‡ã® å¼ (18), (19)
 (defun next-moments (zt last-moments beta)
   (let ((scale (- 1 beta))
         (zt (dfloat zt)))
     (cons (+ (* scale (car last-moments)) (* beta zt))
           (+ (* scale (cdr last-moments)) (* beta (expt zt 2))))))
-;; moment ‚Ì‰Šú’l‚ğ‹‚ß‚é
+;; moment ã®åˆæœŸå€¤ã‚’æ±‚ã‚ã‚‹
 (defun get-initial-moments (act-vecs &key (typical-method :svd))
   (let* ((window-size (length act-vecs))
          (typ-vec (calc-typical-pattern (subseq act-vecs 0 (1- window-size))
@@ -283,7 +278,7 @@
          (act-vec (nth (1- window-size) act-vecs))
          (dissim (dissimilarity typ-vec act-vec)))
     (cons dissim (expt dissim 2))))
-;; moment ‚©‚ç ® (17) ‚Ì sigma, n-1 ‚Ì—¼ƒpƒ‰ƒ[ƒ^‚ğ„’è‚·‚é
+;; moment ã‹ã‚‰ å¼ (17) ã® sigma, n-1 ã®ä¸¡ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã‚’æ¨å®šã™ã‚‹
 (defun estimate-vmf-parameters (moments)
   (let* ((1st (car moments))
          (2nd (cdr moments))
@@ -292,7 +287,7 @@
     (declare (type double-float 1st 2nd 1st^2))
     (values (/ (* 2 1st^2) 2nd-1st^2)
             (/ 2nd-1st^2 (* 2 1st)))))
-;; Z_th ‚ğ‹‚ß‚é
+;; Z_th ã‚’æ±‚ã‚ã‚‹
 (defun vmf-threshold (n-1 sigma pc)
   (let* ((scale (* 2 sigma))
          (shape (/ n-1 2))         
@@ -308,7 +303,7 @@
 ;; AR on activity-vector
 ;; trial to localize anomaly by using AutoRegressive time-series-model
 ;;
-;; ‹ÇŠˆÙíƒXƒRƒA
+;; å±€æ‰€ç•°å¸¸ã‚¹ã‚³ã‚¢
 (defmethod calc-local-scores ((detector anomaly-detector-eb) target 
                               &key (ar-default-var *epsilon*))
   (declare (type dvec target))
@@ -328,12 +323,12 @@
 ;;        actvec, target activity-vector
 ;;        confidence-coefficient, <number> ( 0 < 1 )
 ;; description:
-;;  actvec ‚ÌŠe—v‘f‚ÌˆÙí“x‡‚¢‚ğAŠe—v‘f‚ÌARƒ‚ƒfƒ‹‚ğ¶¬‚µA‚»‚Ì—\‘ª‹æŠÔ‚Æ‚Ì‚¸‚ê‚©‚çZo‚·‚éB
-;;  —\‘ª‹æŠÔ‚Í—\‘ª’l‚ÌƒKƒEƒX•ª•z‚ÌM—Š“x‹æŠÔ (confidence-coefficient) ‚Æ‚µA
-;;  ‚»‚Ì‹æŠÔ“à‚Å‚ ‚ê‚ÎˆÙí‚Å‚Í‚È‚¢B‹æŠÔŠO‚È‚ç‚Î (ŠO‚ê•) / („’è‹æŠÔ•) ‚ğŠO‚ê“x‡‚¢‚Æ‚·‚éB
-;;  (ŠO‚ê•) ‚Í’l‚ªŒ¸‚Á‚Ä‚¢‚é•ûŒü‚ÉŠO‚ê‚Ä‚¢‚ê‚Î•‰‚Ì’l
-;;             ’l‚ª‘‚¦‚Ä‚¢‚é•ûŒü‚ÉŠO‚ê‚Ä‚¢‚ê‚Î³‚Ì’l‚Æ‚·‚éB
-;; return: (cons ‹ÇŠˆÙíƒXƒRƒA ‹æŠÔ•) ‚ÌƒŠƒXƒg
+;;  actvec ã®å„è¦ç´ ã®ç•°å¸¸åº¦åˆã„ã‚’ã€å„è¦ç´ ã®ARãƒ¢ãƒ‡ãƒ«ã‚’ç”Ÿæˆã—ã€ãã®äºˆæ¸¬åŒºé–“ã¨ã®ãšã‚Œã‹ã‚‰ç®—å‡ºã™ã‚‹ã€‚
+;;  äºˆæ¸¬åŒºé–“ã¯äºˆæ¸¬å€¤ã®ã‚¬ã‚¦ã‚¹åˆ†å¸ƒã®ä¿¡é ¼åº¦åŒºé–“ (confidence-coefficient) ã¨ã—ã€
+;;  ãã®åŒºé–“å†…ã§ã‚ã‚Œã°ç•°å¸¸ã§ã¯ãªã„ã€‚åŒºé–“å¤–ãªã‚‰ã° (å¤–ã‚Œå¹…) / (æ¨å®šåŒºé–“å¹…) ã‚’å¤–ã‚Œåº¦åˆã„ã¨ã™ã‚‹ã€‚
+;;  (å¤–ã‚Œå¹…) ã¯å€¤ãŒæ¸›ã£ã¦ã„ã‚‹æ–¹å‘ã«å¤–ã‚Œã¦ã„ã‚Œã°è² ã®å€¤
+;;             å€¤ãŒå¢—ãˆã¦ã„ã‚‹æ–¹å‘ã«å¤–ã‚Œã¦ã„ã‚Œã°æ­£ã®å€¤ã¨ã™ã‚‹ã€‚
+;; return: (cons å±€æ‰€ç•°å¸¸ã‚¹ã‚³ã‚¢ åŒºé–“å¹…) ã®ãƒªã‚¹ãƒˆ
 (defun local-anomaly-score-by-ar (window target &key (confidence-coefficient 0.99d0) ; 99%
                                                      (default-var *epsilon*)
                                                      (ar-order-max 10))
@@ -383,7 +378,7 @@
   (check-type vec dvec)
   (let ((data (map 'vector (lambda (val) (make-dvec 1 val)) vec)))
     (make-constant-time-series-data '("activity") data)))
-;; ARƒ‚ƒfƒ‹‚ğ¶¬‚µA‚»‚Ì—\‘ª’l‚ÌƒKƒEƒX•ª•z‚ğ‹‚ß‚éB
+;; ARãƒ¢ãƒ‡ãƒ«ã‚’ç”Ÿæˆã—ã€ãã®äºˆæ¸¬å€¤ã®ã‚¬ã‚¦ã‚¹åˆ†å¸ƒã‚’æ±‚ã‚ã‚‹ã€‚
 (defmethod predict-gaussian-by-ar ((ts time-series-dataset) &key (default-var *epsilon*)
                                                                  (order-max nil))
   (let* ((s^2 (aref (ts-covariance ts) 0 0)))
@@ -392,7 +387,7 @@
                (gaussian (normal-distribution val (sqrt default-var))))
           (values gaussian nil))
       (let ((model (ar ts :demean t :method :burg :aic t :order-max order-max)))
-        (multiple-value-bind (pred std-err) (time-series-util:predict model :n-ahead 1)
+        (multiple-value-bind (pred std-err) (clml.time-series.util:predict model :n-ahead 1)
           (let* ((last-pos (1- (length (ts-points pred))))
                  (pred-val (aref (ts-p-pos (aref (ts-points pred) last-pos)) 0))
                  (std-err-val (aref (ts-p-pos (aref (ts-points std-err) last-pos)) 0))
@@ -403,7 +398,7 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; Ide, Kashima "Eigenspace-based Anomaly Detection in Computer Systems"
-;; ‚Ì Activity Vector ‚ğ SDAR ‚Å—\‘ª(predict)‚µ‚Ä‚¢‚­ˆÙíŒŸo
+;; ã® Activity Vector ã‚’ SDAR ã§äºˆæ¸¬(predict)ã—ã¦ã„ãç•°å¸¸æ¤œå‡º
 (defclass anomaly-detector-eb-predict ()
   ((sdar :initform nil :initarg :sdar :accessor sdar)
    (ar-k :initform nil :initarg :ar-k :accessor ar-k)
@@ -416,20 +411,20 @@
    (ar-conf-coef :initform nil :initarg :ar-conf-coef :accessor ar-conf-coef)
    (ar-default-var :initform nil :initarg :ar-default-var :accessor ar-default-var)
    (param-names :initform nil :initarg :param-names :accessor param-names)))
-;; input: input, “ü—Íƒf[ƒ^ƒtƒ@ƒCƒ‹–¼, Dependency matrix (‘ÎŠp¬•ª‚É ƒ¿ ‚É‚æ‚éƒmƒCƒY‚Í“ü‚Á‚Ä‚¢‚È‚¢) ‚ÌŒn—ñƒf[ƒ^, 
-;;               ƒf[ƒ^‹LqŒ`®‚Í read-graph-series ‚É€‚¸‚é
-;;        output, o—Íƒf[ƒ^ƒtƒ@ƒCƒ‹–¼
-;;        file-format, :csv | :sexp | :edgelist “ü—Íƒf[ƒ^ƒtƒ@ƒCƒ‹‚ÌŒ`®
-;;        ar-k, VARŸ”A nil‚È‚çAIC‚É‚æ‚éŸ”‘I‘ğ
-;;        discount, –Y‹pƒpƒ‰ƒ[ƒ^
-;;        threshold, ƒ}ƒnƒ‰ƒmƒrƒX‹——£‚Ìè‡’l
-;;        activity-method, :eigen | :pagerank, activity vectorZo–@
-;;        alpha-order, Ide&Kashima ˜_•¶ (1) and 6.2
-;;        pagerank-c, ƒy[ƒWƒ‰ƒ“ƒN‚Ìc
-;;        init-n, SDARƒ‚ƒfƒ‹‰Šú‰»‚Ì‚½‚ß‚Ég‚¤ƒf[ƒ^“_”
-;;        localizep, ARƒ‚ƒfƒ‹‚É‚æ‚é‹ÇŠˆÙíƒXƒRƒAZo‚ğs‚¤‚©
-;;        ar-conf-coef, ‹ÇŠˆÙíƒXƒRƒAZo‚Ì‚½‚ß‚ÌM—Š“xŒW”(0<a<1)
-;;        ar-default-var, ‹ÇŠˆÙíƒXƒRƒAZo‚Ì‚½‚ß‚ÌÅ¬•ªU’l
+;; input: input, å…¥åŠ›ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å, Dependency matrix (å¯¾è§’æˆåˆ†ã« Î± ã«ã‚ˆã‚‹ãƒã‚¤ã‚ºã¯å…¥ã£ã¦ã„ãªã„) ã®ç³»åˆ—ãƒ‡ãƒ¼ã‚¿, 
+;;               ãƒ‡ãƒ¼ã‚¿è¨˜è¿°å½¢å¼ã¯ read-graph-series ã«æº–ãšã‚‹
+;;        output, å‡ºåŠ›ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«å
+;;        file-format, :csv | :sexp | :edgelist å…¥åŠ›ãƒ‡ãƒ¼ã‚¿ãƒ•ã‚¡ã‚¤ãƒ«ã®å½¢å¼
+;;        ar-k, VARæ¬¡æ•°ã€ nilãªã‚‰AICã«ã‚ˆã‚‹æ¬¡æ•°é¸æŠ
+;;        discount, å¿˜å´ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿
+;;        threshold, ãƒãƒãƒ©ãƒãƒ“ã‚¹è·é›¢ã®é–¾å€¤
+;;        activity-method, :eigen | :pagerank, activity vectorç®—å‡ºæ³•
+;;        alpha-order, Ide&Kashima è«–æ–‡ (1) and 6.2
+;;        pagerank-c, ãƒšãƒ¼ã‚¸ãƒ©ãƒ³ã‚¯ã®c
+;;        init-n, SDARãƒ¢ãƒ‡ãƒ«åˆæœŸåŒ–ã®ãŸã‚ã«ä½¿ã†ãƒ‡ãƒ¼ã‚¿ç‚¹æ•°
+;;        localizep, ARãƒ¢ãƒ‡ãƒ«ã«ã‚ˆã‚‹å±€æ‰€ç•°å¸¸ã‚¹ã‚³ã‚¢ç®—å‡ºã‚’è¡Œã†ã‹
+;;        ar-conf-coef, å±€æ‰€ç•°å¸¸ã‚¹ã‚³ã‚¢ç®—å‡ºã®ãŸã‚ã®ä¿¡é ¼åº¦ä¿‚æ•°(0<a<1)
+;;        ar-default-var, å±€æ‰€ç•°å¸¸ã‚¹ã‚³ã‚¢ç®—å‡ºã®ãŸã‚ã®æœ€å°åˆ†æ•£å€¤
 (defun anomaly-detection-eb-predict (input output
                                      &key (file-format :sexp)
                                           (ar-k 1)
@@ -579,14 +574,14 @@
 ;; SNN
 ;; T.Ide, S.Papadimitriou, M.Vlachos
 ;; "Computing Correlation Anomaly Scores using Stochastic Nearest Neighbors"
-;; ˜_•¶’†‚Ì E score ‚ğ target run ‚¨‚æ‚Ñ •¡”‚Ì reference run ‚©‚çZo‚·‚éB
-;; target-run            : target run‚Å‚ ‚éŒn—ñƒf[ƒ^‚É‚æ‚é numeric-dataset
-;; reference-runs        : reference run‚Å‚ ‚éŒn—ñƒf[ƒ^’B‚É‚æ‚é numeric-dataset ‚ÌƒŠƒXƒg
-;; k                     : ‹ß–T”
-;; sigma-list            : Šeƒpƒ‰ƒ[ƒ^‚É‘Î‰‚·‚ésigma_i‚Ì’l‚ÌƒŠƒXƒgA
-;;                         •À‚Ñ‚Ítarget-run‚âreference-runs‚ÌƒJƒ‰ƒ€‚Ì•À‚Ñ‚É‘Î‰
-;;                         nil‚È‚ç‘S‚Ä*default-sigma-i*‚Ì’l‚Æ‚È‚é
-;; independent-pairs : “Æ—§‚Èƒpƒ‰ƒ[ƒ^–¼‚ÌƒyƒA(cons) ‚ÌƒŠƒXƒg -> ‘ŠŠÖ‚ğ‹­§“I‚É 0 ‚É‚·‚é
+;; è«–æ–‡ä¸­ã® E score ã‚’ target run ãŠã‚ˆã³ è¤‡æ•°ã® reference run ã‹ã‚‰ç®—å‡ºã™ã‚‹ã€‚
+;; target-run            : target runã§ã‚ã‚‹æ™‚ç³»åˆ—ãƒ‡ãƒ¼ã‚¿ã«ã‚ˆã‚‹ numeric-dataset
+;; reference-runs        : reference runã§ã‚ã‚‹æ™‚ç³»åˆ—ãƒ‡ãƒ¼ã‚¿é”ã«ã‚ˆã‚‹ numeric-dataset ã®ãƒªã‚¹ãƒˆ
+;; k                     : è¿‘å‚æ•°
+;; sigma-list            : å„ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã«å¯¾å¿œã™ã‚‹sigma_iã®å€¤ã®ãƒªã‚¹ãƒˆã€
+;;                         ä¸¦ã³ã¯target-runã‚„reference-runsã®ã‚«ãƒ©ãƒ ã®ä¸¦ã³ã«å¯¾å¿œ
+;;                         nilãªã‚‰å…¨ã¦*default-sigma-i*ã®å€¤ã¨ãªã‚‹
+;; independent-pairs : ç‹¬ç«‹ãªãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿åã®ãƒšã‚¢(cons) ã®ãƒªã‚¹ãƒˆ -> ç›¸é–¢ã‚’å¼·åˆ¶çš„ã« 0 ã«ã™ã‚‹
 (defparameter *default-sigma-i* 1d0)
 (defmethod e-scores ((target-run numeric-dataset)
                      reference-runs
@@ -645,17 +640,17 @@
                                   ref-models))))))
 (defparameter *reference-fname* "ref-~D")
 (defparameter *target-fname* "target")
-;; input: data-dir, reference-run ‚Æ target-run ‚ÌCSVƒtƒ@ƒCƒ‹‚ª“ü‚Á‚½ƒfƒBƒŒƒNƒgƒŠƒpƒX
-;;                  reference-run ‚Ìƒtƒ@ƒCƒ‹–¼‚Í ref-*.csv ‚Å * ‚Í 1 ‚©‚ç˜A‘±‚·‚é³”
-;;                  target-run    ‚Ìƒtƒ@ƒCƒ‹–¼‚Í target.csv
-;;                  ŠeCSV‚Ì‘SƒJƒ‰ƒ€‚Í˜A‘±’lƒf[ƒ^‚Å‚ ‚éB
-;;        output, Œ‹‰Êo—Íƒtƒ@ƒCƒ‹ƒpƒX
-;;        format, :csv | :sexp “ü—Íƒtƒ@ƒCƒ‹Œ`®
-;;        k, ‹ß–Tƒm[ƒh”
-;;        sigma-list, Šeƒpƒ‰ƒ[ƒ^‚É‘Î‰‚·‚ésigma_i‚Ì’l‚ÌƒŠƒXƒgA
-;;                    •À‚Ñ‚Ítarget-run‚âreference-runs‚ÌƒJƒ‰ƒ€‚Ì•À‚Ñ‚É‘Î‰
-;;                    nil‚È‚ç‘S‚Ä*default-sigma-i*‚Ì’l‚Æ‚È‚é
-;;        knn-output-dir, ‹ß–Tî•ño—ÍƒfƒBƒŒƒNƒgƒŠ
+;; input: data-dir, reference-run ã¨ target-run ã®CSVãƒ•ã‚¡ã‚¤ãƒ«ãŒå…¥ã£ãŸãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒªãƒ‘ã‚¹
+;;                  reference-run ã®ãƒ•ã‚¡ã‚¤ãƒ«åã¯ ref-*.csv ã§ * ã¯ 1 ã‹ã‚‰é€£ç¶šã™ã‚‹æ­£æ•°
+;;                  target-run    ã®ãƒ•ã‚¡ã‚¤ãƒ«åã¯ target.csv
+;;                  å„CSVã®å…¨ã‚«ãƒ©ãƒ ã¯é€£ç¶šå€¤ãƒ‡ãƒ¼ã‚¿ã§ã‚ã‚‹ã€‚
+;;        output, çµæœå‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«ãƒ‘ã‚¹
+;;        format, :csv | :sexp å…¥åŠ›ãƒ•ã‚¡ã‚¤ãƒ«å½¢å¼
+;;        k, è¿‘å‚ãƒãƒ¼ãƒ‰æ•°
+;;        sigma-list, å„ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã«å¯¾å¿œã™ã‚‹sigma_iã®å€¤ã®ãƒªã‚¹ãƒˆã€
+;;                    ä¸¦ã³ã¯target-runã‚„reference-runsã®ã‚«ãƒ©ãƒ ã®ä¸¦ã³ã«å¯¾å¿œ
+;;                    nilãªã‚‰å…¨ã¦*default-sigma-i*ã®å€¤ã¨ãªã‚‹
+;;        knn-output-dir, è¿‘å‚æƒ…å ±å‡ºåŠ›ãƒ‡ã‚£ãƒ¬ã‚¯ãƒˆãƒª
 (defun anomaly-detection-snn (data-dir output &key (format :csv) ;; :sexp | :csv
                                                    (k 3)
                                                    (sigma-list nil)
@@ -690,7 +685,7 @@
         (output-knn-info knn-output-dir test-model ref-models
                          :external-format external-format))
       (values result test-model ref-models))))
-;; ƒf[ƒ^‚ğ“Ç‚İ‚Ş
+;; ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€
 (defun read-run-file (fname &key (format :sexp)
                                  (external-format :default))
   (assert (probe-file fname))
@@ -707,7 +702,7 @@
               (:csv (read-csv-stream in :header nil :type-spec csv-type-spec)))))
       (make-numeric-dataset (coerce params 'list)
                             (map 'vector (lambda (v) (coerce v 'dvec)) data)))))
-;; knn\‘¢î•ñ‚ğƒ_ƒ“ƒv‚·‚é
+;; knnæ§‹é€ æƒ…å ±ã‚’ãƒ€ãƒ³ãƒ—ã™ã‚‹
 (defun output-knn-info (output-dir test-model ref-models
                         &key (external-format :default))
   (loop for ref-model in ref-models
@@ -892,7 +887,7 @@
 ;; EEC
 ;; S.Hirose, K.Yamanishi, T.Nakata, R.Fujimaki
 ;; "Network Anomaly Detection based on Eigen Equation Compression"
-;; ‚ğŒ³‚É‚µ‚½ˆÙíŒŸo
+;; ã‚’å…ƒã«ã—ãŸç•°å¸¸æ¤œå‡º
 (defclass anomaly-detector-eec ()
   ((window :initform nil :initarg :window :accessor window)
    (window-size :initform nil :initarg :window-size :accessor window-size)
@@ -913,19 +908,19 @@
    (smoothing :initform nil :initarg :smoothing :accessor smoothing-p)
    (smoothing-args :initform nil :initarg :smoothing-args :accessor smoothing-args)))
 
-;; input : input, format‚Åw’è‚·‚éŒ`®‚Ìƒtƒ@ƒCƒ‹
-;;         output, Œ‹‰Êo—Íƒtƒ@ƒCƒ‹–¼
-;;         format, :sexp | :csv, :sexp‚Í‚½‚Æ‚¦‚Î sample/UKgas.sexp ‚Ì‘S‘Ì‚ğˆê‚Â‚ÌŠ‡ŒÊ‚ÅˆÍ‚í‚È‚¢Œ`
-;;         time-label-name, ŠÔƒ‰ƒxƒ‹—ñ–¼
-;;         xi, ‘ŠŠÖ‹­“xè‡’l
-;;         global-m, ‘åˆæ“I“Á’¥—Ê‚Ì‚½‚ß‚Ìm ˜_•¶3.3
-;;         scoring, :mahalanobis ‚Ì‚İ
-;;         pc, è‡’l‚Ì‚½‚ß‚Ìã‘¤—İÏŠm—¦
-;;         beta, è‡’l‚Ì‚½‚ß‚Ì–Y‹pƒpƒ‰ƒ[ƒ^@
-;;         cor-output, ‘ŠŠÖî•ño—Íƒtƒ@ƒCƒ‹–¼, nil‚È‚ço—Í‚µ‚È‚¢
-;;         local-output, plist (:file o—Íƒtƒ@ƒCƒ‹–¼ :params ‘ÎÛƒpƒ‰ƒ[ƒ^–¼ƒŠƒXƒg)
-;;                       ‹ÇŠî•ñ(ƒNƒ‰ƒXƒ^ƒŠƒ“ƒOA“Á’¥—ÊA•ª•zƒpƒ‰ƒ[ƒ^)‚ğƒ_ƒ“ƒv‚·‚é‚©
-;;                       nil‚È‚ç‚µ‚È‚¢
+;; input : input, formatã§æŒ‡å®šã™ã‚‹å½¢å¼ã®ãƒ•ã‚¡ã‚¤ãƒ«
+;;         output, çµæœå‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«å
+;;         format, :sexp | :csv, :sexpã¯ãŸã¨ãˆã° sample/UKgas.sexp ã®å…¨ä½“ã‚’ä¸€ã¤ã®æ‹¬å¼§ã§å›²ã‚ãªã„å½¢
+;;         time-label-name, æ™‚é–“ãƒ©ãƒ™ãƒ«åˆ—å
+;;         xi, ç›¸é–¢å¼·åº¦é–¾å€¤
+;;         global-m, å¤§åŸŸçš„ç‰¹å¾´é‡ã®ãŸã‚ã®m è«–æ–‡3.3
+;;         scoring, :mahalanobis ã®ã¿
+;;         pc, é–¾å€¤ã®ãŸã‚ã®ä¸Šå´ç´¯ç©ç¢ºç‡
+;;         beta, é–¾å€¤ã®ãŸã‚ã®å¿˜å´ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã€€
+;;         cor-output, ç›¸é–¢æƒ…å ±å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«å, nilãªã‚‰å‡ºåŠ›ã—ãªã„
+;;         local-output, plist (:file å‡ºåŠ›ãƒ•ã‚¡ã‚¤ãƒ«å :params å¯¾è±¡ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿åãƒªã‚¹ãƒˆ)
+;;                       å±€æ‰€æƒ…å ±(ã‚¯ãƒ©ã‚¹ã‚¿ãƒªãƒ³ã‚°ã€ç‰¹å¾´é‡ã€åˆ†å¸ƒãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿)ã‚’ãƒ€ãƒ³ãƒ—ã™ã‚‹ã‹
+;;                       nilãªã‚‰ã—ãªã„
 (defun anomaly-detection-eec (input output window-size
                               &key (format :sexp) ;; :sexp | :csv
                                    (time-label-name "Time")
@@ -1080,7 +1075,7 @@
   (declare (type (vector dvec) points))
   (check-type points (vector dvec))
   (assert (>= (length points) (1+ window-size)))
-  ;; “Á’¥—Ê‚Ì•ªU‚Ì‰Šú’l‚ğ“¾‚é‚½‚ßA“Á’¥—Ê‚ÍÅ’áŒÀ 2 ‚Â•K—v
+  ;; ç‰¹å¾´é‡ã®åˆ†æ•£ã®åˆæœŸå€¤ã‚’å¾—ã‚‹ãŸã‚ã€ç‰¹å¾´é‡ã¯æœ€ä½é™ 2 ã¤å¿…è¦
 
   (loop with bench = (when benchmarkp (init-eec-benchmark))
       with beta = (if (numberp beta) beta (dfloat (/ window-size)))
@@ -1243,7 +1238,7 @@
                      (params params)
                      (l-moms-list local-moments-list)
                      (local-covs local-covs)) detector
-      ;; w + 1 ‚Ìˆ—, params ‚Ö‚ÌˆÚ“®
+      ;; w + 1 ã®å‡¦ç†, params ã¸ã®ç§»å‹•
       (setf new-params
         (loop with w+1 = (1+ w)
             for plis in new-params
@@ -1261,7 +1256,7 @@
                 (setf params (insert-values params %params new-poss)
                       l-moms-list (insert-values l-moms-list nil new-poss))
                 (update-local-covs detector new-vecs new-poss last-window))))
-      ;; w ‚Ìˆ—
+      ;; w ã®å‡¦ç†
       (setf last-window
         (loop for plis in (new-params detector)
             as vals = (getf plis :vals)
@@ -1324,11 +1319,11 @@
                                l-thlds)))))
 
 ;;;;;;;;;;;;;;
-; “Á’¥—ÊZo ;
+; ç‰¹å¾´é‡ç®—å‡º ;
 ;;;;;;;;;;;;;;
-;; output: global “Á’¥—Ê(vector)
-;;         local “Á’¥—Ê(3x3matrix) ‚ÌƒŠƒXƒg ( ‡”Ô‚Í“ü—Í d ‚ÌƒJƒ‰ƒ€–¼‚É‘Î‰ )
-;;         clustering Œ‹‰Ê
+;; output: global ç‰¹å¾´é‡(vector)
+;;         local ç‰¹å¾´é‡(3x3matrix) ã®ãƒªã‚¹ãƒˆ ( é †ç•ªã¯å…¥åŠ› d ã®ã‚«ãƒ©ãƒ åã«å¯¾å¿œ )
+;;         clustering çµæœ
 (defmethod calc-eec-features ((detector anomaly-detector-eec) &key (bench nil))
   (with-accessors ((pts window)
                    (params params)
@@ -1396,7 +1391,7 @@
                as ck2 = (nth row clusters)
                as val = (if (and ck1 ck2)
                             (calc-local-feature-component dim cor-str-mat psi ck1 ck2)
-                          0d0) ;; ‹óƒNƒ‰ƒXƒ^ˆ—
+                          0d0) ;; ç©ºã‚¯ãƒ©ã‚¹ã‚¿å‡¦ç†
                do (setf (aref mat col row) val
                         (aref mat row col) val))
         finally (return (values mat clusters)))))
@@ -1418,7 +1413,7 @@
                  (t (error "Unexpected situation")))
         finally (return `(,c1 ,c2 ,c3)))))
 
-;; ‹ÇŠ“Á’¥—Ê‚ÌŠe—v‘f’l
+;; å±€æ‰€ç‰¹å¾´é‡ã®å„è¦ç´ å€¤
 (defun calc-local-feature-component (dim cor-str-mat psi ck1 ck2)
   (declare (type dmat cor-str-mat) (type dvec psi))
   (flet ((%m*v (symat vec)
@@ -1448,7 +1443,7 @@
           (t (do-vec (val pck*psi :type double-float :setf-var sf :return pck*psi)
                (setf sf (/ val denom)))))))
 (defun proj-by-ck (vec ck dim)
-  "ƒNƒ‰ƒXƒ^ƒŠƒ“ƒO ck ‚É‚æ‚éË‰e"
+  "ã‚¯ãƒ©ã‚¹ã‚¿ãƒªãƒ³ã‚° ck ã«ã‚ˆã‚‹å°„å½±"
   (loop with projed = (make-dvec (length vec) 0d0)
       for i in ck
       do (assert (< i dim))
@@ -1487,7 +1482,7 @@
     (:mnd (let ((density (multivariate-normal-density mu sigma target)))
             (- (log 
                 (cond ((zerop density) least-positive-double-float)
-                      ((= #.*INFINITY-DOUBLE* density) most-positive-double-float)
+                      ((= #.*+inf* density) most-positive-double-float)
                       (t density))))))))
 (defun local-anomaly-score (target mu sigma &key (type :mahalanobis)) ; :mahalanobis | :mnd
   (let* ((dims (array-dimensions sigma))
@@ -1500,17 +1495,17 @@
       (:mnd (let ((density (multivariate-normal-density mu-vec sigma target-vec)))
               (- (log 
                   (cond ((zerop density) least-positive-double-float)
-                        ((= #.*INFINITY-DOUBLE* density) most-positive-double-float)
+                        ((= #.*+inf* density) most-positive-double-float)
                         (t density)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; anomaly score ‚Ì threshold ;
+; anomaly score ã® threshold ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; - 1Ÿ‚Ìƒ‚[ƒƒ“ƒg, 2Ÿ‚Ìƒ‚[ƒƒ“ƒg‚ğŒ³‚É type ‚Åw’è‚µ‚½Šm—¦•ª•z‚ğ„’è‚µA
-;;   ã‘¤—İÏŠm—¦ pc ‚Æ‚µ‚Ä‚Ìè‡’l‚ğZo‚·‚éB
-;; - score, beta ‚æ‚è 1Ÿ^2Ÿ‚Ìƒ‚[ƒƒ“ƒg‚ğXV‚·‚éB ref Ide & Kashima
-;; output: è‡’l
-;;         (cons VE1Ÿ‚Ìƒ‚[ƒƒ“ƒg VE2Ÿ‚Ìƒ‚[ƒƒ“ƒg)
+;; - 1æ¬¡ã®ãƒ¢ãƒ¼ãƒ¡ãƒ³ãƒˆ, 2æ¬¡ã®ãƒ¢ãƒ¼ãƒ¡ãƒ³ãƒˆã‚’å…ƒã« type ã§æŒ‡å®šã—ãŸç¢ºç‡åˆ†å¸ƒã‚’æ¨å®šã—ã€
+;;   ä¸Šå´ç´¯ç©ç¢ºç‡ pc ã¨ã—ã¦ã®é–¾å€¤ã‚’ç®—å‡ºã™ã‚‹ã€‚
+;; - score, beta ã‚ˆã‚Š 1æ¬¡ï¼2æ¬¡ã®ãƒ¢ãƒ¼ãƒ¡ãƒ³ãƒˆã‚’æ›´æ–°ã™ã‚‹ã€‚ ref Ide & Kashima
+;; output: é–¾å€¤
+;;         (cons æ–°ãƒ»1æ¬¡ã®ãƒ¢ãƒ¼ãƒ¡ãƒ³ãƒˆ æ–°ãƒ»2æ¬¡ã®ãƒ¢ãƒ¼ãƒ¡ãƒ³ãƒˆ)
 (defun score-threshold (score &key (1st-moment nil)
                                    (2nd-moment nil)
                                    (type :normal) ;; :normal | :log-normal | :gamma
@@ -1542,11 +1537,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; utils for anomaly-detection
 
-;; ƒxƒNƒgƒ‹’lƒf[ƒ^‚Ì•ªU‹¤•ªUs—ñZoƒNƒ‰ƒX
-;; - ‰Šú‰»: init-covariance
-;; - XV: update-covariance
-;; - ‹¤•ªU’l: get-covariance
-;; - •½‹Ï’l: mean-vec
+;; ãƒ™ã‚¯ãƒˆãƒ«å€¤ãƒ‡ãƒ¼ã‚¿ã®åˆ†æ•£å…±åˆ†æ•£è¡Œåˆ—ç®—å‡ºã‚¯ãƒ©ã‚¹
+;; - åˆæœŸåŒ–: init-covariance
+;; - æ›´æ–°: update-covariance
+;; - å…±åˆ†æ•£å€¤: get-covariance
+;; - å¹³å‡å€¤: mean-vec
 (defclass covariance ()
   ((xy-mat-expec :initarg :xy-mat-expec :accessor xy-mat-expec)
    (x-mean-vec :initarg :x-mean-vec :accessor x-mean-vec)
@@ -1603,11 +1598,11 @@
              do (setf (aref res col row) val))
       finally (return res)))
 
-;; s—ñ’lƒf[ƒ^‚Ì•ªU‹¤•ªUs—ñZoƒNƒ‰ƒX
-;; - ‰Šú‰»: init-matrix-covariance
-;; - XV: update-matrix-covariance
-;; - ‹¤•ªU’l: get-matrix-covariance
-;; - •½‹Ï’l: mean-mat
+;; è¡Œåˆ—å€¤ãƒ‡ãƒ¼ã‚¿ã®åˆ†æ•£å…±åˆ†æ•£è¡Œåˆ—ç®—å‡ºã‚¯ãƒ©ã‚¹
+;; - åˆæœŸåŒ–: init-matrix-covariance
+;; - æ›´æ–°: update-matrix-covariance
+;; - å…±åˆ†æ•£å€¤: get-matrix-covariance
+;; - å¹³å‡å€¤: mean-mat
 ;; ref. Gupta, Nagar "MATRIX VARIATE DISTRIBUTIONS"
 (defclass matrix-covariance ()
   ((covs :initarg :covs :type (simple-array t (* *)) :accessor covs)
@@ -1694,8 +1689,8 @@
                                       (aref new-sample col row))))
       finally (return expec-mat)))
 
-;; •Ğ•û‚Ì•Ï”‚ªˆê’è‚¾‚Á‚½ê‡A‘ŠŠÖŒW”‚ª 0 ‚É‚È‚é‚æ‚¤‚È
-;; ‘ŠŒİ‘ŠŠÖs—ñ‚ğZo
+;; ç‰‡æ–¹ã®å¤‰æ•°ãŒä¸€å®šã ã£ãŸå ´åˆã€ç›¸é–¢ä¿‚æ•°ãŒ 0 ã«ãªã‚‹ã‚ˆã†ãª
+;; ç›¸äº’ç›¸é–¢è¡Œåˆ—ã‚’ç®—å‡º
 (defun correlation-with-constant (pts &key (absolute nil)
                                            (weight-mat nil)
                                            (smoothing nil)
@@ -1755,12 +1750,12 @@
                       (aref result j i) (round-value (* (aref weight-mat j i) cor))))
         finally (return result))))
 
-;; ‘‹‚Ì‘|œ
-;; ŠO‚ê’lœ‹ -> •½ŠŠ‰»
-;; ‚Ç‚¿‚ç‚©•Ğ•û‚¾‚¯‚â‚é‚±‚Æ‚à‚Å‚«‚éB
-;; —¼•û‚â‚éê‡‚ÅAƒgƒŒƒ“ƒh•½ŠŠ‰»‚Ì‚Æ‚«‚ÍAŠO‚ê’l‚Í•âŠÔ‚³‚ê‚éB
-;; ŠO‚ê’l‚Í *nan* ‚É‚È‚é
-;; •Ô‚è’l‚Í‘‹‚Ì“]’u
+;; çª“ã®æƒé™¤
+;; å¤–ã‚Œå€¤é™¤å» -> å¹³æ»‘åŒ–
+;; ã©ã¡ã‚‰ã‹ç‰‡æ–¹ã ã‘ã‚„ã‚‹ã“ã¨ã‚‚ã§ãã‚‹ã€‚
+;; ä¸¡æ–¹ã‚„ã‚‹å ´åˆã§ã€ãƒˆãƒ¬ãƒ³ãƒ‰å¹³æ»‘åŒ–ã®ã¨ãã¯ã€å¤–ã‚Œå€¤ã¯è£œé–“ã•ã‚Œã‚‹ã€‚
+;; å¤–ã‚Œå€¤ã¯ *nan* ã«ãªã‚‹
+;; è¿”ã‚Šå€¤ã¯çª“ã®è»¢ç½®
 (defun window-cleaning (window &key (smoothing nil) ;; nil | t
                                     (smoothing-args '(:trend-k 2 :trend-t^2 0.1d0))
                                     (alpha nil) ;; nil | <number>
@@ -1827,19 +1822,19 @@
 
 
 
-;; ƒNƒƒlƒbƒJ[‚Ìƒfƒ‹ƒ^
+;; ã‚¯ãƒ­ãƒãƒƒã‚«ãƒ¼ã®ãƒ‡ãƒ«ã‚¿
 (defun kronecker-delta (i j)
   (declare (type fixnum i j))
   (check-type i fixnum)
   (check-type j fixnum)
   (if (eql i j) 1d0 0d0))
-;; ‘ÎÌs—ñ‚©”Û‚©
+;; å¯¾ç§°è¡Œåˆ—ã‹å¦ã‹
 (defun symatp (mat size)
   (and (equal (array-dimensions mat) `(,size ,size))
        (loop for i below size
            always (loop for j from (1+ i) below size
                       always (= (aref mat i j) (aref mat j i))))))
-;; s—ñ•½‹Ï
+;; è¡Œåˆ—å¹³å‡
 (defun matrix-mean (mats)
   (let* ((len (length mats))
          (dims (array-dimensions (car mats)))
@@ -1848,7 +1843,7 @@
     (loop for mat in mats
         do (setf result (mcm mat result :c #'+))
         finally (return (c*mat (dfloat (/ len)) result)))))
-;; ƒxƒNƒgƒ‹‰»
+;; ãƒ™ã‚¯ãƒˆãƒ«åŒ–
 ;; dmat -> dvec
 (defun vectorization (mat &optional result)
   (let* ((dims (array-dimensions mat))
@@ -1861,17 +1856,17 @@
         do (loop for j below row
                do (setf (aref result (+ (* i col) j)) (aref mat i j)))
         finally (return result))))
-;; —ëƒxƒNƒgƒ‹‚©”Û‚©
+;; é›¶ãƒ™ã‚¯ãƒˆãƒ«ã‹å¦ã‹
 (defun zerovecp (vec)
   (loop for val across vec always (zerop val)))
-;; ’l‚ğŠÛ‚ß‚é
+;; å€¤ã‚’ä¸¸ã‚ã‚‹
 (defun round-value (value &key (precision *epsilon*))
   (dfloat (* precision (round value precision))))
-;; ƒxƒNƒgƒ‹‚ÌŠe’l‚ğŠÛ‚ß‚é
+;; ãƒ™ã‚¯ãƒˆãƒ«ã®å„å€¤ã‚’ä¸¸ã‚ã‚‹
 (defun round-vec (vec)
   (do-vec (val vec :type double-float :setf-var sf :return vec)
     (setf sf (round-value val))))
-;; s—ñ‚ÌŠe’l‚ğŠÛ‚ß‚é
+;; è¡Œåˆ—ã®å„å€¤ã‚’ä¸¸ã‚ã‚‹
 (defun round-mat (mat &optional (precision *epsilon*))
   (assert (> 1 precision))
   (loop for i below (array-dimension mat 0)
@@ -1879,7 +1874,7 @@
              as val = (round-value (aref mat i j))
              do (setf (aref mat i j) val))
       finally (return mat)))
-;; s‚ğ‚Æ‚Á‚Ä‚­‚é
+;; è¡Œã‚’ã¨ã£ã¦ãã‚‹
 (defun get-row (mat nrow)
   (declare (type dmat mat))
   (check-type mat dmat)
@@ -1887,13 +1882,13 @@
     (do-vec (val row :type double-float :return row :index-var i :setf-var sf)
       (declare (ignore val))
       (setf sf (aref mat i nrow)))))
-;; ‘ÎÌs—ñ‚Ì—v‘f‚ªƒ[ƒ‚Å‚ ‚és^—ñ‚Ì index
+;; å¯¾ç§°è¡Œåˆ—ã®è¦ç´ ãŒã‚¼ãƒ­ã§ã‚ã‚‹è¡Œï¼åˆ—ã® index
 (defun get-symat-zero-indices (symat)
   (loop with n = (array-dimension symat 0)
       for i below n
       when (loop for j below n always (zerop (aref symat i j)))
       collect i))
-;; s—ñ‚ÌŸŒ³‚ğŒ¸‚ç‚·
+;; è¡Œåˆ—ã®æ¬¡å…ƒã‚’æ¸›ã‚‰ã™
 (defun compress-dmat (mat target-indices)
   (declare (type dmat mat))
   (assert (eql (array-dimension mat 0) (array-dimension mat 1)))
@@ -1909,7 +1904,7 @@
                do (setf (aref %mat %col %row) (aref mat col row)))
         finally (return %mat))))
 
-;; ‘Î”³‹K•ª•z‚Ìƒpƒ‰ƒ[ƒ^„’è
+;; å¯¾æ•°æ­£è¦åˆ†å¸ƒã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿æ¨å®š
 (defun log-normal-params (mean var)
   (assert (plusp mean))
   (let* ((log-mean (log mean))
@@ -1920,12 +1915,12 @@
          (sigma (statistics::newton-raphson fn derivative :initial-guess (sqrt var)))
          (mu (- log-mean (/ (expt sigma 2) 2))))
     `(:mu ,mu :sigma ,sigma)))
-;; ƒKƒ“ƒ}•ª•z‚Ìƒpƒ‰ƒ[ƒ^„’è
+;; ã‚¬ãƒ³ãƒåˆ†å¸ƒã®ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿æ¨å®š
 (defun gamma-params (mean var)
   "calculate parameters, scale and shape, for gamma distribution by mean and variance."
   `(:shape ,(dfloat (/ (expt mean 2) var)) :scale ,(dfloat (/ var mean))))
 
-;; ‘½•Ï—Ê³‹K•ª•z‚ÌŠm—¦–§“x„’è
+;; å¤šå¤‰é‡æ­£è¦åˆ†å¸ƒã®ç¢ºç‡å¯†åº¦æ¨å®š
 (defparameter *noise-order* 1d-2)
 (defun multivariate-normal-density (mu sigma vec &optional m)
   (declare (type dvec mu vec) (type dmat sigma))
@@ -1933,7 +1928,7 @@
         sigma (mcm (round-mat sigma) (diag (array-dimension sigma 0) *noise-order*)))
   (let* ((dim (array-dimension sigma 0))
          (det (det sigma))
-         (inv (if (zerop det) (error "singular sigma: ~A" sigma) ;; ³‘¥«
+         (inv (if (zerop det) (error "singular sigma: ~A" sigma) ;; æ­£å‰‡æ€§
                 (m^-1 sigma)))
          (coef (/ (* (expt (* 2d0 pi) (/ (if (numberp m) m dim) 2))
                      (sqrt det))))
@@ -1960,15 +1955,15 @@
     #-mkl        
     (blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
     (tr res)))
-;; ƒ}ƒnƒ‰ƒmƒrƒX‹——£ 
+;; ãƒãƒãƒ©ãƒãƒ“ã‚¹è·é›¢ 
 (defun mahalanobis-distance (x y sigma)
   (declare (type dvec x y) (type dmat sigma))
   (check-type x dvec)
   (check-type y dvec)
   (check-type sigma dmat)
   (let ((d (diag (array-dimension sigma 0) *noise-order*))
-        ;; sigma —ës—ñ‘Îô‚¨‚æ‚Ñ‹ts—ñ‚ÌˆÀ’è«‚Ì‚½‚ßA‘ÎŠp¬•ª‚ÉƒmƒCƒY‚ğ‰Á‚¦‚é
-        ;; -> –³‚¢‚ÆˆÈ‰º‚Ì“àÏŒ‹‰Ê‚ª•‰‚É‚È‚Á‚½‚è‚·‚é‚È‚ÇA•sˆÀ’è
+        ;; sigma é›¶è¡Œåˆ—å¯¾ç­–ãŠã‚ˆã³é€†è¡Œåˆ—ã®å®‰å®šæ€§ã®ãŸã‚ã€å¯¾è§’æˆåˆ†ã«ãƒã‚¤ã‚ºã‚’åŠ ãˆã‚‹
+        ;; -> ç„¡ã„ã¨ä»¥ä¸‹ã®å†…ç©çµæœãŒè² ã«ãªã£ãŸã‚Šã™ã‚‹ãªã©ã€ä¸å®‰å®š
         )
     (setf sigma (mcm sigma d :c #'+))
     (let* ((inv-sigma (m^-1 sigma))) 

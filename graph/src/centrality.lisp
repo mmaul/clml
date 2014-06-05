@@ -1,13 +1,7 @@
-(defpackage :graph-centrality
-  (:use :cl :util :vector :vars :matrix :statistics :read-graph :graph-utils :graph-shortest-path)
-  (:export #:eccentricity-centrality
-           #:closeness-centrality
-           #:degree-centrality
-           #:eigen-centrality
-           #:pagerank)
-  (:import-from :graph-shortest-path #:%find-all-shortest-paths))
+;-*- coding: utf-8 -*-
 
-(in-package :graph-centrality)
+
+(in-package :clml.graph.graph-centrality)
 
 (defmethod eccentricity-centrality ((gr simple-graph))
   (let* ((dist-mat (graph-distance-matrix gr))
@@ -71,9 +65,9 @@
                 (aref eigen-vals 0)))))
 
 ;; pagerank
-;; •ª—£/—LŒüƒOƒ‰ƒt‚Å‚ÍA‚µ‚Î‚µ‚Î‹­˜AŒ‹‚Å‚Í‚È‚¢‚Ì‚Å principal eigen vector ‚ª’è‚Ü‚ç‚È‚¢B
-;; pagerank ‚Å‚Í‚»‚ê‚ğ‹­˜AŒ‹‚Æ‚·‚é‚½‚ßA„ˆÚŠm—¦s—ñ‚Ì‘S‚Ä‚Ìƒm[ƒhŠÔ‚Å¬‚³‚Èd‚İ‚ÌƒŠƒ“ƒN‚ğ‰¼’è‚·‚éB
-;; c ‚Í‚»‚Ìd‚İ‚ğ’²®‚·‚éƒpƒ‰ƒ[ƒ^A‘å‚«‚¢‚Ù‚Çd‚İ‚Í¬‚³‚­‚È‚èAÀÛ‚ÌƒŠƒ“ƒN‚Ì„ˆÚŠm—¦‚ª—Dæ‚³‚ê‚éB
+;; åˆ†é›¢/æœ‰å‘ã‚°ãƒ©ãƒ•ã§ã¯ã€ã—ã°ã—ã°å¼·é€£çµã§ã¯ãªã„ã®ã§ principal eigen vector ãŒå®šã¾ã‚‰ãªã„ã€‚
+;; pagerank ã§ã¯ãã‚Œã‚’å¼·é€£çµã¨ã™ã‚‹ãŸã‚ã€æ¨ç§»ç¢ºç‡è¡Œåˆ—ã®å…¨ã¦ã®ãƒãƒ¼ãƒ‰é–“ã§å°ã•ãªé‡ã¿ã®ãƒªãƒ³ã‚¯ã‚’ä»®å®šã™ã‚‹ã€‚
+;; c ã¯ãã®é‡ã¿ã‚’èª¿æ•´ã™ã‚‹ãƒ‘ãƒ©ãƒ¡ãƒ¼ã‚¿ã€å¤§ãã„ã»ã©é‡ã¿ã¯å°ã•ããªã‚Šã€å®Ÿéš›ã®ãƒªãƒ³ã‚¯ã®æ¨ç§»ç¢ºç‡ãŒå„ªå…ˆã•ã‚Œã‚‹ã€‚
 ;; (0 < c < 1)
 (defmethod pagerank ((gr simple-graph) &key (c 0.85d0))
   (declare (type double-float c))
@@ -109,9 +103,9 @@
 (defmethod power-centrality ((gr simple-graph)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; ˆÈ‰º‚Í‘½‚­‚ÌŒo˜H‚ğ”}‰î‚·‚éƒm[ƒh‚Í’†S“I‚Å‚ ‚é‚Æ‚·‚éw•W
-;; ”}‰î’†S«
-;; ’¸“_‚ªA‘¼‚Ì’¸“_ŠÔ‚ÌÅ’ZŒo˜Hã‚ÉˆÊ’u‚·‚é’ö“x‚ğ’†S«‚Æ‚·‚éB
+;; ä»¥ä¸‹ã¯å¤šãã®çµŒè·¯ã‚’åª’ä»‹ã™ã‚‹ãƒãƒ¼ãƒ‰ã¯ä¸­å¿ƒçš„ã§ã‚ã‚‹ã¨ã™ã‚‹æŒ‡æ¨™
+;; åª’ä»‹ä¸­å¿ƒæ€§
+;; é ‚ç‚¹ãŒã€ä»–ã®é ‚ç‚¹é–“ã®æœ€çŸ­çµŒè·¯ä¸Šã«ä½ç½®ã™ã‚‹ç¨‹åº¦ã‚’ä¸­å¿ƒæ€§ã¨ã™ã‚‹ã€‚
 #+ignore
 (defmethod betweenness-centrality ((gr simple-graph) &key (standardize nil))
   (let* ((dim (length (nodes gr)))

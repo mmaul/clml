@@ -1,12 +1,5 @@
-(defpackage :graph-utils
-  (:use :cl :excl :parse-number :util :vector :matrix :read-graph)
-  (:export #:retrieve-node
-           #:retrieve-link
-           #:adjacency
-           #:adjacency-matrix
-           #:get-connected-components))
-
-(in-package :graph-utils)
+;-*- coding: utf-8 -*-
+(in-package :clml.graph.graph-utils)
 
 (defmethod retrieve-node ((gr simple-graph) id-or-name)
   (etypecase id-or-name
@@ -29,9 +22,9 @@
           (or (gethash (cons nid1 nid2) htab)
               (gethash (cons nid2 nid1) htab)))))))
 
-;; �אڃm�[�h�����o���B
+;; 隣接ノードを取り出す。
 ;; output: alist: key: <node> val: weight
-;; �����ꍇ�� nil
+;; 無い場合は nil
 (defmethod adjacency ((nd node) (gr simple-graph))
   (loop with nid = (node-id nd)
       for link in (if (directed-p gr)
@@ -44,7 +37,7 @@
                                            (t (error "illegal graph structure: ~A is a link of ~A" link nd))))
       collect (cons adj w)))
 
-;; <simple-graph> ����אڍs������o���B
+;; <simple-graph> から隣接行列を取り出す。
 (defmethod adjacency-matrix ((gr simple-graph))
   (let* ((size (length (nodes gr)))
          (mat (make-array `(,size ,size) :element-type 'double-float
@@ -58,7 +51,7 @@
              (setf (aref mat col row) w (aref mat row col) w))
         finally (return mat))))
 
-;; �A���ȃm�[�h�̏W�����W�߂�
+;; 連結なノードの集合を集める
 (defmethod get-connected-components ((gr simple-graph))
   (let ((node-buffs (mapcar (lambda (node) (prog1 (node-buff node) (setf (node-buff node) nil)))
                             (nodes gr))))

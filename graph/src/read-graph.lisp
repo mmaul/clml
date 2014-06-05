@@ -1,30 +1,5 @@
-(defpackage :read-graph
-  (:use :cl :excl :parse-number :util :vector :matrix)
-  (:export #:node
-           #:link
-           #:node-id
-           #:node-name
-           #:node-links
-           #:node-buff
-           #:link-weight
-           #:link-node1
-           #:link-node2
-           #:link-directed
-           
-           #:simple-graph
-           #:simple-graph-series
-           #:nodes
-           #:links
-           #:directed-p
-           #:graphs
-           
-           #:read-graph
-           #:do-graph-series
-           #:read-graph-series
-           #:make-simple-graph
-           ))
-
-(in-package :read-graph)
+;-*- coding: utf-8 -*-
+(in-package :clml.graph.read-graph)
 
 (defstruct (node (:conc-name node-))
   (id -1 :type fixnum)
@@ -39,7 +14,7 @@
   (weight 1d0 :type double-float)
   (node1 -1 :type fixnum)
   (node2 -1 :type fixnum)
-  (directed nil) ;; nil (–³Œü) | t (—LŒü node1 -> node2)
+  (directed nil) ;; nil (ç„¡å‘) | t (æœ‰å‘ node1 -> node2)
   )
 (defmethod print-object ((obj link) stream)
   (print-unreadable-object (obj stream :type t :identity nil)
@@ -55,18 +30,18 @@
 (defmethod print-object ((obj graph) stream)
   (print-unreadable-object (obj stream :type t :identity nil))
   (format stream "~&~D nodes" (length (nodes obj))))
-(defclass simple-graph (graph) ;; d‚İ•t‚«–³Œü^—LŒüƒOƒ‰ƒt
+(defclass simple-graph (graph) ;; é‡ã¿ä»˜ãç„¡å‘ï¼æœ‰å‘ã‚°ãƒ©ãƒ•
   ((links :initform nil :initarg :links :accessor links)
    (link-hashtab :initform (make-hash-table :test #'equal) :accessor link-hashtab)
    (directed-p :initform nil :initarg :directed-p 
-               :accessor directed-p) ;; nil (–³Œü) | t (—LŒü)
+               :accessor directed-p) ;; nil (ç„¡å‘) | t (æœ‰å‘)
    ))
 (defmethod print-object ((obj simple-graph) stream)
   (call-next-method)
   (format stream "~&~D links" (length (links obj))))
 
   
-;; ƒOƒ‰ƒtŒn—ñ
+;; ã‚°ãƒ©ãƒ•ç³»åˆ—
 (defclass simple-graph-series ()
   ((graphs :initform nil :initarg :graphs :accessor graphs)
    (graph-labels :initform nil :initarg :graph-labels :accessor graph-labels)))
@@ -75,10 +50,10 @@
     (format stream "~D graphs" (length (graphs obj)))))
 
 #||
-(defclass multiple-graph (graph)  ;; ‘½dƒOƒ‰ƒt
+(defclass multiple-graph (graph)  ;; å¤šé‡ã‚°ãƒ©ãƒ•
   ((links :initarg :links :accessor links)))
 (defclass bipartite-graph (graph)
-  ;; “ñ•”ƒOƒ‰ƒt
+  ;; äºŒéƒ¨ã‚°ãƒ©ãƒ•
   ;; ...
   )
 ||#
@@ -107,38 +82,38 @@
           (setf (gethash (cons nid1 nid2) htab) link)))))
 
 ;; read-graph
-;; ƒOƒ‰ƒtƒf[ƒ^‚ğ“Ç‚İ‚Ş
+;; ã‚°ãƒ©ãƒ•ãƒ‡ãƒ¼ã‚¿ã‚’èª­ã¿è¾¼ã‚€
 ;; input: fname
-;;        format, :sexp | :edgelist, ‹LqŒ`®
-;;        directed, nil | t, –³Œü‚©—LŒü‚©
+;;        format, :sexp | :edgelist, è¨˜è¿°å½¢å¼
+;;        directed, nil | t, ç„¡å‘ã‹æœ‰å‘ã‹
 ;;        external-format
 ;; output: <graph>
-;; - :sexp Œ`®‚Íƒm[ƒh–¼ƒŠƒXƒg‚Æ—×Ús—ñƒŠƒXƒg‚Å\¬‚³‚ê‚éB
-;;   ƒm[ƒh–¼ƒŠƒXƒg‚Í string ‚Ì list
+;; - :sexp å½¢å¼ã¯ãƒãƒ¼ãƒ‰åãƒªã‚¹ãƒˆã¨éš£æ¥è¡Œåˆ—ãƒªã‚¹ãƒˆã§æ§‹æˆã•ã‚Œã‚‹ã€‚
+;;   ãƒãƒ¼ãƒ‰åãƒªã‚¹ãƒˆã¯ string ã® list
 ;;   e.g. ("foo" "bar" "baz")
-;;   —×Ús—ñƒŠƒXƒg‚ÍŠe—v‘f‚ª—ñ‚ÌƒŠƒXƒg‚Å‚ ‚é‚æ‚¤‚ÈƒŠƒXƒg
+;;   éš£æ¥è¡Œåˆ—ãƒªã‚¹ãƒˆã¯å„è¦ç´ ãŒåˆ—ã®ãƒªã‚¹ãƒˆã§ã‚ã‚‹ã‚ˆã†ãªãƒªã‚¹ãƒˆ
 ;;   e.g. ((0.0 7.0 9.0)
 ;;         (7.0 0.0 10.0)
 ;;         (9.0 10.0 0.0))
-;; - :edgelist Œ`®‚Íƒm[ƒh–¼ƒp[ƒg‚Æ•Óƒp[ƒg‚Å\¬‚³‚ê‚éB
-;;   ƒm[ƒh–¼ƒp[ƒg‚Æ•Óƒp[ƒg‚Í‹ós‚Å•ªŠ„‚³‚ê‚éB
-;;   ƒm[ƒh–¼ƒp[ƒg‚Å‚ÍŠes‚ª
-;;   ID –¼‘O
-;;   ‚Å‚ ‚éB
+;; - :edgelist å½¢å¼ã¯ãƒãƒ¼ãƒ‰åãƒ‘ãƒ¼ãƒˆã¨è¾ºãƒ‘ãƒ¼ãƒˆã§æ§‹æˆã•ã‚Œã‚‹ã€‚
+;;   ãƒãƒ¼ãƒ‰åãƒ‘ãƒ¼ãƒˆã¨è¾ºãƒ‘ãƒ¼ãƒˆã¯ç©ºè¡Œã§åˆ†å‰²ã•ã‚Œã‚‹ã€‚
+;;   ãƒãƒ¼ãƒ‰åãƒ‘ãƒ¼ãƒˆã§ã¯å„è¡ŒãŒ
+;;   ID åå‰
+;;   ã§ã‚ã‚‹ã€‚
 ;;   e.g.
 ;;   1 foo
 ;;   2 bar
 ;;   3 baz
-;;   ID ‚Í 1 ‚©‚ç¸‡‚Ì˜A”Ô‚Å‚È‚¯‚ê‚Î‚È‚ç‚È‚¢B
-;;   •Óƒp[ƒg‚Å‚ÍŠes‚ª
-;;   ƒm[ƒhID1 ƒm[ƒhID2 d‚İ
-;;   ‚Å‚ ‚éB
+;;   ID ã¯ 1 ã‹ã‚‰æ˜‡é †ã®é€£ç•ªã§ãªã‘ã‚Œã°ãªã‚‰ãªã„ã€‚
+;;   è¾ºãƒ‘ãƒ¼ãƒˆã§ã¯å„è¡ŒãŒ
+;;   ãƒãƒ¼ãƒ‰ID1 ãƒãƒ¼ãƒ‰ID2 é‡ã¿
+;;   ã§ã‚ã‚‹ã€‚
 ;;   e.g.
 ;;   1 2 10
 ;;   2 3
-;;   d‚İ‚ğw’è‚µ‚È‚¢ê‡‚Íd‚İ 1 ‚Æ‚È‚éB
-;;   directed ‚ª t ‚È‚ç—LŒüƒOƒ‰ƒt‚Æ‚È‚èAŒü‚«‚Í
-;;   ƒm[ƒhID1 -> ƒm[ƒhID2 ‚Æ‰ğß‚³‚ê‚éB
+;;   é‡ã¿ã‚’æŒ‡å®šã—ãªã„å ´åˆã¯é‡ã¿ 1 ã¨ãªã‚‹ã€‚
+;;   directed ãŒ t ãªã‚‰æœ‰å‘ã‚°ãƒ©ãƒ•ã¨ãªã‚Šã€å‘ãã¯
+;;   ãƒãƒ¼ãƒ‰ID1 -> ãƒãƒ¼ãƒ‰ID2 ã¨è§£é‡ˆã•ã‚Œã‚‹ã€‚
 (defun read-graph (fname &key (format :sexp)
                               (directed nil)
                               (external-format :default)
@@ -243,11 +218,11 @@
                 (make-array '(0 0) :element-type 'double-float))
               (when (arrayp label) (aref label 0))))))
 
-;; read-graph-series ƒOƒ‰ƒt‚ÌŒn—ñ‚ğ“Ç‚İ‚Ş
-;; Œn—ñƒf[ƒ^‚ÌŠeƒOƒ‰ƒt‚É‚Íƒ‰ƒxƒ‹‚ª‚ ‚é‚±‚Æ‚ğ‘O’ñ‚Æ‚·‚éB
-;; Œn—ñƒf[ƒ^‹LqŒ`®
-;; - :sexp Œ`®‚Ìê‡
-;;   ƒm[ƒh–¼ƒŠƒXƒg‚Æ—×Ús—ñƒŠƒXƒg‚ÌŠÔ‚ÌS®‚ª‚»‚Ìƒ‰ƒxƒ‹‚Æ‚µ‚Ä“Ç‚İ‚Ü‚ê‚é
+;; read-graph-series ã‚°ãƒ©ãƒ•ã®ç³»åˆ—ã‚’èª­ã¿è¾¼ã‚€
+;; ç³»åˆ—ãƒ‡ãƒ¼ã‚¿ã®å„ã‚°ãƒ©ãƒ•ã«ã¯ãƒ©ãƒ™ãƒ«ãŒã‚ã‚‹ã“ã¨ã‚’å‰æã¨ã™ã‚‹ã€‚
+;; ç³»åˆ—ãƒ‡ãƒ¼ã‚¿è¨˜è¿°å½¢å¼
+;; - :sexp å½¢å¼ã®å ´åˆ
+;;   ãƒãƒ¼ãƒ‰åãƒªã‚¹ãƒˆã¨éš£æ¥è¡Œåˆ—ãƒªã‚¹ãƒˆã®é–“ã®Så¼ãŒãã®ãƒ©ãƒ™ãƒ«ã¨ã—ã¦èª­ã¿è¾¼ã¾ã‚Œã‚‹
 ;;   e.g. ("foo" "bar" "baz")
 ;;        "12:00:00"
 ;;        ((0.0 7.0 9.0)
@@ -258,8 +233,8 @@
 ;;         (6.0 0.0 2.0)
 ;;         (5.0 2.0 0.0))     
 ;;
-;; - :edgelist Œ`®‚Ìê‡
-;;   •Óƒp[ƒg‚Ìˆê”ÔÅ‰‚Ìs‚ªƒ‰ƒxƒ‹•¶š—ñ‚Æ‚µ‚Ä“Ç‚İ‚Ü‚ê‚éB
+;; - :edgelist å½¢å¼ã®å ´åˆ
+;;   è¾ºãƒ‘ãƒ¼ãƒˆã®ä¸€ç•ªæœ€åˆã®è¡ŒãŒãƒ©ãƒ™ãƒ«æ–‡å­—åˆ—ã¨ã—ã¦èª­ã¿è¾¼ã¾ã‚Œã‚‹ã€‚
 ;;   e.g. 1 foo
 ;;        2 bar
 ;;        3 baz
@@ -273,8 +248,8 @@
 ;;        1 2 6
 ;;        1 3 5
 ;;        2 3 2
-;; - :csv Œ`®‚Ìê‡
-;;   :sexp‚ÌŠes‚ªCSVŒ`®‚Å‚ ‚é‚æ‚¤‚È‚à‚Ì
+;; - :csv å½¢å¼ã®å ´åˆ
+;;   :sexpã®å„è¡ŒãŒCSVå½¢å¼ã§ã‚ã‚‹ã‚ˆã†ãªã‚‚ã®
 ;;   e.g. "foo","bar","baz"
 ;;        "12:00:00"          
 ;;        0.0,7.0,9.0      
@@ -348,13 +323,13 @@
       :graphs (reverse graphs)
       :graph-labels (reverse graph-labels))))
 
-;; simple-graph ƒIƒuƒWƒFƒNƒg‚ğì‚é
-;; input: id-name-alist, <list cons integer string>, ƒm[ƒh‚Ì ID ‚Æ –¼‘O ‚Ì alist
-;;        adjacency-matrix, (ƒm[ƒh”)*(ƒm[ƒh”)‚Ìs—ñAi ”Ô–Ú‚Ìs‚¨‚æ‚Ñ—ñ‚Íƒm[ƒhID‚É‘Î‰
-;;        edgelist, Še—v‘f‚ª plist = (:nid1 * :nid2 * :weight *) ‚Ì list
+;; simple-graph ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã‚’ä½œã‚‹
+;; input: id-name-alist, <list cons integer string>, ãƒãƒ¼ãƒ‰ã® ID ã¨ åå‰ ã® alist
+;;        adjacency-matrix, (ãƒãƒ¼ãƒ‰æ•°)*(ãƒãƒ¼ãƒ‰æ•°)ã®è¡Œåˆ—ã€i ç•ªç›®ã®è¡ŒãŠã‚ˆã³åˆ—ã¯ãƒãƒ¼ãƒ‰IDã«å¯¾å¿œ
+;;        edgelist, å„è¦ç´ ãŒ plist = (:nid1 * :nid2 * :weight *) ã® list
 ;;        directed, nil | t
 ;; output: <simple-graph>
-;; ID ‚Í ³‚Ì®” ‚ÅŒ‡”Ô‚Í‚È‚¢B
+;; ID ã¯ æ­£ã®æ•´æ•° ã§æ¬ ç•ªã¯ãªã„ã€‚
 (defun make-simple-graph (id-name-alist &key (adjacency-matrix nil)
                                              (edgelist nil)
                                              (directed nil))

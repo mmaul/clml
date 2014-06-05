@@ -1,20 +1,17 @@
-(defpackage :graph-shortest-path
-  (:use :cl :excl :util :vector :matrix :read-graph :graph-utils :priority-que :missing-val)
-  (:export #:find-shortest-path-dijkstra
-           #:graph-distance-matrix))
+;-*- coding: utf-8 -*-
 
-(in-package :graph-shortest-path)
+(in-package :clml.graph.shortest-path)
 
-;; ƒ_ƒCƒNƒXƒgƒ‰‚ÌƒAƒ‹ƒSƒŠƒYƒ€‚É‚æ‚Á‚ÄŠeƒm[ƒh‚Ö‚ÌÅ’ZŒo˜H‚¨‚æ‚ÑÅ’Z‹——£‚ğ‹‚ß‚éB
-;; I“_ƒm[ƒhID‚ğw’è‚·‚ê‚ÎAn“_‚©‚çI“_‚Ü‚Å‚ÌÅ’ZŒo˜H‚¨‚æ‚ÑÅ’Z‹——£‚ª‹‚Ü‚Á‚½‚ç‚½‚¾‚¿‚ÉŒvZ
-;; ‚ğI—¹‚µA‚»‚ê‚ç‚ğ•Ô‚·B
-;; –³‚¢ê‡‚Í nil ‚ª•Ô‚é
+;; ãƒ€ã‚¤ã‚¯ã‚¹ãƒˆãƒ©ã®ã‚¢ãƒ«ã‚´ãƒªã‚ºãƒ ã«ã‚ˆã£ã¦å„ãƒãƒ¼ãƒ‰ã¸ã®æœ€çŸ­çµŒè·¯ãŠã‚ˆã³æœ€çŸ­è·é›¢ã‚’æ±‚ã‚ã‚‹ã€‚
+;; çµ‚ç‚¹ãƒãƒ¼ãƒ‰IDã‚’æŒ‡å®šã™ã‚Œã°ã€å§‹ç‚¹ã‹ã‚‰çµ‚ç‚¹ã¾ã§ã®æœ€çŸ­çµŒè·¯ãŠã‚ˆã³æœ€çŸ­è·é›¢ãŒæ±‚ã¾ã£ãŸã‚‰ãŸã ã¡ã«è¨ˆç®—
+;; ã‚’çµ‚äº†ã—ã€ãã‚Œã‚‰ã‚’è¿”ã™ã€‚
+;; ç„¡ã„å ´åˆã¯ nil ãŒè¿”ã‚‹
 ;; input: gr, <simple-graph>
-;;        start-id-or-name, n“_ƒm[ƒh‚ÌID‚Ü‚½‚Í–¼‘O
-;;        end-id-or-name, I“_ƒm[ƒh‚ÌID‚Ü‚½‚Í–¼‘O
-;;        data-structure, :list | :binary | :binomial | :fibonacci, ‚Ç‚Ìƒf[ƒ^\‘¢‚ğ—p‚¢‚é‚©
-;; output: Å’ZŒo˜H
-;;         Å’Z‹——£
+;;        start-id-or-name, å§‹ç‚¹ãƒãƒ¼ãƒ‰ã®IDã¾ãŸã¯åå‰
+;;        end-id-or-name, çµ‚ç‚¹ãƒãƒ¼ãƒ‰ã®IDã¾ãŸã¯åå‰
+;;        data-structure, :list | :binary | :binomial | :fibonacci, ã©ã®ãƒ‡ãƒ¼ã‚¿æ§‹é€ ã‚’ç”¨ã„ã‚‹ã‹
+;; output: æœ€çŸ­çµŒè·¯
+;;         æœ€çŸ­è·é›¢
 (defmethod find-shortest-path-dijkstra ((gr simple-graph) start-id-or-name
                                         &key (end-id-or-name nil)
                                              (data-structure :binary)
@@ -47,12 +44,14 @@
             (setf (D start) 0)
             (dolist (n nodes)
               (setf (B n) (insert-prique prique n)))
-            (while (not (prique-empty-p prique))
+            (loop while (not (prique-empty-p prique)) do 
               (setq v (delete-min-prique prique))
               (when (= (D v) *+inf*)
                 (setq v nil)
-                (return))
-              (when (and dest (eq v dest)) (return))
+                (return)
+                )
+              (when (and dest (eq v dest)) (return)
+                )
               (loop for (w . Lvw) in (adjacency v gr)
                   do (assert (plusp Lvw))
                      (update v w Lvw)))
@@ -70,7 +69,7 @@
                     ((every #'null Pvec) nil)
                     (t (loop for node in (remove start nodes :test #'eq)
                            collect (get-path-distance node)))))))))))
-;; (Å’Z)‹——£s—ñ‚ğ‹‚ß‚é
+;; (æœ€çŸ­)è·é›¢è¡Œåˆ—ã‚’æ±‚ã‚ã‚‹
 (defmethod graph-distance-matrix ((gr simple-graph) &optional (path-mat-p nil))
   (let* ((nodes (nodes gr))
          (n (length nodes))
