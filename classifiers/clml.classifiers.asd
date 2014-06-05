@@ -5,16 +5,15 @@
                              (:file "package")))
 
 
-(asdf:defsystem :clml.decision-tree
+(asdf:defsystem :clml.classifiers
                 :pathname "src/"
                 :serial t
                 :depends-on (:hjs
-                             :clml.mlr
-                             :clml.hc
+                             :clml.clustering
                              :clml.classifiers-package
                              )
                 :components (
                              
-                             ;(:file "logistic")
-                             (:file "linear-regession")
+                             (:file "logistic")
+                             (:file "linear-regression")
                              ))

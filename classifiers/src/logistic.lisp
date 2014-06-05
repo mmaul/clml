@@ -1,13 +1,8 @@
+;-*- coding: utf-8 -*-
 ;;;2011/11/2 Abe Yusuke cf.PRML chapter4
 
-(defpackage :logistic-regression
-  (:use :cl
-	:svm.wss3;比較実験用
-	:hjs.learn.read-data
-	:hjs.util.vector
-        :hjs.util.matrix))
 
-(in-package logistic-regression)
+(in-package clml.classifiers.logistic-regression)
 
 ;;計画行列の作成。
 (defun phi-mat (training-vector)
