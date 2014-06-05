@@ -17,7 +17,8 @@
    :clml.time-series.anomaly-detection
    :clml.time-series.exponential-smoothing
    :clml.time-series.burst-detection
-   ;"TS-UTIL"
+
+                                      ;"TS-UTIL"
    
    ;"CHANGEFINDER"
    
@@ -25,7 +26,6 @@
    :hc
    ;"K-MEANS"
    ;"K-NN"
-   ;"LINEAR-REGRESSION"
    ;"MISSING-VAL"
    :nmf
    :optics
@@ -37,6 +37,7 @@
    :clml.svm.wss3
    ;:clml.svm.pwss3
    :clml.svm.one-class
+   :clml.classifiers.linear-regression
    ;"SVR"
    ;"ONE-CLASS-SVM"
    ;"NBAYES"

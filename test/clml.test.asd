@@ -41,6 +41,7 @@
                              (:file "test-wss3-svm")
                              (:file "test-pwss3-svm")
                              (:file "test-one-class-svm")
+                             (:file "test-linear-regression")
                              (:file "test-groups")
                              )
                 )
