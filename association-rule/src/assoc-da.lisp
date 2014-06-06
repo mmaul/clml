@@ -1,7 +1,7 @@
 ;; use dobule array logic for association-rule
 ;; but not required check space -- so there is only base array
 ;; so that it called "single array"
-(in-package :association-rule)
+(in-package :clml.association-rule)
 
 (defun dim-of (size length)
   (1+ (* 2

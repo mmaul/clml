@@ -1,5 +1,5 @@
 ;; FP-growth algorith
-(in-package :association-rule)
+(in-package :clml.association-rule)
 
 (defclass fp-node ()
   ((key :initarg :key :accessor fp-key)
