@@ -1,4 +1,4 @@
-(asdf:defsystem :clml.clustering-package
+(asdf:defsystem :clml.clustering.package
                 :pathname "src/"
                 :serial t
                 :components (
@@ -10,7 +10,7 @@
                 :serial t
                 :depends-on (:hjs
                              :iterate
-                             :clml.clustering-package
+                             :clml.clustering.package
                              )
                 :components (
                              (:file "hc")
@@ -19,4 +19,5 @@
                              (:file "spectral-clustering")
                              (:file "cluster-validation")
                              (:file "k-means2")
+                             (:file "optics-speed")
                              ))

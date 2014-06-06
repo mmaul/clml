@@ -69,6 +69,16 @@
   (:export :optics
            :optics-main
            :make-optics-input))
+(defpackage :optics
+  (:use
+   :optics
+   :learn.nearest)
+  (:export
+   :optics-input-speed
+   :get-neighbors
+   :optics-speed
+   :%optics-speec
+   :make-optics-input-speed))
 
 (defpackage :spectral-clustering
     (:use :cl :hjs.util.matrix :hjs.util.meta)

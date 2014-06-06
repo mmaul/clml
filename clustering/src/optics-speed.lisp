@@ -1,6 +1,5 @@
 ;; optics with nearest-serach package
-(defpackage :optics
-  (:use :learn.nearest))
+
 
 (in-package :optics)
 
