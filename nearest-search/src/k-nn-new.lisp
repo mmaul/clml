@@ -1,16 +1,6 @@
 ;; k-nearest-neighbors algorithm
-(defpackage :learn.k-nn-new
-  (:nicknames :k-nn-new)
-  (:use :cl
-        :hjs.util.vector
-        :hjs.learn.read-data
-        :hjs.util.meta
-	:learn.nearest)
-  (:export :k-nn-analyze
-           :k-nn-estimate
-           :estimator-properties))
 
-(in-package :learn.k-nn-new)
+(in-package :clml.nearest-search.k-nn-new)
 
 (defclass k-nn-estimator ()
   ((vecs :initarg :vecs :accessor vecs)

@@ -1,16 +1,7 @@
 ;; $Id: k-nn.cl,v 1.6 2008/06/23 11:52:23 fujiiryo Exp $
 ;; k-nearest-neighbors algorithm
-(defpackage :learn.k-nn
-  (:nicknames :k-nn)
-  (:use :cl
-        :hjs.util.vector
-        :hjs.learn.read-data
-        :hjs.util.meta)
-  (:export :k-nn-analyze
-           :k-nn-estimate
-           :estimator-properties))
 
-(in-package :learn.k-nn)
+(in-package :clml.nearest-search.k-nn)
 
 (defvar *loading-est*)
 

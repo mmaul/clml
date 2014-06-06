@@ -1,43 +1,5 @@
-(defpackage :learn.nearest
-  (:use :cl
-	:hjs.learn.read-data
-	:hjs.util.vector
-	:hjs.util.meta
-	:nonpara.stat
-	:hjs.util.matrix
-	:pca
-	:priority-que)
-  (:export :nearest-search
-	   
-	   :exact-nearest-search
-	   :stochastic-nearest-search
-	   
-	   :naive-nearest-search
-	   
-	   :kd-tree-search
-	   
-	   :m-tree-search
-	   
-	   :locality-sensitive-hashing
-	   :p-stable-locality-sensitive-hashing
-	   :euclid-locality-sensitive-hashing
-	   :manhattan-locality-sensitive-hashing
-	   :cosine-locality-sensitive-hashing
-	   
-	   :nns-input-data
-	   :nns-input-key
-	   :nns-distance
-	   
-	   :initialize-search
-	   
-	   :find-nearest
-	   :find-nearest-k
-	   :find-nearest-epsilon
-	   
-	   :stochastic-validation
-	   ))
 
-(in-package :learn.nearest)
+(in-package :clml.nearest-search.nearest)
 
 (defclass nearest-search ()
   ((input-data :initarg :input-data :accessor nns-input-data)
