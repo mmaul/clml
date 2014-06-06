@@ -1,20 +1,6 @@
-(defpackage :hjs.learn.pca
-  (:use :cl :hjs.util.meta :hjs.util.matrix :hjs.util.vector
-        :hjs.learn.read-data :statistics :hjs.learn.vars)
-  (:nicknames :pca)
-  (:export 
-   #:princomp
-   #:princomp-projection
-   #:sub-princomp
-   #:kernel-princomp
-   #:make-face-estimator
-   #:face-estimate
-   #:components
-   #:contributions
-   #:loading-factors
-   ))
+;-*- coding: utf-8 -*-
 
-(in-package :hjs.learn.pca)
+(in-package :clml.pca)
 
 (declaim (optimize (speed 3) (safety 1) (debug 1)))
 

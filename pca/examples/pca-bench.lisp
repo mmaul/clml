@@ -1,4 +1,4 @@
-(in-package :pca)
+(in-package :clml.pca.examples.pca-bench)
 
 (defvar eyes (pick-and-specialize-data
               (read-data-from-file "sample/eyes200.sexp")
