@@ -1,20 +1,7 @@
 ;; implement sticky-HDP-HMM as mix-in
-(defpackage :nonparametric.sticky-hdp-hmm
-;  (:nicknames :sticky)
-  (:use :cl :nonpara.stat :hjs.util.meta
-	:nonparametric.dpm
-	:nonparametric.hdp
-	:nonparametric.hdp-hmm)
-  (:export :sticky-hdp-hmm
-	   :sticky-hidden-state
-	   :sticky-state-uniform
-	   
-	   :sticky-kappa
-	   
-	   :*rho-base-c*
-	   :*rho-base-d*))
 
-(in-package :nonparametric.sticky-hdp-hmm)
+
+(in-package :clml.nonparametric.sticky-hdp-hmm)
 
 (defparameter *rho-base-c* 1d0)
 (defparameter *rho-base-d* 1d0)

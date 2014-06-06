@@ -1,42 +1,6 @@
-(defpackage :text.hdp-lda
-  ;; (:nicknames :hdp-lda)
-  (:use :cl :nonparameteric.statistics :hjs.util.meta)
-  (:export :hdp-lda
-	   :word
-	   :document
-	   :table
-	   
-	   :document-id
-	   :document-words
-	   :document-thetas
-	   
-	   :word-id
-	   
-	   :topic-count
-	   :hdp-lda-data
-	   :vocabulary
-	   
-	   :add-customer
-	   :remove-customer
-	   :sample-new-topic
-	   :hypers-sampling
-	   
-	   :initialize
-	   :sampling
-	   :assign-theta
-	   :get-phi
-	   
-	   :get-top-n-words
-	   :revert-word
-	   
-	   :*alpha-base-a*
-	   :*alpha-base-b*
-	   :*gamma-base-a*
-	   :*gamma-base-b*
-	   
-	   :*default-beta*))
 
-(in-package :text.hdp-lda)
+
+(in-package :clml.nonparametric.hdp-lda)
 
 (defparameter *alpha-base-a* 1d0)
 (defparameter *alpha-base-b* 1d-1)

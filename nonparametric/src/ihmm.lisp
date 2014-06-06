@@ -1,18 +1,7 @@
 ;; generalized sticky and blocked HDP-HMM
-(defpackage :nonparametric.ihmm
-  ; (:nicknames :ihmm)
-  (:use :cl :hjs.util.meta
-	:nonpara.stat
-	:nonparametric.dpm
-	:nonparametric.hdp
-	:nonparametric.hdp-hmm
-	:nonparametric.sticky-hdp-hmm
-	:nonparametric.blocked-hdp-hmm)
-  (:export :ihmm
-	   :ihmm-state
-	   :ihmm-state-uniform))
 
-(in-package :nonparametric.ihmm)
+
+(in-package :clml.nonparametric.ihmm)
 
 (defclass ihmm (blocked-hdp-hmm sticky-hdp-hmm)
   ((base-distribution :initform (make-instance 'ihmm-state-uniform))))

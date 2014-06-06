@@ -1,26 +1,8 @@
 ;; blocked HDP-HMM
 ;; faster version
-(defpackage :nonparametric.blocked-hdp-hmm
-;  (:nicknames :blocked-hdp-hmm)
-  (:use :cl :nonpara.stat :hjs.util.meta
-	:nonparametric.dpm 
-	:nonparametric.hdp
-	:nonparametric.hdp-hmm)
-  (:export :blocked-hidden-state
-	   :blocked-hdp-hmm
-	   :block-uniform
-	   
-	   :point-sequence
-	   :sequence-data
-	   :seq-point
-	   
-	   :sampling-pi
-	   
-	   :sorted-before
-	   :hdp-hmm-l
-	   :state-pi))
 
-(in-package :nonparametric.blocked-hdp-hmm)
+
+(in-package :clml.nonparametric.blocked-hdp-hmm)
 
 (defclass blocked-hidden-state (hidden-state)
   ((state-pi :initform (make-adarray 0 :element-type 'double-float) :accessor state-pi)

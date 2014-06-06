@@ -1,24 +1,7 @@
 ;; generic Hierachical Dirichlet Process by direct assignment
-(defpackage :nonparametric.hdp
-;  (:nicknames :hdp)
-  (:use :cl :hjs.util.meta :nonpara.stat :nonparametric.dpm)
-  (:export :hdp-cluster
-	   :cluster-latent-table
-	   :cluster-tmp-table
-	   :cluster-beta
-	   
-	   :hdp
-	   :hdp-gamma
-	   :hdp-beta
-	   
-	   :sample-latent-table
-	   
-	   :hdp-distribution
-	   
-	   :sliced-hdp
-	   ))
 
-(in-package :nonparametric.hdp)
+
+(in-package :clml.nonparametric.hdp)
 
 ;; clusters have beta and 'latent-table'
 (defclass hdp-cluster (cluster)

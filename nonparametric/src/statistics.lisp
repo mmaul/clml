@@ -1,56 +1,6 @@
 ;; base statistics and small utility for nonparametric Bayes
-(defpackage :nonparameteric.statistics
-  (:nicknames :nonpara.stat)
-  (:use :cl :hjs.util.matrix :hjs.util.vector :hjs.util.meta)
-  (:export :make-adarray
-   
-	   :unit-random
-	   :bernoulli
-	   :exp-random
-	   :beta-random
-	   :gamma-random
-	   :normal-random
-	   :normal-density
-	   :chi-square-random
-	   :randomize-choice
-	   :randomize-slice
-	   :jackup-logged-prob
-	   :shuffle-vector
-	   :random-elt
-	   :normalize!
-	   :get-n-best
-	   :safe-exp
-	   :safe-expt
-	   :stirling-number
-	   :dirichlet-random
-	   :binomial-random
-	   :cauchy-random
 
-	   :gamma-function
-	   :beta-function
-	   :loggamma
-	   :digamma
-	   :trigamma
-	   
-	   :multivariate-normal-density
-	   :%multivariate-normal-density
-	   :multivariate-normal-logged-density
-	   :%multivariate-normal-logged-density
-	   :multivariate-normal-random
-	   :LUed-wishart-random
-
-	   :outer-product
-	   :map-matrix-cell
-	   :map-matrix-cell!
-	   :crossproduct
-	   :cholesky-decomp
-	   
-	   :*most-negative-exp-able-float*
-	   :*most-positive-exp-able-float*
-	   
-	   :*randomize-trace*))
-
-(in-package :nonparameteric.statistics)
+(in-package :clml.nonparameteric.statistics)
 
 (defmacro make-adarray (dim &rest args)
   `(make-array ,dim :fill-pointer t :adjustable t ,@args))

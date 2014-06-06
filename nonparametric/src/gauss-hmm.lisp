@@ -1,9 +1,4 @@
-(defpackage :nonparametric.hdp-hmm
-  (:export :gaussian-state
-	   :gauss-hdp-hmm
-	   :state-gaussian
-	   
-	   :make-sticky-test))
+
 
 (in-package :nonparametric.hdp-hmm)
 

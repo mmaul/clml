@@ -1,24 +1,8 @@
 ;; Focused Topic Model
 ;; Sinead Williamson, et al. The IBP Compound Dirichlet Process and its Application to Focused Topic Modeling
 
-(defpackage :nonparametric.ftm
-;  (:nicknames :ftm)
-  (:use :cl :nonpara.stat :nonparametric.dpm)
-  (:export :ftm-topic
-	   :topic-pi
-	   :topic-phi
-	   
-	   :document
-	   
-	   :ftm
-	   :ftm-ibp-alpha	  
-	   
-	   :ftm-uniform
 
-	   :get-top-n-words
-   ))
-
-(in-package :nonparametric.ftm)
+(in-package :clml.nonparametric.ftm)
 
 (defparameter *smooth-beta* 1d-1)
 

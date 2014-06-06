@@ -1,28 +1,7 @@
+;-*- coding: utf-8 -*-
 ;; HDP-HMM (or infinite HMM)
-(defpackage :nonparametric.hdp-hmm
-  ; (:nicknames :hdp-hmm)
-  (:use :cl :hjs.util.meta :nonpara.stat :nonparametric.dpm :nonparametric.hdp)
-  (:export :hidden-state
-	   :emission
-	   
-	   :hdp-hmm
-	   :vocabulary
-	   :hdp-hmm-eos
-	   
-	   :cluster-dist-table
-	   :trans-prob
-	   :emission-prob
-	   
-	   :state-uniform
-	   
-	   :make-pattern-data
-	   :make-repeat-pattern
-	   :show-hidden-states
-	   
-	   :*smooth-beta*
-	   ))
 
-(in-package :nonparametric.hdp-hmm)
+(in-package :clml-nonparametric.hdp-hmm)
 
 (defparameter *smooth-beta* 1d-2)
 

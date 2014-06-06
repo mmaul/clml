@@ -1,11 +1,7 @@
+;-*- coding: utf-8 -*-
 ;; sample usage of DPM -- multivariate Gaussian mixture
-(defpackage :nonparametric.dpm
-  (:use :cl :hjs.util.matrix :hjs.util.vector)
-  (:export :multivar-gaussian-cluster
-	   :multivar-gauss-dpm
-	   :multivar-dp-gaussian))
 
-(in-package :nonparametric.dpm)
+(in-package :clml.nonparametric.dpm)
 
 (defclass multivar-gaussian-cluster (gaussian-cluster)
   ((points :initform (make-array 0 :element-type 'dvec :fill-pointer t :adjustable t))

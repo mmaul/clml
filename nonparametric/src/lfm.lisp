@@ -1,24 +1,7 @@
 ;; Latent Feature Model using Indian Buffet Process
 
-(defpackage :nonparametric.lfm
-;  (:nicknames :lfm)
-  (:use :cl :nonpara.stat :hjs.util.meta
-	:hjs.util.matrix :hjs.util.vector
-	:nonparametric.dpm)
-  (:export :ibp
-	   :ibp-row
-	   :ibp-distribution
-	   
-	   :lfm
-	   
-	   :lfm-row
-	   :row-weight
-	   
-	   :lfm-distribution
-	   
-	   ))
 
-(in-package :nonparametric.lfm)
+(in-package :clml.nonparametric.lfm)
 
 (defclass ibp (dpm)
   ((base-distribution :initform (make-instance 'ibp-distribution))
