@@ -185,3 +185,19 @@
      #:get-cluster-points
 	   ))
 
+(defpackage :hjs.util.eigensystems
+  (:use :cl
+        :hjs.util.meta
+        :hjs.util.vector
+        :hjs.util.matrix
+        :blas
+        :lapack)
+  (:nicknames :eigensystems)
+  (:export
+   #:jacobi
+   #:eigsrt
+   #:tred2
+   #:tqli
+   #:balanc
+   #:elmhes
+	   ))

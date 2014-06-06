@@ -26,5 +26,6 @@
                              (:file "missing-value")
                              (:file "matrix")
                              (:file "read-data")
+                             (:file "eigenproblem")
                              )
                 )
