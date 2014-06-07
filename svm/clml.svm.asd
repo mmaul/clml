@@ -19,6 +19,7 @@
                              (:file "one-class-svm")
                              (:file "pwss3-svm")
                              (:file "smo-svm")
+                             (:file "svr")
                              ))
 (asdf:defsystem :clml.svm.examples
                 :pathname "examples/"

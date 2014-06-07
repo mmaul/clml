@@ -30,6 +30,7 @@
        #:sign
        #:call-kernel-function-uncached
        #:call-kernel-function
+       #:define-kernel-function
 	   ))
 
 
@@ -85,3 +86,19 @@
    ;;#:call-kernel-function-with-indices
    ;;#:call-kernel-function-with-vectors))
    ))
+(defpackage :clml.svm.svr
+  (:nicknames :svr)
+  (:use :cl
+	:svm.wss3
+	:hjs.util.meta
+	:hjs.util.vector
+	:hjs.learn.read-data
+        :hjs.util.matrix)
+  (:import-from :svm.wss3
+		#:call-kernel-function-uncached
+		#:call-kernel-function
+		#:define-kernel-function)
+  (:export #:make-svr-learner
+	   #:load-svr-learner
+	   #:svr-validation
+	   ))

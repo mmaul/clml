@@ -4,23 +4,8 @@
 ;;;Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin
 
 
-(defpackage :svr
-  (:use :cl
-	:svm.wss3
-	:hjs.util.meta
-	:hjs.util.vector
-	:hjs.learn.read-data
-        :hjs.util.matrix)
-  (:import-from :svm.wss3
-		#:call-kernel-function-uncached
-		#:call-kernel-function
-		#:define-kernel-function)
-  (:export #:make-svr-learner
-	   #:load-svr-learner
-	   #:svr-validation
-	   ))
 
-(in-package svr)
+(in-package clml.svm.svr)
 
 ;; (declaim (optimize speed (safety 0) (debug 1)))
 
