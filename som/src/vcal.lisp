@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: vcal.cl,v 1.1.2.4 2006/10/02 05:48:03 tada Exp $
 
-(in-package :som)
+(in-package :clml.som)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))

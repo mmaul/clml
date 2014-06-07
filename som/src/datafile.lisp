@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: datafile.cl,v 1.1.2.7 2007/01/12 11:25:30 tada Exp $
 
-(in-package :som)
+(in-package :clml.som)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))
@@ -29,7 +29,12 @@
   (= neigh *neigh-unknown*))
 
 (defun get-elements-list-elim-space (str)
-  (let ((list (delimited-string-to-list str #\space)))
+  (let ((list
+         #+allegro
+          (delimited-string-to-list str #\space)
+          #-allegro
+          (split-sequence #\space str)
+          ))
     (remove "" list :test #'string=)))
     
 (defun get-topol (str)
@@ -63,7 +68,12 @@
 (defun get-fixed (str)
   (let* ((tmp (make-instance 'fixpoint))
 	 (substr (subseq str (length "fixed=")))
-	 (lst (delimited-string-to-list substr ",")))
+         (lst
+          #+allergro
+           (delimited-string-to-list substr ",")
+           #-allegro
+           (split-sequence #\space substr)
+           ))
     (when (/= (length lst) 2)
       (error "Fixed point incorrect"))
     (destructuring-bind (x y)

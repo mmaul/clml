@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: param.cl,v 1.1.2.4 2006/11/13 05:40:16 tada Exp $
 
-(in-package :som)
+(in-package :clml.som)
 
 (defconstant *loadmode-all* t)
 (defconstant *loadmode-buffer* nil)

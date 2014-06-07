@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: fileio.cl,v 1.1.2.2 2006/10/02 02:11:59 tada Exp $
 
-(in-package :som)
+(in-package :clml.som)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))

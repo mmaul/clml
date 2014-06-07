@@ -3,10 +3,20 @@
 
 (in-package :cl-user)
 
-(defpackage :som
-  (:use :common-lisp :excl)
-  (:export "INIT-NOISEWORD-HASH" "EXTRACT-NOUN-WORDS-FOR-SOM"
-	   "MAKE-SOM-DATAFILE" "DO-SOM-BY-FILENAME"
-	   "*SOM-DIR-LOGICAL-PATH*"))
+(defpackage :clml.som
+  (:nicknames :som)
+  (:use
+   :common-lisp)
+  #+allegro
+  (:use
+   :excl)
+  #-allegro
+  (:use split-sequence)
+  (:export
+   "INIT-NOISEWORD-HASH"
+   "EXTRACT-NOUN-WORDS-FOR-SOM"
+   "MAKE-SOM-DATAFILE"
+   "DO-SOM-BY-FILENAME"
+   "*SOM-DIR-LOGICAL-PATH*"))
 
 

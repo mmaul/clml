@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: labels.cl,v 1.1.2.4 2007/01/12 11:25:37 tada Exp $
 
-(in-package :som)
+(in-package :clml.som)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))

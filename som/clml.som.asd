@@ -1,19 +1,44 @@
-(defsystem :som (:default-pathname #.(translate-logical-pathname "./"))
-  (:serial "package"
-	   "param"
-	   (:definitions "som_utils"
-	       "lvq_pak"
-	     "labels"
-	     "fileio"
-	     "datafile"
-	     "randinit"
-	     "som_rout"
-	     "som_pak"
-	     "vsom"
-	     "vcal"
-	     "visual"
-	     "sammon"
-	     "test"
-	   )))
+(asdf:defsystem :clml.som.package
+                :pathname "src/"
+                :serial t
+                :components (
+                             (:file "package")))
+(asdf:defsystem :clml.som
+                :pathname "src/"
+                :serial t
+                :depends-on (:hjs
+                             :split-sequence
+                             :clml.som.package
+                             )
+                :components (
+                             (:file "param")
+                             (:file "som_utils")
+                             (:file "lvq_pak")
+                             (:file "labels")
+                             (:file "fileio")
+                             (:file "datafile")
+                             (:file "randinit")
+                             (:file "som_rout")
+                             (:file "som_pak")
+                             (:file "vsom")
+                             (:file "vcal")
+                             (:file "sammon")
+                             (:file "visual")
+                             ))
 
-(load-system :som :compile t)
+(asdf:defsystem :clml.som.example
+                :pathname "examples/"
+                :serial t
+                :depends-on (:hjs
+                             :split-sequence
+                             :clml.som
+                             
+                             )
+                
+                :components (
+                             (:file "package")
+                             
+                             (:file "sammon")
+                             (:file "test")
+                             ))
+

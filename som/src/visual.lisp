@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: visual.cl,v 1.1.2.7 2007/01/18 11:18:24 tada Exp $
 
-(in-package :som)
+(in-package :clml.som)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))
@@ -92,6 +92,7 @@
       (setf (slot-value (entries-entries_flags data) 'skip-empty) nil))
     
     (let ((pathname (make-pathname :name "out"
-                                   :directory directory)))
+                                   :directory (list :relative  directory))))
+      
       (compute-visual-data g-data params pathname)
       pathname)))

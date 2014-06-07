@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: lvq_pak.cl,v 1.1.2.12 2007/01/12 11:25:48 tada Exp $
 
-(in-package :som)
+(in-package :clml.som)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))

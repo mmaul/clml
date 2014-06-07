@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: som_pak.cl,v 1.1.2.8 2006/11/01 04:06:26 tada Exp $
 
-(in-package :som)
+(in-package :clml.som)
 
 (defclass gdata ()
   ((data :accessor gdata-data :initarg :data)

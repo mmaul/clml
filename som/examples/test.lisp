@@ -1,10 +1,10 @@
 
-(in-package :som)
+(in-package :clml.som.example)
 
-(defun test ()
+(defun test (&key (filename "som/examples/animal.dat"))
   (declare (optimize (speed 3)))
   (do-som-by-filename 
-      "animal.dat"
+      filename
     "hexa" 
     "gaussian"
     24  ;; x size of map
@@ -14,4 +14,4 @@
     5 ;; alpha x 100
     2400 ;;  radius x 100
     10
-    "test/"))
+    "som/examples/"))

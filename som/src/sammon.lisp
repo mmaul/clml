@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: sammon.cl,v 1.1.2.13 2006/11/28 06:09:46 tada Exp $
 
-(in-package :som)
+(in-package :som.example)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))
@@ -503,7 +503,12 @@
       (loop 
 	  do (let ((line (read-line stream)))
 	       (if (eql (elt line 0) #\#)
-		   (let ((id-url-list (cdr (delimited-string-to-list line #\Space))))
+               (let ((id-url-list (cdr
+                                   #+allegro
+                                   (delimited-string-to-list line #\Space)
+                                   #-allegro
+                                   (split-sequence #\space line)
+                                   )))
 		     (setf (gethash (parse-integer (first id-url-list)) url-hash)
 		       (second id-url-list)))
 		 (return)))))
