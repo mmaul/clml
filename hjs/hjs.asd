@@ -7,7 +7,6 @@
 
 
 (asdf:defsystem :hjs
-                :default-component-class cl-source-file.cl
                 :pathname "src/"
                 :serial t
                 :depends-on (

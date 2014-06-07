@@ -1,4 +1,5 @@
-					; Eigensystems
+;-*- coding: utf-8 -*-
+; Eigensystems
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;;;;;Routines translated with permission by Kevin A. Broughan from ;;;;;;;;;;;
 ;;Numerical Recipies in Fortran Copyright (c) Numerical Recipies 1986, 1989;;;;
