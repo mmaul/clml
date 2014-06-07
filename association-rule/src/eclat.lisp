@@ -1,5 +1,5 @@
 ;; Eclat algorithm
-(in-package :association-rule)
+(in-package :clml.association-rule)
 
 (defun scan-input-data-eclat (labeled-dataset target-variables key-variable rule-length support)
   (let ((rule-counter (make-hash-table :test #'equal))

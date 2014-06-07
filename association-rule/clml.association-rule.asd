@@ -16,4 +16,5 @@
                              (:file "association-rule")
                              (:file "fp-growth")
                              (:file "assoc-da")
+                             (:file "eclat")
                              ))
