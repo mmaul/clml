@@ -10,6 +10,7 @@
                 :serial t
                 :depends-on (
                              :hjs
+                             :clml.pca
                              :clml.nonparametric
                              :clml.nearest-search.package
                              )

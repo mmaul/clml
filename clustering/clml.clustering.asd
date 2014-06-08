@@ -10,6 +10,7 @@
                 :serial t
                 :depends-on (:hjs
                              :iterate
+                             :clml.nearest-search
                              :clml.clustering.package
                              )
                 :components (

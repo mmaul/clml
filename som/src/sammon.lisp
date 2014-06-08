@@ -1,7 +1,7 @@
 ;;; -*- lisp -*-
 ;;; $Id: sammon.cl,v 1.1.2.13 2006/11/28 06:09:46 tada Exp $
 
-(in-package :som.example)
+(in-package :som)
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))

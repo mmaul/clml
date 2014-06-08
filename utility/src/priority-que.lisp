@@ -11,8 +11,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Some constants
 
-(defconstant portable-most-positive-fixnum (1- (expt 2 29)))
-(defconstant portable-most-negative-fixnum (- (expt 2 29)))
+(define-constant portable-most-positive-fixnum (1- (expt 2 29)) :test #'equal)
+(define-constant portable-most-negative-fixnum (- (expt 2 29)) :test #'equal)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -94,7 +94,7 @@
   ;; 
   item)
 
-(defconstant dque-item-header-tag '#'dque-item-header-tag)
+(define-constant dque-item-header-tag '#'dque-item-header-tag :test #'equal)
 
 (defmethod print-object ((dque dque) stream)
   (cond

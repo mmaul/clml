@@ -4,15 +4,13 @@
 (declaim (optimize (speed 3) (safety 0) (space 0) (debug 1)))
 
 
-(in-package :hjs.util.missing-value
-            )
-
+(in-package :hjs.util.missing-value)
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ; decide missing value ;
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; list of missing values.
 ;; Symbols without nil are tested by value of symbol-name.
-(defconstant *missing-values* '(nil "" "NA"))
+(define-constant *missing-values* '(nil "" "NA") :test #'equal)
 (defun missing-value-p (value &key (missing-values-list *missing-values*)
                                    (test #'equalp))
   (member (typecase value

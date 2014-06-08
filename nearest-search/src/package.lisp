@@ -17,7 +17,7 @@
 	:hjs.util.meta
 	:nonpara.stat
 	:hjs.util.matrix
-	:clml.pca.pca
+	:clml.pca
 	:clml.utility.priority-que)
   (:export :nearest-search
 	   

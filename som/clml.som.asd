@@ -37,8 +37,6 @@
                 
                 :components (
                              (:file "package")
-                             
-                             (:file "sammon")
                              (:file "test")
                              ))
 

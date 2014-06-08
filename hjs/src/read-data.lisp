@@ -18,7 +18,7 @@
 
 ;;;; data type definition
 
-(defconstant +known-data-type+ '(:numeric :category :unknown))
+(define-constant +known-data-type+ '(:numeric :category :unknown) :test #'equal)
 
 (defclass dimension ()
   ((name
@@ -930,12 +930,12 @@
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ; dataset cleaning (outlier + interpolate) ;
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defconstant +known-outlier-types+
+(define-constant +known-outlier-types+
     '(:numeric (:std-dev :mean-dev :user :smirnov-grubbs) 
-      :category (:user :freq)))
-(defconstant +known-interp-types+
+      :category (:user :freq)) :test #'equal)
+(define-constant +known-interp-types+
     '(:numeric (:zero :min :max :mean :median :spline) 
-      :category (:mode)))
+      :category (:mode)) :test #'equal)
 
 (defmacro outlier-points (points outlier-types outlier-values &key (type :numeric))
   (let (tr-fcn vec-type)

@@ -12,6 +12,7 @@
  (defpackage :clml.utility.priority-que
    (:nicknames :priority-que)
    (:use :cl)
+   (:import-from :alexandria #:define-constant)
    #+allegro
    (:use :excl)
   (:export #:make-prique

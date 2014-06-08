@@ -10,6 +10,7 @@
                 :pathname "src/"
                 :serial t
                 :depends-on (
+                             :alexandria
                              :iterate
                              :f2cl
                              :blas

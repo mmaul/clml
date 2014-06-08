@@ -1,4 +1,5 @@
-(defpackage :decision-tree
+(defpackage :clml.decision-tree.decision-tree
+  (:nicknames :decision-tree)
   (:use :cl
 	:hjs.learn.read-data
 	:hjs.util.matrix)
@@ -27,7 +28,8 @@
    #:sum-up
    #:make-variable-index-hash))
 
-(defpackage :random-forest
+(defpackage :clml-decision-tree.random-forest
+  (:nicknames :random-forest)
   (:use :cl
 	:hjs.learn.read-data
 	:decision-tree)

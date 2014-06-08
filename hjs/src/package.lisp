@@ -30,6 +30,7 @@
 (defpackage :hjs.learn.vars
   (:use :cl)
   (:nicknames :vars)
+  (:import-from :alexandria #:define-constant)
   (:export #:*epsilon*
            #:*workers*
            #:*most-negative-exp-able-float*
@@ -106,6 +107,7 @@
 
 (defpackage :hjs.util.missing-value
   (:use :cl :util :vector :statistics :hjs.util.meta)
+  (:import-from :alexandria #:define-constant)
   (:nicknames :missing-val :handling-missing-value)
   (:export
    #:*missing-values* #:missing-value-p
@@ -121,9 +123,10 @@
         )
   (:nicknames :read-data)
   (:import-from hjs.util.missing-value
-                                        ;:handling-missing-value
+                ;:handling-missing-value
                 #:interpolate
                 )
+  (:import-from :alexandria #:define-constant)
   (:export 
    #:read-data-from-file
    #:pick-and-specialize-data

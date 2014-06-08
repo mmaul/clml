@@ -9,10 +9,12 @@
 (asdf:defsystem :clml.utility
                 :pathname "src/"
                 :serial t
-                :depends-on ( :parse-number
-                              :cl-ppcre
-                              :iterate
-                              :clml.utility-package
+                :depends-on (
+                             :alexandria
+                             :parse-number
+                             :cl-ppcre
+                             :iterate
+                             :clml.utility-package
                              )
                 :components (
                              (:file "csv")
