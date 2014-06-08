@@ -9,6 +9,7 @@
                 :pathname "src/"
                 :serial t
                 :depends-on (:hjs
+                             :clml.svm
                              :clml.clustering
                              :clml.classifiers-package
                              )
@@ -16,4 +17,5 @@
                              
                              (:file "logistic")
                              (:file "linear-regression")
+                             (:file "nbayes")
                              ))

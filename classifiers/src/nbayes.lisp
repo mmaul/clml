@@ -1,14 +1,5 @@
-(defpackage :nbayes
-  (:use :cl
-	:hjs.learn.read-data)
-  (:export
-   :mbnb-learn
-   :make-mbnb-learner
-   :mnb-learn
-   :make-mnb-learner)
-  )
 
-(in-package nbayes)
+(in-package clml.classifiers.nbayes)
 
 
 ;;to prevent underflow

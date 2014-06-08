@@ -14,8 +14,8 @@
                              :clml.svm-package
                              )
                 :components (
-                             (:file "svm")
                              (:file "wss3-svm")
+                             (:file "svm")
                              (:file "one-class-svm")
                              (:file "pwss3-svm")
                              (:file "smo-svm")

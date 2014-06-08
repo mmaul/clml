@@ -32,3 +32,14 @@
         :hjs.learn.read-data
         :hjs.util.vector
         :hjs.util.matrix))
+
+(defpackage :clml.classifiers.nbayes
+  (:nicknames :nbayes)
+  (:use :cl
+	:hjs.learn.read-data)
+  (:export
+   :mbnb-learn
+   :make-mbnb-learner
+   :mnb-learn
+   :make-mnb-learner)
+  )

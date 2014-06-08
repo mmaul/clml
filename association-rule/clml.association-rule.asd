@@ -17,4 +17,5 @@
                              (:file "fp-growth")
                              (:file "assoc-da")
                              (:file "eclat")
+                             (:file "lcm")
                              ))
