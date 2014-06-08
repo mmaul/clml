@@ -1,20 +1,21 @@
 ;; package of interfaces for :text.hdp-lda
-(defpackage :hdp-lda
-  (:use :cl :hjs.learn.read-data :hjs.util.vector :text.hdp-lda)
-  (:import-from :text.hdp-lda 
-                #:hdp-lda-alpha
-                #:hdp-lda-beta
-                #:hdp-lda-gamma)
+(defpackage :clml.text.hdp-lda
+  (:nicknames :text.hdp :hdp-lda)
+  (:use :cl :hjs.learn.read-data :hjs.util.vector )
+  
   (:export #:hdp-lda
-           #:topic-count
            #:get-trend-topics
-           #:hdp-lda-alpha
-           #:hdp-lda-beta
-           #:hdp-lda-gamma))
+           #:extract-words
+           #:topic-names
+           #:hdp-lda-gamma
+           #:make-document-theta-result
+           #:make-topic-beta-result
+           #:make-docs
+           #:make-bow-hash))
            
-(in-package :hdp-lda)
+(in-package :clml.text.hdp-lda)
 
-(defmethod hdp-lda ((dataset numeric-dataset) &key (sampling 100) 
+(defmethod hdp-lda ((dataset numeric-dataset) &key (sampling 100)
                                                    (initial-k 0)
                                                    hyper-parameters ;; (alpha gamma beta)
                                                    )
@@ -64,7 +65,7 @@
       finally (return hash)))
 (defmethod make-docs ((dataset numeric-dataset) bow-hash)
   (let ((id -1))
-    (coerce 
+    (coerce
      (loop for freq-vec across (dataset-numeric-points dataset)
          as words = (extract-words freq-vec bow-hash)
          when (> (length words) 0)
@@ -80,13 +81,13 @@
           'vector))
 
 ;; ref: Finding scientific topics, Thomas L.Griffiths, Mark Steyvers
-;;      http://www.ncbi.nlm.nih.gov/pmc/articles/PMC387300/
+;; http://www.ncbi.nlm.nih.gov/pmc/articles/PMC387300/
 (defmethod get-trend-topics ((model hdp-lda) &key (trend :hot) ;; :hot | :cold
                                                   (ntopics 10)
                                                   (nwords 10))
   (assert (and (plusp ntopics) (plusp nwords)))
   (let* ((mean-vec (mean-theta model))
-         (id-mean-alist (map 'list #'cons 
+         (id-mean-alist (map 'list #'cons
                              (loop for i below (topic-count model) collect i)
                              mean-vec))
          (n-words (get-top-n-words model nwords))
@@ -105,7 +106,7 @@
                      (val theta :type double-float))
              (declare (ignore _))
              (incf sf val))
-        finally (return 
-                  (map 'vector 
+        finally (return
+                  (map 'vector
                     (lambda (val) (/ (the double-float val) len))
                     mean-vec)))))

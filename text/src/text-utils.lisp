@@ -1,28 +1,24 @@
-(defpackage :text-utilities
-  (:nicknames :text-utils)
-  (:use :common-lisp :hjs.learn.read-data)
-  (:export :calculate-string-similarity
-           :equivalence-clustering
-           ))
+;-*- coding: utf-8 -*-
 
-(in-package :text-utilities)
 
-;;; •¶š—ñ‚Ì—Ş—“x‚ğZo‚·‚é
+(in-package :clml.text.utilities)
+
+;;; æ–‡å­—åˆ—ã®é¡ä¼¼åº¦ã‚’ç®—å‡ºã™ã‚‹
 (defun calculate-string-similarity (str1 str2 &key (type :lev)) ;; :lev | :lcs
   (ecase type
     (:lev (calculate-levenshtein-similarity str1 str2))
     (:lcs (calculate-lcs-similarity str1 str2))))
 
-;;;; levenshtein‹——£(•ÒW‹——£)‚ğŒvZ‚·‚éB
-;;; levenshtein‹——£(•ÒW‹——£)‚Í“ñ‚Â‚Ì•¶š—ñ‚Ì—Ş—“x‚ğ”’l‰»‚µ‚½‚à‚ÌB
-;;; •¶š‚Ì‘}“ü/íœ/’uŠ·‚Åˆê•û‚ğ‘¼•û‚É•ÏŒ`‚·‚é‚½‚ß‚ÌÅ¬è‡‰ñ”‚ğ”‚¦‚½‚à‚Ì
-;;; ‚ ‚é•¶š—ñstr1‚Ìi”Ô–Ú‚Ü‚Å‚Ì•”•ª•¶š—ñ‚Æ‚ ‚é•¶š—ñstr2‚Ì•¶š—ñ2‚Ìj”Ô–Ú‚Ü‚Å‚Ì•”•ª•¶š—ñ‚ÌŠÔ‚Ìlevenshtein‹——£‚ğLD(i,j)‚Æ‚·‚é‚ÆˆÈ‰º‚Ì‘Q‰»®‚ª¬‚è—§‚ÂB
-;;; LD(i,j) = LD(i-1, j) + 1 (‘}“ü)
-;;; LD(i,j) = LD(i, j-1) + 1 (íœ)
-;;; LD(i,j) = LD(i-1, j-1) + c (c‚ÍŸ‚Ì•¶š‚ª“¯‚¶‚È‚ç0, ˆá‚¦‚Î1B’uŠ·)
-;;; LD(0,0) = 0, LD(i,0) = i, LD(0,j) = j (Šî“_) 
-;;; ‘å•¶š¬•¶š‚Í‹æ•Ê‚µ‚È‚¢
-;;; ˆø” str1(•¶š—ñ1) str2(•¶š—ñ2)
+;;;; levenshteinè·é›¢(ç·¨é›†è·é›¢)ã‚’è¨ˆç®—ã™ã‚‹ã€‚
+;;; levenshteinè·é›¢(ç·¨é›†è·é›¢)ã¯äºŒã¤ã®æ–‡å­—åˆ—ã®é¡ä¼¼åº¦ã‚’æ•°å€¤åŒ–ã—ãŸã‚‚ã®ã€‚
+;;; æ–‡å­—ã®æŒ¿å…¥/å‰Šé™¤/ç½®æ›ã§ä¸€æ–¹ã‚’ä»–æ–¹ã«å¤‰å½¢ã™ã‚‹ãŸã‚ã®æœ€å°æ‰‹é †å›æ•°ã‚’æ•°ãˆãŸã‚‚ã®
+;;; ã‚ã‚‹æ–‡å­—åˆ—str1ã®iç•ªç›®ã¾ã§ã®éƒ¨åˆ†æ–‡å­—åˆ—ã¨ã‚ã‚‹æ–‡å­—åˆ—str2ã®æ–‡å­—åˆ—2ã®jç•ªç›®ã¾ã§ã®éƒ¨åˆ†æ–‡å­—åˆ—ã®é–“ã®levenshteinè·é›¢ã‚’LD(i,j)ã¨ã™ã‚‹ã¨ä»¥ä¸‹ã®æ¼¸åŒ–å¼ãŒæˆã‚Šç«‹ã¤ã€‚
+;;; LD(i,j) = LD(i-1, j) + 1 (æŒ¿å…¥)
+;;; LD(i,j) = LD(i, j-1) + 1 (å‰Šé™¤)
+;;; LD(i,j) = LD(i-1, j-1) + c (cã¯æ¬¡ã®æ–‡å­—ãŒåŒã˜ãªã‚‰0, é•ãˆã°1ã€‚ç½®æ›)
+;;; LD(0,0) = 0, LD(i,0) = i, LD(0,j) = j (åŸºç‚¹)
+;;; å¤§æ–‡å­—å°æ–‡å­—ã¯åŒºåˆ¥ã—ãªã„
+;;; å¼•æ•° str1(æ–‡å­—åˆ—1) str2(æ–‡å­—åˆ—2)
 (defun calculate-levenshtein-distance (str1 str2)
   (declare (optimize (speed 3))
            (type (simple-array character (*)) str1 str2))
@@ -34,9 +30,9 @@
       (declare (type (integer 0 #.most-positive-fixnum) len1 len2))
       (let ((d (make-array (list len1 len2) :element-type '(integer 0 #.most-positive-fixnum) :initial-element 0)))
         (dotimes (i len1)
-          (setf (aref d i 0) i))        ; Šî“_
+          (setf (aref d i 0) i)) ; åŸºç‚¹
         (dotimes (j len2)
-          (setf (aref d 0 j) j))        ; Šî“_
+          (setf (aref d 0 j) j)) ; åŸºç‚¹
         (dotimes (i strlen1)
           (dotimes (j strlen2)
             (declare (type (integer 0 #.most-positive-fixnum) i j))
@@ -68,17 +64,17 @@
         (aref d strlen1 strlen2)
         ))))
 
-;; Å’·‹¤’Ê•”•ªŒn—ñ’·iLCS’·, longest common subsequencej‚ğ‹‚ß‚éB
-;; •¶š—ñstr1‚Ì•”•ª—ñ(˜A‘±‚µ‚Ä‚¢‚é•K—v‚Í‚È‚¢‚ªA‡˜‚Í•ÏX‚Å‚«‚È‚¢)‚Æ•¶š—ñstr2‚Ì•”•ª—ñ‚Ì’†‚Å—¼•û‚É‹¤’Ê‚ÉŠÜ‚Ü‚ê‚é‚à‚Ì‚ª‹¤’Ê•”•ª—ñB
-;; ‹¤’Ê•”•ª—ñ‚Ì’†‚Å‚à‚Á‚Æ‚à’·‚¢‚à‚Ì‚ğÅ’·‹¤’Ê•”•ª—ñ‚Æ‚¢‚¤B
-;; LCS‚Ì’·‚³‚ª(‚à‚Æ‚Ì•”•ª—ñ‚Ì’·‚³‚Æ”äŠr‚µ‚Ä)’·‚¯‚ê‚Î—Ş—‚µ‚½•¶š—ñ‚Æ‚È‚éB
-;; •¶š—ñstr1‚Ì‚¤‚¿i”Ô–Ú‚Ü‚Å‚Ì•¶š—ñXi‚Æ•¶š—ñstr2‚Ì‚¤‚¿j”Ô–Ú‚Ü‚Å‚Ì•¶š—ñYi‚ÌLCS’·‚ğLCS(i,j)‚Æ‚·‚éB
-;; (a) Xi‚ÆYi‚ÌÅŒã‚Ì•¶š‚ª“¯‚¶‚Å‚ ‚éê‡
-;;     LCS(i,j) = LCS(i-1, j-1) + 1
-;; (b) Xi‚ÆYi‚ÌÅŒã‚Ì•¶š‚ªˆÙ‚Á‚Ä‚¢‚½ê‡
-;;     LCS(i,j) = max(LCS(i,j-1), LCS(i-1,j))
-;; i=0‚Ü‚½‚Íj=0‚Ì‚Æ‚«LCS(i,j)=0
-;; ‘å•¶š¬•¶š‚Í‹æ•Ê‚µ‚È‚¢
+;; æœ€é•·å…±é€šéƒ¨åˆ†ç³»åˆ—é•·ï¼ˆLCSé•·, longest common subsequenceï¼‰ã‚’æ±‚ã‚ã‚‹ã€‚
+;; æ–‡å­—åˆ—str1ã®éƒ¨åˆ†åˆ—(é€£ç¶šã—ã¦ã„ã‚‹å¿…è¦ã¯ãªã„ãŒã€é †åºã¯å¤‰æ›´ã§ããªã„)ã¨æ–‡å­—åˆ—str2ã®éƒ¨åˆ†åˆ—ã®ä¸­ã§ä¸¡æ–¹ã«å…±é€šã«å«ã¾ã‚Œã‚‹ã‚‚ã®ãŒå…±é€šéƒ¨åˆ†åˆ—ã€‚
+;; å…±é€šéƒ¨åˆ†åˆ—ã®ä¸­ã§ã‚‚ã£ã¨ã‚‚é•·ã„ã‚‚ã®ã‚’æœ€é•·å…±é€šéƒ¨åˆ†åˆ—ã¨ã„ã†ã€‚
+;; LCSã®é•·ã•ãŒ(ã‚‚ã¨ã®éƒ¨åˆ†åˆ—ã®é•·ã•ã¨æ¯”è¼ƒã—ã¦)é•·ã‘ã‚Œã°é¡ä¼¼ã—ãŸæ–‡å­—åˆ—ã¨ãªã‚‹ã€‚
+;; æ–‡å­—åˆ—str1ã®ã†ã¡iç•ªç›®ã¾ã§ã®æ–‡å­—åˆ—Xiã¨æ–‡å­—åˆ—str2ã®ã†ã¡jç•ªç›®ã¾ã§ã®æ–‡å­—åˆ—Yiã®LCSé•·ã‚’LCS(i,j)ã¨ã™ã‚‹ã€‚
+;; (a) Xiã¨Yiã®æœ€å¾Œã®æ–‡å­—ãŒåŒã˜ã§ã‚ã‚‹å ´åˆ
+;; LCS(i,j) = LCS(i-1, j-1) + 1
+;; (b) Xiã¨Yiã®æœ€å¾Œã®æ–‡å­—ãŒç•°ã£ã¦ã„ãŸå ´åˆ
+;; LCS(i,j) = max(LCS(i,j-1), LCS(i-1,j))
+;; i=0ã¾ãŸã¯j=0ã®ã¨ãLCS(i,j)=0
+;; å¤§æ–‡å­—å°æ–‡å­—ã¯åŒºåˆ¥ã—ãªã„
 (defun calculate-lcs-distance (str1 str2)
   (declare (optimize (speed 3))
            (type (simple-array character (*)) str1 str2))
@@ -103,8 +99,8 @@
                        (aref d ni j)))))))
         (aref d strlen1 strlen2)))))
 
-;; ƒŒ[ƒxƒ“ƒVƒ…ƒ^ƒCƒ“^LCS‹——£‚ÍA’l‚ª•¶š—ñ‚Ì’·‚³‚Éˆø‚Á’£‚ç‚ê‚Ä‚µ‚Ü‚¤‚½‚ßA
-;; —Ş—“x‚Æ‚µ‚Äˆµ‚¤‚É‚Í³‹K‰»‚µ‚Ä‚â‚é•K—v‚ª‚ ‚éB
+;; ãƒ¬ãƒ¼ãƒ™ãƒ³ã‚·ãƒ¥ã‚¿ã‚¤ãƒ³ï¼LCSè·é›¢ã¯ã€å€¤ãŒæ–‡å­—åˆ—ã®é•·ã•ã«å¼•ã£å¼µã‚‰ã‚Œã¦ã—ã¾ã†ãŸã‚ã€
+;; é¡ä¼¼åº¦ã¨ã—ã¦æ‰±ã†ã«ã¯æ­£è¦åŒ–ã—ã¦ã‚„ã‚‹å¿…è¦ãŒã‚ã‚‹ã€‚
 #+ignore
 (defun calculate-levenshtein-similarity (str1 str2)
   (declare (optimize speed) (type (simple-array character (*)) str1 str2))
@@ -120,76 +116,77 @@
   (/ (* 2.0 (the integer (calculate-lcs-distance str1 str2)))
      (+ (the fixnum (length str1)) (the fixnum (length str2)))))
 
-;;•¶š—ñ‚Å–¼w‚³‚ê‚½‘ÎÛŠÔ‚É—^‚¦‚ç‚ê‚½“¯’lŠÖŒW‚©‚çA“¯’l—Ş‚ğŒ`¬‚µƒŠƒXƒg‚Å•Ô‚·B
+;;æ–‡å­—åˆ—ã§åæŒ‡ã•ã‚ŒãŸå¯¾è±¡é–“ã«ä¸ãˆã‚‰ã‚ŒãŸåŒå€¤é–¢ä¿‚ã‹ã‚‰ã€åŒå€¤é¡ã‚’å½¢æˆã—ãƒªã‚¹ãƒˆã§è¿”ã™ã€‚
 (defun equivalence-clustering (data-vector)
   "Based on Knuth's equivalence clustering algorithm"
   (when (= 0 (length data-vector))
     (return-from equivalence-clustering nil))
   ;;(assert (<= 1 (length data-vector)))
-  (let* ((string-index-table 
-	  (loop 
-	      for i of-type fixnum below (length data-vector)
-	      with table = (make-hash-table :test #'equal)
-	      as row = (svref data-vector i)
-	      as string0 = (svref row 0)
-	      as string1 = (svref row 1)
-	      do (setf (gethash string0 table) 0)
-		 (setf (gethash string1 table) 0)
-	      finally (return table)))
-	 (n (hash-table-count string-index-table))
-	 (string-array (coerce (loop for key being the hash-keys in string-index-table collect key) 'vector))
-	 (class-id-array (coerce (loop for i of-type fixnum below n collect i) 'vector))
-	 (label-index (1- (length (svref data-vector 0))))
-	 (a-array)
-	 (b-array))
+  (let* ((string-index-table
+(loop
+for i of-type fixnum below (length data-vector)
+with table = (make-hash-table :test #'equal)
+as row = (svref data-vector i)
+as string0 = (svref row 0)
+as string1 = (svref row 1)
+do (setf (gethash string0 table) 0)
+(setf (gethash string1 table) 0)
+finally (return table)))
+(n (hash-table-count string-index-table))
+(string-array (coerce (loop for key being the hash-keys in string-index-table collect key) 'vector))
+(class-id-array (coerce (loop for i of-type fixnum below n collect i) 'vector))
+(label-index (1- (length (svref data-vector 0))))
+(a-array)
+(b-array))
     
-    (loop 
-	for i of-type fixnum below n
-	do (setf (gethash (svref string-array i) string-index-table) i))
+    (loop
+for i of-type fixnum below n
+do (setf (gethash (svref string-array i) string-index-table) i))
     
     (multiple-value-setq (a-array b-array)
       (loop
-	  for row across data-vector
-	  as label = (svref row label-index)
-	  if (= 1.0 label)
-	  collect (gethash (svref row 0) string-index-table) into a-list
-	  if (= 1.0 label)
-	  collect (gethash (svref row 1) string-index-table) into b-list
-	  finally (return (values (coerce a-list 'vector)
-				  (coerce b-list 'vector)))))
+for row across data-vector
+as label = (svref row label-index)
+if (= 1.0 label)
+collect (gethash (svref row 0) string-index-table) into a-list
+if (= 1.0 label)
+collect (gethash (svref row 1) string-index-table) into b-list
+finally (return (values (coerce a-list 'vector)
+(coerce b-list 'vector)))))
     
-    (loop 
-	for i of-type fixnum below (length a-array)
-	as j = (svref a-array i)
-	as k = (svref b-array i)
-	do (loop
-	       while (/= (svref class-id-array j) j)
-	       do (setf j (svref class-id-array j)))
-	   (loop 
-	       while
-		 (/= (svref class-id-array k) k)
-	       do (setf k (svref class-id-array k)))
-	   (when (/= j k)
-	     (setf (svref class-id-array j) k)))
+    (loop
+for i of-type fixnum below (length a-array)
+as j = (svref a-array i)
+as k = (svref b-array i)
+do (loop
+while (/= (svref class-id-array j) j)
+do (setf j (svref class-id-array j)))
+(loop
+while
+(/= (svref class-id-array k) k)
+do (setf k (svref class-id-array k)))
+(when (/= j k)
+(setf (svref class-id-array j) k)))
 
     ;;compute class-id-array
     (loop
-	for j of-type fixnum below n
-	do (loop
-	       while (/= (svref class-id-array j) (svref class-id-array (svref class-id-array j)))
-	       do (setf (svref class-id-array j) (svref class-id-array (svref class-id-array j)))))
+for j of-type fixnum below n
+do (loop
+while (/= (svref class-id-array j) (svref class-id-array (svref class-id-array j)))
+do (setf (svref class-id-array j) (svref class-id-array (svref class-id-array j)))))
 
     ;;class-id-array->clustering-result
     (loop
-	with class-id-table = (loop
-				  with class-id-table = (make-hash-table)
-				  for class-id across class-id-array
-				  do (setf (gethash class-id class-id-table) 0)
-				  finally (return class-id-table))
-	for class-id of-type fixnum being the hash-keys in class-id-table
-	collect (loop
-    		    for i of-type fixnum below n
-    		    as string = (svref string-array i)
-    		    if (= class-id (svref class-id-array i))
-    		    collect string) into clustering-result
-    	finally (return clustering-result))))
+with class-id-table = (loop
+with class-id-table = (make-hash-table)
+for class-id across class-id-array
+do (setf (gethash class-id class-id-table) 0)
+finally (return class-id-table))
+for class-id of-type fixnum being the hash-keys in class-id-table
+collect (loop
+     for i of-type fixnum below n
+     as string = (svref string-array i)
+     if (= class-id (svref class-id-array i))
+     collect string) into clustering-result
+finally (return clustering-result))))
+
