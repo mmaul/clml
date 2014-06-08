@@ -138,6 +138,11 @@ Here is a quick demonstration
                       No->((Versicolor . 47))
            No->((Setosa . 50))
 
+API Reference
+=============
+The followig is from teh original CLML documentation. It should for the most part be accurate some package names may be different. 
+Nicknames of historical package names have been retained for the most part.
+
 <li><a href="#sec-3">3 Machine-Learning Packages</a>
 <ul>
 <li><a href="#sec-3-1">3.1 Read-Data</a></li>
@@ -187,87 +192,10 @@ Here is a quick demonstration
 </ul>
 </li>
 <li><a href="#sec-6">6 Licensing</a></li>
-<li><a href="#sec-7">7 Supported CL implementations</a></li>
-<li><a href="#sec-8">8 Download</a>
-<ul>
-<li><a href="#sec-8-1">8.1 fasl packages</a></li>
-<li><a href="#sec-8-2">8.2 sample data</a></li>
-<li><a href="#sec-8-3">8.3 test scripts</a></li>
 </ul>
 </li>
 </ul>
 </div>
-</div>
-
-<div id="outline-container-1" class="outline-2">
-<h2 id="sec-1"><span class="section-number-2">1</span> Installation Notes</h2>
-<div class="outline-text-2" id="text-1">
-
-
-
-</div>
-
-<div id="outline-container-1-1" class="outline-3">
-<h3 id="sec-1-1"><span class="section-number-3">1.1</span> For Windows Users</h3>
-<div class="outline-text-3" id="text-1-1">
-
-
-<ul>
-<li>OpenMP library
-
-<p>
-  Just copy
-</p>
-<p>
-    lib/mkl<sub>win</sub>(32/64)/libiomp5md.dll
-</p>
-<p>
-  to \WINDOWS\system32 directory, MKL customized library depends on
-  this file that must be loaded from search-able PATHs on Windows.
-</p></li>
-</ul>
-
-
-
-</div>
-
-</div>
-
-<div id="outline-container-1-2" class="outline-3">
-<h3 id="sec-1-2"><span class="section-number-3">1.2</span> For Linux Users</h3>
-<div class="outline-text-3" id="text-1-2">
-
-
-<p>
-Latest Linux distributions, it should be OK just loading the fasl
-files.
-</p>
-<p>
-If the libraries cannot be loaded, please check the version of GLIBC
-on your Linux system is 2.X. Or check that libc6 package has been
-installed.
-</p>
-
-</div>
-</div>
-
-</div>
-
-<div id="outline-container-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> Loading/Using the library</h2>
-<div class="outline-text-2" id="text-2">
-
-<pre>(let ((*read-default-float-format* 'double-float))
-  (load "defsystem.cl")
-  (load-system :machine-learning :compile t))
-or (in AllegroCL)
-  CL-USER(2): (setf *read-default-float-format* 'double-float)
-  CL-USER(3): :ld defsystem
-  CL-USER(4): (excl:load-system :machine-learning :compile t)
-</pre>
-
-</div>
-
 </div>
 
 <div id="outline-container-3" class="outline-2">
@@ -6919,116 +6847,6 @@ The LLGPL is also available online at:  <a href="http://opensource.franz.com/pre
 
 </div>
 
-<div id="outline-container-7" class="outline-2">
-<h2 id="sec-7"><span class="section-number-2">7</span> Supported CL implementations</h2>
-<div class="outline-text-2" id="text-7">
-
-<p>We're supporting only ANSI Common Lisp.
-If you need support for CL dialect such as Allegro's mlisp,
-contact <a href="mailto:clml-info@msi.co.jp">mailto:clml-info@msi.co.jp</a>. 
-</p>
-<ul>
-<li>Allegro CL 9.0 (non-SMP) Enterprise 32 Edition (ANSI mode, any platforms)
-</li>
-<li>Allegro CL 9.0 (non-SMP) Enterprise 64 Edition (ANSI mode, any platforms)
-</li>
-<li>lispworks-6-0-0-amd64-linux
-</li>
-<li>lispworks-6-0-0-x86-linux
-</li>
-<li>sbcl-1.0.28-x86-64-linux
-</li>
-</ul>
-
-
-</div>
-
-</div>
-
-<div id="outline-container-8" class="outline-2">
-<h2 id="sec-8"><span class="section-number-2">8</span> Download</h2>
-<div class="outline-text-2" id="text-8">
-
-
-</div>
-
-<div id="outline-container-8-1" class="outline-3">
-<h3 id="sec-8-1"><span class="section-number-3">8.1</span> fasl packages</h3>
-<div class="outline-text-3" id="text-8-1">
-
-<ul>
-<li id="sec-8-1-1">allegro<br/>
-<ul>
-<li>windows 64 <br/>
-  <a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.64wfasl.gz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.64wfasl.gz</a>
-</li>
-<li>linux 64 <br/>
-  <a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.64ufasl.gz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.64ufasl.gz</a>
-</li>
-<li>windows 32 <br/>
-  <a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.32wfasl.gz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.32wfasl.gz</a>
-</li>
-<li>linux 32 <br/>
-  <a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.32ufasl.gz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-acl81.32ufasl.gz</a>
-</li>
-</ul>
-
-</li>
-</ul>
-<ul>
-<li id="sec-8-1-2">lispworks<br/>
-<ul>
-<li>linux 64 <br/>
-  <a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-lw60.64ufasl.gz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-lw60.64ufasl.gz</a>
-</li>
-<li>linux 32 <br/>
-  <a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-lw60.ufasl.gz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-lw60.ufasl.gz</a>
-</li>
-</ul>
-
-</li>
-</ul>
-<ul>
-<li id="sec-8-1-3">sbcl<br/>
-<ul>
-<li>linux 64 (sbcl-1.0.28-x86-64-linux) <br/>
-  <a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-sbcl.64ufasl.gz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-sbcl.64ufasl.gz</a>
-</li>
-</ul>
-
-</li>
-</ul>
-</div>
-
-</div>
-
-<div id="outline-container-8-2" class="outline-3">
-<h3 id="sec-8-2"><span class="section-number-3">8.2</span> sample data</h3>
-<div class="outline-text-3" id="text-8-2">
-
-<ul>
-<li><a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-sample.tgz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-sample.tgz</a>
-</li>
-<li><a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-eyes-sample.tgz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-eyes-sample.tgz</a>
-</li>
-<li><a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-faces-sample.tgz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-faces-sample.tgz</a>
-</li>
-<li><a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-articles-sample.tgz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-articles-sample.tgz</a>
-</li>
-</ul>
-
-</div>
-
-</div>
-
-<div id="outline-container-8-3" class="outline-3">
-<h3 id="sec-8-3"><span class="section-number-3">8.3</span> test scripts</h3>
-<div class="outline-text-3" id="text-8-3">
-
-<ul>
-<li><a href="http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-test.tgz">http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/products/clml-test.tgz</a>
-</li>
-</ul>
 
 
 </div>
@@ -7037,6 +6855,7 @@ contact <a href="mailto:clml-info@msi.co.jp">mailto:clml-info@msi.co.jp</a>.
 </div>
 
 <div id="postamble">
+API Documenation
 <p class="date">Date: 2013-07-19T18:29+0900</p>
 <p class="author">Author: Salvi Péter, Naganuma Shigeta, Tada Masashi, Abe Yusuke, Jianshi Huang, Fujii Ryo, Abe Seika, Kuroda Hisao</p>
 <p class="creator"><a href="http://orgmode.org">Org</a> version N/A-fixup with <a href="http://www.gnu.org/software/emacs/">Emacs</a> version 24</p>
