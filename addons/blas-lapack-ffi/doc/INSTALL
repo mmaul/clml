@@ -1,0 +1,37 @@
+* Linux
+
+You can check it out by
+
+  git clone /prj/hss/huang/blas-lapack-ffi.git/
+
+
+Currently, it only works on Linux x86-64 platform with Intel MKL.
+
+Other platforms with other libraries should be easy to port but
+corresponding knowledge are needed.
+
+
+
+0) Prerequisite
+
+  - install Intel MKL (this should add various env vars to the shell)
+  - install C compiler (e.g., MSVC on windows, gcc on linux)
+
+
+1) Usage
+
+  - cd blas-lapack-ffi/src
+  - make (currently it needs to build a .so wrapper)
+  - cd blas-lapack-ffi/ or link .asd files to your project 
+  - start lisp
+  - (require :asdf) ; load asdf
+  - (asdf:oos 'asdf:load-op :lapack)
+  - ready to use (everything's in the msi.blas: and msi.lapack: packages)
+
+2) Porting
+
+  - src/Makefile (change gcc line)
+  - change blas.asd (if you want to use other LAPACK libraries other
+    than Intel's)
+
+    

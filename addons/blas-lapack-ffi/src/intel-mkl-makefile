@@ -1,0 +1,166 @@
+##******************************************************************************
+##                              INTEL CONFIDENTIAL
+##  Copyright(C) 2004-2009 Intel Corporation. All Rights Reserved.
+##  The source code contained  or  described herein and all documents related to
+##  the source code ("Material") are owned by Intel Corporation or its suppliers
+##  or licensors.  Title to the  Material remains with  Intel Corporation or its
+##  suppliers and licensors. The Material contains trade secrets and proprietary
+##  and  confidential  information of  Intel or its suppliers and licensors. The
+##  Material  is  protected  by  worldwide  copyright  and trade secret laws and
+##  treaty  provisions. No part of the Material may be used, copied, reproduced,
+##  modified, published, uploaded, posted, transmitted, distributed or disclosed
+##  in any way without Intel's prior express written permission.
+##  No license  under any  patent, copyright, trade secret or other intellectual
+##  property right is granted to or conferred upon you by disclosure or delivery
+##  of the Materials,  either expressly, by implication, inducement, estoppel or
+##  otherwise.  Any  license  under  such  intellectual property  rights must be
+##  express and approved by Intel in writing.
+##
+##******************************************************************************
+##  Content:
+##      Intel(R) Math Kernel Library Custom Shared Object builder
+##
+##******************************************************************************
+
+all: help
+help:
+	@echo "Custom Shared Object builder."
+	@echo "Usage: make target [<options>]"
+	@echo "  target"
+	@echo "    ia32 - for processors that use the IA-32 architecture"
+	@echo "    em64t - for processors that use the Intel(R) 64 architecture"
+	@echo "    ipf - for processors that use the IA-64 architecture"
+	@echo "    help - print this help"
+	@echo "  <options>"
+	@echo "    interface={lp64|ilp64}"
+	@echo "        programming interface for em64t and ia64."
+	@echo "        Default: lp64."
+	@echo "    export=<file_name>"
+	@echo "        The name of the file that contains the list of entry points."
+	@echo "        to be included to the shared object."
+	@echo "        Default: user_list (no extension)."
+	@echo "    name=<so_name>"
+	@echo "        The name of the shared object to be created."
+	@echo "        Default: mkl_custom.so."
+	@echo "    xerbla=<err_handlr>"
+	@echo "        The name of the object file that contains the user's error handler."
+	@echo "        By the default native MKL XERBLA is used."
+	@echo "    threading={parallel|sequential}"
+	@echo "        Specifies whether to use MKL in the threaded or sequential mode."
+	@echo "        Default: parallel."
+	@echo "    MKLROOT=<MKL_directory>"
+	@echo "        Specifies the location of Intel MKL libraries used to build the custom shared object."
+	@echo "        Default: the Intel MKL installation directory."
+
+##------------------------------------------------------------------------------
+##
+## examples of using:
+## make ia32
+##      Create the mkl_custom.so for processors using the IA-32 architecture.
+##      Function list is taken from the file user_list.
+##      The parallel MKL is used to build mkl_custom.so.
+##      No special xerbla is used.
+##
+## make em64t export=my_blas_list interface=ilp64 name=my_blas
+##      Create the my_blas.so for processors using the Intel(R) 64 architecture.
+##      Function list is taken from the file my_blas_list.
+##      The parallel-ilp64 MKL is used to build my_blas.so.
+##
+##------------------------------------------------------------------------------
+
+## Path to mkl libraries (can be edited by user)
+
+ifndef MKLROOT
+MKLROOT = $(subst tools/builder,,$(PWD))
+endif
+
+mkl32_libpath=$(MKLROOT)/lib/32
+mklem64t_libpath=$(MKLROOT)/lib/em64t
+mkl64_libpath=$(MKLROOT)/lib/64
+
+##------------------------------------------------------------------------------
+## No changes below this line !
+##------------------------------------------------------------------------------
+
+#ifndef export
+export=user_list
+#endif
+
+#ifndef name
+name=mkl_custom
+#endif
+
+ifdef xerbla
+XERBLA="$(xerbla)"
+else
+XERBLA=
+endif
+
+ifndef interface
+interface=lp64
+endif
+
+ifndef threading
+threading=parallel
+endif
+
+IFACE_COMP_PART=gf
+IFACE_THREADING_PART=gnu
+
+ifeq ($(interface),ilp64)
+IFACE_LIB=libmkl_$(IFACE_COMP_PART)_ilp64.a
+else
+IFACE_LIB=libmkl_$(IFACE_COMP_PART)_lp64.a
+endif
+
+ifeq ($(threading),sequential)
+THREADING_LIB=libmkl_sequential.a
+OMP_LIB=
+else
+THREADING_LIB=libmkl_$(IFACE_THREADING_PART)_thread.a
+OMP_LIB=-lgomp
+endif
+
+CORE_LIB=libmkl_core.a
+
+LIBM=-lm
+
+OTHER_FLAGS=-lpthread
+
+func_list := $(addprefix -u ,$(shell grep -v '^[\#;]' "$(export)"))
+
+ia32:
+	export LIBRARY_PATH=$(LIBRARY_PATH):$(LD_LIBRARY_PATH); \
+	gcc -shared -Bdynamic \
+	$(XERBLA) $(func_list) \
+	-Wl,--start-group \
+	"$(mkl32_libpath)/libmkl_intel.a" \
+	"$(mkl32_libpath)/$(THREADING_LIB)" \
+	"$(mkl32_libpath)/$(CORE_LIB)" \
+	-Wl,--end-group \
+	-L"$(mkl32_libpath)" $(OMP_LIB) $(LIBM) $(OTHER_FLAGS) \
+	-o "$(name).so"
+
+em64t:
+	export LIBRARY_PATH=$(LIBRARY_PATH):$(LD_LIBRARY_PATH); \
+	gcc -shared -Bdynamic \
+	$(XERBLA) $(func_list) \
+	-Wl,--start-group \
+	"$(mklem64t_libpath)/$(IFACE_LIB)" \
+	"$(mklem64t_libpath)/$(THREADING_LIB)" \
+	"$(mklem64t_libpath)/$(CORE_LIB)" \
+	-Wl,--end-group \
+	-L"$(mklem64t_libpath)" $(OMP_LIB) $(LIBM) $(OTHER_FLAGS) \
+	-o "$(name).so"
+
+ipf ia64:
+	export LIBRARY_PATH=$(LIBRARY_PATH):$(LD_LIBRARY_PATH); \
+	gcc -shared -Bdynamic \
+	$(XERBLA) $(func_list) \
+	-Wl,--start-group \
+	"$(mkl64_libpath)/$(IFACE_LIB)" \
+	"$(mkl64_libpath)/$(THREADING_LIB)" \
+	"$(mkl64_libpath)/$(CORE_LIB)" \
+	-Wl,--end-group \
+	-L"$(mkl64_libpath)" $(OMP_LIB) $(LIBM) $(OTHER_FLAGS) \
+	-o "$(name).so"
