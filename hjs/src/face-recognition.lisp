@@ -418,7 +418,7 @@
                  (format out "~D~%" num)))))))
 
 (loop with c = 0
-    with files = (directory (excl:pathname-as-directory "sample/faces-org"))
+    with files = (directory (excl:pathname-as-directory (asdf:system-relative-pathname 'clml "sample/faces-org")))
     for file = (second files)           ; pgm file
     while (< c 200)
     do (when (string-equal "pgm" (pathname-type file))
@@ -430,9 +430,11 @@
                          :device (pathname-device file))))
            (setq files (remove file files :test #'excl::pathname-equalp)
                  files (remove eye-pgm files :test #'excl::pathname-equalp))
-           #+ignore(foo file (format nil "sample/faces/~A.pgm" c) eye-pgm
+           #+ignore(foo file (asdf:system-relative-pathname 'clml (format nil "sample/faces/~A.pgm" c)) eye-pgm
                         :width 140 :height 140)
-           (foo file (format nil "sample/faces/deye-~A.pgm" c) eye-pgm
+           (foo file (asdf:system-relative-pathname 'clml
+                                                    (format nil 
+                                                            "sample/faces/deye-~A.pgm" c)) eye-pgm
                 :width 115 :height 26 :h-upper-ratio 0.5 :w-left-ratio 0.5))))
 
 (defun bar (pgm-file)
@@ -454,13 +456,19 @@
          (dat (make-array n))
          cols)
     (loop for c below n
-        as file = (if fname (format nil "sample/faces/~A-~A.pgm" fname (1+ c))
-                    (format nil "sample/faces/~A.pgm" (1+ c)))
+        as file = (if fname (asdf:system-relative-pathname
+                             'clml (format nil  "sample/faces/~A-~A.pgm" fname (1+ c)))
+                      (asdf:system-relative-pathname 'clml (format nil 
+                                                                   "sample/faces/~A.pgm" (1+ c))))
         do (setf (aref dat c) (bar file))
            (push (pathname-name file) cols))
     (setq cols (reverse cols))
-    (with-open-file (out (if fname (format nil "sample/~As~A.sexp" fname n)
-                           (format nil "sample/faces~A.sexp" n))
+    (with-open-file (out (if fname (asdf:system-relative-pathname
+                                    'clml (format nil
+                                                  "sample/~As~A.sexp" fname n))
+                           (asdf:system-relative-pathname
+                            'clml (format nil 
+                                          "sample/faces~A.sexp" n)))
                      :direction :output :if-exists :supersede)
       (write
        (append `(("id" "personID" ,@(loop for i from 1 to (length (aref dat 0))
@@ -498,7 +506,7 @@
 (let ((eyes
        (normalize-faces
         (pick-and-specialize-data
-         (read-data-from-file "sample/deyes200.sexp")
+         (read-data-from-file (asdf:system-relative-pathname 'clml "sample/deyes200.sexp"))
          :data-types (append (make-list 2 :initial-element :category)
                              (make-list 2990 :initial-element :numeric))))))
   (loop for dim-thld in '(5 10 15 20 25 30 35)
@@ -532,7 +540,7 @@
 
 ;;test subspace
 (let ((eyes (pick-and-specialize-data
-             (read-data-from-file "sample/eyes200.sexp" :external-format :shiftjis)
+             (read-data-from-file (asdf:system-relative-pathname 'clml "sample/eyes200.sexp") :external-format :shiftjis)
              :data-types (append (make-list 2 :initial-element :category)
                                  (make-list 1680 :initial-element :numeric)))))
   (loop for dim-thld in '(5 10 15 20) 

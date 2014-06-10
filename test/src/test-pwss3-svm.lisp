@@ -29,7 +29,7 @@
 (define-test svm
   (assert-true (setf svm-bc-train
                      (pick-and-specialize-data
-                      (read-data-from-file "sample/bc-train-for-svm.csv"
+                      (read-data-from-file (asdf:system-relative-pathname 'clml "sample/bc-train-for-svm.csv")
                                            :type :csv
                                            :csv-type-spec 
                                            (make-list 10 :initial-element 'double-float))
@@ -37,7 +37,7 @@
   
   (assert-true (setf svm-bc-test
                      (pick-and-specialize-data
-                      (read-data-from-file "sample/bc-test-for-svm.csv"
+                      (read-data-from-file (asdf:system-relative-pathname 'clml "sample/bc-test-for-svm.csv")
                                            :type :csv
                                            :csv-type-spec 
                                            (make-list 10 :initial-element 'double-float))
@@ -58,9 +58,9 @@
   (assert-true (= 1.0 (funcall poly-svm (svref test-vector 0))))
   (assert-true (= -1.0 (funcall poly-svm (svref test-vector 7))))
   (assert-true (= 4 (length (pwss3-svm:svm-validation poly-svm test-vector))))
-  (assert-true (setf train-data (pick-and-specialize-data (read-data-from-file "sample/svm-benchmark-train.csv" :type :csv :csv-type-spec (make-list 24 :initial-element 'double-float)
+  (assert-true (setf train-data (pick-and-specialize-data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/svm-benchmark-train.csv") :type :csv :csv-type-spec (make-list 24 :initial-element 'double-float)
 									       :external-format :utf-8) :data-types (make-list 24 :initial-element :numeric))))
-  (assert-true (setf test-data (pick-and-specialize-data (read-data-from-file "sample/svm-benchmark-test.csv" :type :csv :csv-type-spec (make-list 24 :initial-element 'double-float)
+  (assert-true (setf test-data (pick-and-specialize-data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/svm-benchmark-test.csv") :type :csv :csv-type-spec (make-list 24 :initial-element 'double-float)
 									      :external-format :utf-8) :data-types (make-list 24 :initial-element :numeric))))
   (assert-true (setf training-vector (dataset-points train-data)))
   (assert-true (setf test-vector (dataset-points test-data)))

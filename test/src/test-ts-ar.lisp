@@ -5,7 +5,7 @@
     (let (model traffic pred std-err)
       (assert-true
        (defparameter ukgas 
-           (time-series-data (read-data-from-file "sample/UKgas.sexp")
+           (time-series-data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/UKgas.sexp"))
                              :range '(1) :time-label 0
                              :start 1960 :frequency 4)))
       (assert-true (setq model (ar ukgas)))
@@ -80,6 +80,6 @@
       
       (assert-true
        (setq traffic (time-series-data
-                      (read-data-from-file "sample/mawi-traffic/pointF-20090330-0402.sexp")
+                      (read-data-from-file (asdf:system-relative-pathname 'clml "sample/mawi-traffic/pointF-20090330-0402.sexp"))
                       :except '(0) :time-label 0)))
       (assert-true (parcor-filtering traffic :ppm-fname "traffic.ppm"))))

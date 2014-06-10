@@ -453,7 +453,7 @@
 
 #|| Benchmark on KISARAZU
 
->(load "sample/spectral-clustering-sample.cl"
+>(load (asdf:system-relative-pathname 'clml "sample/spectral-clustering-sample.cl")
       :external-format #+allegro :932 #-allegro :sjis)
 
 >(setq *eigen-use-mkl* nil)

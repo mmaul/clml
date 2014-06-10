@@ -15,11 +15,11 @@
        (format nil "step 5 : making sammon map~%")
        (format nil "384 entries in codebook~%")
        (format nil "xma-xmi 3.074987831736982 yma-ymi 2.129596273225805"))
-     (do-som-by-filename "sample/som/animal.dat" "hexa" "gaussian"
+     (do-som-by-filename (asdf:system-relative-pathname 'clml "sample/som/animal.dat") "hexa" "gaussian"
                          24 16 123 10000 5 2400 10
                          '(:absolute #+unix "tmp" #+mswindows "temp")))
     (multiple-value-bind (out-pathname ps-pathname)
-        (do-som-by-filename "sample/som/animal.dat" "hexa" "gaussian"
+        (do-som-by-filename (asdf:system-relative-pathname 'clml "sample/som/animal.dat") "hexa" "gaussian"
                             24 16 123 10000 5 2400 10
                             '(:absolute #+unix "tmp" #+mswindows "temp"))
       (assert-true (probe-file out-pathname))

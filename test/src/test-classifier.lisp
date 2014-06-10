@@ -7,33 +7,33 @@
   (format t "classifier test [type : ~a]~%" type)
   (let ((train (ecase type
                  (bc (read-data-from-file
-                      "sample/bc.train.csv"
+                      (asdf:system-relative-pathname 'clml "sample/bc.train.csv")
                       :type :csv
                       :csv-type-spec (append (make-list 9 :initial-element 'double-float)
                                              '(symbol))))
                  (spam (read-data-from-file
-                        "sample/spam.train.csv"
+                        (asdf:system-relative-pathname 'clml "sample/spam.train.csv")
                         :type :csv
                         :csv-type-spec (append (make-list 55 :initial-element 'double-float)
                                                '(double-float double-float symbol))))
                  (german (read-data-from-file
-                          "sample/german-credit-train.csv"
+                          (asdf:system-relative-pathname 'clml "sample/german-credit-train.csv")
                           :type :csv
                           :external-format #+allegro :932 #-allegro :sjis
                           :csv-type-spec '(string integer string string integer string string integer string string integer string integer string string integer string integer string string string)))))
         (test (ecase type
                 (bc (read-data-from-file
-                     "sample/bc.test.csv"
+                     (asdf:system-relative-pathname 'clml "sample/bc.test.csv")
                      :type :csv
                      :csv-type-spec (append (make-list 9 :initial-element 'double-float)
                                             '(symbol))))
                 (spam (read-data-from-file
-                       "sample/spam.test.csv"
+                       (asdf:system-relative-pathname 'clml "sample/spam.test.csv")
                        :type :csv
                        :csv-type-spec (append (make-list 55 :initial-element 'double-float)
                                               '(double-float double-float symbol))))
                 (german (read-data-from-file
-                         "sample/german-credit-test.csv"
+                         (asdf:system-relative-pathname 'clml "sample/german-credit-test.csv")
                          :type :csv
                          :external-format #+allegro :932 #-allegro :sjis
                          :csv-type-spec '(string integer string string integer string string integer string string integer string integer string string integer string integer string string string)))))

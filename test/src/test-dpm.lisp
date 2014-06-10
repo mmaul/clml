@@ -3,7 +3,7 @@
 
 (define-test test-sample-dpm 
     (let ((dataset (pick-and-specialize-data
-                    (read-data-from-file "sample/k5-gaussian.sexp")
+                    (read-data-from-file (asdf:system-relative-pathname 'clml "sample/k5-gaussian.sexp"))
                     :data-types (make-list 5 :initial-element :numeric))))
       (multiple-value-bind (result model) (gaussian-dpm dataset :estimate-base t)
         (let ((cluster-infos (get-cluster-info model))

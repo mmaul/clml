@@ -5,7 +5,7 @@
     (let (svm-bc-train data-vector one-class-svm)
        (setf svm-bc-train
 	(pick-and-specialize-data
-	 (read-data-from-file "sample/bc-train-for-svm.csv"
+	 (read-data-from-file (asdf:system-relative-pathname 'clml "sample/bc-train-for-svm.csv")
 			      :type :csv
 			      :csv-type-spec 
 			      (make-list 10 :initial-element 'double-float))

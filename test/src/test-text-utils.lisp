@@ -3,7 +3,7 @@
 (in-package "TEST")
 
 (define-test test-sample-text-utils
-    (let ((data (read-data-from-file "sample/equivalence-class.csv" :type :csv :csv-type-spec
+    (let ((data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/equivalence-class.csv") :type :csv :csv-type-spec
                                      '(string string double-float) :external-format :utf-8))
           result)
       (assert-equality #'epsilon> 0.5714285714285714d0

@@ -6,7 +6,7 @@
       (assert-true 
        (setq ukgas
          (time-series-data
-          (read-data-from-file "sample/UKgas.sexp")
+          (read-data-from-file (asdf:system-relative-pathname 'clml "sample/UKgas.sexp"))
           :range '(1) :time-label 0
           :frequency 4)))
       (assert-true (setq model (holtwinters ukgas :seasonal :multiplicative)))

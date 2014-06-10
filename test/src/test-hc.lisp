@@ -4,7 +4,7 @@
 (define-test test-hc
     (let (seiseki d-matrix cophenetic-matrix merge-matrix)
       (setf seiseki (pick-and-specialize-data 
-		     (read-data-from-file "sample/seiseki.csv" :type :csv :csv-type-spec
+		     (read-data-from-file (asdf:system-relative-pathname 'clml "sample/seiseki.csv") :type :csv :csv-type-spec
 					  '(string double-float double-float double-float double-float double-float))
 		     :range '(1 2 3 4 5) :data-types '(:numeric :numeric :numeric :numeric :numeric)))
       (setf d-matrix (distance-matrix (numeric-matrix seiseki)))

@@ -3,7 +3,7 @@
 
 (define-test test-sample-hdp-lda
     (let ((dataset (pick-and-specialize-data
-                    (read-data-from-file "sample/sports-corpus-data" :external-format :utf-8)
+                    (read-data-from-file (asdf:system-relative-pathname 'clml "sample/sports-corpus-data") :external-format :utf-8)
                     :except '(0) :data-types (make-list 1202 :initial-element :numeric))))
       (multiple-value-bind (res1 res2 model) (hdp-lda dataset)
         (assert-eql (topic-count model) (length (dataset-dimensions res1)))

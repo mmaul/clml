@@ -18,7 +18,7 @@
       (assert-true
        (setf data-for-learn
          (read-data-from-file
-          "sample/learn.csv"
+          (asdf:system-relative-pathname 'clml "sample/learn.csv")
           :type :csv
           :csv-type-spec (cons 'string (make-list 105 :initial-element 'double-float)))))
 
@@ -61,7 +61,7 @@
         
         (assert-true
          (setf data-for-estimate
-           (read-data-from-file "sample/estimate.csv"
+           (read-data-from-file (asdf:system-relative-pathname 'clml "sample/estimate.csv")
                                 :type :csv
                                 :csv-type-spec (make-list 105 :initial-element 'double-float))))
 

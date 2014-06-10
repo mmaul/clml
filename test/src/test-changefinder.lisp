@@ -6,7 +6,7 @@
       (assert-true 
        (setf ts (time-series-data 
                  (read-data-from-file
-                  "sample/traffic-balance.csv" 
+                  (asdf:system-relative-pathname 'clml "sample/traffic-balance.csv") 
                   :type :csv
                   :csv-type-spec (cons 'string
                                        (make-list 6 :initial-element 'double-float)))

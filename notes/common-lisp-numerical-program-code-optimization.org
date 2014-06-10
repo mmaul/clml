@@ -4,7 +4,7 @@ Before code optimization we need to find the hot spot of the code and
 start optimizing from there step by step to make sure our changes
 doesn't break the code.
 
-dataset: "sample/bc-train-for-svm.csv"
+dataset: (asdf:system-relative-pathname 'clml "sample/bc-train-for-svm.csv")
 kernel: (setf rbf-kernel (make-rbf-kernel :gamma 0.05)), #'linear-kernel
 benchmark code: (excl:gc t) (time (setf svm (make-svm-learner training-vector rbf-kernel 100)))
 

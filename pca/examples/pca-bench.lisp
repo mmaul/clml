@@ -1,7 +1,7 @@
 (in-package :clml.pca.examples.pca-bench)
 
 (defvar eyes (pick-and-specialize-data
-              (read-data-from-file "sample/eyes200.sexp")
+              (read-data-from-file (asdf:system-relative-pathname 'clml "sample/eyes200.sexp"))
               :except '(0 1)
               :data-types (make-list 1680 :initial-element :numeric)))
 (setf (dataset-numeric-points eyes)
@@ -13,7 +13,7 @@
 
 
 (defvar faces (pick-and-specialize-data
-               (read-data-from-file "sample/faces200.sexp")
+               (read-data-from-file (asdf:system-relative-pathname 'clml "sample/faces200.sexp"))
                :except '(0 1)
                :data-types (make-list 19600 :initial-element :numeric)))
 (setf data

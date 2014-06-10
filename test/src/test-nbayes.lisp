@@ -2,10 +2,10 @@
 
 (define-test test-nbayes
     
-    (setf bow-train (dataset-points (read-data-from-file "sample/bow-train.csv"
+    (setf bow-train (dataset-points (read-data-from-file (asdf:system-relative-pathname 'clml "sample/bow-train.csv")
 							 :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string))))
   
-  (setf bow-test (dataset-points (read-data-from-file "sample/bow-test.csv"
+  (setf bow-test (dataset-points (read-data-from-file (asdf:system-relative-pathname 'clml "sample/bow-test.csv")
 						      :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string))))
   
   (assert-eql 84 (length bow-train))

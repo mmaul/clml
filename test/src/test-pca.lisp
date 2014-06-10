@@ -4,7 +4,7 @@
 (define-test test-sample-pca
     (let (dataset proj-vecs pca-result pca-model for-learn for-estimate)
       (assert-true (setf dataset 
-                     (read-data-from-file "sample/pos.sexp" 
+                     (read-data-from-file (asdf:system-relative-pathname 'clml "sample/pos.sexp") 
                                           :external-format #+allegro :932 #-allegro :sjis)))
       (assert-true (setf dataset (pick-and-specialize-data
                                   dataset :range '(2 3) :data-types '(:numeric :numeric))))
@@ -41,7 +41,7 @@
       (assert-points-equal (clml.pca:components pca-result) proj-vecs :test #'=)
       
       (let ((eyes (pick-and-specialize-data
-                   (read-data-from-file "sample/eyes200.sexp")
+                   (read-data-from-file (asdf:system-relative-pathname 'clml "sample/eyes200.sexp"))
                    :except '(0)
                    :data-types (append (make-list 1 :initial-element :category)
                                        (make-list 1680 :initial-element :numeric)))))

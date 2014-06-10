@@ -4,16 +4,16 @@
     (let (syobu bc-train bc-test cars tree query)
       
       ;(setf syobu (read-data-from-file "sample/syobu.csv" :type :csv :csv-type-spec '(string integer integer integer integer)))
-       (setf syobu (read-data-from-file "sample/syobu.csv" :type :csv 
+      (setf syobu (read-data-from-file (asdf:system-relative-pathname 'clml "sample/syobu.csv") :type :csv 
                                                      :csv-type-spec
 						    '(string integer integer integer integer)))
-       (setf bc-train (read-data-from-file "sample/bc.train.csv" :type :csv 
+       (setf bc-train (read-data-from-file (asdf:system-relative-pathname 'clml "sample/bc.train.csv") :type :csv 
                                           :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
       
-      (setf bc-test (read-data-from-file "sample/bc.test.csv" :type :csv 
+       (setf bc-test (read-data-from-file (asdf:system-relative-pathname 'clml "sample/bc.test.csv") :type :csv 
 					 :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
       
-      (setf cars (read-data-from-file "sample/cars.csv" :type :csv :csv-type-spec '(double-float double-float)))
+       (setf cars (read-data-from-file (asdf:system-relative-pathname 'clml "sample/cars.csv") :type :csv :csv-type-spec '(double-float double-float)))
       
       (setf tree (make-decision-tree syobu "種類"))
       

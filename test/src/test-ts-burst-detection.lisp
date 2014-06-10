@@ -6,7 +6,7 @@
       (assert-true 
        (setf ts (time-series-data 
                  (read-data-from-file
-                  "sample/burst-data.sexp")
+                  (asdf:system-relative-pathname 'clml "sample/burst-data.sexp"))
                  :time-label 0)))
       (assert-equality #'= 77 (length (ts-points ts)))
       (assert-equality
@@ -66,7 +66,7 @@
         (assert-true 
          (setf ts (time-series-data 
                    (read-data-from-file
-                    "sample/burst-string-time-data.sexp")
+                    (asdf:system-relative-pathname 'clml "sample/burst-string-time-data.sexp"))
                    :time-label 0
                    :except '(0))))
         (assert-equality #'= 4778 (length (ts-points ts)))

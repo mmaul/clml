@@ -4,7 +4,7 @@
 (define-test test-sample-k-means
     (let (dataset)
       (assert-true
-       (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis)))
+       (setf dataset (read-data-from-file (asdf:system-relative-pathname 'clml "sample/pos.sexp") :external-format #+allegro :932 #-allegro :sjis)))
       (assert-true
        (setf dataset
          (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric))))

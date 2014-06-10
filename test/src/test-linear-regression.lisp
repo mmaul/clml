@@ -26,7 +26,7 @@ F-statistic: 89.57 on 1 and 48 DF,  p-value: 1.490e-12
       (assert-true
        (setf dataset 
          (read-data-from-file 
-          "sample/airquality.csv"
+          (asdf:system-relative-pathname 'clml "sample/airquality.csv")
           :type :csv
           :csv-type-spec 
           '(integer double-float double-float double-float double-float integer integer))))
@@ -37,7 +37,7 @@ F-statistic: 89.57 on 1 and 48 DF,  p-value: 1.490e-12
       (assert-true (mlr airquality '(2 3 4 1)))))
 
 (define-test simple-linear-regression-case
-    (let* ((cars (read-data-from-file "sample/cars.csv" :type :csv :csv-type-spec '(double-float double-float)))
+    (let* ((cars (read-data-from-file (asdf:system-relative-pathname 'clml "sample/cars.csv") :type :csv :csv-type-spec '(double-float double-float)))
 	   (cars (pick-and-specialize-data cars :range '(0 1) :data-types '(:numeric :numeric)))
 	   (epsilon 0.001))
       (assert-true (< (abs (- (aref (mlr cars '(0 1)) 0) -17.579))
@@ -80,7 +80,7 @@ F-statistic: 54.83 on 3 and 107 DF,  p-value: < 2.2e-16
 |#
 
 (define-test multi-linear-regression-case
-    (let* ((air (read-data-from-file "sample/airquality.csv"
+    (let* ((air (read-data-from-file (asdf:system-relative-pathname 'clml "sample/airquality.csv")
 				     :type :csv
 				     :csv-type-spec '(integer double-float double-float double-float double-float integer integer)))
 	   (air (pick-and-specialize-data air :range '(0 1 2 3 4) 

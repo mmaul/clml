@@ -11,7 +11,7 @@
 
 (defun setup-test-matrix-data ()
   (setq eyes
-    (hjs.learn.read-data:read-data-from-file "sample/eyes200.sexp"))
+    (hjs.learn.read-data:read-data-from-file (asdf:system-relative-pathname 'clml "sample/eyes200.sexp")))
   (setf vecs
         (hjs.learn.read-data:dataset-points 
          (hjs.learn.read-data:pick-and-specialize-data

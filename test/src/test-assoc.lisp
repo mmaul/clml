@@ -46,7 +46,7 @@
              #(("商品名=菓子") ("商品名=野菜" "商品名=乳製品")
                7.695690413368514d0 27.04791344667697d0 1.28407f0 1.0820224f0))))
       (assert-true
-       (setf result (association-analyze "sample/pos.sexp" "sample/result.sexp"
+       (setf result (association-analyze (asdf:system-relative-pathname 'clml "sample/pos.sexp") "sample/result.sexp"
                                          '("商品名") "ID番号" 3 
                                          :support 2 :external-format #+allegro :932 #-allegro :sjis)))
       (loop for rule1 in expected-result
@@ -54,7 +54,7 @@
           do (assert-true (rule-equal rule1 rule2)))
       (loop with rules = (assoc-result-rules result)
           for rule in 
-            (with-open-file (in "sample/result.sexp" :external-format #+allegro :932 #-allegro :sjis) (read in))
+            (with-open-file (in (asdf:system-relative-pathname 'clml "sample/result.sexp") :external-format #+allegro :932 #-allegro :sjis) (read in))
           for i from 0
           do (if (= i 0) 
                  (assert-true 
@@ -62,7 +62,7 @@
                              (coerce rule 'list) :test #'string=))
                (assert-true (rule-equal rule (nth (1- i) rules)))))
       (assert-true 
-       (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis)))
+       (setf dataset (read-data-from-file (asdf:system-relative-pathname 'clml "sample/pos.sexp") :external-format #+allegro :932 #-allegro :sjis)))
       
       ;; verify rule indexes
       (let* ((key-pos (dimension-index (find "ID番号" (dataset-dimensions dataset)

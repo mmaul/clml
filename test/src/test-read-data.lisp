@@ -150,7 +150,7 @@
                            #(143 9 20) #(144 9 21) #(145 9 22) #(146 9 23) #(147 9 24)
                            #(148 9 25) #(149 9 26) #(150 9 27) #(151 9 28) #(152 9 29)
                            #(153 9 30))))
-      (assert-true (setf dataset (read-data-from-file "sample/original-airquality.sexp")))
+      (assert-true (setf dataset (read-data-from-file (asdf:system-relative-pathname 'clml "sample/original-airquality.sexp"))))
       (assert-true (typep dataset 'UNSPECIALIZED-DATASET))
       (assert-points-equal expected-pts1 (dataset-points dataset) :test #'equalp)
 

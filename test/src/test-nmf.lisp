@@ -28,11 +28,11 @@
       (assert-false (nmf-analysis matrix 5))
       (assert-false (nmf-analysis matrix 3 :type :column :results 5))
       (setf sports-corpus
-	(read-data-from-file "sample/sports-corpus-data" :external-format :utf-8))
+	(read-data-from-file (asdf:system-relative-pathname 'clml "sample/sports-corpus-data") :external-format :utf-8))
       (assert-false (nmf-corpus-analysis sports-corpus 4 :results 5))
       (assert-true (< 20.974 (c^3m-cluster-number sports-corpus) 20.975))
       (setf politics-corpus
-	(read-data-from-file "sample/politics-corpus-data" :external-format :utf-8))
+	(read-data-from-file (asdf:system-relative-pathname 'clml "sample/politics-corpus-data") :external-format :utf-8))
       (assert-true (< 15.29 (c^3m-cluster-number politics-corpus) 15.291))
       (assert-false (nmf-search matrix 113 :type :column))
       (assert-false (nmf-corpus-search sports-corpus "西武" :type :term :results 5))

@@ -1,6 +1,6 @@
 (setf dataset
       (pick-and-specialize-data 
-       (read-data-from-file "sample/norm-interp-feature.csv"
+       (read-data-from-file (asdf:system-relative-pathname 'clml "sample/norm-interp-feature.csv")
                             :csv-type-spec (cons 'string (make-list 19 :initial-element 'double-float))
                             :type :csv)
        :data-types (make-list 19 :initial-element :numeric)
