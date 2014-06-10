@@ -1,2 +1,4 @@
 (defpackage "LAPACK"
-  (:use "BLAS" "COMMON-LISP"))
+  (:use "BLAS" "COMMON-LISP")
+  (:shadow :zswap)
+)

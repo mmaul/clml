@@ -19,4 +19,5 @@
    #:components
    #:contributions
    #:loading-factors
+   #:pca-method
    ))

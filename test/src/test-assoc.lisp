@@ -1,4 +1,4 @@
-
+;-*- coding: utf-8 -*-
 (in-package "TEST")
 
 (defun rule-equal (expected-rule rule)
@@ -25,29 +25,29 @@
     (let (dataset result result1
           (expected-header #("premise" "conclusion" "support" "confidence" "lift" "conviction"))
           (expected-result
-           '(#(("¤•i–¼=–ìØ") ("¤•i–¼=‰Ùq")
+           '(#(("å•†å“å=é‡èœ") ("å•†å“å=è“å­")
                16.886543535620053d0 31.44963144963145d0 1.1053549f0 1.0437279f0)
-             #(("¤•i–¼=‰Ùq") ("¤•i–¼=–ìØ")
+             #(("å•†å“å=è“å­") ("å•†å“å=é‡èœ")
                16.886543535620053d0 59.35085007727975d0 1.1053549f0 1.1391644f0)
-             #(("¤•i–¼=–ìØ") ("¤•i–¼=‰Ùq" "¤•i–¼=ƒpƒ“")
+             #(("å•†å“å=é‡èœ") ("å•†å“å=è“å­" "å•†å“å=ãƒ‘ãƒ³")
                8.970976253298153d0 16.707616707616708d0 1.2706729f0 1.0427288f0)
-             #(("¤•i–¼=‰Ùq") ("¤•i–¼=–ìØ" "¤•i–¼=ƒpƒ“")
+             #(("å•†å“å=è“å­") ("å•†å“å=é‡èœ" "å•†å“å=ãƒ‘ãƒ³")
                8.970976253298153d0 31.530139103554866d0 1.3351868f0 1.1156036f0)
-             #(("¤•i–¼=ƒpƒ“") ("¤•i–¼=–ìØ" "¤•i–¼=‰Ùq")
+             #(("å•†å“å=ãƒ‘ãƒ³") ("å•†å“å=é‡èœ" "å•†å“å=è“å­")
                8.970976253298153d0 23.80396732788798d0 1.4096411f0 1.0907845f0)
-             #(("¤•i–¼=–ìØ" "¤•i–¼=‰Ùq") ("¤•i–¼=ƒpƒ“")
+             #(("å•†å“å=é‡èœ" "å•†å“å=è“å­") ("å•†å“å=ãƒ‘ãƒ³")
                8.970976253298153d0 53.125d0 1.4096411f0 1.3293462f0)
-             #(("¤•i–¼=–ìØ" "¤•i–¼=ƒpƒ“") ("¤•i–¼=‰Ùq")
+             #(("å•†å“å=é‡èœ" "å•†å“å=ãƒ‘ãƒ³") ("å•†å“å=è“å­")
                8.970976253298153d0 37.988826815642454d0 1.3351868f0 1.153791f0)
-             #(("¤•i–¼=‰Ùq" "¤•i–¼=ƒpƒ“") ("¤•i–¼=–ìØ")
+             #(("å•†å“å=è“å­" "å•†å“å=ãƒ‘ãƒ³") ("å•†å“å=é‡èœ")
                8.970976253298153d0 68.22742474916387d0 1.2706729f0 1.4574226f0)
-             #(("¤•i–¼=–ìØ") ("¤•i–¼=‰Ùq" "¤•i–¼=“û»•i")
+             #(("å•†å“å=é‡èœ") ("å•†å“å=è“å­" "å•†å“å=ä¹³è£½å“")
                7.695690413368514d0 14.332514332514332d0 1.2439747f0 1.0328125f0)
-             #(("¤•i–¼=‰Ùq") ("¤•i–¼=–ìØ" "¤•i–¼=“û»•i")
+             #(("å•†å“å=è“å­") ("å•†å“å=é‡èœ" "å•†å“å=ä¹³è£½å“")
                7.695690413368514d0 27.04791344667697d0 1.28407f0 1.0820224f0))))
       (assert-true
        (setf result (association-analyze "sample/pos.sexp" "sample/result.sexp"
-                                         '("¤•i–¼") "ID”Ô†" 3 
+                                         '("å•†å“å") "IDç•ªå·" 3 
                                          :support 2 :external-format #+allegro :932 #-allegro :sjis)))
       (loop for rule1 in expected-result
           for rule2 in (assoc-result-rules result)
@@ -65,9 +65,9 @@
        (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis)))
       
       ;; verify rule indexes
-      (let* ((key-pos (dimension-index (find "ID”Ô†" (dataset-dimensions dataset)
+      (let* ((key-pos (dimension-index (find "IDç•ªå·" (dataset-dimensions dataset)
                                              :test #'string= :key #'dimension-name)))
-             (val-pos (dimension-index (find "¤•i–¼" (dataset-dimensions dataset)
+             (val-pos (dimension-index (find "å•†å“å" (dataset-dimensions dataset)
                                              :test #'string= :key #'dimension-name)))
              (transaction-hash (make-hash-table :test #'equal))
              total)
@@ -99,21 +99,21 @@
               do (verify-rule-indexes rule))))
       
       (assert-true 
-       (setf result1 (%association-analyze-apriori dataset '("¤•i–¼") "ID”Ô†" 3 :support 2)))
+       (setf result1 (%association-analyze-apriori dataset '("å•†å“å") "IDç•ªå·" 3 :support 2)))
       (assert-assoc-equal result result1)
       
       (assert-true 
-       (setf result1 (%association-analyze-da-ap-genrule dataset '("¤•i–¼") "ID”Ô†" 3 :support 2)))
+       (setf result1 (%association-analyze-da-ap-genrule dataset '("å•†å“å") "IDç•ªå·" 3 :support 2)))
       (assert-assoc-equal result result1)
       
       (assert-true 
-       (setf result1 (%association-analyze-fp-growth dataset '("¤•i–¼") "ID”Ô†" 3 :support 2)))
+       (setf result1 (%association-analyze-fp-growth dataset '("å•†å“å") "IDç•ªå·" 3 :support 2)))
       (assert-assoc-equal result result1)
       
       (assert-true 
-       (setf result1 (%association-analyze-eclat dataset '("¤•i–¼") "ID”Ô†" 3 :support 2)))
+       (setf result1 (%association-analyze-eclat dataset '("å•†å“å") "IDç•ªå·" 3 :support 2)))
       (assert-assoc-equal result result1)
       
       (assert-true 
-       (setf result1 (%association-analyze-lcm dataset '("¤•i–¼") "ID”Ô†" 3 :support 2)))
+       (setf result1 (%association-analyze-lcm dataset '("å•†å“å") "IDç•ªå·" 3 :support 2)))
       (assert-assoc-equal result result1)))

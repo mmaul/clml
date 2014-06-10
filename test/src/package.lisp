@@ -7,7 +7,7 @@
    :read-data
    :statistics
    ;"ASSOC"
-   :CLUSTER-VALIDATION
+   :clml.clustering.CLUSTER-VALIDATION
    ;"DECISION-TREE"
    :clml.time-series.util
    :clml.time-series.read-data
@@ -17,16 +17,13 @@
    :clml.time-series.anomaly-detection
    :clml.time-series.exponential-smoothing
    :clml.time-series.burst-detection
-
-                                      ;"TS-UTIL"
-   
-   ;"CHANGEFINDER"
-   
-   
+   :clml.pca
+   :CHANGEFINDER
    :hc
    ;"K-MEANS"
-   ;"K-NN"
-   ;"MISSING-VAL"
+                                        ;"K-NN"
+   :hjs.learn.k-means
+   :hjs.util.missing-value
    :nmf
    :optics
    ;"PCA"

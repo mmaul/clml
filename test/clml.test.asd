@@ -16,6 +16,7 @@
                              :clml.clustering
                              :clml.time-series
                              :clml.svm
+                             :clml.classifiers
                              :clml.test-package
                              )
                 :components (
@@ -29,7 +30,6 @@
                              (:file "test-spectral-clustering")
                              (:file "test-cluster-validation")
                              (:file "test-ts-anomaly-detection")
-                             (:file "test-changefinder")
                              (:file "test-ts-ar")
                              (:file "test-ts-burst-detection")
                              (:file "test-ts-read-data")
@@ -42,6 +42,21 @@
                              (:file "test-pwss3-svm")
                              (:file "test-one-class-svm")
                              (:file "test-linear-regression")
+                             (:file "test-assoc")
+                             (:file "test-changefinder")
+                             (:file "test-classifier")
+                             (:file "test-dpm")
+                             (:file "test-hdp-lda")
+                             ;(:file "test-k-means")
+                             (:file "test-k-nn")
+                             (:file "test-matrix")
+                             (:file "test-missing-value")
+                             (:file "test-nbayes")
+                             (:file "test-pca")
+                             (:file "test-som")
+                             (:file "test-svr")
+                             (:file "test-text-utils")
+                             
                              (:file "test-groups")
                              )
                 )

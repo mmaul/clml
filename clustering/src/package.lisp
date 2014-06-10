@@ -1,6 +1,7 @@
 ;;;
 
-(defpackage "HC"
+(defpackage :clml.clustering.hc
+  (:nicknames :hc)
   (:use :cl
 	:hjs.learn.read-data
 	:hjs.util.vector
@@ -28,7 +29,8 @@
        #:pick-up-column
        #:pick-up-row))
 
-(defpackage :nmf
+(defpackage :clml.clustering.nmf
+  (:nicknames :nmf)
   (:use :cl
 	:hc
 	:blas
@@ -61,7 +63,8 @@
 	   #:sparseness
 	   #:sample-matrix))
 
-(defpackage :optics
+(defpackage :clml.clustering.optics
+  (:nicknames :optics)
   (:use :cl
         :hjs.learn.read-data
         :hjs.util.matrix
@@ -69,7 +72,9 @@
   (:export :optics
            :optics-main
            :make-optics-input))
-(defpackage :optics
+
+(defpackage :clml.clustering.optics-speed
+  (:nicknames :optics-speed)
   (:use
    :optics
    :learn.nearest)
@@ -80,14 +85,16 @@
    :%optics-speec
    :make-optics-input-speed))
 
-(defpackage :spectral-clustering
+(defpackage :clml.clustering.spectral-clustering
+  (:nicknames :spectral-clustering)
     (:use :cl :hjs.util.matrix :hjs.util.meta)
     (:export #:spectral-clustering-mcut
              #:*sample-w*)
     (:import-from #+allegro "EXCL" #+sbcl "SB-INT" #+lispworks "LISPWORKS" #+ccl "CCL"
                   "FIXNUMP"))
 
-(defpackage :cluster-validation
+(defpackage :clml.clustering.cluster-validation
+  (:nicknames :cluster-validation)
   (:use :cl
         :hjs.learn.k-means
         :hjs.util.vector
@@ -103,7 +110,8 @@
    :calinski
    :hartigan
    :ball-and-hall
-   :global-silhouette-value))
+   :global-silhouette-value
+   :centroid))
 
 (defpackage :clml.clustering.k-means2
     (:use :cl :hjs.util.vector :hjs.util.meta

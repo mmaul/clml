@@ -1,3 +1,4 @@
+;-*- coding: utf-8 -*-
 ;;;
 
 (in-package "TEST")
@@ -39,7 +40,7 @@
         (objective-param-name (ecase type
                                 (bc "Class")
                                 (spam "type")
-                                (german "ŒÚ‹qŽí•Ê")))
+                                (german "é¡§å®¢ç¨®åˆ¥")))
         (manhattan (ecase type
                      (bc :double-manhattan)
                      (spam :double-manhattan)
