@@ -74,7 +74,7 @@
                :hjs
                :blas
                :lapack
-               :statistics
+               :clml.statistics
                :clml.pca
                :clml.svm
                :clml.classifiers

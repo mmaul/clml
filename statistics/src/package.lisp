@@ -5,9 +5,9 @@
 
 (in-package :cl-user)
 
-(defpackage :statistics
-  (:nicknames :distribution)
-  (:use :cl :statistics.rand)
+(defpackage :clml.statistics
+  (:nicknames :distribution :statistics)
+  (:use :cl :clml.statistics.rand)
   (:export
    ;; DATA ANALYSIS
    ;; (Functions on 1-valued data)

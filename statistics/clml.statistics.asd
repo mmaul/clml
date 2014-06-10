@@ -7,14 +7,14 @@
 
 (in-package :statistics-asd)
 
-(defsystem :statistics.rand
+(defsystem :clml.statistics.rand
   :author "Yotsutsuji Tetsuaki"
   :licence "?"
   :description "Random Number Generator Library"
   
   :components 
   ((:module :statistics.rand
-            :pathname #p "rand"
+            :pathname #p "src/rand"
             :components 
             ((:file "rand/package" )
              (:file "rand/utilities" :depends-on ("rand/package"))
@@ -24,15 +24,14 @@
    (:static-file "README")
    ))
 
-(defsystem :statistics
+(asdf:defsystem :clml.statistics
   :author "Peter Salvi / MSI (statistics), Ryo Fujii (statistics & distribution), Yotsutsuji Tetsuaki (rand)"
   :licence "?"
   :description "Statistics Library"
-  :depends-on (:statistics.rand)
+  :depends-on (:clml.statistics.rand)
   :components 
   ((:module "statistics" 
-            :pathname #p""
-            
+            :pathname "src/"
             :components
             ((:file "package")
              (:file "utilities" )

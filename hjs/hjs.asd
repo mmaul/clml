@@ -16,7 +16,7 @@
                              :blas
                              :lapack
                              :future
-                             :statistics
+                             :clml.statistics
                              :clml.utility
                              :hjs-package)
                 :components (

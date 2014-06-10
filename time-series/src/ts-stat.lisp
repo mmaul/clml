@@ -439,28 +439,28 @@
 #||
 (defparameter ukgas 
     (time-series-data
-     (read-data-from-file "sample/UKgas.sexp")
+     (read-data-from-file (asdf:system-relative-pathname 'clml "sample/UKgas.sexp"))
      :range '(1) :time-label 0
      :start 1960 :frequency 4))
 (defparameter useco
     (time-series-data
-     (read-data-from-file "sample/USeconomic.sexp")))
+     (read-data-from-file (asdf:system-relative-pathname 'clml "sample/USeconomic.sexp"))))
 (defparameter tokyo
     (time-series-data
-     (read-data-from-file "sample/tokyo-temperature.sexp")))
+     (read-data-from-file (asdf:system-relative-pathname 'clml "sample/tokyo-temperature.sexp"))))
 (defparameter sunspot
-    (time-series-data (read-data-from-file "sample/sunspot.sexp")
+    (time-series-data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/sunspot.sexp"))
                       :range '(1) :time-label 0))
 (defparameter whard
-    (time-series-data (read-data-from-file "sample/whard.sexp")
+    (time-series-data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/whard.sexp"))
                       :frequency 12))
 (defparameter food
-    (time-series-data (read-data-from-file "sample/bls-food.sexp")
+    (time-series-data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/bls-food.sexp"))
                       :range '(1) :time-label 0 :frequency 12))
 (defparameter msi
     (time-series-data
      (read-data-from-file
-      "sample/msi-access-stat/access-log-stat-0.sexp")
+      (asdf:system-relative-pathname 'clml "sample/msi-access-stat/access-log-stat-0.sexp"))
      :range '(1) :start '(18 3) :frequency 24))
 (export '(ukgas useco tokyo sunspot whard food msi))
 ||#

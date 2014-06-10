@@ -10,7 +10,7 @@
                 :pathname "src/"
                 :serial t
                 :depends-on (:lisp-unit
-                             :statistics
+                             :clml.statistics
                              :hjs
                              :clml.decision-tree
                              :clml.clustering
