@@ -42,6 +42,9 @@
 (defparameter *pwss3-test-group* '(test-pwss3-kernels
                                    test-pwss3-svm))
 
+(defparameter *wss3-test-group* '(test-wss3-kernels
+                                   test-wss3-svm))
+
 (defparameter *classifiers-test-group* '(test-sample-linear-regression
                               simple-linear-regression-case
                               multi-linear-regression-case))
