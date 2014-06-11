@@ -27,5 +27,6 @@
                              (:file "matrix")
                              (:file "read-data")
                              (:file "eigenproblem")
+                             (:file "k-means")
                              )
                 )

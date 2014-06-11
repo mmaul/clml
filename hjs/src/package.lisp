@@ -163,30 +163,30 @@
 	:statistics :hjs.util.matrix :iterate
 	:hjs.learn.vars)
   (:nicknames :k-means)
-  (:export #:k-means
-
-	   #:make-cluster
-	   #:c-center
-	   #:c-size
-	   #:c-points
-	   #:cluster
-       #:point
-       #:p-point
-       #:%make-point
-       #:copy-point
-       #:id
-       #:pos
-       #:owner
-	   #:pw-points
-	   #:pw-clusters
-       #:make-random-state-with-seed 
-	   #:p-pos
-	   #:p-owner
-	   #:point
+  (:export
+   #:k-means
+   #:make-cluster
+   #:c-center
+   #:c-size
+   #:c-points
+   #:cluster
+   #:point
+   #:p-point
+   #:%make-point
+   #:copy-point
+   #:id
+   #:pos
+   #:owner
+   #:pw-points
+   #:pw-clusters
+   #:make-random-state-with-seed 
+   #:p-pos
+   #:p-owner
+   #:point
      
-     #:get-cluster-centroids
-     #:get-cluster-points
-	   ))
+   #:get-cluster-centroids
+   #:get-cluster-points
+   ))
 
 (defpackage :hjs.util.eigensystems
   (:use :cl
