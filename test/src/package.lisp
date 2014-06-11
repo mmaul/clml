@@ -8,7 +8,9 @@
    :statistics
    ;"ASSOC"
    :clml.clustering.CLUSTER-VALIDATION
-   ;"DECISION-TREE"
+   :clml.clustering.optics
+   :clml.clustering.nmf
+   :clml.clustering.hc
    :clml.time-series.util
    :clml.time-series.read-data
    :clml.time-series.statistics
@@ -32,7 +34,7 @@
    :clml.svm.mu
    :clml.svm.smo
    :clml.svm.wss3
-   ;:clml.svm.pwss3
+   :clml.svm.pwss3 ; make-polynomial-kernel conflict
    :clml.svm.one-class
    :clml.classifiers.linear-regression
    ;"SVR"
@@ -46,6 +48,9 @@
    ;"DPM"
    ;"TEXT-UTILITIES"
    )
+  (:shadow :make-polynomial-kernel :make-svm-learner :make-rbf-kernel :make-svm-validation
+           :svm-validation :load-svm-learner :make-svm-kernel :make-linear-kernel
+           :make-one-class-svm-kernel)
   (:import-from :LISP-UNIT
                :define-test
                :run-tests

@@ -16,7 +16,7 @@ TOTAL: 507 assertions passed, 0 failed, 0 execution errors.
       (assert-true (spectral-clustering-mcut *sample-w* 5))
       ))
 
-(define-test sample-w
+(define-test test-sample-w
     (let ((*sample-w* spectral-clustering::*sample-w*))
       (assert-error 'error (spectral-clustering-mcut *sample-w* 0))
       (assert-equality #'set-equal 
@@ -37,7 +37,7 @@ TOTAL: 507 assertions passed, 0 failed, 0 execution errors.
       (assert-false (spectral-clustering-mcut *sample-w* 6))
       ))
 
-(define-test random-w
+(define-test test-random-w
     (loop repeat 50
         as w = (spectral-clustering::make-random-symmetric-matrix
                 100 0 most-positive-single-float)
