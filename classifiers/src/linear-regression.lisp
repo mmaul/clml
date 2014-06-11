@@ -28,7 +28,7 @@
 		 (i-thvector numeric-dataset (nth j range))))))))
 
 (defun solve-system-of-equations (matrix vector)
-  (m-times-v (m^-1 matrix) vector))
+   (m-times-v (m^-1 matrix) vector))
 
 (defun m-times-v (matrix vector)
   (let* ((n (array-dimension vector 0))
@@ -62,16 +62,17 @@
 (defun mlr (numeric-dataset range)
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (let* ((s (make-matrix-s numeric-dataset range))
-	 (c (make-vector-c numeric-dataset range))
-	 (coefficients (solve-system-of-equations s c))
-	 (n (first (array-dimensions coefficients)))
-	 (intercept (mlr-intercept numeric-dataset range))
-	 (answer (make-array (+ n 1) :element-type 'double-float)))
+         (c (make-vector-c numeric-dataset range))
+         (coefficients (solve-system-of-equations s c))
+         (n        (first (array-dimensions coefficients)))
+         
+         (intercept (mlr-intercept numeric-dataset range))
+         (answer (make-array (+ n 1) :element-type 'double-float)))
     (dotimes (i (+ n 1) answer)
       (setf (aref answer i)
-	(if (= i 0)
-	    intercept
-	  (aref coefficients (- i 1)))))))
+            (if (= i 0)
+                intercept
+                (aref coefficients (- i 1)))))))
 
 (defun fitted (numeric-dataset range)
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))

@@ -480,7 +480,10 @@
          (m (array-dimension A 1))
          (n (array-dimension A 0))
          (lda (max 1 m))
-         (ipiv (make-array (min m n) :element-type 'fixnum))
+         (ipiv (make-array (min m n) :element-type
+                           #+ (or ccl sbcl) '(signed-byte 32)
+                           #+allegro 'fixnum
+                           ))
          (lwork (* m n 2))
          (work (make-array lwork :element-type 'double-float))
          (info 0))
@@ -490,6 +493,7 @@
             (multiple-value-list
              (lapack::dgetrf m n Ar lda ipiv info)))))
     (assert (= 0 info))
+    
     (setq info
       (car (last (multiple-value-list
                   (lapack::dgetri n Ar lda ipiv work lwork info)))))

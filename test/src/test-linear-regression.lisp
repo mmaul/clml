@@ -34,7 +34,9 @@ F-statistic: 89.57 on 1 and 48 DF,  p-value: 1.490e-12
        (setf airquality
          (pick-and-specialize-data dataset :range '(0 1 2 3 4) 
                                    :data-types '(:numeric :numeric :numeric :numeric :numeric))))
-      (assert-true (mlr airquality '(2 3 4 1)))))
+      
+      (assert-true (mlr airquality '(2 3 4 1)))
+      ))
 
 (define-test simple-linear-regression-case
     (let* ((cars (read-data-from-file (asdf:system-relative-pathname 'clml "sample/cars.csv") :type :csv :csv-type-spec '(double-float double-float)))
