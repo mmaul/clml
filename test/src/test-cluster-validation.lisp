@@ -15,7 +15,7 @@
                          :except '(0) :data-types (make-list 4
                                                              :initial-element :numeric))
                         :random-state
-                        (hjs.learn.k-means::make-random-state-with-seed 0))))
+                        (hjs.learn.k-means:make-random-state-with-seed 0))))
     (assert-true (epsilon> (calinski) 441.62300853729414))
     (assert-true (epsilon> (hartigan) 2.5069376578154543))
     (assert-true (epsilon> (ball-and-hall) 1128.3210196476964))

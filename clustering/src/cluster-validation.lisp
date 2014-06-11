@@ -2,6 +2,13 @@
 (let ((*read-default-float-format* 'double-float))
   (load "defsystem.cl") (excl:load-system :machine-learning :compile t))
 
+
+||#
+
+
+(in-package :cluster-validation)
+
+(defvar *workspace*)
 (progn (setf cluster-validation:*workspace* 
          (k-means:k-means 
           10 
@@ -9,13 +16,6 @@
            (read-data:read-data-from-file
             (asdf:system-relative-pathname 'clml "sample/norm-interp-feature.sexp")) :except '(0)
             :data-types (make-list 12 :initial-element :numeric))))nil)
-||#
-
-
-(in-package :cluster-validation)
-
-(defvar *workspace*)
-
 (defdoublefunc v-diff-sum^2 (dvec dvec))
 
 (defun v-diff-sum^2 (x y)
@@ -410,15 +410,18 @@
         (summing (silhouette c) into s)
         (counting t into n)
         (finally (return (/ s n)))))
-#|
+
 (defun centroid ()
   (let ((c (make-zero-dvec))
         (n 0)
-        (pw-points (pw-points *workspace*)))
-    (do-vec (p pw-points :type #'p-point)
+        (pw-points (pw-points *workspace*
+                              )))
+    (do-vec (p pw-points ) ;(p pw-points :type #'p-point)
       (v+ c (p-pos p) c)
       (incf n))
     (v-scale c (the double-float (/ 1d0 (coerce n 'double-float))) c)
     c))
+#|
+
 |#
 
