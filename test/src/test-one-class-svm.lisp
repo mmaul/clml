@@ -10,13 +10,13 @@
 			      :csv-type-spec 
 			      (make-list 10 :initial-element 'double-float))
 	 :data-types (make-list 10 :initial-element :numeric)))
-  
+       
        (setf data-vector (dataset-points svm-bc-train))
-
+       (print "error below")
        (setf one-class-svm (one-class-svm data-vector :nu 0.01d0 :gamma 0.005d0))
        
        (assert-eql 1.0d0 (funcall one-class-svm (svref data-vector 0)))
-
+       
        (assert-eql 13 (loop for data across data-vector count (= -1.0d0 (funcall one-class-svm data))))
        
        (setf one-class-svm (one-class-svm data-vector :nu 0.1d0 :gamma 0.05d0))

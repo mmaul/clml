@@ -33,12 +33,11 @@
 (defparameter *svm-test-group* '(test-sample-svm
                                  svm.smo.kernels
                                  smo.svm
-                                 wss3.kernels
-                                 wss3.svm
-                                 
+                                 test-wss3-kernels
+                                 test-wss3-svm
                                  test-one-class-svm
-                                 
                                  ))
+
 (defparameter *pwss3-test-group* '(test-pwss3-kernels
                                    test-pwss3-svm))
 

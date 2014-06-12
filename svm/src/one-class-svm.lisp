@@ -26,7 +26,7 @@
 (defun qp-solver (training-vector kernel-function nu)
   "for one-class-svm"
   (declare (type simple-vector training-vector)
-	   ;(type function kernel-function)
+	   #+ (not sbcl) (type function kernel-function)
 	   (type double-float nu))
   
   (setf *training-size* (length training-vector))
@@ -71,22 +71,23 @@
 	do (multiple-value-bind (i j)
 	       (working-set-selection3 training-vector kernel-function)
 	     (declare (type fixnum i j))
-	     (when (= -1 j)
+         
+         (when (= -1 j)
 	       (return-from qp-solver *alpha-array*))
-             
+         
 	     (let ((a (eta training-vector kernel-function i j))
-		   (b (- (aref gradient-array j)
+               (b (- (aref gradient-array j)
 			 (aref gradient-array i))))
                
 	       (declare (type double-float a b))
-
+           
 	       (when (<= a 0.0d0)
 		 (setf a tau))
 		 
 	       ;;update alpha
 	       (let ((old-a-i (aref alpha-array i))
 		     (old-a-j (aref alpha-array j)))
-                 
+           
 		 (declare (type double-float old-a-i old-a-j))
 		 
 		 (incf (aref alpha-array i) (/ b a))
@@ -102,7 +103,7 @@
                    
 		   (when (< (aref alpha-array i) 0.0d0)
 		     (setf (aref alpha-array i) 0.0d0))
-		   
+		 
 		   (setf (aref alpha-array j) (- sum (aref alpha-array i)))
                    
 		   (when (> (aref alpha-array j) 1.0d0)
@@ -119,7 +120,7 @@
 (defun update-gradient (training-vector kernel-function i j old-a-i old-a-j)
   "for one-class-svm"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+	   #+ (not sbcl) (type function kernel-function)
 	   (type double-float old-a-i old-a-j))
   
   (let* ((alpha-array *alpha-array*)
@@ -127,24 +128,27 @@
 	 (training-size *training-size*)
 	 (delta-a-i (- (aref alpha-array i) old-a-i))
 	 (delta-a-j (- (aref alpha-array j) old-a-j)))
-                     
+       
     (declare (type fixnum i j training-size)
 	     (type (simple-array double-float (*)) alpha-array gradient-array)
 	     (type double-float delta-a-i delta-a-j))
+    
     (loop
 	for k of-type fixnum below training-size
 	with point-i of-type (simple-array double-float (*)) = (svref training-vector i)
 	with point-j of-type (simple-array double-float (*)) = (svref training-vector j)
 	as point-k of-type (simple-array double-float (*)) = (svref training-vector k)
-	do (incf (the double-float (aref gradient-array k))
-		 (+ (* (call-kernel-function kernel-function point-k point-i) delta-a-i)
-		    (* (call-kernel-function kernel-function point-k point-j) delta-a-j))))))
+       do
+         (incf (the double-float (aref gradient-array k))
+                          (+ (* (call-kernel-function kernel-function point-k point-i) delta-a-i)
+                             (* (call-kernel-function kernel-function point-k point-j) delta-a-j)))
+         )))
 
 
 (defun working-set-selection3 (training-vector kernel-function)
   "for one-class-svm"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function))
+	   #+ (not sbcl) (type function kernel-function))
   
   (let ((i -1)
 	(j -1)
@@ -195,7 +199,7 @@
 (defun select-j (training-vector kernel-function i g-max)
   "for one-class-svm"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function))
+	   #+ (not sbcl) (type function kernel-function))
   
   (let ((training-size *training-size*)
 	(alpha-array *alpha-array*)
@@ -204,7 +208,7 @@
 	(j -1)
 	(g-min most-positive-double-float)
 	(obj-min most-positive-double-float))
-    
+  
     (declare (type fixnum i j training-size)
 	     (type (simple-array double-float (*)) alpha-array gradient-array)
 	     (type double-float tau g-min g-max obj-min))
@@ -220,9 +224,9 @@
 	do (setf b (- g-max g-temp))
 	   (when (<= g-temp g-min)
 	     (setf g-min g-temp))
-	   (when (> b 0.0d0)
-	     (setf a (the double-float (eta training-vector kernel-function i k)))
-	     (when (<= a 0.0d0)
+         (when (> b 0.0d0)
+           (setf a (the double-float (eta training-vector kernel-function i k)))
+           (when (<= a 0.0d0)
 	       (setf a tau))
 	     (let ((temp (/ (- (* b b)) a)))
 	       (declare (type double-float temp))
@@ -241,18 +245,17 @@
 (defun eta (training-vector kernel-function i j)
   "for one-class-svm"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+           #+ (not sbcl)
+           (type function kernel-function)
   	   (type fixnum i j)
            (ignorable kernel-function training-vector))
-  
   (let ((point-i (svref training-vector i))
-	(point-j (svref training-vector j)))
+        (point-j (svref training-vector j)))
     
     (declare (type (simple-array double-float (*)) point-i point-j))
-    
     (+ (call-kernel-function kernel-function point-i point-i)
-       (call-kernel-function kernel-function point-j point-j)
-       (* -2.0d0 (call-kernel-function kernel-function point-i point-j)))))
+                 (call-kernel-function kernel-function point-j point-j)
+                 (* -2.0d0 (call-kernel-function kernel-function point-i point-j)))))
 
 ;;for check
 (defun print-rho (training-vector kernel-function alpha-array)
@@ -273,7 +276,7 @@
 
 (defun compute-rho (training-vector kernel-function alpha-array)
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+	   #+ (not sbcl) (type function kernel-function)
 	   (type dvec alpha-array)
            (ignorable kernel-function))
   (/ (loop
@@ -296,7 +299,7 @@
 (defun make-discriminant-function (training-vector kernel-function alpha-array rho)
   "for one-class-svm"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+	   #+ (not sbcl) (type function kernel-function)
 	   (type dvec alpha-array)
 	   (type double-float rho)
            (ignorable kernel-function))
