@@ -58,6 +58,7 @@
                :assert-equalp
                :assert-false
                :assert-eql
+               :assert-eq
                :print-errors
                :print-failures
                :print-summary

@@ -536,11 +536,14 @@
          (m (array-dimension mat 1))
          (n (array-dimension mat 0))
          (lda (max 1 m))
-         (ipiv (make-array (min m n) :element-type 'fixnum))
+         (ipiv (make-array (min m n) :element-type
+                           #+ (or ccl sbcl) '(signed-byte 32)
+                           #+allegro 'fixnum
+                           ))
+         
          (info 0)
          (det 1.0d0))
     (assert (= m n))
-
     ;; LU factorization
     (setq info (car (last (multiple-value-list
                            (lapack::dgetrf m n A lda ipiv info)))))

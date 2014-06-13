@@ -12,6 +12,7 @@
                 :depends-on (:lisp-unit
                              :clml.statistics
                              :hjs
+                             :blas
                              :clml.decision-tree
                              :clml.clustering
                              :clml.time-series

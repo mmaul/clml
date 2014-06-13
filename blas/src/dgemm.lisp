@@ -35,7 +35,7 @@
                                       b-%offset%)
                                      (c double-float c-%data%
                                       c-%offset%))
-      (prog ((temp 0.0) (i 0) (info 0) (j 0) (l 0) (ncola 0) (nrowa 0)
+                                    (prog ((temp 0.0) (i 0) (info 0) (j 0) (l 0) (ncola 0) (nrowa 0)
              (nrowb 0) (nota nil) (notb nil))
             (declare (type (double-float) temp)
              (type f2cl-lib:logical nota notb)

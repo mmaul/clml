@@ -91,8 +91,8 @@
 (defun calc-aic (cov num-of-coef num-of-data)
   (if (>= 0d0 cov)
       handling-missing-value:*-inf*
-    (+ (* num-of-data (1+ (log (* 2 (coerce pi 'double-float) cov))))
-       (* 2 (1+ num-of-coef)))))
+      (+ (* num-of-data (1+ (log (* 2 (coerce pi 'double-float) cov))))
+         (* 2 (1+ num-of-coef)))))
 
 (defun ^2 (x) (* x x))
 
@@ -624,15 +624,16 @@
                          do (setf (aref %mat i i) 
                               (if (minusp val) (- val alpha) (+ val alpha)))
                          finally (return %mat))
-                   mat))))
+                     mat))))
     (let* ((d (array-dimension (aref cj-vec 0) 0)) ; data dimension
            (p (1- (length cj-vec)))
            (obj (make-instance 'levinson-obj
                   :v (aref cj-vec 0)    ;c0
                   :u (aref cj-vec 0)    ;c0
-                  :aic (when calc-aic (calc-aic (aref cj-vec 0) d 0)))))
-      (loop for m from 1 to p do 
-            (setf (lev-w obj)
+                  :aic (when calc-aic 
+                             (calc-aic (aref cj-vec 0) d 0)))))
+      (loop for m from 1 to p do
+           (setf (lev-w obj)
               (if (= m 1)
                   (aref cj-vec m)
                                         ; W_m = C_m - \sigma_{i=1}^{m-1}{A_i^{m-1}C_{m-i}}
@@ -642,17 +643,17 @@
                          (loop for i from 1 to (- m 1)
                              collect (m*m (gethash (make-key i (- m 1)) (lev-a obj))
                                           (aref cj-vec (- m i))))))))
-
+           
                                         ; A_m^m = W_m inv(U_{m-1})
             (setf (gethash (make-key m m) (lev-a obj))
               (m*m (lev-w obj)
                    (%m^-1 (lev-u obj))))
                                         ; B_m^m = transpose(W_m) inv(V_{m-1})
-
+           
             (setf (gethash (make-key m m) (lev-b obj))
               (m*m (transpose (lev-w obj))
                    (%m^-1 (lev-v obj))))
-
+           
             (loop for i from 1 to (- m 1)
                 do                      ; A_i^m = A_i^{m-1} - A_m^m B_{m-i}^{m-1}
                   (setf (gethash (make-key i m) (lev-a obj))
@@ -669,7 +670,8 @@
                           (gethash (make-key (- m i) (- m 1))
                                    (lev-a obj))))))
                                         ; V_m = C_0- \sigma_{i=1}^m A_i^m transpose(C_i)
-            (setf (lev-v obj)
+           
+           (setf (lev-v obj)
               (dmat-subtract 
                (aref cj-vec 0)
                (reduce #'dmat-sum
@@ -677,7 +679,7 @@
                            collect (m*m (gethash (make-key i m) (lev-a obj))
                                         (transpose (aref cj-vec i)))))))
                                         ; U_m = C_0- \sigma_{i=1}^m B_i^m C_i
-            (setf (lev-u obj)
+           (setf (lev-u obj)
               (dmat-subtract 
                (aref cj-vec 0)
                (reduce #'dmat-sum
@@ -687,11 +689,19 @@
                                         ; AIC_m = N(dlog2pi+log|V_m|+k) + k(k+1) + 2K^2m
             (setf (lev-aic obj) (when calc-aic (calc-aic (lev-v obj) d m))))
                                         ; A_i^p(i = 1,...,p)がYule-Walker方程式の答え
-      (values 
+      
+      (values
+       #- sbcl
        (coerce 
         (loop for i from 1 to p
             collect (gethash (make-key i p) (lev-a obj)))
         'array)
+       #+ sbcl
+       (let ((rarray (make-array (list p))))
+         (loop for i from 1 to p
+            do
+              (setf (aref rarray (- i 1)) (gethash (make-key i p) (lev-a obj))))
+         rarray)
        obj))))
 
 ;; データxがd次元でK次のARモデルを仮定する
@@ -708,15 +718,25 @@
   (update-meu meu new-xt r)
   (let* ((k (length old-xt-array))
          (new-cj-array
-          (coerce 
-           (loop for j below (length cj-array)
-               collect (update-cj (aref cj-array j)
-                                  meu new-xt
-                                  (if (= j 0)
-                                      new-xt
-                                    (aref old-xt-array (- k j)))
-                                  r))
-           'array))
+          (let ((cj-list
+                  (loop for j below (length cj-array)
+                      collect (update-cj (aref cj-array j)
+                                         meu new-xt
+                                         (if (= j 0)
+                                             new-xt
+                                             (aref old-xt-array (- k j)))
+                                         r))))
+            
+            #+sbcl
+            (let* ((cj-list-len (length cj-list))
+                   (cj-array1 (make-array cj-list-len)))
+              (loop for i from 0 to (- cj-list-len 1)
+                 do
+                   (setf (aref cj-array1 i) (elt cj-list i)))
+              cj-array1)
+            #-sbcl(coerce 
+             cj-list
+             'array)))
          (w-vec (multivariate-levinsion new-cj-array n :calc-aic nil)) ; k個のdxdの行列からなる配列
          (xhatt (calculate-xhat w-vec old-xt-array meu))
          (new-sigma (update-sigma sigma new-xt xhatt r)))
@@ -724,7 +744,7 @@
     (loop for i from 0 to (- k 2)
         do (setf (aref old-xt-array i)
              (aref old-xt-array (1+ i)))
-        finally (setf (aref old-xt-array (1- k)) new-xt))
+        finally (setf (aref old-xt-array (1- k)) new-xt)) 
     (list xhatt
           meu
           new-cj-array
@@ -747,6 +767,7 @@
 (defmethod print-object ((sdar sdar) stream)
   (print-unreadable-object (sdar stream :type t :identity nil)
     (format stream "(~A)" (length (coef-vec sdar)))))
+
 (defmethod init-sdar ((ts time-series-dataset) 
                       &key (ar-k nil)) ;; AR次数、nilならAICによる自動選択
   (with-accessors ((dims dataset-dimensions)
@@ -754,39 +775,47 @@
     (let ((len (length ps))
           (mu (ts-mean ts)))
       (if (numberp ar-k)
-          (let ((cj-vec (coerce (loop for %k to ar-k collect (ts-covariance ts :k %k)) 'vector)))
-            (multiple-value-bind (coef-vec lev-obj) (multivariate-levinsion cj-vec len)
-              (make-instance 'sdar
-                :coef-vec coef-vec :n len
-                :mu mu :sigma (lev-v lev-obj) :cj-array cj-vec
-                :xt-array (map 'vector #'ts-p-pos (subseq ps (- len ar-k))))))
-        (progn 
-          (setq ar-k (cond ((>= 5 len) (error "Data is too short to estimate VAR."))
-                           ((>= 10 len) 3)
-                           (t (round (* 10 (log len 10))))))
-          (loop with min-aic = most-positive-double-float
-              with cj-array = nil
-              with coef-vec = nil
-              with cov = nil
-              with all-cj-vec = 
-                (coerce (loop for %k to ar-k collect (ts-covariance ts :k %k)) 'vector)
-              for k from 1 to ar-k
-              as cj-vec = (subseq all-cj-vec 0 (1+ k))
-              as (%coef-vec lev-obj) = (multiple-value-list
-                                        (multivariate-levinsion cj-vec len))
-              as aic = (lev-aic lev-obj)
-              when (and (not (handling-missing-value:nan-p aic))
-                        (> min-aic (lev-aic lev-obj))) do
-                (setf min-aic (lev-aic lev-obj)
-                      coef-vec %coef-vec
-                      cov (lev-v lev-obj)
-                      cj-array cj-vec)
-              finally (return 
-                        (make-instance 'sdar
-                          :coef-vec coef-vec :mu mu :sigma cov :cj-array cj-array
-                          :xt-array (map 'vector #'ts-p-pos 
-                                         (subseq ps (- len (length coef-vec))))
-                          :n len))))))))
+          (let ((cj-list (loop for %k to ar-k collect (ts-covariance ts :k %k))))
+            (let ((cj-vec
+                   
+                   (coerce cj-list 'vector)))
+              (multiple-value-bind (coef-vec lev-obj) (multivariate-levinsion cj-vec len)
+                (let (( inst (make-instance 'sdar
+                                            :coef-vec coef-vec :n len
+                                            :mu mu :sigma (lev-v lev-obj) :cj-array cj-vec
+                                            :xt-array (map 'vector #'ts-p-pos (subseq ps (- len ar-k))))))
+                  
+                  inst))))
+          (progn
+            
+            (setq ar-k (cond ((>= 5 len) (error "Data is too short to estimate VAR."))
+                             ((>= 10 len) 3)
+                             (t (round (* 10 (log len 10))))))
+            (loop with min-aic = most-positive-double-float
+               with cj-array = nil
+               with coef-vec = nil
+               with cov = nil
+               with all-cj-vec = 
+                 (coerce (loop for %k to ar-k collect (ts-covariance ts :k %k)) 'vector)
+               for k from 1 to ar-k
+               as cj-vec = (subseq all-cj-vec 0 (1+ k))
+               as (%coef-vec lev-obj) = (multiple-value-list
+                                         (multivariate-levinsion cj-vec len))
+               as aic = (lev-aic lev-obj)
+               when (and (not (handling-missing-value:nan-p aic))
+                         (> min-aic (lev-aic lev-obj))) do
+                 (setf min-aic (lev-aic lev-obj)
+                       coef-vec %coef-vec
+                       cov (lev-v lev-obj)
+                       cj-array cj-vec)
+               finally (return 
+                         (make-instance 'sdar
+                                        :coef-vec coef-vec :mu mu :sigma cov :cj-array cj-array
+                                        :xt-array (map 'vector #'ts-p-pos 
+                                                       (subseq ps (- len (length coef-vec))))
+                                        :n len))))
+          ))))
+
 (defmethod update-sdar ((sdar sdar) new-xt &key (discount 0.01d0))
   (destructuring-bind (xhatt meu new-cj-array new-sigma xt-array w-vec)
       (1step-sdar (mu sdar) (cj-array sdar) (sigma sdar) (xt-array sdar) new-xt discount (n sdar))
@@ -796,6 +825,7 @@
           (xt-array sdar) xt-array
           (coef-vec sdar) w-vec)
     (values xhatt new-sigma)))
+
 (defmethod update-xt-array ((sdar sdar) new-xt)
   (with-accessors ((old-xt-array xt-array)) sdar
     (let ((k (length (coef-vec sdar))))

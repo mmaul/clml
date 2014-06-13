@@ -339,7 +339,7 @@ Otherwise, you must use :auto for random-seed."))
 	       ;; update lower-bounds
 	       (update-lower-bounds problem-workspace)
 	       ;; select possible points for update
-	       (do-vec (p points :type point :index-var pid)
+           (do-vec (p points :type point :index-var pid)
 		 ;; mark all candidate point
 		 (if (> (aref distance-between-point-and-owner pid)
 			(aref lower-bounds (the array-index (c-id (p-owner p)))))

@@ -44,12 +44,15 @@
                :discount discount
                :score-wsize score-wsize
                :ts-wsize ts-wsize)))
+    
     (flet ((smoothing (data-list wsize)
              (loop for i from wsize to (length data-list)
                  as window = (subseq data-list (- i wsize) i)
                  collect (mean window))))
+      
       (let* ((train-for-score-model
-              (smoothing (map 'list (lambda (p) (update-ts-score cf (ts-p-pos p)))
+              (smoothing (map 'list (lambda (p) 
+                                       (update-ts-score cf (ts-p-pos p)) )
                               (subseq (ts-points ts) sdar-k))
                          score-wsize))
              (ts (make-constant-time-series-data '("smthed-score")
@@ -79,20 +82,24 @@
 
 (defun score-calculation (pt-stats dvec score-type)
   (declare (type dvec dvec))
+  
   (destructuring-bind (&key pt-1 pt &allow-other-keys) pt-stats
+    
     (ecase score-type
       (:log (- (log (density pt-1 dvec))))
       (:hellinger (hellinger-distance pt-1 pt)))))
+
 (macrolet ((update-score (model stats score-list)
-             `(multiple-value-bind (new-mu new-sigma)
-                  (ts-ar::update-sdar (,model cf) new-dvec :discount (discount cf))
-                (when (eq (score-type cf) :hellinger)
-                  (setf (getf (,stats cf) :pt) (multi-gaussian new-mu new-sigma)))
-                (let ((score (score-calculation (,stats cf) new-dvec (score-type cf))))
-                  (setf (,score-list cf) (append (cdr (,score-list cf)) (list score)))
-                  (multiple-value-bind (new-mu new-sigma) (ts-ar::predict-sdar (,model cf))
-                    (setf (getf (,stats cf) :pt-1) (multi-gaussian new-mu new-sigma)))
-                  score))))
+             `(progn 
+                     (multiple-value-bind (new-mu new-sigma)
+                                        (ts-ar::update-sdar (,model cf) new-dvec :discount (discount cf)) 
+                                      (when (eq (score-type cf) :hellinger)
+                                        (setf (getf (,stats cf) :pt) (multi-gaussian new-mu new-sigma)))
+                                      (let ((score (score-calculation (,stats cf) new-dvec (score-type cf))))
+                                        (setf (,score-list cf) (append (cdr (,score-list cf)) (list score)))
+                                        (multiple-value-bind (new-mu new-sigma) (ts-ar::predict-sdar (,model cf))
+                                          (setf (getf (,stats cf) :pt-1) (multi-gaussian new-mu new-sigma)))
+                                        score)))))
   (defmethod update-ts-score ((cf changefinder) new-dvec)
     (declare (type dvec new-dvec))
     (update-score ts-model last-pt-stats pre-score-list))
@@ -139,11 +146,14 @@
         do (loop for row below dim
                as val = (* val1 (aref x-m row))
               do (setf (aref x-mx-m col row) val)))
+    ; Here be dragons - blass:dgemm aparently does not work with
+    ; multiple dimensional arrays - hmmm
     #+mkl
     (mkl.blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
     #-mkl
     (blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
-    (tr res)))
+    (tr res)
+    ))
 ;; hellinger score
 (defmethod hellinger-distance ((pt-1 multi-gaussian) (pt multi-gaussian))
   (flet ((safe-exp (d) (declare (type double-float d))
