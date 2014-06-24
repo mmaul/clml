@@ -20,4 +20,5 @@
    #:contributions
    #:loading-factors
    #:pca-method
+   #:centroid
    ))

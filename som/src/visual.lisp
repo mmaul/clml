@@ -92,7 +92,7 @@
       (setf (slot-value (entries-entries_flags data) 'skip-empty) nil))
     
     (let ((pathname (make-pathname :name "out"
-                                   :directory (list :relative  directory))))
+                                   :directory directory)))
       
       (compute-visual-data g-data params pathname)
       pathname)))

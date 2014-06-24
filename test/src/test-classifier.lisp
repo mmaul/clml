@@ -3,64 +3,106 @@
 
 (in-package "TEST")
 
-(defun classifier-test (type)
-  (format t "classifier test [type : ~a]~%" type)
-  (let ((train (ecase type
-                 (bc (read-data-from-file
-                      (asdf:system-relative-pathname 'clml "sample/bc.train.csv")
-                      :type :csv
-                      :csv-type-spec (append (make-list 9 :initial-element 'double-float)
-                                             '(symbol))))
-                 (spam (read-data-from-file
-                        (asdf:system-relative-pathname 'clml "sample/spam.train.csv")
-                        :type :csv
-                        :csv-type-spec (append (make-list 55 :initial-element 'double-float)
-                                               '(double-float double-float symbol))))
-                 (german (read-data-from-file
-                          (asdf:system-relative-pathname 'clml "sample/german-credit-train.csv")
+
+(define-test test-classifier-bc
+  (let ((train (read-data-from-file
+                (asdf:system-relative-pathname 'clml "sample/bc.train.csv")
+                :type :csv
+                :csv-type-spec (append (make-list 9 :initial-element 'double-float)
+                                       '(symbol))))
+        (test (read-data-from-file
+               (asdf:system-relative-pathname 'clml "sample/bc.test.csv")
+               :type :csv
+               :csv-type-spec (append (make-list 9 :initial-element 'double-float)
+                                      '(symbol)))))
+
+    (multiple-value-bind (true false per) (classify test train "Class" :double-manhattan)
+      (assert-equalp true 336)
+      (assert-equalp false 9)
+      (assert-true (> per 0.97))
+      )
+    )
+  )
+
+(define-test test-classifier-spam
+  (let ((train (read-data-from-file
+                         (asdf:system-relative-pathname 'clml "sample/spam.train.csv")
+                         :type :csv
+                         :csv-type-spec (append (make-list 55 :initial-element 'double-float)
+                                                '(double-float double-float symbol))))
+        (test (read-data-from-file
+               (asdf:system-relative-pathname 'clml "sample/spam.test.csv")
+               :type :csv
+               :csv-type-spec (append (make-list 55 :initial-element 'double-float)
+                                               '(double-float double-float symbol)))))
+    
+    (multiple-value-bind (true false per) (classify-k-nn test train "type" :double-manhattan)
+      (assert-equalp true 1893)
+      (assert-equalp false 208)
+      (assert-true (> per 0.90))
+      )
+    (multiple-value-bind (true false per) (classify-decision-tree test train "type" :double-manhattan)
+      (print per)
+      (assert-equalp true 1901)
+      (assert-equalp false 200)
+      (assert-true (> per 0.90))
+      )
+    
+    )
+  )
+
+(define-test test-classifier-german
+  (let ((train (read-data-from-file
+                           (asdf:system-relative-pathname 'clml "sample/german-credit-train.csv")
+                           :type :csv
+                           :external-format #+allegro :932 #-allegro :sjis
+                           :csv-type-spec '(string integer string string integer string string integer string string integer string integer string string integer string integer string string string)))
+        (test (read-data-from-file
+                          (asdf:system-relative-pathname 'clml "sample/german-credit-test.csv")
                           :type :csv
                           :external-format #+allegro :932 #-allegro :sjis
-                          :csv-type-spec '(string integer string string integer string string integer string string integer string integer string string integer string integer string string string)))))
-        (test (ecase type
-                (bc (read-data-from-file
-                     (asdf:system-relative-pathname 'clml "sample/bc.test.csv")
-                     :type :csv
-                     :csv-type-spec (append (make-list 9 :initial-element 'double-float)
-                                            '(symbol))))
-                (spam (read-data-from-file
-                       (asdf:system-relative-pathname 'clml "sample/spam.test.csv")
-                       :type :csv
-                       :csv-type-spec (append (make-list 55 :initial-element 'double-float)
-                                              '(double-float double-float symbol))))
-                (german (read-data-from-file
-                         (asdf:system-relative-pathname 'clml "sample/german-credit-test.csv")
-                         :type :csv
-                         :external-format #+allegro :932 #-allegro :sjis
-                         :csv-type-spec '(string integer string string integer string string integer string string integer string integer string string integer string integer string string string)))))
-        (objective-param-name (ecase type
-                                (bc "Class")
-                                (spam "type")
-                                (german "顧客種別")))
-        (manhattan (ecase type
-                     (bc :double-manhattan)
-                     (spam :double-manhattan)
-                     (german :manhattan)))
-        original-data-column-length)
-    (setq original-data-column-length 
-      (length (aref (read-data:dataset-points train) 0)))
-    (format t "Executing k-nn...~%")
-    (let* ((k 5)
-           (k-nn-estimator
-            (k-nn-analyze train k objective-param-name :all :distance manhattan :normalize t)))
-      (loop for data across (dataset-points (k-nn-estimate k-nn-estimator test))
-          with true = 0
-          with false = 0
-          if (equal (aref data 0) (aref data original-data-column-length))
-          do (incf true)
-          else do (incf false)
-          finally (format t "[k-nn(k=~d) result]  true ~d | false ~d | precision :: ~f ~%"
-                          k true false (/ true (+ true false)))))
-    (format t "Executing decision tree...~%")
+                          :csv-type-spec '(string integer string string integer string string integer string string integer string integer string string integer string integer string string string))))
+    (multiple-value-bind (true false per) (classify-k-nn test train "顧客種別" :manhattan)
+      (assert-equalp true 142)
+      (assert-equalp false 58)
+      (assert-true (> per 0.71))
+      )
+    )
+  )
+
+(defun classify-k-nn (test train objective-param-name  manhattan)
+             (let (original-data-column-length)
+               (setq original-data-column-length 
+                     (length (aref (read-data:dataset-points train) 0)))
+               (let* ((k 5)
+                      (k-nn-estimator
+                       (clml.nearest-search.k-nn:k-nn-analyze train k objective-param-name :all :distance manhattan :normalize t)))
+                 (loop for data across (dataset-points (clml.nearest-search.k-nn:k-nn-estimate k-nn-estimator test))
+                    with true = 0
+                    with false = 0
+                    if (equal (aref data 0) (aref data original-data-column-length))
+                    do (incf true)
+                    else do (incf false)
+                    finally (return (values true false (/ true (+ true false))))))
+               ))
+
+(defun classify-decision-tree (test train objective-param-name manhattan)
+  (let ((dc-result (decision-tree-validation test
+                                             objective-param-name
+                                             (make-decision-tree train
+                                                                 objective-param-name))))
+    (loop for ((pred . orig) . c) in dc-result
+       with true = 0
+       with false = 0
+       if (equal pred orig)
+       do (incf true c)
+       else do (incf false c)
+       finally (return (values true false (/ true (+ true false)))))))
+
+#|
+
+
+    (format rstream "Executing decision tree...~%")
     (let ((dc-result (decision-tree-validation test
                                                objective-param-name
                                                (make-decision-tree train
@@ -71,9 +113,11 @@
           if (equal pred orig)
           do (incf true c)
           else do (incf false c)
-          finally (format t "[decision tree result]  true ~d | false ~d | precision :: ~f ~%"
-                          true false (/ true (+ true false)))))
-    (format t "Executing svm...~%")
+         finally (progn
+                   (setq results (append  (pairlist '(:decision-tree-false :decision-tree--precision) (list true false (/ true (+ true false))))))
+                   (format rstream "[decision tree result]  true ~d | false ~d | precision :: ~f ~%"
+                                true false (/ true (+ true false))))))
+    (format rstream "Executing svm...~%")
     (let ((positive-class-label (ecase type
                                   (bc '|malignant|)
                                   (spam '|spam|)
@@ -108,10 +152,11 @@
                   if (funcall svm-classifier data)
                   do (incf false)
                   else do (incf true))
-              (format t "[svm ~a result]  true ~d | false ~d | precision :: ~f ~%"
-                      kernel-name true false (/ true (+ true false))))))))
+              (progn
+                (setq results (append  (pairlist '(:k :k-nn-true :k-nn-false :k-nn-precision) (list k true false (/ true (+ true false))))))
+                (format t "[svm ~a result]  true ~d | false ~d | precision :: ~f ~%"
+                             kernel-name true false (/ true (+ true false))))))
 
-#|
 CL-USER(3): (classifier-test 'bc)
 classifier test [type : BC]
 Executing k-nn...

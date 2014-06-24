@@ -14,29 +14,29 @@
   
   (setf mbnb-learner (apply #'make-mbnb-learner (mbnb-learn bow-train)))
   
-  (assert-equal "cobol" (funcall mbnb-learner (svref bow-test 0)))
+  (assert-equalp "cobol" (funcall mbnb-learner (svref bow-test 0)))
   
-  (assert-equal "cobol" (funcall mbnb-learner (svref bow-test 1)))
+  (assert-equalp "cobol" (funcall mbnb-learner (svref bow-test 1)))
   
-  (assert-equal "cobol" (funcall mbnb-learner (svref bow-test 2)))
+  (assert-equalp "cobol" (funcall mbnb-learner (svref bow-test 2)))
   
-  (assert-equal "lisp" (funcall mbnb-learner (svref bow-test 40)))
+  (assert-equalp "lisp" (funcall mbnb-learner (svref bow-test 40)))
   
-  (assert-equal "lisp" (funcall mbnb-learner (svref bow-test 41)))
+  (assert-equalp "lisp" (funcall mbnb-learner (svref bow-test 41)))
   
-  (assert-equal "lisp" (funcall mbnb-learner (svref bow-test 42)))
+  (assert-equalp "lisp" (funcall mbnb-learner (svref bow-test 42)))
   
   (setf mnb-learner (apply #'make-mnb-learner (mnb-learn bow-train)))
   
-  (assert-equal "cobol" (funcall mnb-learner (svref bow-test 0)))
+  (assert-equalp "cobol" (funcall mnb-learner (svref bow-test 0)))
   
-  (assert-equal "cobol" (funcall mnb-learner (svref bow-test 1)))
+  (assert-equalp "cobol" (funcall mnb-learner (svref bow-test 1)))
   
-  (assert-equal "cobol" (funcall mnb-learner (svref bow-test 2)))
+  (assert-equalp "cobol" (funcall mnb-learner (svref bow-test 2)))
   
-  (assert-equal "lisp" (funcall mnb-learner (svref bow-test 40)))
+  (assert-equalp "lisp" (funcall mnb-learner (svref bow-test 40)))
   
-  (assert-equal "lisp" (funcall mnb-learner (svref bow-test 41)))
+  (assert-equalp "lisp" (funcall mnb-learner (svref bow-test 41)))
   
-  (assert-equal "lisp" (funcall mnb-learner (svref bow-test 42)))
+  (assert-equalp "lisp" (funcall mnb-learner (svref bow-test 42)))
   )

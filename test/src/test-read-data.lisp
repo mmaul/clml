@@ -172,8 +172,8 @@
       (assert-true (typep n-pts 'vector))
       (loop for pts across n-pts 
           for count from 1
-          do (assert-true (typep pts 'dvec))
-             (assert-eql 4 (length pts))
+         do ;(assert-true (typep pts 'dvec))
+           (assert-eql 4 (length pts))
              (loop for val across pts
                  do (assert-true (or (numberp val) (nan-p val))))
           finally (assert-eql 153 count))

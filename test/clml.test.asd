@@ -18,6 +18,12 @@
                              :clml.time-series
                              :clml.svm
                              :clml.classifiers
+                             :clml.association-rule
+                             :clml.nonparametric
+                             :clml.som
+                             :clml.text
+                             :clml.pca
+                             :clml.nearest-search
                              :clml.test-package
                              )
                 :components (
@@ -48,7 +54,7 @@
                              (:file "test-classifier")
                              (:file "test-dpm")
                              (:file "test-hdp-lda")
-                             ;(:file "test-k-means")
+                             (:file "test-k-means")
                              (:file "test-k-nn")
                              (:file "test-matrix")
                              (:file "test-missing-value")
@@ -57,7 +63,7 @@
                              (:file "test-som")
                              (:file "test-svr")
                              (:file "test-text-utils")
-                             
+                             (:file "test-read-data")
                              (:file "test-groups")
                              )
                 )

@@ -9,13 +9,13 @@
       (assert-true (setf dataset (pick-and-specialize-data
                                   dataset :range '(2 3) :data-types '(:numeric :numeric))))
       (assert-true (multiple-value-setq (pca-result pca-model)
-                     (princomp dataset :method :correlation)))
+                     (clml.pca:princomp dataset :method :correlation)))
       ;; check pca-result pca-model
       (assert-points-equal
        #(#(-0.18646787691278618d0 -0.5587877417431286d0) #(-0.2586922124306382d0 -0.6310120772609806d0)
          #(0.08929776779173992d0 -0.2830220970386028d0) #(-0.311219001898167d0 -0.6835388667285094d0)
          #(-0.19303372559622725d0 -0.5653535904265697d0) #(-0.19303372559622725d0 -0.5653535904265697d0)
-         #(-0.19303372559622725d0 -0.5653535904265697d0) #(-1.9046466459275095d0 1.014942356235892d0)%
+         #(-0.19303372559622725d0 -0.5653535904265697d0) #(-1.9046466459275095d0 1.014942356235892d0)
          #(0.20748304409367965d0 -0.1648368207366632d0) #(0.161522103309592d0 -0.21079776152075083d0))
        (clml.pca:components pca-result)
        :test (lambda (v1 v2) (epsilon> (abs v1) (abs v2))))
@@ -30,14 +30,19 @@
                              #(0.7071067811865478d0 0.7071067811865472d0))
                            (clml.pca:loading-factors pca-model)
                            :test (lambda (v1 v2) (epsilon> (abs v1) (abs v2))))
+      (print (clml.pca:centroid pca-result))
       (assert-a-point-equal #(1.2262030207235688d0 185.75242109488684d0)
-                            (centroid pca-result))
+                            (clml.pca:centroid pca-result)
+                            )
+
+      (print "----")
       (assert-a-point-equal #(1.2262030207235688d0 185.75242109488684d0)
-                            (centroid pca-model))
+                            (clml.pca:centroid pca-model))
+      
       (assert-eq :correlation (clml.pca:pca-method pca-result))
       (assert-eq :correlation (clml.pca:pca-method pca-model))
       
-      (assert-true (setf proj-vecs (princomp-projection dataset pca-model)))
+      (assert-true (setf proj-vecs (clml.pca:princomp-projection dataset pca-model)))
       (assert-points-equal (clml.pca:components pca-result) proj-vecs :test #'=)
       
       (let ((eyes (pick-and-specialize-data
@@ -49,8 +54,8 @@
         (multiple-value-setq (for-learn for-estimate)
           (divide-dataset eyes :divide-ratio '(1 1) :range (loop for i from 0 to 51 collect i)))
         (multiple-value-setq (pca-result pca-model)
-          (princomp (divide-dataset for-learn :except '(0)) :method :covariance))
-        (loop with estimator = (make-face-estimator for-learn :dimension-thld 5 :method :eigenface
+          (clml.pca:princomp (divide-dataset for-learn :except '(0)) :method :covariance))
+        (loop with estimator = (clml.pca:make-face-estimator for-learn :dimension-thld 5 :method :eigenface
                                                     :pca-result pca-result :pca-model pca-model)
             for vec across (dataset-numeric-points for-estimate)
             for expected in 
@@ -71,7 +76,7 @@
         (multiple-value-setq (for-learn for-estimate)
           (divide-dataset eyes :divide-ratio '(1 1) :random t)))
       (multiple-value-setq (pca-result pca-model)
-        (princomp (divide-dataset for-learn :except '(0)) :method :covariance))
+        (clml.pca:princomp (divide-dataset for-learn :except '(0)) :method :covariance))
 
       (flet ((check-estimate-result (result estimator)
                (loop for pts across (dataset-numeric-points result)

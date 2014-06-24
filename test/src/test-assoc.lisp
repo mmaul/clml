@@ -46,7 +46,7 @@
              #(("商品名=菓子") ("商品名=野菜" "商品名=乳製品")
                7.695690413368514d0 27.04791344667697d0 1.28407f0 1.0820224f0))))
       (assert-true
-       (setf result (association-analyze (asdf:system-relative-pathname 'clml "sample/pos.sexp") "sample/result.sexp"
+       (setf result (association-analyze (asdf:system-relative-pathname 'clml "sample/pos.sexp") (asdf:system-relative-pathname 'clml "sample/result.sexp")
                                          '("商品名") "ID番号" 3 
                                          :support 2 :external-format #+allegro :932 #-allegro :sjis)))
       (loop for rule1 in expected-result

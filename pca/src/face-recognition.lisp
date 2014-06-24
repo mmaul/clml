@@ -1,5 +1,5 @@
 
-(in-package :hjs.learn.pca)
+(in-package :clml.pca)
 
 (defun alist-count (list &key (test #'eq))
   (loop with alist for item in list

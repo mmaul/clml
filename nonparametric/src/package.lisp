@@ -51,7 +51,7 @@
 	   :*randomize-trace*))
 
 
-(defpackage clml.nonparametric.dpm
+(defpackage :clml.nonparametric.dpm
   (:nicknames :dpm :nonparametric.dpm)
   (:use :cl
         :hjs.util.meta

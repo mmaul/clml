@@ -19,10 +19,12 @@
    :clml.time-series.anomaly-detection
    :clml.time-series.exponential-smoothing
    :clml.time-series.burst-detection
-   :clml.pca
+   ;:clml.pca
    :CHANGEFINDER
    :hc
    ;"K-MEANS"
+   :hjs.util.matrix
+   :hjs.util.vector
                                         ;"K-NN"
    :hjs.learn.k-means
    :hjs.util.missing-value
@@ -30,14 +32,18 @@
    :optics
    ;"PCA"
    ;"SOM"
+   
    :spectral-clustering
    :clml.svm.mu
    :clml.svm.smo
    :clml.svm.wss3
    :clml.svm.pwss3 ; make-polynomial-kernel conflict
    :clml.svm.one-class
+   :clml.svm.svr
    :clml.classifiers.linear-regression
-   ;"SVR"
+      :clml.classifiers.nbayes
+   :clml.nonparametric.hdp-lda
+                                        ;"SVR"
    ;"ONE-CLASS-SVM"
    ;"NBAYES"
    ;"MATRIX"
@@ -46,7 +52,12 @@
    ;"TS-BURST-DETECTION"
    ;"HDP-LDA"
    ;"DPM"
-   ;"TEXT-UTILITIES"
+                                        ;"TEXT-UTILITIES"
+   :clml.text.utilities
+   ;:clml.nonparametric.dpm
+   :clml.association-rule
+   :clml.som
+   ;:clml.pca
    )
   (:shadow :make-polynomial-kernel :make-svm-learner :make-rbf-kernel :make-svm-validation
            :svm-validation :load-svm-learner :make-svm-kernel :make-linear-kernel

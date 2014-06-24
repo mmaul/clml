@@ -25,10 +25,10 @@
       
       (assert-true 
        (setf estimator
-         (k-nn-analyze data-for-learn 2 "id" :all :distance :manhattan :normalize t)))
+         (clml.nearest-search.k-nn:k-nn-analyze data-for-learn 2 "id" :all :distance :manhattan :normalize t)))
       (destructuring-bind (&key k target explanatories distance mins maxs
                                 vec-weight vecs vec-profiles teachers esttype &allow-other-keys)
-          (estimator-properties estimator :verbose t)
+          (clml.nearest-search.k-nn:estimator-properties estimator :verbose t)
         (assert-true (string= "id" target))
         (assert-true (set-equal (loop for dim across (dataset-dimensions data-for-learn)
                                     as name = (dimension-name dim)
@@ -65,7 +65,7 @@
                                 :type :csv
                                 :csv-type-spec (make-list 105 :initial-element 'double-float))))
 
-        (assert-true (setf result (k-nn-estimate estimator data-for-estimate)))
+        (assert-true (setf result (clml.nearest-search.k-nn:k-nn-estimate estimator data-for-estimate)))
         (assert-true (set-equal
                       '("24" "27" "31" "17" "110" "49" "58" "30" "58" "71" "96" "96" "152"
                         "116" "80" "128" "188" "97" "167" "197" "196" "196" "196")

@@ -14,7 +14,7 @@
               do (assert-a-point-equal org-pt res-pt :test #'=)
                  (push res-pt (gethash (aref cluster-id-pt 0) hash)))
           (loop for info in cluster-infos
-              as id = (getf info :cluster-id)
+              as id = (getf info :clnuster-id)
               as size = (getf info :size)
               as center = (getf info :center)
               as std = (getf info :std)

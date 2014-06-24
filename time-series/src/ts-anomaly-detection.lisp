@@ -7,11 +7,13 @@
                              &key beta (typical :svd) (pc 0.005d0) (normalize t))
   (assert (< 0d0 pc 1d0) (pc))
   (let* ((dim (length (dataset-dimensions ts)))
+         
          (vecs (map 'list
                  (lambda (p) (let ((vec (ts-p-pos p)))
                                (if normalize (normalize-vec vec (copy-seq vec)) vec)))
                  (ts-points ts)))
          (moments (get-initial-moments vecs :typical-method typical)))
+    
     (unless beta (setf beta (dfloat (/ (length vecs)))))
     (lambda (new-dvec)
       (assert (eql (length new-dvec) dim))
@@ -433,6 +435,7 @@
       (third (multiple-value-list
               #+mkl
               (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
+              ; dragons be here - errors is not of type (VECTOR DOUBLE-FLOAT)
               #-mkl           
               (lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info))))
     (assert (= info 0))    
@@ -453,6 +456,7 @@
              (incf sf val)))
     (do-vec (val pattern :type double-float :setf-var sf :return pattern)
       (setf sf (/ val size)))))
+
 (defun calc-typical-pattern (act-vecs &key (method :svd)) ;; :svd | :mean
   (ecase method
     (:svd (typical-pattern-svd act-vecs))

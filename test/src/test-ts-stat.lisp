@@ -5,10 +5,10 @@
     (let (ukgas useco)
       (assert-true 
        (setq ukgas 
-         (time-series-data (read-data-from-file "sample/UKgas.sexp")
+             (time-series-data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/UKgas.sexp"))
                            :range '(1) :time-label 0)
          useco
-         (time-series-data (read-data-from-file "sample/USeconomic.sexp"))))
+         (time-series-data (read-data-from-file (asdf:system-relative-pathname 'clml "sample/USeconomic.sexp")))))
       (assert-false (acf useco))
       (assert-false (ccf (sub-ts useco :range '(0)) (sub-ts useco :range '(1))))
       (assert-false (periodgram ukgas))))

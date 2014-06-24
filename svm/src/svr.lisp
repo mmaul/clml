@@ -27,7 +27,8 @@
 (defun qp-solver (training-vector kernel-function c epsilon)
   "for svr"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+           #-sbcl
+           (type function kernel-function)
 	   (type double-float c epsilon))
   
   (setf *training-size* (length training-vector))
@@ -62,7 +63,7 @@
 	do (multiple-value-bind (i j) 
 	       (working-set-selection3 training-vector kernel-function c)
 	     (declare (type fixnum i j))
-	     (when (= -1 j)
+         (when (= -1 j)
 	      (return-from qp-solver *alpha-array*))
 	    
 	     (let ((y-i (label i))
@@ -115,7 +116,8 @@
 (defun update-gradient (training-vector kernel-function i j old-a-i old-a-j)
   "for svr"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+           #-sbcl
+           (type function kernel-function)
 	   (type double-float old-a-i old-a-j))
   
   (let* ((alpha-array *alpha-array*)
@@ -152,7 +154,8 @@
 (defun working-set-selection3 (training-vector kernel-function c)
   "for svr"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+           #- sbcl
+           (type function kernel-function)
 	   (type double-float c))
   
   (let ((i -1)
@@ -208,7 +211,8 @@
 (defun select-j (training-vector kernel-function c i g-max)
   "for svr"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+           #- sbcl
+           (type function kernel-function)
 	   (type double-float c))
   
   (let ((training-size *training-size*)
@@ -233,12 +237,14 @@
         with b of-type double-float  = 0.0d0
         if (or (and (= y-k 1.0d0) (> a-k 0.0d0))
                (and (= y-k -1.0d0) (< a-k c)))
-	do (setf b (- g-max g-temp))
+       do (setf b (- g-max g-temp))
+         
 	   (when (<= g-temp g-min)
 	     (setf g-min g-temp))
 	   (when (> b 0.0d0)
 	     (setf a (the double-float (eta training-vector kernel-function i k)))
-	     (when (<= a 0.0d0)
+         
+         (when (<= a 0.0d0)
 	       (setf a tau))
 	     (let ((temp (/ (- (* b b)) a)))
 	       (declare (type double-float temp))
@@ -257,16 +263,18 @@
 (defun eta (training-vector kernel-function i j)
   "for svr"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+           #-sbcl
+           (type function kernel-function)
   	   (type fixnum i j)
            (ignorable kernel-function training-vector))
   
   (let* ((training-size *training-size*)
-	 (point-i (svref training-vector (mod i training-size)))
-	 (point-j (svref training-vector (mod j training-size))))
+         (point-i (svref training-vector (mod i training-size)))
+         
+         (point-j (svref training-vector (mod j training-size))))
     
     (declare (type (simple-array double-float (*)) point-i point-j))
-    
+    ; sbcl error in call-kernel-function
     (+ (call-kernel-function kernel-function point-i point-i)
        (call-kernel-function kernel-function point-j point-j)
        (* -2.0d0 (call-kernel-function kernel-function point-i point-j)))))
@@ -309,7 +317,8 @@
 (defun compute-b (training-vector kernel-function c epsilon alpha-array)
   "for svr"
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+           #- sbcl
+           (type function kernel-function)
 	   (type (simple-array double-float (*)) alpha-array)
 	   (type double-float c epsilon)
            (ignorable kernel-function))
@@ -349,7 +358,8 @@
 
 (defun make-regression-function (training-vector kernel-function alpha-array b)
   (declare (type simple-vector training-vector)
-	   (type function kernel-function)
+           #-sbcl
+           (type function kernel-function)
 	   (type (simple-array double-float (*)) alpha-array)
 	   (type double-float b)
            (ignorable kernel-function))
@@ -375,8 +385,9 @@
 (defun make-svr-learner (training-vector kernel-function &key c epsilon file-name external-format)
   (assert (and (plusp c) (plusp epsilon)))
   (let* ((cc (coerce c 'double-float))
-	 (alpha-array (qp-solver training-vector kernel-function cc epsilon))
-	 (b (compute-b training-vector kernel-function cc epsilon alpha-array)))
+         (alpha-array (qp-solver training-vector kernel-function cc epsilon))
+         (b (compute-b training-vector kernel-function cc epsilon alpha-array)))
+    
     (when (and file-name external-format)
       (with-open-file (out file-name
 		       :external-format external-format

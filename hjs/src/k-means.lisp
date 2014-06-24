@@ -46,15 +46,19 @@ Otherwise, you must use :auto for random-seed."))
 ;;;; data and type definition
 (deftype id () 'fixnum)
 
+
 (defstruct (cluster (:conc-name c-)
-		    (:constructor %make-cluster (id center))
-		    (:copier copy-cluster))
+                    
+                    (:constructor %make-cluster (id center))
+                    
+                    (:copier copy-cluster))
   (id -1 :type id)
   (center #.(make-dvec 0) :type dvec)
   (old-center #.(make-dvec 0) :type dvec)
   (size 0 :type fixnum)
   (points nil :type list)
   )
+
 
 (defun make-cluster (id center)
   (let ((center (coerce center 'dvec)))
@@ -64,12 +68,13 @@ Otherwise, you must use :auto for random-seed."))
       (setf (c-old-center result) (copy-seq center))
       result)))
 
+
 (defstruct (point (:conc-name p-)
-		  (:constructor %make-point (id pos))
-		  (:copier copy-point))
+                  (:constructor %make-point (id pos))
+                  (:copier copy-point))
   (id -1 :type id)
   (pos #.(make-dvec 0) :type dvec)
-  (owner nil)                           ; :type cluster
+  (owner nil :type cluster)                           ; 
   )
 
 (defun make-point (id pos)
@@ -102,6 +107,39 @@ Otherwise, you must use :auto for random-seed."))
   (let ((cluster (find cid (pw-clusters object) :test #'eql :key #'c-id)))
     (when cluster
       (coerce (mapcar #'p-pos (c-points cluster)) 'vector))))
+
+(defun update-lower-bounds (problem-workspace)
+  (let* ((clusters (pw-clusters problem-workspace))
+	 (nclusters (length clusters))
+	 (distance-between-clusters (pw-distance-between-clusters problem-workspace))
+	 (lower-bounds (pw-lower-bounds problem-workspace)))
+    (declare (type dmat distance-between-clusters) 
+	     (type dvec lower-bounds)
+	     (type array-index nclusters)
+	     (optimize speed (safety 0)))
+    (assert (= (length lower-bounds) nclusters))
+    ;; compute d(c,c') and s(c)
+    ;; ref: elkan's paper on k-means using triangle inequality
+    (do-vec (c1 clusters :type cluster :index-var ic1)
+      (do-vec (c2 clusters :type cluster :index-var ic2)
+	(if (= ic1 ic2)
+	    (setf (aref distance-between-clusters ic1 ic2)
+		  most-positive-double-float) ; avoid mistake even ic1 = ic2
+	    (when (> ic1 ic2)
+	      (let ((distance (distance (c-center c1) (c-center c2))))
+		(setf (aref distance-between-clusters ic1 ic2) distance)
+		(setf (aref distance-between-clusters ic2 ic1) distance))))))
+    (loop  
+       with len of-type array-index = (length lower-bounds)
+       for i of-type array-index below len
+       do (setf (aref lower-bounds i)
+		(let ((min 0d0))	; trick, otherwise ACL will try to box the float...
+		  (declare (type double-float min))
+		  (loop
+		     for j of-type array-index below len
+		     minimize (aref distance-between-clusters i j) into result of-type double-float
+		     finally (setf min (/ result 2d0)))
+		  min)))))
 
 (defun make-problem-space (points clusters)
   (check-type points (simple-array point))
@@ -141,19 +179,6 @@ Otherwise, you must use :auto for random-seed."))
     result))
 
 ;;;; mainbody
-;;; find-closest-cluster
-(defun find-closest-cluster (point clusters &key (distance-fn *distance-function*))
-  (cond ((or (eq 'euclid-distance distance-fn)
-	     (eq #'euclid-distance distance-fn))
-	 (%find-closest-cluster-euclid-distance point clusters))
-	((or (eq 'manhattan-distance distance-fn)
-	     (eq #'manhattan-distance distance-fn))
-	 (%find-closest-cluster-manhattan-distance point clusters))
-	((or (eq 'cosine-distance distance-fn)
-	     (eq #'cosine-distance distance-fn))
-	 (%find-closest-cluster-cosine-distance point clusters))
-	(t
-	 (%find-closest-cluster-euclid-distance point clusters))))
 
 (defun %find-closest-cluster-euclid-distance (point clusters)
   (declare (type dvec point)
@@ -206,6 +231,21 @@ Otherwise, you must use :auto for random-seed."))
     (values nearest-cluster
 	    nearest-distance)))
 
+;;; find-closest-cluster
+(defun find-closest-cluster (point clusters &key (distance-fn *distance-function*))
+  (cond ((or (eq 'euclid-distance distance-fn)
+	     (eq #'euclid-distance distance-fn))
+	 (%find-closest-cluster-euclid-distance point clusters))
+	((or (eq 'manhattan-distance distance-fn)
+	     (eq #'manhattan-distance distance-fn))
+	 (%find-closest-cluster-manhattan-distance point clusters))
+	((or (eq 'cosine-distance distance-fn)
+	     (eq #'cosine-distance distance-fn))
+	 (%find-closest-cluster-cosine-distance point clusters))
+	(t
+	 (%find-closest-cluster-euclid-distance point clusters))))
+
+
 ;;; not useful here.
 (define-compiler-macro find-closest-cluster (&whole form point clusters &key (distance-fn *distance-function*))
   (if  (and (listp distance-fn)
@@ -225,6 +265,20 @@ Otherwise, you must use :auto for random-seed."))
 
 
 ;;;; k-means logic
+
+
+;;@ depends-on:
+;;@  - *random-state*
+(defun %pick-initial-clusters-randomly (num datapoints)
+  (iter (generate count from 0 below num)
+	(with size = (length datapoints))
+	(for n = (random size *k-means-random-state*))
+	(when (not (find n selected))
+	  (next count)
+	  (collect n into selected)
+	  (let ((c (make-cluster count (aref datapoints n)))) 
+	    (collect c into result result-type vector)))
+	(finally (return result))))
 
 ;;; pick initial points for clusters
 ;;@ function-type: integer -> #(point) -> #(cluster)
@@ -254,53 +308,6 @@ Otherwise, you must use :auto for random-seed."))
 	  (num)
 	  "number of clusters must be less than the number of datapoints")
   (%pick-initial-clusters-randomly num datapoints))
-
-;;@ depends-on:
-;;@  - *random-state*
-(defun %pick-initial-clusters-randomly (num datapoints)
-  (iter (generate count from 0 below num)
-	(with size = (length datapoints))
-	(for n = (random size *k-means-random-state*))
-	(when (not (find n selected))
-	  (next count)
-	  (collect n into selected)
-	  (let ((c (make-cluster count (aref datapoints n)))) 
-	    (collect c into result result-type vector)))
-	(finally (return result))))
-
-(defun update-lower-bounds (problem-workspace)
-  (let* ((clusters (pw-clusters problem-workspace))
-	 (nclusters (length clusters))
-	 (distance-between-clusters (pw-distance-between-clusters problem-workspace))
-	 (lower-bounds (pw-lower-bounds problem-workspace)))
-    (declare (type dmat distance-between-clusters) 
-	     (type dvec lower-bounds)
-	     (type array-index nclusters)
-	     (optimize speed (safety 0)))
-    (assert (= (length lower-bounds) nclusters))
-    ;; compute d(c,c') and s(c)
-    ;; ref: elkan's paper on k-means using triangle inequality
-    (do-vec (c1 clusters :type cluster :index-var ic1)
-      (do-vec (c2 clusters :type cluster :index-var ic2)
-	(if (= ic1 ic2)
-	    (setf (aref distance-between-clusters ic1 ic2)
-		  most-positive-double-float) ; avoid mistake even ic1 = ic2
-	    (when (> ic1 ic2)
-	      (let ((distance (distance (c-center c1) (c-center c2))))
-		(setf (aref distance-between-clusters ic1 ic2) distance)
-		(setf (aref distance-between-clusters ic2 ic1) distance))))))
-    (loop  
-       with len of-type array-index = (length lower-bounds)
-       for i of-type array-index below len
-       do (setf (aref lower-bounds i)
-		(let ((min 0d0))	; trick, otherwise ACL will try to box the float...
-		  (declare (type double-float min))
-		  (loop
-		     for j of-type array-index below len
-		     minimize (aref distance-between-clusters i j) into result of-type double-float
-		     finally (setf min (/ result 2d0)))
-		  min)))))
-
 
 ;;; find the cluster once
 ;;@ function-type: #(cluster) -> #(point) -> #(cluster)

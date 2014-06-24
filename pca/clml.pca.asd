@@ -9,12 +9,12 @@
                 :pathname "src/"
                 :serial t
                 :depends-on (:hjs
-                         
+                             :clml.decision-tree
                              :clml.pca.package
                              )
                 :components (
                              (:file "pca")
-                             
+                             (:file "face-recognition")
                              ))
 (asdf:defsystem :clml.pca.examples
                 :pathname "examples/"

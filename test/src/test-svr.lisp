@@ -23,7 +23,7 @@
       
       (setf test-vector (dataset-points svm-bc-test))
       
-      (setf linear-svr (make-svr-learner training-vector (make-linear-kernel) :c 0.1d0 :epsilon 0.01d0))
+      (setf linear-svr (make-svr-learner training-vector (clml.svm.wss3:make-linear-kernel) :c 0.1d0 :epsilon 0.01d0))
       
       (assert-eql  0.9828423479679607d0 (funcall linear-svr (svref test-vector 0)))
       
@@ -31,7 +31,7 @@
       
       (assert-eql 0.172803340477296d0 (svr-validation linear-svr test-vector))
       
-      (setf rbf-kernel (make-rbf-kernel :gamma 0.05d0))
+      (setf rbf-kernel (clml.svm.wss3:make-rbf-kernel :gamma 0.05d0))
       
       (setf rbf-svr (make-svr-learner training-vector rbf-kernel :c 1 :epsilon 0.01d0))
       

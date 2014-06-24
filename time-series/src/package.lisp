@@ -164,6 +164,7 @@
         :hjs.util.meta
         :hjs.util.vector
         :hjs.learn.vars
+        :hjs.learn.read-data
         :clml.time-series.read-data)
   (:nicknames :expl-smoothing :exponential-smoothing)
   (:export
@@ -171,7 +172,8 @@
    #:best-double-exp-parameters
    #:best-triple-exp-parameters
    #:holtwinters
-   #:holtwinters-prediction))
+   #:holtwinters-prediction
+   ))
 
 (defpackage :clml.time-series.burst-detection
   (:use :cl :read-data :handling-missing-value

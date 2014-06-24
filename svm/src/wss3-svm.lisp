@@ -127,6 +127,7 @@
     (setf (head-prev lru-head) lru-head)
     (%make-cache total size heads lru-head)))
 
+
 ;;
 (defmacro swap (a b)
   ;; `(psetf ,a ,b ,b ,a)
@@ -845,4 +846,5 @@
       sum (expt (- (aref z-i k) (aref z-j k)) 2)
         into result of-type double-float
       finally (return (d-exp (* (- gamma) result))))))
+
 
