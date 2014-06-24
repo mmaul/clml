@@ -34,30 +34,43 @@
   (sb-int::set-floating-point-modes
    :traps
    (remove :invalid (getf (sb-int:get-floating-point-modes) :traps))))
+#+ccl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+ (ccl::set-fpu-mode :invalid nil))
 
-(defconstant *nan* 
-    #+ccl double-float
-    #+allegro excl:*nan-double*
-    #+sbcl #.(- #.sb-ext:double-float-positive-infinity #.sb-ext:double-float-positive-infinity)
-    #+lispworks system::*double-float-nan*)
-    
-(defconstant *+inf*
-    #+ccl 1D++0
-    #+allegro excl:*infinity-double*
-    #+sbcl #.sb-ext:double-float-positive-infinity
-    #+lispworks 1D++0)
-(defconstant *-inf*
-    #+ccl -1d++0
-    #+allegro excl:*negative-infinity-double*
-    #+sbcl #.sb-ext:double-float-negative-infinity
-    #+lispworks -1D++0)
-;; NaN for category, assume that categorical data is serialized by positive integer
-(defconstant *c-nan* 0)
+(eval-when (:execute :compile-toplevel :load-toplevel)
+ (defconstant *nan* 
+   #+ccl ccl::double-float-nan ;1d+-0 ;double-float
+   #+allegro excl:*nan-double*
+   #+sbcl #.(- #.sb-ext:double-float-positive-infinity #.sb-ext:double-float-positive-infinity)
+   #+lispworks system::*double-float-nan*)
+ 
+ (defconstant *+inf*
+   #+ccl 1D++0
+   #+allegro excl:*infinity-double*
+   #+sbcl #.sb-ext:double-float-positive-infinity
+   #+lispworks 1D++0)
+ (defconstant *-inf*
+   #+ccl -1d++0
+   #+allegro excl:*negative-infinity-double*
+   #+sbcl #.sb-ext:double-float-negative-infinity
+   #+lispworks -1D++0)
+ ;; NaN for category, assume that categorical data is serialized by positive integer
+ (defconstant *c-nan* 0))
+
+#+ccl
+(defun float-nan-p (x)
+  (and (ccl::nan-or-infinity-p x)
+       (not (ccl::infinity-p x))))
+
+
 
 (defun nan-p (value)
   #+allegro (excl::nan-p value)
   #+sbcl (and (floatp value) (sb-ext:float-nan-p value))
+  #+ccl (float-nan-p value)
   #+lispworks (sys::nan-p value))
+
 (defun c-nan-p (value) (and (numberp value) (= value *c-nan*)))
 (defun na-p (value &key na-string (type :numeric)) ; :numeric | :category
   (or (case type (:numeric (nan-p value)) (:category (c-nan-p value)))

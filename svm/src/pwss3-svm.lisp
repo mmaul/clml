@@ -122,19 +122,20 @@
 |#
 
 ;;;; a circular list
-(defconstant +double-float-in-bytes+ 8)
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (defconstant +double-float-in-bytes+ 8)
 
-(defstruct head
-  prev
-  next
-  data                          ; data[0, len) is cached in this entry
-  (len 0 :type fixnum))
+  (defstruct head
+    prev
+    next
+    data                          ; data[0, len) is cached in this entry
+    (len 0 :type fixnum))
 
-(defstruct (cache (:constructor %make-cache (total size heads lru-head)))
-  (total 0 :type fixnum)
-  (size #.(* 100 1024 1024) :type fixnum) ; size of free space (bytes)
-  (heads #() :type (simple-array head (*)))
-  (lru-head (make-head) :type head))
+  (defstruct (cache (:constructor %make-cache (total size heads lru-head)))
+    (total 0 :type fixnum)
+    (size #.(* 100 1024 1024) :type fixnum) ; size of free space (bytes)
+    (heads #() :type (simple-array head (*)))
+    (lru-head (make-head) :type head)))
 
 (defun make-cache (total size)
   (let* ((heads (coerce (loop repeat total collect (make-head)) 'vector))

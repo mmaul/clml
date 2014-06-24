@@ -103,15 +103,16 @@
       finally (return (d-exp (* (- gamma) result))))))
 
 |#
-
+(
+ eval-when (:compile-toplevel :load-toplevel :execute)
 ;;;; a circular list
-(defconstant +double-float-in-bytes+ 8)
+  (defconstant +double-float-in-bytes+ 8)
 
-(defstruct head
-  prev
-  next
-  data                          ; data[0, len) is cached in this entry
-  (len 0 :type fixnum))
+  (defstruct head
+    prev
+    next
+    data                          ; data[0, len) is cached in this entry
+    (len 0 :type fixnum)))
 
 (defstruct (cache (:constructor %make-cache (total size heads lru-head)))
   (total 0 :type fixnum)

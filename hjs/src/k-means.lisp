@@ -46,18 +46,18 @@ Otherwise, you must use :auto for random-seed."))
 ;;;; data and type definition
 (deftype id () 'fixnum)
 
-
-(defstruct (cluster (:conc-name c-)
-                    
-                    (:constructor %make-cluster (id center))
-                    
-                    (:copier copy-cluster))
-  (id -1 :type id)
-  (center #.(make-dvec 0) :type dvec)
-  (old-center #.(make-dvec 0) :type dvec)
-  (size 0 :type fixnum)
-  (points nil :type list)
-  )
+(eval-when (:execute :compile-toplevel :load-toplevel)
+  (defstruct (cluster (:conc-name c-)
+                      
+                      (:constructor %make-cluster (id center))
+                      
+                      (:copier copy-cluster))
+    (id -1 :type id)
+    (center #.(make-dvec 0) :type dvec)
+    (old-center #.(make-dvec 0) :type dvec)
+    (size 0 :type fixnum)
+    (points nil :type list)
+    ))
 
 
 (defun make-cluster (id center)
@@ -68,20 +68,20 @@ Otherwise, you must use :auto for random-seed."))
       (setf (c-old-center result) (copy-seq center))
       result)))
 
-
-(defstruct (point (:conc-name p-)
-                  (:constructor %make-point (id pos))
-                  (:copier copy-point))
-  (id -1 :type id)
-  (pos #.(make-dvec 0) :type dvec)
-  (owner nil :type cluster)                           ; 
-  )
-
-(defun make-point (id pos)
-  (let ((pos (coerce pos 'dvec)))
-    (check-type id id)
-    (check-type pos dvec)
-    (%make-point id pos)))
+(eval-when (:execute :compile-toplevel :load-toplevel)
+  (defstruct (point (:conc-name p-)
+                    (:constructor %make-point (id pos))
+                    (:copier copy-point))
+    (id -1 :type id)
+    (pos #.(make-dvec 0) :type dvec)
+    (owner nil )                           ;:type cluster 
+    ))
+(eval-when (:execute :compile-toplevel :load-toplevel)
+ (defun make-point (id pos)
+   (let ((pos (coerce pos 'dvec)))
+     (check-type id id)
+     (check-type pos dvec)
+     (%make-point id pos))))
 
 (defstruct (problem-workspace (:conc-name pw-)
 			      (:constructor %make-problem-space (points clusters))

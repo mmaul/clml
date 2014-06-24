@@ -309,10 +309,11 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; trend model (1-dimensional) ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defclass trend-model (gaussian-stsp-model)
-  ((diff-k :initarg :diff-k :initform nil :type integer :accessor diff-k)
-   (tau^2 :initarg :tau^2 :initform nil :type number :accessor tau^2)
-   (aic :initarg :aic :initform *nan* :type number)))
+(eval-when (:execute :compile-toplevel :load-toplevel)
+ (defclass trend-model (gaussian-stsp-model)
+   ((diff-k :initarg :diff-k :initform nil :type integer :accessor diff-k)
+    (tau^2 :initarg :tau^2 :initform nil :type number :accessor tau^2)
+    (aic :initarg :aic :initform *nan* :type number))))
 
 (defmethod print-object ((model trend-model) stream)
   (with-accessors ((k diff-k) (t^2 tau^2) (ts observed-ts)) model
