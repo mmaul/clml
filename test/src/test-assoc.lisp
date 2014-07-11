@@ -48,13 +48,13 @@
       (assert-true
        (setf result (association-analyze (asdf:system-relative-pathname 'clml "sample/pos.sexp") (asdf:system-relative-pathname 'clml "sample/result.sexp")
                                          '("商品名") "ID番号" 3 
-                                         :support 2 :external-format #+allegro :932 #-allegro :sjis)))
+                                         :support 2 :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
       (loop for rule1 in expected-result
           for rule2 in (assoc-result-rules result)
           do (assert-true (rule-equal rule1 rule2)))
       (loop with rules = (assoc-result-rules result)
           for rule in 
-            (with-open-file (in (asdf:system-relative-pathname 'clml "sample/result.sexp") :external-format #+allegro :932 #-allegro :sjis) (read in))
+            (with-open-file (in (asdf:system-relative-pathname 'clml "sample/result.sexp") :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j) (read in))
           for i from 0
           do (if (= i 0) 
                  (assert-true 
@@ -62,7 +62,7 @@
                              (coerce rule 'list) :test #'string=))
                (assert-true (rule-equal rule (nth (1- i) rules)))))
       (assert-true 
-       (setf dataset (read-data-from-file (asdf:system-relative-pathname 'clml "sample/pos.sexp") :external-format #+allegro :932 #-allegro :sjis)))
+       (setf dataset (read-data-from-file (asdf:system-relative-pathname 'clml "sample/pos.sexp") :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
       
       ;; verify rule indexes
       (let* ((key-pos (dimension-index (find "ID番号" (dataset-dimensions dataset)

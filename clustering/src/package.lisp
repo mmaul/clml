@@ -103,7 +103,8 @@
   (:import-from :hjs.learn.k-means :point)
   #+ccl
   (:import-from :ccl :fixnump)
-  (:export 
+  (:export
+   :default-init-workspace
    :*workspace*
    :dunn-index
    :davies-bouldin-index
@@ -134,3 +135,11 @@
            #:get-cluster-centroids
            #:get-cluster-points
 	   ))
+#+sbcl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (sb-int::set-floating-point-modes
+   :traps
+   (remove :invalid (getf (sb-int:get-floating-point-modes) :traps))))
+#+ccl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+ (ccl::set-fpu-mode :invalid nil))

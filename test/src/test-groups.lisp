@@ -56,7 +56,7 @@
                                         ;test-sample-dpm ; gaussian-dpm does not exist
                                         ;test-sample-hdp-lda
                                            ))
-(defparameter *som-test-group '(test-sample-som))
+(defparameter *som-test-group* '(test-sample-som))
 
 (defparameter *text-test-group* '(test-sample-text-utils))
 

@@ -21,6 +21,7 @@
   #+sbcl (sb-kernel:with-array-data ((v array) (sv) (ev))
            (declare (ignorable sv ev))
            v)
+  #+ccl (ccl::array-data-and-offset array)
   )
 
 ;;; do-matrix
@@ -338,8 +339,8 @@
     (declare (type array-index nrow ncol)
              (type dvec array flatmat))
     (loop for i of-type array-index below (* nrow ncol)
-          do
-       (setf (aref array i) (aref flatmat i)))
+       do 
+         (setf (aref array i) (aref flatmat i)))
     array))
 
 ;;; array -> matrix
@@ -488,16 +489,35 @@
          (work (make-array lwork :element-type 'double-float))
          (info 0))
     (assert (= m n))
+    (format t "IPIV: ~a" ipiv)
+    (f2cl-lib:with-multi-array-data ((ipiv f2cl-lib:integer4
+                                      ipiv-%data% ipiv-%offset%)
+                                     )
+      (setf (f2cl-lib:fref ipiv-%data%
+                                                                            (0)
+                                                                            ((0
+                                                                              *))
+                                                                            ipiv-%offset%)
+            5)
+       (format t "IPIV DATA ~a ~% IPIV OFFSET ~a ~%" ipiv-%data% ipiv-%offset%))
     (setq info 
       (car (last
             (multiple-value-list
-             (lapack::dgetrf m n Ar lda ipiv info)))))
+             (lapack::dgetrf m n Ar lda
+                             #+ccl (coerce ipiv 'CCL::SIMPLE-FIXNUM-VECTOR)
+                             #-ccl ipiv
+                             info)))))
     (assert (= 0 info))
-    
+    (print (list n Ar lda 'X work lwork info))
+    (format t "IPIV: ~a" ipiv)
     (setq info
       (car (last (multiple-value-list
-                  (lapack::dgetri n Ar lda ipiv work lwork info)))))
+                  (lapack::dgetri n Ar lda
+                                  #+ccl (coerce ipiv 'CCL::SIMPLE-FIXNUM-VECTOR)
+                                  #-ccl ipiv
+                                  work lwork info)))))
     (assert (= 0 info))
+    
     (array2mat Ar n)))
 #+mkl
 (defun m^-1 (A)

@@ -4,6 +4,14 @@
 #+lispworks
 (eval-when (:load-toplevel :execute)
   (lw:set-default-character-element-type 'lw:simple-char))
+#+sbcl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (sb-int::set-floating-point-modes
+   :traps
+   (remove :invalid (getf (sb-int:get-floating-point-modes) :traps))))
+#+ccl
+(eval-when (:compile-toplevel :load-toplevel :execute)
+ (ccl::set-fpu-mode :invalid nil))
 
 ;;;; helper function
 

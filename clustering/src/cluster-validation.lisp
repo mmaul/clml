@@ -9,13 +9,15 @@
 (in-package :cluster-validation)
 
 (defvar *workspace*)
-(progn (setf cluster-validation:*workspace* 
-         (k-means:k-means 
-          10 
-          (read-data:pick-and-specialize-data 
-           (read-data:read-data-from-file
-            (asdf:system-relative-pathname 'clml "sample/norm-interp-feature.sexp")) :except '(0)
-            :data-types (make-list 12 :initial-element :numeric))))nil)
+
+(defun default-init-workspace ()
+  (progn (setf cluster-validation:*workspace* 
+               (k-means:k-means 
+                10 
+                (read-data:pick-and-specialize-data 
+                 (read-data:read-data-from-file
+                  (asdf:system-relative-pathname 'clml "sample/norm-interp-feature.sexp")) :except '(0)
+                  :data-types (make-list 12 :initial-element :numeric))))nil))
 (defdoublefunc v-diff-sum^2 (dvec dvec))
 
 (defun v-diff-sum^2 (x y)

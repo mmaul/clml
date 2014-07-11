@@ -59,16 +59,18 @@
  (defconstant *c-nan* 0))
 
 #+ccl
-(defun float-nan-p (x)
-  (and (ccl::nan-or-infinity-p x)
-       (not (ccl::infinity-p x))))
+(eval-when (:execute :compile-toplevel :load-toplevel)
+  (defun float-nan-p (x)
+    (let ((xp (coerce x 'double-float)))
+      (and (ccl::nan-or-infinity-p xp)
+           (not (ccl::infinity-p xp))))))
 
 
 
 (defun nan-p (value)
   #+allegro (excl::nan-p value)
   #+sbcl (and (floatp value) (sb-ext:float-nan-p value))
-  #+ccl (float-nan-p value)
+  #+ccl (and (floatp value) (float-nan-p value))
   #+lispworks (sys::nan-p value))
 
 (defun c-nan-p (value) (and (numberp value) (= value *c-nan*)))

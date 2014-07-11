@@ -28,11 +28,12 @@
 		 (i-thvector numeric-dataset (nth j range))))))))
 
 (defun solve-system-of-equations (matrix vector)
-   (m-times-v (m^-1 matrix) vector))
+  
+  (m-times-v (m^-1 matrix) vector))
 
 (defun m-times-v (matrix vector)
   (let* ((n (array-dimension vector 0))
-	 (a (make-array n)))
+         (a (make-array n)))
     (dotimes (i n a)
       (setf (aref a i)
 	(loop for k below n 
@@ -50,7 +51,7 @@
 (defun mlr-intercept (numeric-dataset range)
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (let* ((s (make-matrix-s numeric-dataset range))
-	 (c (make-vector-c numeric-dataset range))
+         (c (make-vector-c numeric-dataset range))
 	 (coefficients (solve-system-of-equations s c))
 	 (n (first (array-dimensions coefficients)))
 	 (intercept (vector-mean (i-thvector numeric-dataset (first (last range))))))
@@ -65,7 +66,6 @@
          (c (make-vector-c numeric-dataset range))
          (coefficients (solve-system-of-equations s c))
          (n        (first (array-dimensions coefficients)))
-         
          (intercept (mlr-intercept numeric-dataset range))
          (answer (make-array (+ n 1) :element-type 'double-float)))
     (dotimes (i (+ n 1) answer)

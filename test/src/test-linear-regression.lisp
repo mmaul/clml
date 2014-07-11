@@ -21,6 +21,23 @@ Multiple R-squared: 0.6511,	Adjusted R-squared: 0.6438
 F-statistic: 89.57 on 1 and 48 DF,  p-value: 1.490e-12 
 |#
 
+(defun sample-linear-regression ()
+    (let (dataset airquality)
+      (print (setf dataset 
+         (read-data-from-file 
+          (asdf:system-relative-pathname 'clml "sample/airquality.csv")
+          :type :csv
+          :csv-type-spec 
+          '(integer double-float double-float double-float double-float integer integer)))) 
+      (print
+       (setf airquality
+         (pick-and-specialize-data dataset :range '(0 1 2 3 4) 
+                                   :data-types '(:numeric :numeric :numeric :numeric :numeric))))
+      
+      (print
+       (mlr airquality '(2 3 4 1)))
+      ))
+
 (define-test test-sample-linear-regression
     (let (dataset airquality)
       (assert-true

@@ -6,72 +6,73 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))
 
-(defclass fixpoint ()
-  ((xfix :accessor fixpoint-xfix :initform nil)
-   (yfix :accessor fixpoint-yfix :initform nil)))
+(eval-when (:execute :compile-toplevel :load-toplevel)
+  (defclass fixpoint ()
+    ((xfix :accessor fixpoint-xfix :initform nil)
+     (yfix :accessor fixpoint-yfix :initform nil)))
 
-;; index to label data base 
-(defclass data-entry_lab ()
-  ((label :initform nil)
-   (label-array :initform nil)))
+  ;; index to label data base 
+  (defclass data-entry_lab ()
+    ((label :initform nil)
+     (label-array :initform nil)))
   
 
-;; every entry (either input data or code vector) is stored
-;; in linked lists consisting of following objects 
+  ;; every entry (either input data or code vector) is stored
+  ;; in linked lists consisting of following objects 
 
-(defclass data-entry ()
-  ((points :accessor data-entry-points :initform nil)
-   (mask :accessor data-entry-mask :initform nil
-	 :documentation "if mask is present, ignore vector components marked 
+  (defclass data-entry ()
+    ((points :accessor data-entry-points :initform nil)
+     (mask :accessor data-entry-mask :initform nil
+           :documentation "if mask is present, ignore vector components marked 
 		      with nonzero")
-   (lab :accessor data-entry-lab :initform (make-instance 'data-entry_lab)
-	:documentation "index to label data base")
-   (num-labs :accessor data-entry-num-labs :initform 0)
-   (weight :accessor data-entry-weight :type double-float :initform 0d0)
-   (fixed :accessor data-entry-fixed :initform nil)))
-   
-(defclass entries_flags ()
-  ((loadmode :initarg :loadmode :initform t
-	     :documentation "read whole file into memory or read entries from file when needed")
-   (totlen-known :initarg :totlen-known :initform nil
-		 :documentation "true when total length of file is known")
-   (random-order :initarg :random-order :initform nil
-		 :documentation "use data vectors in random order. only available in *loadmode-all*")
-   (skip-empty :initarg :skip-empty :initform t
-	       :documentation "Ignore vectors that have all components masked off (default)")
-   (labels-needed :initarg :labels-needed :initform t
-		  :documentation "Set if labels are required")
-   ))
-    
-(defclass entries ()
-  ((dimension :accessor entries-dimension :initarg :dimension :initform 0)
-   (topol :accessor entries-topol :initarg :topol :initform *topol-unknown*)
-   (neigh :accessor entries-neigh :initarg :neigh :initform *neigh-unknown*)
-   (xdim :accessor entries-xdim :initarg :xdim :initform 0)
-   (ydim :accessor entries-ydim :initarg :ydim :initform 0)
-   (current :accessor entries-current :initarg :current :initform 0
-	    :documentation "index of current data-entry inside data-entries")
-   (entries :accessor entries-entries :initarg :entries :initform nil
-	    :type cons
-	    :documentation "list of data-entries")
-   (num-loaded :accessor entries-num-loaded :initarg :num-loaded :initform nil
-	       :documentation "number of lines loaded in entries list")
-   (num-entries :accessor entries-num-entries :initarg :num-entries :initform nil
-		:documentation "number of entries in the data set if known")
-   (flags :accessor entries-entries_flags :initarg :entries_flags 
-	  :initform (make-instance 'entries_flags
-		      :loadmode *loadmode-all*
-		      :totlen-known nil
-		      :random-order nil
-		      :skip-empty t
-		      :labels-needed t))
-   (lap :accessor entries-lap :initarg :lap :initform 0
-	:documentation "how many times have all samples been used")
-   (file-info :accessor entries-file-info :initarg :file-info :initform nil)
-   (buffer :accessor entries-buffer :initarg :buffer :initform 0
-	   :documentation "how many lines to read from file at one time")
-   (parent-gdata :accessor entries-parent-gdata :initarg :parent-gdata :initform nil)
-   ))
+     (lab :accessor data-entry-lab :initform (make-instance 'data-entry_lab)
+          :documentation "index to label data base")
+     (num-labs :accessor data-entry-num-labs :initform 0)
+     (weight :accessor data-entry-weight :type double-float :initform 0d0)
+     (fixed :accessor data-entry-fixed :initform nil)))
+  
+  (defclass entries_flags ()
+    ((loadmode :initarg :loadmode :initform t
+               :documentation "read whole file into memory or read entries from file when needed")
+     (totlen-known :initarg :totlen-known :initform nil
+                   :documentation "true when total length of file is known")
+     (random-order :initarg :random-order :initform nil
+                   :documentation "use data vectors in random order. only available in *loadmode-all*")
+     (skip-empty :initarg :skip-empty :initform t
+                 :documentation "Ignore vectors that have all components masked off (default)")
+     (labels-needed :initarg :labels-needed :initform t
+                    :documentation "Set if labels are required")
+     ))
+  
+  (defclass entries ()
+    ((dimension :accessor entries-dimension :initarg :dimension :initform 0)
+     (topol :accessor entries-topol :initarg :topol :initform *topol-unknown*)
+     (neigh :accessor entries-neigh :initarg :neigh :initform *neigh-unknown*)
+     (xdim :accessor entries-xdim :initarg :xdim :initform 0)
+     (ydim :accessor entries-ydim :initarg :ydim :initform 0)
+     (current :accessor entries-current :initarg :current :initform 0
+              :documentation "index of current data-entry inside data-entries")
+     (entries :accessor entries-entries :initarg :entries :initform nil
+              :type #-ccl cons #+ccl list
+              :documentation "list of data-entries")
+     (num-loaded :accessor entries-num-loaded :initarg :num-loaded :initform nil
+                 :documentation "number of lines loaded in entries list")
+     (num-entries :accessor entries-num-entries :initarg :num-entries :initform nil
+                  :documentation "number of entries in the data set if known")
+     (flags :accessor entries-entries_flags :initarg :entries_flags 
+            :initform (make-instance 'entries_flags
+                                     :loadmode *loadmode-all*
+                                     :totlen-known nil
+                                     :random-order nil
+                                     :skip-empty t
+                                     :labels-needed t))
+     (lap :accessor entries-lap :initarg :lap :initform 0
+          :documentation "how many times have all samples been used")
+     (file-info :accessor entries-file-info :initarg :file-info :initform nil)
+     (buffer :accessor entries-buffer :initarg :buffer :initform 0
+             :documentation "how many lines to read from file at one time")
+     (parent-gdata :accessor entries-parent-gdata :initarg :parent-gdata :initform nil)
+     )))
 
 ;; get_type_by_id - search typelist for id 
 (defun get-type-by-id (typelist id)

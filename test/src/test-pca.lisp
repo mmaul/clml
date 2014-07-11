@@ -5,7 +5,7 @@
     (let (dataset proj-vecs pca-result pca-model for-learn for-estimate)
       (assert-true (setf dataset 
                      (read-data-from-file (asdf:system-relative-pathname 'clml "sample/pos.sexp") 
-                                          :external-format #+allegro :932 #-allegro :sjis)))
+                                          :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
       (assert-true (setf dataset (pick-and-specialize-data
                                   dataset :range '(2 3) :data-types '(:numeric :numeric))))
       (assert-true (multiple-value-setq (pca-result pca-model)
