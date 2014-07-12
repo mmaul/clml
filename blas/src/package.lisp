@@ -1,3 +1,7 @@
+( eval-when (:compile-toplevel)
+  (setq *read-default-float-format* 'double-float)
+  )
+
 (defpackage "BLAS"
   (:use "COMMON-LISP")
   (:export "DAXPY" "DCOPY" "DDOT" "DNRM2" "DSCAL" "IDAMAX" "DASUM"

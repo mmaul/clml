@@ -45,7 +45,8 @@ Documentation
 -------------
 User and API Documentation
 ==========================    
-     docs/clml-manual.org | docs/clml-manual.html 
+     User and API documentation may be found on line at http://mmaul.github.io/clml/
+     and also in the project directories docs/clml-manual.org | docs/clml-manual.html 
 Notes and Algorithmic Details and Background    
     files in memo, notes and docs
 
