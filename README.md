@@ -55,30 +55,88 @@ Usage
 -----
 This library is orginized as a hierarchical tree of systems, currently with two root
 nodes clml and hjs. hjs is the core.
-    hjs
-    clml
-        association-rule
-        blas
-        classifiers
-        clustering
-        decision-tree
-        demo
-        docs
-        graph
-        hjs
-        lapack
-        nearest-search
-        nonparametric
-        notes
-        numeric
-        pca
-        som
-        statistics
-        svm
-        test
-        text
-        time-series
-        utility
+- clml
+- clml.association-rule
+  - clml.association-rule
+- clml.classifiers
+  - clml.classifiers.linear-regression
+  - clml.classifiers.logistic-regression
+  - clml.classifiers.nbayes
+- clml-clml.statistics
+  - clml-clml.statistics
+- clml.clustering
+  - clml.clustering.cluster-validation
+  - clml.clustering.hc
+  - clml.clustering.k-means2
+  - clml.clustering.nmf
+  - clml.clustering.optics
+  - clml.clustering.optics-speed
+  - clml.clustering.spectral-clustering
+- clml.decision-tree
+  - clml.decision-tree.decision-tree
+  - clml-decision-tree.random-forest
+- clml.graph
+  - clml.graph.graph-anomaly-detection
+  - clml.graph.graph-centrality
+  - clml.graph.graph-utils
+  - clml.graph.read-graph
+  - clml.graph.shortest-path
+- clml.nearest-search
+  - clml.nearest-search.k-nn
+  - clml.nearest-search.k-nn-new
+  - clml.nearest-search.nearest
+- clml.nonparameteric
+  - clml.nonparameteric.statistics
+  - clml.nonparametric.blocked-hdp-hmm
+  - clml.nonparametric.dpm
+  - clml.nonparametric.ftm
+  - clml.nonparametric.hdp
+  - clml.nonparametric.hdp-hmm
+  - clml.nonparametric.hdp-hmm
+  - clml.nonparametric.hdp-lda
+  - clml.nonparametric.ihmm
+  - clml.nonparametric.lfm
+  - clml.nonparametric.sticky-hdp-hmm
+  - clml.numeric.fast-fourier-transform
+- clml.pca
+  - clml.pca
+- clml.som
+  - clml.som
+- clml.statistics
+  - clml.statistics
+  - clml.statistics.rand
+- clml.svm
+  - clml.svm.mu
+  - clml.svm.one-class
+  - clml.svm.pwss3
+  - clml.svm.smo
+  - clml.svm.svr
+  - clml.svm.wss3
+- clml.time-series
+  - clml.time-series.anomaly-detection
+  - clml.time-series.autoregression
+  - clml.time-series.burst-detection
+  - clml.time-series.changefinder
+  - clml.time-series.exponential-smoothing
+  - clml.time-series.read-data
+  - clml.time-series.state-space
+  - clml.time-series.statistics
+  - clml.time-series.util
+- clml.utility
+  - clml.utility.csv
+  - clml.utility.priority-que
+- fork-future
+- future
+- hjs
+  - hjs.learn.k-means
+  - hjs.learn.read-data
+  - hjs.learn.vars
+  - hjs.util.eigensystems
+  - hjs.util.matrix
+  - hjs.util.meta
+  - hjs.util.missing-value
+  - hjs.util.vector
+- lapack
 
 Each system can be loaded independantly or the the clml system can be loaded which contains
 dependencies to all child system definitions.
