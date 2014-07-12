@@ -4,6 +4,15 @@
                 :components (
                              (:file "package"))
                 )
+( eval-when (:compile-toplevel :load-toplevel :execute)
+  (setq *read-default-float-format* 'double-float)
+  (loop while (not (eq *read-default-float-format* 'double-float))
+     do
+       (restart-case
+           (error "Please set *read-default-float-format* to 'double-float before loading/compiling the system.")
+         (use-double-float ()
+           :report "Set double-float to *read-default-float-format*."
+           (setq *read-default-float-format* 'double-float)))))
 
 (asdf:defsystem :blas-hompack
   :pathname "src/"

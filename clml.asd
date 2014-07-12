@@ -1,5 +1,5 @@
 ;;;; clml.asd
-(in-package "CL-USER")
+;(in-package "CL-USER")
 (setq *read-default-float-format* 'double-float)
 (eval-when (:compile-toplevel :load-toplevel :execute)
   #+ignore                              ; don't use asdf in this project
@@ -37,6 +37,7 @@
     (shadowing-import'(defsys:defsystem defsys:load-system defsys:compile-system)))
   #+lispworks
   (use-package :defsys)
+  
   (loop while (not (eq *read-default-float-format* 'double-float))
         do
      (restart-case
