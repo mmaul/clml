@@ -117,7 +117,7 @@
 
 
 (defpackage :hjs.learn.read-data
-  (:description "package for reading data for machine learning")
+  (:documentation "package for reading data for machine learning")
   (:use :cl :hjs.util.meta :hjs.util.vector :hjs.learn.vars :hjs.util.matrix
         :hjs.util.missing-value
         ;handling-missing-value
