@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
 <title>CLML Common Lisp Machine Learning</title>
-<!-- 2014-07-12 Sat 02:10 -->
+<!-- 2014-07-12 Sat 02:59 -->
 <meta  http-equiv="Content-Type" content="text/html;charset=utf-8" />
 <meta  name="generator" content="Org-mode" />
 <meta  name="author" content="Salvi Péter, Naganuma Shigeta, Tada Masashi, Abe Yusuke, Jianshi Huang, Fujii Ryo, Abe Seika, Kuroda Hisao, Mike Maul" />
@@ -188,9 +188,11 @@ for the JavaScript code in this tag.
 <li><a href="#sec-4-35">4.35. Notes</a></li>
 </ul>
 </li>
-<li><a href="#sec-5">5. Test package</a>
+<li><a href="#sec-5">5. Testing</a>
 <ul>
-<li><a href="#sec-5-1">5.1. lisp-unit</a></li>
+<li><a href="#sec-5-1">5.1. Test package</a></li>
+<li><a href="#sec-5-2">5.2. Running Tests</a></li>
+<li><a href="#sec-5-3">5.3. lisp-unit notes</a></li>
 </ul>
 </li>
 <li><a href="#sec-6">6. Licensing</a></li>
@@ -6148,8 +6150,11 @@ file for more details).
 </div>
 
 <div id="outline-container-sec-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> Test package</h2>
+<h2 id="sec-5"><span class="section-number-2">5</span> Testing</h2>
 <div class="outline-text-2" id="text-5">
+</div><div id="outline-container-sec-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Test package</h3>
+<div class="outline-text-3" id="text-5-1">
 <p>
 The package for test is 'lisp-unit'.
 Operation check required: linux32, linux64, win32, sparc/solaris32
@@ -6157,11 +6162,25 @@ Tests are located in the test directory and are an invaluable source
 of knowledge in understanding how to use this library.
 </p>
 </div>
+</div>
 
-<div id="outline-container-sec-5-1" class="outline-3">
-<h3 id="sec-5-1"><span class="section-number-3">5.1</span> lisp-unit</h3>
-<div class="outline-text-3" id="text-5-1">
-</div><ol class="org-ol"><li>How to use<br  /><div class="outline-text-4" id="text-5-1-1">
+<div id="outline-container-sec-5-2" class="outline-3">
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> Running Tests</h3>
+<div class="outline-text-3" id="text-5-2">
+<p>
+The clml.test package must be loaded prior to running tests. Below is
+how to invoke tests:
+  (ql:quickload :clml.test)
+  (in-package :test)
+  (run-tests :all)
+</p>
+</div>
+</div>
+
+<div id="outline-container-sec-5-3" class="outline-3">
+<h3 id="sec-5-3"><span class="section-number-3">5.3</span> lisp-unit notes</h3>
+<div class="outline-text-3" id="text-5-3">
+</div><ol class="org-ol"><li>How to use<br  /><div class="outline-text-4" id="text-5-3-1">
 <ul class="org-ul">
 <li>1. Read the documentation in 
 <a href="http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html">http://www.cs.northwestern.edu/academics/courses/325/readings/lisp-unit.html</a>
@@ -6232,10 +6251,9 @@ library should function under Windows and OSX.
 </div>
 <div id="postamble" class="status">
 <p class="author">Author: Salvi Péter, Naganuma Shigeta, Tada Masashi, Abe Yusuke, Jianshi Huang, Fujii Ryo, Abe Seika, Kuroda Hisao, Mike Maul</p>
-<p class="date">Created: 2014-07-12 Sat 02:10</p>
+<p class="date">Created: 2014-07-12 Sat 02:59</p>
 <p class="creator"><a href="http://www.gnu.org/software/emacs/">Emacs</a> 24.4.50.1 (<a href="http://orgmode.org">Org</a> mode 8.2.6)</p>
 <p class="validation"><a href="http://validator.w3.org/check?uri=referer">Validate</a></p>
 </div>
 </body>
 </html>
- 
