@@ -50,6 +50,10 @@ and also in the project directories docs/clml-manual.org | docs/clml-manual.html
 Notes and Algorithmic Details and Background    
     files in memo, notes and docs
 
+Sample Code, Data and Tests
+---------------------------
+The test suite, along with sample datasets and example code has been moved to the _All code using example datasets, use content from the repository https://github.com/mmaul/clml.extras.git .
+Refer to the README.md file in CLML.EXTRAS for more information.
     
 Usage
 -----
@@ -145,6 +149,8 @@ This library requires that default reader float for mat is set to double-float. 
 be done before loading the systems.
     (setf *read-default-float-format* 'double-float)    
 
+_All code using example datasets, use content from the repository https://github.com/mmaul/clml.extras.git_
+    
 Here is a quick demonstration
 
     CL-USER (ql:quickload :clml)
