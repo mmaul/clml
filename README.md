@@ -1,36 +1,12 @@
-<div id="table-of-contents">
-<h2>Table of Contents</h2>
-<div id="text-table-of-contents">
-<ul>
-<li><a href="#sec-1">1. CL Machine-Learning</a>
-<ul>
-<li><a href="#sec-1-1">1.1. Original Author(s):</a></li>
-<li><a href="#sec-1-2">1.2. Requirements</a></li>
-<li><a href="#sec-1-3">1.3. Installation Notes</a>
-<ul>
-<li><a href="#sec-1-3-1">1.3.1. Obtain code</a></li>
-</ul>
-</li>
-<li><a href="#sec-1-4">1.4. Documentation</a>
-<ul>
-<li><a href="#sec-1-4-1">1.4.1. User and API Documentation</a></li>
-</ul>
-</li>
-<li><a href="#sec-1-5">1.5. Sample Code, Data and Tests</a></li>
-<li><a href="#sec-1-6">1.6. Usage</a></li>
-</ul>
-</li>
-</ul>
-</div>
-</div>
-
 # CL Machine-Learning
 
 CL Machine-Learning is high performance and large scale statistical
 machine learning package written in Common Lisp developed at 
-[[<http://cl-www.msi.co.jp][MSI>]. 
+[MSI](http://cl-www.msi.co.jp). 
 
-## Original Author(s):
+## Author(s):
+
+### Original
 
 -   Salvi Péter
 -   Naganuma Shigeta
@@ -41,7 +17,7 @@ machine learning package written in Common Lisp developed at
 -   Abe Seika
 -   Kuroda Hisao
 
-Current Branch Maintainer(s):    
+### Current Branch Maintainer(s)/Authors(s):
 
 -   Mike Maul
 
@@ -60,19 +36,45 @@ This repository contains is a modified version of CLML with the following goals 
 -   Optionally Intel Math Kernel Library
 -   ASDF3 and optionally Quicklisp (This document assumes [Quicklisp](http://quicklisp.org))
 -   C compiler
+-   gfortran compiler
 
 Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
 
 ## Installation Notes
 
-### Obtain code
+### Obtaining code
 
-Clone this repository with
-  git clone <https://github.com/mmaul/clml.git>
+Code can be obtained by one of the following methods:
+-   Clone this repository with:
+
+    git clone https://github.com/mmaul/clml.git
+
 Or download zip archive at
-  <https://github.com/mmaul/clml/archive/master.zip>
 
-If using [Quicklisp](http://quicklisp.org) place in local-projects directory
+    https://github.com/mmaul/clml/archive/master.zip
+
+### Installing
+
+1.  For Quicklisp **\*\***
+
+    1.  Place code in `~/quicklisp/local-projects`
+    2.  Start LISP and enter `(ql:quickload :clml)`
+
+2.  For ASDF3 only (Non quicklisp users)
+
+    1.  Place in a location on your ASDF search path path such as `~/common-lisp`
+    2.  Start LISP and enter `(asdf:load-system :clml)`
+
+### External Dependencies **\***
+
+    :alexandria
+    :iterate
+    :f2cl
+    :simple-queue
+    :clod
+    :split-sequence
+    :cl-ppcre
+    :parse-number
 
 ## Documentation
 
@@ -85,7 +87,17 @@ Notes and Algorithmic Details and Background
 
 ## Sample Code, Data and Tests
 
-The test suite, along with sample datasets and example code has been moved to the \_All code using example datasets, use content from the repository <https://github.com/mmaul/clml.extras.git> .
+The test suite, along with sample datasets and example code are
+located in the CLML.EXTRAS repository located at:
+-   [ CLML Extras: <https://github.com/mmaul/clml.extras.git> ](https://github.com/mmaul/clml.extras.git)
+
+To use simply obtain CLML.EXTRAS and place in ~/local-projects or in ASDF search path.
+
+A simple method of obtaining a path name to a file in the sample
+directory of CLML.EXTRAS is:
+
+    (asdf:system-relative-pathname 'clml.extras "sample/datafile.csv")
+
 Refer to the README.md file in CLML.EXTRAS for more information.
 
 ## Usage
@@ -183,20 +195,18 @@ be done before loading the systems.
 
     (setf *read-default-float-format* 'double-float)
 
-**All code using example datasets, use content from the repository**: 
++Example below is using CLML.EXTRAS
 
--   <https://github.com/mmaul/clml.extras.git>\_
-
-Here is a quick demonstration
+Here is a quick demonstration:
 
     CL-USER (ql:quickload :clml)
     
     CL-USER (clml.text.utilities:calculate-levenshtein-similarity "Howdy" "doody")
     0.6
     CL-USER 
-    CL-USER (setf *syobu* (hjs.learn.read-data:read-data-from-file "sample/syobu.csv" :type :csv 
-                                                             :csv-type-spec
-                                    '(string integer integer integer integer)))
+    CL-USER (setf *syobu* (hjs.learn.read-data:read-data-from-file 
+               (asdf:system-relative-pathname 'clml.extras "sample/syobu.csv")
+               :type :csv :csv-type-spec '(string integer integer integer integer)))
     
     
     #<HJS.LEARN.READ-DATA:UNSPECIALIZED-DATASET >
