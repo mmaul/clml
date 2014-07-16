@@ -56,7 +56,7 @@
 
 (asdf:defsystem #:clml
   :serial t
-  :description "Reorginized CLML library from MSI"
+  :description "Reorginized CLML (Common Lisp Machine Learming) library from MSI"
   :author"
      Original Authors:
        Salvi Péter,
@@ -67,8 +67,9 @@
        Fujii Ryo,
        Abe Seika,
        Kuroda Hisao
-     Current Maintainer:
+     Author Post MSI CLML Contribution:
        Mike Maul  <maul.mike@gmail.com>"
+  :maintainer "Mike Maul  <maul.mike@gmail.com>"
   :license "LLGPL"
   :depends-on (
                ;:fork-future
