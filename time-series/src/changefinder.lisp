@@ -15,8 +15,23 @@
    (last-qt-stats :initarg :last-qt-stats :initform nil :accessor last-qt-stats)
    (ts-wsize :initarg :ts-wsize :initform nil :accessor ts-wsize)
    (score-wsize :initarg :score-wsize :initform nil :accessor score-wsize)
-   (discount :initarg :discount :initform nil :accessor discount)))
+   (discount :initarg :discount :initform nil :accessor discount))
+  (:documentation "- accessors:
+  - score-type : calculation method for change point score
+  - ts-wsize : window size for 1st smoothing
+  - score-wsize : window size for 2nd smoothing
+  - discount : discounting parameter
+"))
 
+(defgeneric init-changefinder (ts &key)
+  (:documentation "- return: <changefinder>
+- arguments:
+  - ts          : <time-series-dataset>
+  - score-type  : :log | :hellinger, :log for logarithmic loss, :hellinger for hellinger distance
+  - ts-wsize    : <positive integer>, window size for 1st smoothing
+  - score-wsize : <positive integer>, window size for 2nd smoothing
+  - sdar-k      : <positive integer>, degree for AR
+  - discount    : 0 < <double-float> < 1, discounting parameter"))
 (defmethod init-changefinder ((ts time-series-dataset)
                               &key (score-type :log) ;; :log | :hellinger
                                    (ts-wsize 5)
@@ -72,6 +87,11 @@
         cf))))
 
 ;; online update changefinder
+(defgeneric update-changefinder (cf new-dvec)
+  (:documentation "- return: (values score score-before-smoothing)
+- arguments:
+  - cf       : <changefinder>, return value of #'init-changefinder
+  - new-dvec : vector representing time series data point"))
 (defmethod update-changefinder ((cf changefinder) new-dvec)
   (declare (type dvec new-dvec))
   (assert (eql (n-dim cf) (length new-dvec)) () "wrong dimension number")

@@ -27,7 +27,12 @@
        #:max-vector
        #:min-vector
        #:pick-up-column
-       #:pick-up-row))
+       #:pick-up-row)
+  (:documentation "hierarchical-clustering package
+
+*** sample usage
+#+INCLUDE: \"../sample/hierarchial-clustering.org\" example lisp")
+  )
 
 (defpackage :clml.clustering.nmf
   (:nicknames :nmf)
@@ -71,7 +76,9 @@
         :statistics)
   (:export :optics
            :optics-main
-           :make-optics-input))
+           :make-optics-input)
+  (:documentation "OPTICS -- density-based clustering package ")
+  )
 
 (defpackage :clml.clustering.optics-speed
   (:nicknames :optics-speed)
@@ -91,7 +98,8 @@
     (:export #:spectral-clustering-mcut
              #:*sample-w*)
     (:import-from #+allegro "EXCL" #+sbcl "SB-INT" #+lispworks "LISPWORKS" #+ccl "CCL"
-                  "FIXNUMP"))
+                  "FIXNUMP")
+    (:documentation "   Package for undirected graph clustering"))
 
 (defpackage :clml.clustering.cluster-validation
   (:nicknames :cluster-validation)
@@ -112,7 +120,12 @@
    :hartigan
    :ball-and-hall
    :global-silhouette-value
-   :centroid))
+   :centroid)
+  (:documentation "*** sample usage
+#+INCLUDE: \"../sample/cluster-validation.org\" example lisp
+*** reference
+- [[http://www.msi.co.jp/vmstudio/materials/tech/index.html][VMS Technical Reference]]
+- [[http://www.cs.tcd.ie/publications/tech-reports/reports.02/TCD-CS-2002-33.pdf][Cluster validation techniques for genome expression data]]"))
 
 (defpackage :clml.clustering.k-means2
     (:use :cl :hjs.util.vector :hjs.util.meta

@@ -285,7 +285,29 @@
                                                 `(,handling-missing-value:*na*) s-dvec)
                                               train-dataset forest)))))
       (values face-estimator forest (length bases) train-dataset))))
-
+(defgeneric make-face-estimator (face-dataset &key)
+  (:documentation "*** make-face-estimator ((face-dataset numeric-and-category-dataset)
+                         &key id-column dimension-thld method
+                              pca-method d-fcn pca-result pca-model)
+- return: (values estimator hash)
+- arguments:
+  - face-dataset : <numeric-and-category-dataset>
+  - id-column : <string>, the name for the face ID column, default value is personID
+  - dimension-thld : 0 < <number> < 1 | 1 <= <integer>, the threshold for determining the number of dimensions to use.
+  - method : :eigenface | :subspace, method for face recognition, eigenface or subspace method.
+  - pca-method : :covariance | :correlation, only valid when method is :subspace 
+  - d-fcn : distance function for eigenface, default value is euclid-distance
+  - pca-result : <pca-result>, necessary for :eigenface
+  - pca-model : <pca-model>, necessary for :eigenface
+- note:
+  - When 0 < /dimension-thld/ < 1, it means the threshold for accumulated
+    contribution ratio. A principle component's contribution ratio means
+    its proportion in all principle components' contributions.
+  - When 1 <= /dimension-thld/ ( integer ), it means the number of principle components.
+- reference:
+  - [[ http://www.ism.ac.jp/editsec/toukei/pdf/49-1-023.pdf ][ An example principal component analysis face recognition pattern recognition in sharpness (Banno)]]
+  - [[http://www.face-rec.org/][Face Recognition Homepage]]
+"))
 (defmethod make-face-estimator ((face-dataset numeric-and-category-dataset)
                                 &key dimension-thld
                                      (id-column "personID")
@@ -293,7 +315,8 @@
                                      (pca-method :covariance)
                                      (d-fcn #'euclid-distance)
                                      pca-result pca-model
-                                     bagging)
+                                  bagging)
+  
   (assert (or (null bagging) (numberp bagging)))
   (flet ((make-estimator (d)
            (case method
@@ -337,7 +360,20 @@
       (values estimator info))))
 
 (defmethod face-estimate ((d numeric-and-category-dataset) estimator)
-  (pick-and-specialize-data
+  "*** face-estimate ((d numeric-dataset) estimator)
+- return: <numeric-and-category-dataset>
+- arguments:
+  - d : <numeric-dataset>
+  - estimator : <closure>, the first return value for make-face-estimator
+*** Note
+- when using princomp and sub-princomp, if there exists two columns
+  that are of same value, the result for :correlation 
+  method will not be converged. Therefore pick-and-specialize-data or
+  divide-dataset must be used to remove one column.
+*** sample usage
+#+INCLUDE: sample/face-estimate.org
+"
+             (pick-and-specialize-data
    (make-unspecialized-dataset
     (cons "estimated-face" (map 'list #'dimension-name (dataset-dimensions d)))
     (loop for num-vec across (dataset-numeric-points d)

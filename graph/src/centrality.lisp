@@ -3,6 +3,10 @@
 
 (in-package :clml.graph.graph-centrality)
 
+(defgeneric eccentricity-centrality (g)
+  (:documentation "- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+- argument:
+  - graph: return value of #'make-simple-graph"))
 (defmethod eccentricity-centrality ((gr simple-graph))
   (let* ((dist-mat (graph-distance-matrix gr))
          (n (length (nodes gr)))
@@ -12,6 +16,11 @@
       (let ((distances (loop for col below n collect (aref dist-mat col row))))
         (setf sf (dfloat (/ (apply #'max distances))))))))
 
+(defgeneric closeness-centrality (g &key)
+    (:documentation "- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+- argument:
+  - graph: return value of #'make-simple-graph
+  - standardize: t | nil, standardize centrality or not"))
 (defmethod closeness-centrality ((gr simple-graph) &key (standardize nil))
   (let* ((dist-mat (graph-distance-matrix gr))
          (n (length (nodes gr)))
@@ -22,6 +31,12 @@
              (denom (if standardize (mean distances) (apply #'+ distances))))
         (setf sf (dfloat (/ denom)))))))
 
+(defgeneric degree-centrality (g &key)
+  (:documentation "- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+- argument:
+  - graph: return value of #'make-simple-graph
+  - mode: :in | :out
+  - standardize: t | nil, standardize centrality or not"))
 (defmethod degree-centrality ((gr simple-graph) 
                               &key (mode :in) ;; :in | :out
                                    (standardize nil))
@@ -42,6 +57,11 @@
           (setf sf (/ val n-1)))
       vec)))
 
+(defgeneric eingen-centrality (g &key)
+  (:documentation "- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+          DOUBLE-FLOAT, eigenvalue
+- argument:
+  - graph: return value of #'make-simple-graph"))
 (defmethod eigen-centrality ((gr simple-graph) &key (stabilizer nil))
   (assert (null (directed-p gr)))
   (let* ((adj-mat (adjacency-matrix gr))
@@ -69,6 +89,19 @@
 ;; pagerank ではそれを強連結とするため、推移確率行列の全てのノード間で小さな重みのリンクを仮定する。
 ;; c はその重みを調整するパラメータ、大きいほど重みは小さくなり、実際のリンクの推移確率が優先される。
 ;; (0 < c < 1)
+(defgeneric pagerank (g &key)
+  (:documentation "- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
+- argument:
+  - graph: return value of #'make-simple-graph
+  - c : ratio for transition probability matrix
+
+The separation / directed graph, principal eigen vector is not determined because it is not often a strong connection.
+Order to strongly connected to it, it is assumed that the link of small weight among all the nodes of the transition probability matrix in pagerank.
+The parameter for adjusting the weight, the weight decreases as large, the transition probability of the actual link is priority c.
+
+- reference:
+  L. Page, S. Brin, R. Motwani, T. Winograd The PageRank citation ranking: Bringing order to the web. 1999")
+)
 (defmethod pagerank ((gr simple-graph) &key (c 0.85d0))
   (declare (type double-float c))
   (assert (< 0 c 1))

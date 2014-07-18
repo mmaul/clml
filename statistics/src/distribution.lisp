@@ -249,6 +249,10 @@
 		       (standard-deviation sequence :populationp t)))
 
 (defun normal-distribution (average std)
+  "- Parameters: expected-value, deviation
+- Estimators: normal-distribution-estimate-unbiased,
+    normal-distribution-estimate-maximum-likelihood
+- (Variant: standard-normal-distribution)"
   (assert (realp average) (average)
     "AVERAGE should be a real number.")
   (assert (and (realp std) (> std 0)) (std)
@@ -291,6 +295,9 @@
 	    (average obj) (std obj))))
 
 (defun log-normal-distribution (average std)
+  "- Parameters: expected-value, deviation
+- Estimators: log-normal-distribution-estimate-unbiased,
+    log-normal-distribution-estimate-maximum-likelihood"
   (assert (realp average) (average)
 	  "AVERAGE should be a real number.")
   (assert (and (realp std) (> std 0)) (std)
@@ -360,6 +367,10 @@
   distribution)
 
 (defun uniform-distribution (from to)
+  "- Parameters: from, to
+- Estimators: uniform-distribution-estimate-moments,
+    uniform-distribution-estimate-maximum-likelihood
+- (Variant: standard-uniform-distribution)"
   (assert (and (realp from) (realp to) (> to from)) (from to)
 	  "FROM and TO should be real numbers such that TO > FROM.")
   (make-instance 'uniform-distribution :from from :to to))
@@ -505,6 +516,12 @@
     (format stream ": SCALE = ~a, SHAPE = ~a" (scale obj) (shape obj))))
 
 (defun gamma-distribution (scale shape)
+  "- Parameters: scale, shape
+- (Variant: erlang-distribution [shape is an integer])
+- Numerical calculation:
+  If there is a numerical problem with QUANTILE, QUANTILE-ILI would be solve it.\\
+  ILI is abbreviation of the numerical calculation method of Inverse-Linear-Interpolation.\\
+  However this is slower than Newton-Raphson(for QUANTILE)."
   (assert (and (realp scale) (> scale 0)) (scale)
 	  "SCALE should be a positive real number.")
   (assert (and (realp shape) (> shape 0)) (shape)
@@ -608,6 +625,8 @@ this method would be solve it. However this is slower than Newton-Raphson."
   distribution)
 
 (defun chi-square-distribution (freedom)
+  "- Parameters: degree
+- Estimators: [none]"
   (assert (and (real-integer-p freedom) (> freedom 0)) (freedom)
 	  "FREEDOM should be a positive integer.")
   (make-instance 'chi-square-distribution :freedom freedom))
@@ -730,6 +749,8 @@ freedom than the one precalculated."
 	   (slot-makunbound distribution 'kurtosis)))))
 
 (defun t-distribution (freedom)
+  "- Parameters: degree
+- Estimators: [none]"
   (assert (and (real-integer-p freedom) (> freedom 0)) (freedom)
 	  "FREEDOM should be a positive integer.")
   (make-instance 't-distribution :freedom freedom))
@@ -825,6 +846,7 @@ uses it."
   distribution)
 
 (defun beta-distribution (shape1 shape2)
+  "- Parameters: shape1 shape2"
   (assert (and (realp shape1) (> shape1 0)) (shape1)
 	  "SHAPE1 should be a positive real number.")
   (assert (and (realp shape2) (> shape2 0)) (shape2)
@@ -951,6 +973,8 @@ uses it."
   distribution)
 
 (defun f-distribution (freedom1 freedom2)
+  "- Parameters: degree1 degree2
+- Estimators: [none]"
   (assert (and (real-integer-p freedom1) (> freedom1 0)) (freedom1)
 	  "FREEDOM1 should be a positive integer.")
   (assert (and (real-integer-p freedom2) (> freedom2 0)) (freedom2)
@@ -1057,6 +1081,7 @@ otherwise it uses the beta distribution quantile."
   distribution)
 
 (defun binomial-distribution (size probability)
+  "- Parameters: size, probability"
   (assert (and (real-integer-p size) (>= size 0)) (size)
 	  "SIZE should be a nonnegative integer.")
   (assert (and (realp probability) (<= 0 probability 1)) (probability)
@@ -1151,7 +1176,8 @@ otherwise it uses the beta distribution quantile."
   distribution)
 
 (defun geometric-distribution (probability)
-  "Supported on k = 1, 2, ... \(the # of trials until a success, inclusive\)"
+  "- Parameters: probability
+- (Supported on k = 1, 2, ... (the # of trials until a success, inclusive))"
   (assert (and (realp probability) (< 0 probability) (<= probability 1))
 	  (probability) "PROBABILITY should be a positive real number <= 1.")
   (make-instance 'geometric-distribution :probability probability))
@@ -1319,6 +1345,7 @@ otherwise it uses the beta distribution quantile."
   distribution)
 
 (defun cauchy-distribution (location scale)
+  "- Parameters: location, scale"
   (assert (realp location) (location) "LOCATION should be a real number.")
   (assert (and (realp scale) (> scale 0)) (scale)
 	  "SCALE should be a positive real number.")
@@ -1379,6 +1406,7 @@ otherwise it uses the beta distribution quantile."
   distribution)
     
 (defun logistic-distribution (location scale)
+  "- Parameters: location, scale"
   (assert (realp location) (location) "LOCATION should be a real number.")
   (assert (and (realp scale) (> scale 0)) (scale)
 	  "SCALE should be a positive real number.")
@@ -1468,7 +1496,17 @@ otherwise it uses the beta distribution quantile."
   distribution)
 
 (defun negative-binomial-distribution (successes probability)
-  "Number of failures until a given number of successes,
+  "- Parameters: successes, probability, failuresp
+- Estimators: negative-binomial-distribution-estimate-unbiased,
+    negative-binomial-distribution-estimate-maximum-likelihood
+- When failuresp is NIL, the distribution is supported on k = s, s+1, ...
+  (the # of trials until a given number of successes, inclusive))
+- When failuresp is T (the default), it is supported on k = 0, 1, ...
+  (the # of failures until a given number of successes, inclusive)
+- Estimators also have the failuresp parameter
+- (Variant: geometric-distribution [successes = 1, failuresp = nil])
+
+Number of failures until a given number of successes,
 extended to real numbers.
 If FAILURESP is NIL, we look at the number of all trials, not just the
 failures."
@@ -1623,6 +1661,7 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   distribution)
 
 (defun poisson-distribution (rate)
+  "- Parameters: rate"
   (assert (and (realp rate) (> rate 0)) (rate)
 	  "RATE should be a positive real number.")
   (make-instance 'poisson-distribution :rate rate))
@@ -1700,6 +1739,7 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   distribution)
 
 (defun weibull-distribution (scale shape)
+  "- Parameters: scale, shape"
   (assert (and (realp scale) (> scale 0)) (scale)
 	  "SCALE should be a positive real number.")
   (assert (and (realp shape) (> shape 0)) (shape)

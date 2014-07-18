@@ -24,7 +24,11 @@
            #:adjusted-r^2
            #:f-value
            #:pf
-           #:pf-value))
+           #:pf-value)
+  (:documentation "linear regression package
+
+*** sample usage
+#+INCLUDE: \"../sample/linear-regression.org\" example lisp"))
 
 (defpackage :clml.classifiers.logistic-regression
   (:use :cl
@@ -42,4 +46,11 @@
    :make-mbnb-learner
    :mnb-learn
    :make-mnb-learner)
+  (:documentation "Naive-Bayes
+
+   Naive-Bayes package (Multivariate Bernoulli and Multinomial Naive Bayes)
+
+*** sample usage
+#+INCLUDE: "../sample/nbayes.org" example lisp
+")
   )

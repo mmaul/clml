@@ -3,6 +3,22 @@
  
 ;; make Direction-based anomaly detector
 ;; ref: T.Ide and H.Kashima "Eigenspace-based Anomaly Detection in Computer Systems" sec.5
+(defgeneric make-db-detector (ts &key)
+  (:documentation "- return: <Closure>
+- arguments:
+  - ts          : <time-series-dataset>, time series data for initialization
+  - beta        : 0 < <double-float> < 1, discounting parameter
+  - typical     : :svd | :mean, method for typical pattern, :svd for singular valur decomposition, :mean for average
+  - pc          : 0 < <double-float> < 1, upper cumulative probability for threshold calculation
+  - normalize   : nil | t, normalize vector (t) or not (nil)
+- arguments for <Closure>:
+  - new-dvec : vector representing time series data point
+- return of <Closure>: (values score threshold typical-pattern-vector)
+- descriptions:
+  - Direction-based anomaly detection
+  - reference:
+    T.Ide and H.Kashima \"Eigenspace-based Anomaly Detection in Computer Systems\"  section 5
+  - The number of points in ts is window size."))
 (defmethod make-db-detector ((ts time-series-dataset)
                              &key beta (typical :svd) (pc 0.005d0) (normalize t))
   (assert (< 0d0 pc 1d0) (pc))
@@ -28,6 +44,20 @@
                 typ)))))
 ;; make periodic anomaly detector
 ;; ref: 山西健司「データマイニングによる異常検知」
+(defgeneric make-periodic-detector (ts &key)
+  (:documentation "- return: <Closure>
+- arguments:
+  - ts : <time-series-dataset>, time series data for initialization
+  - r  : 0 < <double-float> < 1, discounting parameter
+- arguments for <Closure>:
+  - new-dvec : vector representing time series data point
+- return of <Closure>: plist (:score for anomaly score, :local-scores for local anomaly scores)
+- descriptions:
+  - Anomaly detection in consideration of the periodicity
+  - Define the multidimensional normal distribution at each point within a cycle, to a local anomaly score standard score abnormality score, conditional Gaussian Mahalanobis distance.
+  - The value of r is used for updating of multidimensional normal distribution.
+  - The value of ts-freq for ts is regarded as the number of points in a cycle.
+"))
 (defmethod make-periodic-detector ((ts time-series-dataset) &key (r 0.5d0))
   (let* ((freq (ts-freq ts))
          (dim (length (dataset-dimensions ts)))
@@ -46,7 +76,22 @@
   ((names :initarg :names :accessor names)
    (snn-k :initarg :snn-k :accessor snn-k)
    (sigma-i :initarg :sigma-i :accessor sigma-i)
-   (graphs  :initarg :graphs  :accessor graphs)))
+   (graphs  :initarg :graphs  :accessor graphs))
+  (:documentation "- accessors:
+  - names   : names of parameter
+  - snn-k   : number of neighbors
+  - sigma-i : Lagrange-multiplier * const.
+  - graphs  : list of local graphs
+- reference:
+  -T.Ide and H.Kashima \"Eigenspace-based Anomaly Detection in Computer Systems\" sec.5
+"))
+
+(defgeneric make-snn (ts k &key)
+  (:documentation "- return: <snn>
+- arguments:
+  - ts      : <time-series-dataset>
+  - k       : number of neighbors
+  - sigma-i : Lagrange-multiplier * const."))
 (defmethod make-snn ((ts time-series-dataset) k &key (sigma-i 1d0))
   (assert (and (numberp k)))
   (let* ((wmat (dissimilarity-matrix (map 'vector #'ts-p-pos (ts-points ts))))
@@ -59,6 +104,17 @@
                      collect (cons i nbrs))))
     (values (make-instance 'snn :names names :snn-k k :sigma-i sigma-i :graphs graphs)
             wmat)))
+
+(defgeneric e-scores (t r)
+  (:documentation "- return: alist (key:name-of-parameter, value:E-score)
+- arguments:
+  - target-snn    : <snn>, target SNN
+  - reference-snn : <snn>, reference SNN
+- descriptions:
+  - reference:
+    T.Ide, S.Papadimitriou, M.Vlachos Computing Correlation Anomaly Scores using Stochastic Nearest Neighbors
+  - Graph-based (correlation) anomaly detection
+"))
 (defmethod e-scores ((target-model snn) (ref-model snn))
   (let* ((target-names (names target-model))
          (ref-names (names ref-model))
@@ -76,6 +132,20 @@
 ;; - S.Hirose, K.Yamanishi, T.Nakata, R.Fujimaki
 ;;   "Network Anomaly Detection based on Eigen Equation Compression"
 ;; - Gupta and Nagar "Matrix Variate Distributions"
+(defgeneric make-eec-detector (ts ws &key)
+  (:documentation "- return: <Closure>
+- arguments:
+  - ts : <time-series-dataset>, time series data for initialization
+  - window-size : positive integer, window size
+  - xi : 0 < <double-float> < 1, threshold for correlation strength
+  - global-m : positive integer, the number of eigen values for global feature
+- arguments for <Closure>:
+  - new-dvec : vector representing time series data point
+- return of <Closure>: plist (:score for anomaly score, :local-scores for local anomaly scores)
+- descriptions:
+  - reference:
+    S.Hirose, et.al \"Network Anomaly Detection based on Eigen Equation Compression\" 
+  - Correlation-based anomaly detection"))
 (defmethod make-eec-detector ((ts time-series-dataset) window-size &key (xi 0.8d0) (global-m 3))
   (let ((pts (map 'vector #'ts-p-pos (ts-points ts)))
         (dim (length (dataset-dimensions ts)))

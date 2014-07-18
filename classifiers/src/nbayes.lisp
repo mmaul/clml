@@ -9,10 +9,18 @@
     0.0d0))
 
 
-;;Multivariate Bernoulli Naive Bayes 
-;;alpha is a smoothing parameter
-;;we assume that final colum is the class label
+
 (defun mbnb-learn (training-vector &key (alpha 1.0d0));;when alpha = 0.0, it occurs log 0.0 error
+  "- return List:(p-wc classes):array of conditional probabilities and class labels
+- arguments
+ - training-vector:bag of words matrix (rows = documents, columns = words) whose class label locates the final column
+ - alpha :smoothing parameter, its default value is 1.0
+
+Multivariate Bernoulli Naive Bayes 
+Argument alpha is a smoothing parameter.
+We assume that final colum is the class label.
+"
+
   (let* ((l (1- (length (aref training-vector 0))))
 	 (classes (loop
 		      for v across training-vector

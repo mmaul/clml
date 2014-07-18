@@ -17,6 +17,13 @@
    "EXTRACT-NOUN-WORDS-FOR-SOM"
    "MAKE-SOM-DATAFILE"
    "DO-SOM-BY-FILENAME"
-   "*SOM-DIR-LOGICAL-PATH*"))
+   "*SOM-DIR-LOGICAL-PATH*")
+  (:documentation "Self-Organizing-Map
+package for self-organizing map
+
+*** sample usage
+#+INCLUDE: "../sample/som.org" example lisp
+")
+  )
 
 

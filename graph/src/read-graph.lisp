@@ -332,7 +332,15 @@
 ;; ID は 正の整数 で欠番はない。
 (defun make-simple-graph (id-name-alist &key (adjacency-matrix nil)
                                              (edgelist nil)
-                                             (directed nil))
+                                          (directed nil))
+  "- argument:
+  - id-name-alist : association list of node's ID and name. ID is a positive integer, there are no gaps.
+  - edgelist : list of plist, plist is like (:nid1 <initial-vertex-ID> :nid2 <terminal-vertex-ID> :weight <weight-for-edge>)
+  - directed : t | nil, the graph is directed or not.
+
+*** sample usage
+#+INCLUDE: \"../sample/read-graph.org\"  example lisp 
+"
   (let ((gr (make-instance 'simple-graph :directed-p directed)))
     (loop for i from 1
         for (id . name) in (sort (copy-list id-name-alist) #'< :key #'car)

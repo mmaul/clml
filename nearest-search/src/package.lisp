@@ -7,7 +7,17 @@
         :hjs.util.meta)
   (:export :k-nn-analyze
            :k-nn-estimate
-           :estimator-properties))
+           :estimator-properties)
+    (:documentation "*** sample usage
+#+INCLUDE: \"../sample/random-forest.org\" example lisp
+
+*** note
+When target, the objective variable's type is string, discriminant
+analysis is used, when type is number, regression analysis is used. In
+the case of discriminant analysis, the number of self-misjudgement from
+self analysis is displayed.
+")
+  )
 
 (defpackage :clml.nearest-search.nearest
   (:nicknames :learn.nearest)
@@ -58,6 +68,12 @@
         :clml.nearest-search.nearest)
   (:export :k-nn-analyze
            :k-nn-estimate
-           :estimator-properties))
+           :estimator-properties)
+      (:documentation "*** note
+When target, the objective variable's type is string, discriminant
+analysis is used, when type is number, regression analysis is used. In
+the case of discriminant analysis, the number of self-misjudgement from
+self analysis is displayed.
+"))
 
 

@@ -25,11 +25,14 @@
 
 ;;; Functions on one-valued data
 
-(defgeneric mean (obj))
+(defgeneric mean (obj)
+  (:documentation "Returns the mean of SEQ."))
 (defmethod mean ((sequence sequence))
   (/ (reduce #'+ sequence) (length sequence)))
 
 (def-on-sorted median (sequence)
+  "Returns the median of SEQ.
+(Variant: median-on-sorted (sorted-seq))"
   (let ((n (length sequence)))
     (if (evenp n)
 	(let ((n/2 (/ n 2)))
@@ -37,7 +40,11 @@
 	(elt sequence (/ (1- n) 2)))))
 
 (def-on-sorted discrete-quantile (sequence cuts)
-  "The function gives the mean of the two numbers closest to the given ratio
+  "Returns the quantile(s) of SEQ at the given cut point(s). CUTS can be a
+single value or a list.
+(Variant: discrete-quantile-on-sorted (sorted-seq cuts))
+
+The function gives the mean of the two numbers closest to the given ratio
 if the ratio does not give an exact (whole) position. This is what LISP-STAT
 does, but returning
   \(LINEAR-COMBINATION \(ELT SEQUENCE Q) R \(ELT SEQUENCE (1+ Q)))
@@ -56,9 +63,15 @@ CUTS is a single number or a list of numbers, each in the interval [0,1]."
 	  (section cuts)))))
 
 (def-on-sorted five-number-summary (sequence)
+  "Returns the "five number summary" of SEQ, ie. the discrete quantiles at the
+cut points 0, 1/4, 1/2, 3/4 and 1.
+(Variant: five-number-summary-on-sorted (sorted-seq))"
   (discrete-quantile-on-sorted sequence '(0 1/4 1/2 3/4 1)))
 
 (defun range (sequence)
+  "Returns the interquartile range of SEQ, ie. the difference of the discrete
+quantiles at 3/4 and 1/4.
+(Variant: interquartile-range-on-sorted (sorted-seq))"
   (- (reduce #'max sequence) (reduce #'min sequence)))
 
 (def-on-sorted interquartile-range (sequence)
@@ -71,6 +84,7 @@ CUTS is a single number or a list of numbers, each in the interval [0,1]."
 	    :initial-value 0)))
 
 (defun mean-deviation (sequence)
+  "Returns the mean deviation of SEQ."
   (/ (sum-on-deviation #'abs sequence) (length sequence)))
 #|
 (defgeneric variance (obj))
@@ -87,6 +101,7 @@ CUTS is a single number or a list of numbers, each in the interval [0,1]."
 ;;; Functions on two-valued data
 
 (defun covariance (seq1 seq2)
+  "Returns the covariance of SEQ1 and SEQ2."
   (let ((mean1 (mean seq1))
 	(mean2 (mean seq2))
 	(n1 (length seq1))
@@ -103,6 +118,8 @@ CUTS is a single number or a list of numbers, each in the interval [0,1]."
     (list (- (mean seq2) (* b (mean seq1))) b)))
 
 (defun correlation-coefficient (seq1 seq2)
+  "Returns the correlation coefficient of SEQ1 and SEQ2, ie.
+covariance / (standard-deviation1 * standard-deviation2)."
   (/ (covariance seq1 seq2)
      (* (standard-deviation seq1)
 	(standard-deviation seq2))))
@@ -157,6 +174,7 @@ given values."
         (/ (- (+ t1 t2) sum-d) (* 2 (sqrt (* t1 t2))))))))
 
 (defun kendall-rank-correlation (seq1 seq2)
+  "Returns the Kendall "tau" rank correlation coefficient."
   (let ((n1 (length seq1))
         (n2 (length seq1)))
     (assert (= n1 n2) (seq1 seq2)
@@ -1814,7 +1832,17 @@ result2 (:CHI-SQ ÉJÉCìÒèÊìùåvó 
 ;;; Smirnov-Grubbs test
 ;;; http://aoki2.si.gunma-u.ac.jp/lecture/Grubbs/Grubbs.html
 (defun smirnov-grubbs (seq alpha &key (type :max) (recursive nil) (sig-p-hash nil))
-  "length of seq must be more than 4"
+  "**** smirnov-grubbs (seq alpha &key (type :max) (recursive nil))
+Smirnov-Grubbs method for outlier verification.
+- return: nil | sequence
+- arguments:
+  - seq   : <sequence of number>
+  - alpha : <number> , significance level
+  - type  : :min | :max, which side of outlier value
+  - recursive : nil | t
+- reference: http://aoki2.si.gunma-u.ac.jp/lecture/Grubbs/Grubbs.html
+
+length of seq must be more than 4"
   (assert (> 1 alpha 0))
   (assert (every #'numberp seq))
   (if (>= (length seq) 4)

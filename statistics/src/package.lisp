@@ -68,7 +68,30 @@
    ;; Outlier verification
    :smirnov-grubbs
    :smirnov-grubbs-p
-   ))
+   )
+  (:documentation "
+** Notes
+- Numbers are not converted to (double) floats, for better accuracy with
+  whole number data. This should be OK, since double data will generate
+  double results (the number type is preserved).
+- Places marked with TODO are not optimal or not finished (see the TODO
+  file for more details).
+
+
+*** Distributions
+Distributions are CLOS objects, and they are created by the constructor
+of the same name. The objects support the methods CDF (cumulative
+distribution function), DENSITY (MASS for discrete distributions),
+QUANTILE, RAND (gives a random number according to the given distribution),
+RAND-N (convenience function that gives n random numbers), MEAN and
+VARIANCE (giving the distribution's mean and variance, respectively).
+These take the distribution as their first parameter.
+
+Most distributions can also be created with an estimator constructor.
+The estimator function has the form <distribution>-ESTIMATE, unless noted.
+")
+
+  )
 
 
 

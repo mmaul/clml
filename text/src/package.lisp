@@ -10,5 +10,8 @@
            :calculate-levenshtein-similarity
            :equivalence-clustering
            
-           ))
+           )
+  (:documentation "Text Utilities
+*** sample usage
+#+INCLUDE: \"../sample/text-utils.org\"  example lisp "))
 

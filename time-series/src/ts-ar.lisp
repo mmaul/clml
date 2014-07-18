@@ -23,7 +23,14 @@
    (ar-method :initarg :ar-method
            :accessor ar-method
            :type symbol
-           :initform nil)))
+           :initform nil))
+  (:documentation "- parent: gaussian-stsp-model
+- accessors:
+  - ar-coefficients : AR parameters
+  - sigma^2 : Variance for AR model
+  - aic : AIC for AR model
+  - ar-method : Method of constructing AR model"))
+
 (defmethod print-object ((model ar-model) stream)
   (with-accessors ((coefs ar-coefficients)
                    (method ar-method)
@@ -96,6 +103,17 @@
 
 (defun ^2 (x) (* x x))
 
+(defgeneric ar (d &key)
+  (:documentation "- return: <ar-model>
+- arguments:
+  - d         : <time-series-dataset>
+  - order-max : <positive integer>
+  - method    : :yule-walker | :burg
+  - aic       : nil | t
+  - demean    : nil | t
+- comments:
+  when /aic/ is t, minimize aic to choose the order (max is /order-max/) of model.
+  when /aic/ is nil, /order-max/ is the order of model."))
 (defmethod ar ((d time-series-dataset) 
                &key order-max
                     (demean t)
@@ -221,6 +239,12 @@
           ;;; consideration for freedom
                            aic-list (when demean (ts-mean d)) :yule-walker)))))))
 
+(defgeneric predict (m &key)
+  (:documentation "- return: (values <time-series-dataset> <time-series-dataset>)
+  - first value is a prediction by model, second is a standard error of the model.
+- arguments:
+  - model : <ar-model>
+  - n-ahead : <non-negative integer>"))
 (defmethod predict ((model ar-model) &key (n-ahead 0))
   (assert (not (minusp n-ahead)))
   (with-accessors ((ts ts-stsp::observed-ts) (demean demean) 
@@ -268,6 +292,17 @@
           :time-labels time-labels
           :start start :end end :freq (ts-freq ts)))))))
 
+(defgeneric ar-prediction (d &key)
+  (:documentation "- return: (values <time-series-dataset> <ar-model> <time-series-dataset>)
+- arguments:
+  - d : <time-series-dataset>
+  - order-max : <positive integer>
+  - method    : :yule-walker | :burg
+  - aic       : nil | t
+  - demean    : nil | t
+  - n-ahead   : <non-negative integer>
+  - n-learning : nil | <positive integer>, number of points for learning
+  - target-col : nil | <string>, name of target parameter"))
 (defmethod ar-prediction ((d time-series-dataset) &key 
                                                   (method :yule-walker) ; :ols :burg
                                                   (aic t) order-max
@@ -360,6 +395,17 @@
                     ppm-file :height-unit ppm-height-unit))
         data)))))
 
+(defgeneric parcor-filtering (ts &key)
+  (:documentation "- return: <time-series-dataset>, values for parcor picture
+- arguments:
+  - ts : <time-series-dataset>
+  - divide-length : <positive integer>
+  - parcor-order : <positive integer> below divide-length
+  - n-ahead : <non-negative integer>, number for ar-prediction on parcor picture
+  - ppm-fname : <string> | <pathname>, name for parcor picture
+- comments:
+  Refer section 3.2.1 of paper http://www.neurosci.aist.go.jp/~kurita/lecture/statimage.pdf \\
+  Divide time series data by /divide-length/. And make 'parcor picture' for each range."))
 (defmethod parcor-filtering ((ts time-series-dataset)
                              &key (divide-length 15) 
                                   (parcor-order 1)

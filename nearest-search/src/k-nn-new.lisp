@@ -16,10 +16,29 @@
    (distance :initarg :distance :accessor distance)
    (nearest-search :initarg :nn-search :accessor k-nn-search)
    (k-points :initarg :k-points :accessor k-points)
-   (k-dis    :initarg :k-dis :accessor k-dis)))
+   (k-dis    :initarg :k-dis :accessor k-dis))
+  (:documentation "- accessor:
+  - vec :           data for learning
+  - vec-labels :    explanatories
+  - vec-profiles :  type infomation for each explanatories
+  - vec-weight :    weight for each explanatories
+  - mins :          minimum value for each explanatories
+  - maxs :          maximum value for each explanatories
+  - target :        objective variable
+  - teachers :      values of target
+  - k :             value of parameter k
+  - distance :      ") )
 
 (defstruct k-nn-point data signal weight)
 
+(defgeneric estimator-properties (est &key)
+  (:documentation "- return: <list>, property list
+- arguments:
+  - estimator : <k-nn-estimator>
+  - verbose: nil | t, default is nil
+- comment:
+  Get k-nn-estimator's properties. If /verbose/ is t, all /accessor/ of k-nn-estimator would be extracted.
+"))
 (defmethod estimator-properties ((est k-nn-estimator) &key verbose)
   (with-accessors ((vecs vecs)
                    (explanatories vec-labels)
@@ -324,6 +343,37 @@
 (defun k-nn-analyze (learning-data k target explanatories
                      &key (distance :euclid) target-type
                           use-weight weight-init normalize (nns-type :naive) nns-args)
+  "                     &key (distance :euclid) target-type
+                          use-weight weight-init normalize)
+- return: <k-nn-estimator>
+- arguments:
+  - learning-data : <unspecialized-dataset>
+  - k : <integer>
+  - target : <string>
+  - explanatories : <list string> | :all
+  - distance : :euclid | :manhattan | a function object
+    - distance now can be a function object, it will be regarded as
+      a user-specified distance function.
+    - A distance function must accept 3 arguments: vector_1, vector_2
+      and profiles. profiles is a list whose elements are
+      either :numeric or :delta,
+      :numeric indicates the dimension is of numeric values and :delta
+      indicates the dimension is of categorical values. It's totally
+      fine to ignore profiles if users know exactly what their data is
+      about.
+  - target-type : :numeric | :category | nil
+    - :numeric means regression analysis
+    - :category means classification analysis
+    - when nil, the target type will be automatically determined by
+      the type of data.
+  - use-weight : nil | :class | :data
+  - weight-init :
+    - if use-weight is :class, it's an assoc-list of form ((class-name . weight) ...) 
+    - if use-weight is :data, then a vector of weight, a list of
+      weight or a column name of input data are allowable. When a
+      column name is passed in, the element in the column is treated
+      as weight.
+  - normalize : t | nil"
   (assert (member target-type '(nil :numeric :category)))
   (unless (eq nns-type :naive)
     (assert (member distance '(:double-euclid :double-manhattan))))
@@ -413,6 +463,11 @@
      finally (return (coerce result 'vector))))
 
 (defun k-nn-estimate (estimator in-data)
+  "- return: <unspecialized-dataset>, estimated result\\
+  The column named "estimated-*" (* is the name of target parameter) is appended to 1st column of /in-data/.
+- arguments:
+  - estimator : <k-nn-estimator> 
+  - in-data :  <unspecialized-dataset> data to be estimated."
   (let* ((est-type (esttype estimator))
 	 (vecs (if (member (distance estimator) '(:double-euclid :double-manhattan))
 		   (map 'vector #'(lambda (x) (coerce x 'dvec)) (choice-dimensions (vec-labels estimator) in-data))

@@ -155,7 +155,13 @@
 	   :*gamma-base-a*
 	   :*gamma-base-b*
 	   
-	   :*default-beta*))
+	   :*default-beta*)
+  (:documentation "Package for Latent-Dirichlet-Allocation by Hierarchical-Dirichlet-Process
+
+*** sample usage
+#+INCLUDE: \"../sample/svm-validation.org\"  example lisp 
+")
+  )
 
 (defpackage :clml.nonparametric.hdp
   (:nicknames :nonparametric.hdp)

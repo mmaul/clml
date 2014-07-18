@@ -523,8 +523,20 @@ updated)."
     finally (setf (aref *kernel-function-result* 0) result))
   nil)
 
+(defun make-linear-kernel ()
+  "- return: <Closure>, linear kernel"
+  (define-kernel-function (z-i z-j :linear)
+    (loop
+      for k of-type array-index below (1- (length z-i))
+      sum (* (aref z-i k) (aref z-j k))
+        into result of-type double-float
+      finally (return result))))
+
 
 (defun make-rbf-kernel (&key gamma)
+  "- return: <Closure>, RBF kernel (Gaussian kernel)
+- aregumrns:
+ - gamma : K(x,y) = exp(-gamma*|| x- y ||^2)"
   (assert (> gamma 0.0d0))
   (lambda (z-i z-j)
     (declare (type dvec z-i z-j)
@@ -539,6 +551,9 @@ updated)."
 
 
 (defun make-polynomial-kernel (&key gamma r d)
+  "- return: <Closure>, polynomial kernel
+- arguments:
+ - gamma, r, d : K(x,y) = (gamma*(x・y)+r)^d"
   (declare (type double-float gamma r))
   (assert (> gamma 0.0d0))
   (assert (and (integerp d) (> d 0)))
@@ -551,6 +566,19 @@ updated)."
 
 
 (defun make-svm-learner (training-vector kernel-function c)
+  "- return: <Closure>, SVM
+- arguments:
+ - training-vector : (SIMPLE-ARRAY T (* )) consist of (SIMPLE-ARRAY DOUBLE-FLOAT (* )),
+                     data-format : last column is a label (+1.0 or -1.0)
+ - kernel-function :<Closure>, kernel function
+ - c : penalty parameter of soft margin SVM
+ - weight : weight parameter of -1 class, default is 1.0
+ - file-name : file-name to save the SVM
+ - external-format : character code
+ - cache-size-in-MB : Cache size (default 100)
+- reference: Working Set Selection Using Second Order Information for Training SVM.
+            Chih-Jen Lin.
+            Joint work with Rong-En Fan and Pai-Hsuen Chen."
   (multiple-value-bind (alpha-array b) (smo-solver training-vector kernel-function c)
     (make-discriminant-function training-vector kernel-function alpha-array b)))
 
@@ -566,6 +594,14 @@ updated)."
     (svm-output training-vector kernel-function alpha-array b)))
 
 (defun svm-validation (svm-learner test-vector)
+  "- return : classification result, accuracy
+- arguments:
+ - svm-learner : SVM
+ - test-vector
+
+*** sample usage
+#+INCLUDE: \"../sample/svm-validation.org\"  example lisp 
+"
   (check-type test-vector simple-vector)
   (check-type (aref test-vector 0) dvec)
   (let ((n (length test-vector))
@@ -578,6 +614,11 @@ updated)."
 
 
 (defun load-svm-learner (file-name kernel-function)
+  "- return: <Closure>, SVM
+- argumtns:
+ - file-name : save file name of SVM
+ - kernel-function :<Closure>, used kernel function to make the SVM
+ - external-format : character code"
   (let* ((material-list 
 	  (with-open-file (in file-name :external-format :utf-8 :direction :input)
 	    (read in)))

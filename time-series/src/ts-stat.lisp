@@ -16,6 +16,18 @@
         do (setf (ts-p-time point) (first tf)
                  (ts-p-freq point) (second tf)))
     data))
+
+(defgeneric diff (d &key)
+  (:documentation "- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>
+  - lag : <integer>, degree of lag
+  - differences : <integer> >= 1, number of difference
+- comments:
+  Calculate the Difference.
+  e.g. Suppose the trend of /time-series-dataset/ is linear. It will be eliminated by /differences/ = 1.
+"))
+
 (defmethod diff ((d time-series-dataset) &key (lag 1)
                                               (differences 1))
   (assert (every #'integerp `(,lag ,differences)))
@@ -24,12 +36,27 @@
       (ts- d (lag d :k (- lag)))
     (diff (ts- d (lag d :k (- lag))) :lag lag :differences (1- differences))
     ))
+
+(defgeneric ts-tatio (d &key)
+  (:documentation "- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>
+  - lag : <integer>, degree of lag
+- comments:
+  Calculate the ratio of period-on-period increase/decrease with the assumption that /lag/ is the frequency for /d/.
+"))
 (defmethod ts-ratio ((d time-series-dataset) &key (lag 1))
   (unless lag
     (setq lag (ts-freq d)))
   (compose-ts (merge-ts d (lag d :k (- lag))) :composer #'/ 
               :column-name (format nil "ratio (lag: ~A)" lag)))
-      
+
+(defgeneric ts-log (d &key)
+  (:documentation "- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>
+  - logit-transform : t | nil, logit transformation is effective for (0, 1) values ts data
+"))
 (defmethod ts-log ((d time-series-dataset) &key (logit-transform nil)
                                                 (log-base (exp 1)))
   (let ((ts (copy-ts d)))
@@ -50,6 +77,9 @@
              (map 'dvec #'(lambda (val) (dfloat (log val log-base)))
                   (ts-p-pos point))))
     ts))
+
+(defgeneric ts-min (d)
+  (:documentation "- argument: <time-series-dataset>"))
 (defmethod ts-min ((d time-series-dataset))
   (with-accessors ((dims dataset-dimensions)
                    (points ts-points)) d
@@ -57,6 +87,9 @@
     (map 'vector #'(lambda (seq)
                      (apply #'min (coerce seq 'list)))
          (transposev (map 'vector #'ts-p-pos points)))))
+
+(defgeneric ts-max (d)
+  (:documentation "- argument: <time-series-dataset>"))
 (defmethod ts-max ((d time-series-dataset))
   (with-accessors ((dims dataset-dimensions)
                    (points ts-points)) d
@@ -64,17 +97,26 @@
     (map 'vector #'(lambda (seq)
                      (apply #'max (coerce seq 'list)))
          (transposev (map 'vector #'ts-p-pos points)))))
+
+(defgeneric ts-mean (d)
+  (:documentation "- argument: <time-series-dataset>"))
 (defmethod ts-mean ((d time-series-dataset))
   (with-accessors ((dims dataset-dimensions)
                    (points ts-points)) d
     (assert (>= (length points) 1))
     (mean-points (map 'vector #'ts-p-pos points))))
+
+(defgeneric ts-median (d)
+  (:documentation "- argument: <time-series-dataset>"))
 (defmethod ts-median ((d time-series-dataset))
   (with-accessors ((dims dataset-dimensions)
                    (points ts-points)) d
     (assert (>= (length points) 1))
     (map 'vector (lambda (seq) (median seq))
          (transposeV (map 'vector #'ts-p-pos points)))))
+
+(defgeneric ts-stat (d)
+  (:documentation "- argument: <time-series-dataset>"))
 (defmethod ts-stat ((d time-series-dataset))
   (with-accessors ((points ts-points)) d
     (map 'list (lambda (seq)
@@ -93,6 +135,9 @@
                                              (if (plusp cov) (sqrt cov) 0d0)
                                              (median seq))))))
          (transposeV (map 'vector #'ts-p-pos points)))))
+
+(defgeneric ts-demean (d)
+  (:documentation "- argument: <time-series-dataset>"))
 (defmethod ts-demean ((d time-series-dataset))
   (with-accessors ((dims dataset-dimensions)
                    (ps ts-points)
@@ -114,7 +159,12 @@
         dvec)) ps)
        :start start :end end :freq freq 
        :time-labels time-label-array :time-label-name label-name))))
-    
+
+(defgeneric ts-covariance (d &key)
+  (:documentation "- return: <matrix>, auto-covariance or auto-correlation matrix with lag k
+- arguments:
+  - d : <time-series-dataset>
+  - k : <positive integer>, degree of lag"))
 (defmethod ts-covariance ((d time-series-dataset) &key (k 0) (demean t))
   (assert (and (>= k 0) (> (length (ts-points d)) k)))
   (let* ((mu (ts-mean d))
@@ -145,6 +195,12 @@
         (setf (aref result ix iy)
           (* (inner-product p1 p2) 1/n))))
     result))
+
+(defgeneric ts-correlation (d &key)
+  (:documentation "- return: <matrix>, auto-correlation matrix with lag k
+- arguments:
+  - d : <time-series-dataset>
+  - k : <positive integer>, degree of lag"))
 (defmethod ts-correlation ((d time-series-dataset) &key (k 0))
   (assert (and (>= k 0) (> (length (ts-points d)) k)))
   (let* ((C-k (ts-covariance d :k k))
@@ -157,6 +213,12 @@
     C-k))
   
 ;;; moving-average
+(defgeneric ma (d &key)
+  (:documentation "- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>, one dimensional
+  - k : <positive integer>, range of calculation for average
+  - weight : nil | <list>, when weight is nil, it will be all same weight."))
 (defmethod ma ((d time-series-dataset) &key (k 5) weight)
   (with-accessors ((dims dataset-dimensions)
                    (ps ts-points)
@@ -197,6 +259,14 @@
            data :start start :end end :freq freq))))))
 
 ;;; auto-correlation or auto-covariance function
+(defgeneric acf (d &key)
+  (:documentation "- return: nil | <list>
+- arguments:
+  - d     : <time-series-dataset>
+  - type  : :covariance | :correlation
+  - max-k : <positive integer>
+  - plot  : nil | t, when plot is t, result will be plotted by R.
+  - print : nil | t, when print is t, result will be printed."))
 (defmethod acf ((d time-series-dataset) &key (type :correlation)
                                              (plot nil)
                                              (print t)
@@ -264,7 +334,15 @@
             (print nil)
             (t results)))))
 
+
 (defun ccf (d1 d2 &key (type :correlation) (plot nil) (print t) max-k)
+  "- return: nil | <list>
+- arguments:
+  - d1, d2 : <time-series-dataset>, one dimensional
+  - type  : :covariance | :correlation
+  - max-k : <positive integer>
+  - plot  : nil | t, when plot is t, result picture will be plotted by R.
+  - print : nil | t, when print is t, result will be printed."
   (check-type d1 time-series-dataset)
   (check-type d2 time-series-dataset)
   (assert (= (ts-freq d1) (ts-freq d2)))
@@ -322,6 +400,18 @@
               (t results))))))
 
 ;;; calculate periodgram
+(defgeneric peroidgram (d &key)
+  (:documentation "- return: nil | <list>
+- arguments:
+  - d     : <time-series-dataset>
+  - plot  : nil | t, when plot is t, result picture will be plotted by R.
+  - print : nil | t, when print is t, result will be printed.  
+  - log   : nil | t, when log is t, the value of P(f) will be logarized.
+  - smoothing : :raw | :mean | :hanning | :hamming, the way of smoothing
+  - step  : nil | <positive integer>, parameter for smoothing :mean
+- comments:
+  Because of the algorithm of FFT,
+  only the power of the frequency which has cycle m / 2^n (m,n : natural number) is obtained."))
 (defmethod periodgram ((d time-series-dataset) &key step (print t) (plot nil) (log t)
                                                     (smoothing :raw) ; :mean :hanning :hamming
                                                     )

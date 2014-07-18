@@ -26,7 +26,8 @@
    #:total
    #:column-name->column-number
    #:sum-up
-   #:make-variable-index-hash))
+   #:make-variable-index-hash)
+  (:documentation "decision tree package"))
 
 (defpackage :clml-decision-tree.random-forest
   (:nicknames :random-forest)
@@ -56,4 +57,8 @@
    #:importance
    #:predict-regression-forest
    #:forest-validation
-   #:regression-forest-validation))
+   #:regression-forest-validation)
+  (:documentation "random forest package
+
+*** sample usage
+#+INCLUDE: \"../sample/random-forest.org\" example lisp"))

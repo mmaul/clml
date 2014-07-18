@@ -402,6 +402,20 @@ Otherwise, you must use :auto for random-seed."))
 
 ;;; main solver
 ;; (defgeneric k-means (k dataset &key distance-fn max-iteration num-of-trials random-state))
+(defgeneric k-means (k d &key)
+  (:documentation "- return: (best-result table)
+  - best-result		:	points, clusters, distance infomation, etc.
+  - table		:	lookup table for normalized vecs and original vecs, might be removed later.
+- arguments:
+  - k			:	<integer>, number of clusters
+  - dataset		:	<numeric-dataset> | <category-dataset> | <numeric-or-category-dataset>
+  - distance-fn		:	#'euclid-distance | #'manhattan-distance | #'cosine-distance
+  - standardization	:	t | nil, whether to standardize the inputs
+  - max-iteration	:	maximum number of iterations of one trial
+  - num-of-trials	:	number of trials, every trial changes the initial position of the clusters
+  - random-state	:	(for testing), specify the random-state of the random number generator
+  - debug		:	(for debugging) print out some debugging information
+"))
 (defmethod k-means ((k integer) (dataset numeric-dataset) &key
 		    (distance-fn *distance-function*)
 		    standardization

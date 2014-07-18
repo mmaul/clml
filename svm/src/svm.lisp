@@ -55,15 +55,24 @@
 (defclass polynomial-kernel (kernel)
   ((biasedp :initform t)
    (dimension :initarg :dimension :reader dimension)
-   (homogeneousp :initarg :homogeneousp :reader homogeneousp)))
+   (homogeneousp :initarg :homogeneousp :reader homogeneousp))
+  (:documentation "- reader:
+  - dimension
+  - homogeneousp
+- generator:
+  - polynomial-kernel (dimension homogeneousp)")
+  )
+
 (defmethod print-object ((obj polynomial-kernel) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": D = ~a ~:[NON-~;~]HOMOGENEOUS"
 	    (dimension obj) (homogeneousp obj))))
+
 (defmethod kernel ((kernel polynomial-kernel) x1 x2)
   (if (homogeneousp kernel)
       (expt (scalar-product x1 x2) (dimension kernel))
       (expt (1+ (scalar-product x1 x2)) (dimension kernel))))
+
 (defun polynomial-kernel (dimension homogeneousp)
   (make-instance 'polynomial-kernel
 		 :dimension dimension :homogeneousp homogeneousp))
@@ -72,10 +81,17 @@
 
 (defclass radial-kernel (kernel)
   ((biasedp :initform nil)
-   (gamma :initarg :gamma :reader gamma)))
+   (gamma :initarg :gamma :reader gamma))
+  (:documentation "- reader:
+  - gamma : <number> above 0
+- generator:
+  - radial-kernel (gamma)
+  - gaussian-kernel (sigma2)"))
+
 (defmethod print-object ((obj radial-kernel) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": GAMMA = ~a" (gamma obj))))
+
 (defmethod kernel ((kernel radial-kernel) x1 x2)
   (let ((d (v- x1 x2)))
     (handler-case
@@ -83,6 +99,7 @@
       (FLOATING-POINT-UNDERFLOW (c)
         (declare (ignore c))
         0.0d0))))
+
 (defun radial-kernel (gamma)
   "For GAMMA > 0."
   (make-instance 'radial-kernel :gamma gamma))
@@ -93,12 +110,20 @@
 (defclass sigmoid-kernel (kernel)
   ((biasedp :initform t)
    (kappa :initarg :kappa :reader kappa)
-   (shift :initarg :shift :reader shift)))
+   (shift :initarg :shift :reader shift))
+  (:documentation "- reader:
+  - kappa : <number>
+  - shift : <number>
+- generator:
+  - sigmoid-kernel (kappa shift)"))
+
 (defmethod print-object ((obj sigmoid-kernel) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": KAPPA = ~a, SHIFT = ~a" (kappa obj) (shift obj))))
+
 (defmethod kernel ((kernel sigmoid-kernel) x1 x2)
   (tanh (+ (* (kappa kernel) (scalar-product x1 x2)) (shift kernel))))
+
 (defun sigmoid-kernel (kappa shift)
   "For some [not every] KAPPA > 0 and SHIFT < 0."
   (make-instance 'sigmoid-kernel :kappa kappa :shift shift))
@@ -146,8 +171,24 @@
 
 (defun svm (kernel positive-data negative-data
 	    &key (iterations 100) (lagrange-iterations 20) (tolerance 1.0d-20))
-  "Returns a decision function based on the given kernel function and
-training data."
+  "- return: <Closure>
+  - return of <Closure>: two values, (result number)
+    - result : t(positive) | nil(negative)
+    - number : value of kernel-fn
+  - argument of <Closure>: <seq>, estimation target
+- arguments:
+  - kernel : <kernel-fn>
+  - positive-data :  <seq seq>, training data e.g. '((8 8) (8 20) (8 44))
+  - negative-data :  <seq seq>, training data
+  - iterations : <integer>
+  - lagrange-iterations : <integer>
+  - tolerance : <number>
+
+Returns a decision function based on the given kernel function and
+training data.
+
+*** sample usage
+#+INCLUDE: \"../sample/svm.org\" example lisp"
   (declare (optimize speed (safety 0) (debug 0)))
   (multiple-value-bind (n np nm ap am)
       (svm-init kernel positive-data negative-data)

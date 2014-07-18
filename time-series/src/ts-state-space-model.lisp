@@ -15,7 +15,10 @@
                :initform (error "Must specify the H matrices"))
    (Q-matrices :initarg :Q-matrices :initform nil)
    (R-matrices :initarg :R-matrices :initform nil)
-   ))
+   )
+  (:documentation "- state space model
+- accessors:
+  - ts-data : observed time series data"))
 
 (defmethod F ((stsp state-space-model) n)
   (let ((val (slot-value stsp 'F-matrices)))
@@ -52,7 +55,9 @@
   ((x-nn :initarg :x-nn :accessor x-nn :initform nil :type list)
    (x-nn-1 :initarg :x-nn-1 :accessor x-nn-1 :initform nil :type list)
    (v-nn :initarg :v-nn :accessor v-nn :initform nil :type list)
-   (v-nn-1 :initarg :v-nn-1 :accessor v-nn-1 :initform nil :type list)))
+   (v-nn-1 :initarg :v-nn-1 :accessor v-nn-1 :initform nil :type list))
+  (:documentation "- gaussian state space model
+- parent: state-space-model"))
 (defgeneric x-00 (gaussian-stsp-model)
   (:documentation "Initial value of State x with gaussian-stsp-model"))
 (defgeneric v-00 (gaussian-stsp-model)
@@ -269,6 +274,13 @@
       :start start :end end :freq (ts-freq org-ts))
      )))
 
+(defgeneric predict (m &key)
+  (:documentation "- return: (values <time-series-dataset> <time-series-dataset>)
+  - first value is a prediction by model, second is a standard error of the model.
+- arguments:
+  - n-ahead : <non-negative-integer>
+- comments:
+  - In the case of trend model, the trend of last point of observed data continue to future."))
 (defmethod predict ((model gaussian-stsp-model) &key (n-ahead 0))
   (kalman-filter model)
   (multiple-value-bind (pos-list se-list)
@@ -313,7 +325,14 @@
  (defclass trend-model (gaussian-stsp-model)
    ((diff-k :initarg :diff-k :initform nil :type integer :accessor diff-k)
     (tau^2 :initarg :tau^2 :initform nil :type number :accessor tau^2)
-    (aic :initarg :aic :initform *nan* :type number))))
+    (aic :initarg :aic :initform *nan* :type number))
+   (:documentation "- parent: gaussian-stsp-model
+- accessors:
+  - diff-k : Degree for trend model
+  - tau^2  : Variance for trend model
+  - aic : Akaike's Information Criterion")
+   )
+ )
 
 (defmethod print-object ((model trend-model) stream)
   (with-accessors ((k diff-k) (t^2 tau^2) (ts observed-ts)) model
@@ -365,6 +384,22 @@
   (make-array '(1 1) :initial-element (coerce v 'double-float)
               :element-type 'double-float))
 
+(defgeneric trend (d &key)
+    (:documentation "- return: <trend-model>
+- arguments:
+  - d            : <time-series-dataset>
+  - k            : <positive-integer>
+  - t^2          : <positive-number>
+  - opt-t^2      : nil | t
+  - delta        : <positive-number>
+  - search-width : <positive-integer>
+- comments:
+  - In general, degree for model /k/ is 1 or 2. When /k/ = 1, assume the trend is locally fixed.
+    When /k/ = 2, assume the trend is locally linear.
+  - When /opt-t^2/ is t, /t^2/ is automatically estimated according to /delta/ and /search-width/.\\
+    In the range /t^2/ - /delta/ * /search-width/ <= /t^2/ + /delta/ * /search-width/, minimize AIC of the model.\\
+    And /delta/ decides the step for /t^2/.
+"))
 (defmethod trend ((d time-series-dataset)
                   &key (k 1) (t^2 0d0) (opt-t^2 nil) (s^2 1d0)
                        (delta 0.1d0) (search-width 10))
@@ -426,7 +461,12 @@
 (defclass seasonal-model (gaussian-stsp-model)
   ((s-deg  :initarg :s-deg :initform nil :type fixnum :accessor s-deg)
    (s-freq  :initarg :s-freq :initform nil :type fixnum :accessor s-freq)
-   (tau^2 :initarg :tau^2 :initform nil :type number :accessor tau^2)))
+   (tau^2 :initarg :tau^2 :initform nil :type number :accessor tau^2))
+  (:documentation "- parent: gaussian-stsp-model
+- accessors
+  - s-deg  : Degree for seasonal model
+  - s-freq : Frequency for seasonal model
+  - tau^2  : Variance for seasonal model"))
 
 (defun d_i (i deg freq)
   (declare (type fixnum i deg freq))
@@ -517,8 +557,27 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass seasonal-adjustment-model (gaussian-stsp-model)
   ((trend :initarg :trend :initform nil :type trend-model :accessor trend-model)
-   (seasonal :initarg :seasonal :initform nil :type seasonal-model :accessor seasonal-model)))
+   (seasonal :initarg :seasonal :initform nil :type seasonal-model :accessor seasonal-model))
+  (:documentation "Standard seasonal adjustment model ( Trend + Seasonal )
+- parent: gaussian-stsp-model
+- accessors
+  - trend-model
+  - seasonal-model"))
 
+(defgeneric seasonal-dj (d &key)
+  (:documentation "- return: <seasonal-adjustment-model>
+- arguments:
+  - d            : <time-series-dataset>, one dimensional time-series-dataset
+  - tr-k         : <positive-integer>, Degree for trend model
+  - tr-t^2       : <positive-number>, Variance for trend model
+  - s-deg        : <positive-integer>, Degree for seasonal model
+  - s-freq       : <positive-integer>, Frequency, If if's not specified, frequency of /d/ is applied.
+  - s-t^2        : <positive-number>, Variance for seasonal model
+  - s^2          : <positive-number>, Variance for observation model
+- comments:
+  - Seasonal adjustment model is the model which decompose /d/ into trend model and seasonal model.
+  - In general, /s-deg/ should be degree 1.
+  - /s-freq/ must be more than 2."))
 (defmethod seasonal-adj ((d time-series-dataset)
                          &key (tr-k 1) (tr-t^2 0d0)
                               (s-deg 1) s-freq (s-t^2 0d0)

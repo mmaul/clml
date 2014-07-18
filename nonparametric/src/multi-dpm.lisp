@@ -8,11 +8,20 @@
    (acc :initarg :acc)))
 
 (defclass multivar-gauss-dpm (logged-dpm gauss-dpm)
-  ((dimension :initform 2 :initarg :dim :accessor dpm-dim)))
+  ((dimension :initform 2 :initarg :dim :accessor dpm-dim))
+  (:documentation "- accessor:
+  - dpm-k : number of clusters
+  - dpm-hyper: hyperparameter of DPM clustering. This value represents the tendency of making new cluster.
+  - dpm-base : <multivar-dp-gaussian>, prior distribution"))
 
 (defclass multivar-dp-gaussian (dp-gaussian)
   ((dimension :initform 2 :initarg :dim :accessor dist-dim)
-   (ave-of-std :initarg :aos :accessor average-of-std)))
+   (ave-of-std :initarg :aos :accessor average-of-std))
+  (:documentation "- accessor:
+  - average-of-average : (SIMPLE-ARRAY DOUBLE-FLOAT (* )), average of centroids
+  - std-of-average : (SIMPLE-ARRAY DOUBLE-FLOAT (* * )), covariance matrix of centroids
+  - average-of-std : (SIMPLE-ARRAY DOUBLE-FLOAT (* * )), average of covariance matrix
+"))
 
 (defmethod initialize-instance ((instance multivar-gauss-dpm) &rest initargs)
   (declare (ignore initargs))

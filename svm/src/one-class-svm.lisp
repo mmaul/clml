@@ -319,6 +319,15 @@
 
 
 (defun one-class-svm (data-vector &key nu gamma)
+  "- return: <Closure>, one-class-SVM
+- arguments:
+ - data-vector : (SIMPLE-ARRAY T (* )) consist of (SIMPLE-ARRAY DOUBLE-FLOAT (* ))
+ - nu :　0 <= nu <= 1, parameter
+ - gamma : gamma of RBF-kernel
+
+*** sample usage
+#+INCLUDE: \"../sample/one-class-svm.org\" example lisp 
+"
   (assert (and (< 0.0d0 nu 1.0d0) (plusp gamma)))
   (let* ((nu (coerce nu 'double-float))
          (gamma (coerce gamma 'double-float))

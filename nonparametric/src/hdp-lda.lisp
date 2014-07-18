@@ -48,7 +48,12 @@
    (f-k    :accessor hdp-lda-f-k)
    (word-table :initform (make-hash-table :test #'equal) :accessor word-table)
    (revert-table :accessor revert-table)
-   (id :initform -1 :accessor vocabulary)))
+   (id :initform -1 :accessor vocabulary))
+  (:documentation "- accessor:
+  - topic-count: <integer>, number of topics
+  - hdp-lda-alpha: value of hyperparameter alpha
+  - hdp-lda-beta: value of hyperparameter beta
+  - hdp-lda-gamma: value of hyperparameter gamma"))
 
 (defmethod ensure-word ((hdp-lda hdp-lda) string)
   (let ((memo (word-table hdp-lda)))

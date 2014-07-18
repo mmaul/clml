@@ -12,7 +12,18 @@
            :accessor header
            :accessor assoc-result-header
            :initform
-           #("premise" "conclusion" "support" "confidence" "lift" "conviction"))))
+           #("premise" "conclusion" "support" "confidence" "lift" "conviction")))
+  (:documentation "- accessor:
+  - rules :       extracted results      <list vector>
+  - thresholds :  (support confidence lift conviction)
+  - rule-length : maximum length of a rule  <integer>
+- note: the vectors of extracted results are rules, they contain the following elements
+  - "premise": the premise part of the rule, a list of unit rules
+  - "conclusion": the conclusion part of the rule, a list of unit rules
+  - "support", "confidence", "lift", "conviction": some helpfulness indices of the rule
+  - unit rule (where length is 1), is represented as string "<column name> = <value>".")
+  )
+
 (defmethod print-object ((d assoc-result-dataset) stream)
   (print-unreadable-object (d stream :type t :identity nil))
   (format stream "~&THRESHOLDS: ~{~A ~A~^~T| ~}~%"
@@ -164,6 +175,22 @@
 
 (defun %association-analyze (unsp-dataset target-variables key-variable rule-length
                                              &key (support 0) (confident 0) (lift 0) (conviction 0))
+  "- return: assoc-result-dataset
+- arguments:
+  - infile : <string>
+  - outfile : <string>
+  - target-variables : <list string> column names
+  - key-variable : <string> column name for determining identities
+  - rule-length : <integer> >= 2, maximum length for a rule
+  - support : <number> for percentage
+  - confident : <number> for percentage
+  - lift : <number> beyond 0
+  - conviction : <number> beyond 0
+  - file-type		:	:sexp | :csv
+  - external-format	:	<acl-external-format>
+  - csv-type-spec	:	<list symbol>, type conversion of each column when reading lines from CSV file, e.g. '(string integer double-float double-float)
+  - algorithm : :apriori | :da | :fp-growth | :eclat | :lcm
+"
   (assert (and (<= 0 support 100) (<= 0 confident 100) (<= 0 lift) (<= 0 conviction)))
   (assert (and (integerp rule-length) (<= 2 rule-length)))
   (multiple-value-bind (transactions item-order)
@@ -321,6 +348,18 @@
 
 (defun %association-analyze-apriori (unsp-dataset target-variables key-variable rule-length
 				     &key (support 0) (confident 0) (lift 0) (conviction 0))
+  "ssociation analyze with apriori algorithm.
+- return: assoc-result-dataset
+- arguments:
+  - unsp-dataset: <unspecialized-dataset>
+  - target-variables : (list of string) column names
+  - key-variable : <string> column name for determining identities
+  - rule-length : <integer> >= 2, maximum length for a rule
+  - support : <number> for percentage
+  - confident : <number> for percentage
+  - lift : <number> beyond 0
+  - conviction : <number> beyond 0
+"
   (assert (and (<= 0 support 100) (<= 0 confident 100) (<= 0 lift) (<= 0 conviction)))
   (assert (and (integerp rule-length) (<= 2 rule-length)))
   (multiple-value-bind (transactions item-order)

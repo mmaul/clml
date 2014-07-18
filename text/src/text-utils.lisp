@@ -5,6 +5,14 @@
 
 ;;; 文字列の類似度を算出する
 (defun calculate-string-similarity (str1 str2 &key (type :lev)) ;; :lev | :lcs
+  "- return: number of similarity
+- arguments:
+  - str1: <string>
+  - str2: <string>
+  - type: :lev | :lcs
+- comments:
+  :lev for /type/, calculate similarity by levenshtein distance.\\
+  :lcs for /type/, calculate similarity by lcs distance."
   (ecase type
     (:lev (calculate-levenshtein-similarity str1 str2))
     (:lcs (calculate-lcs-similarity str1 str2))))
@@ -22,6 +30,18 @@
 (defun calculate-levenshtein-distance (str1 str2)
   (declare (optimize (speed 3))
            (type (simple-array character (*)) str1 str2))
+  "calculate the (edit distance) distance.
+Levenshtein distance (edit distance) to those obtained by quantifying similarity of two strings.
+Counting the minimum number of steps for transforming from one to the other in the insertion / deletion / substitution character
+Recurrence follows when (i, j) and the LD levenshtein distance between the substring to j-th string 2 in the string str2 in a partial string of up to the i-th of a string str1 expression holds.
+#+BEGIN_SRC
+  LD (i, j) = LD (i-1, j) + 1 (insert)
+  (I, j-1) + 1 (deletion) LD (i, j) = LD
+  (. 0, c 1 replacement if Chigae the next character being equal) LD (i, j) = LD (i-1, j-1) + c
+  LD (0,0) = 0, LD (i, 0) = i, LD (0, j) = j (base)
+#+END_SRC
++ Are not case sensitive
++ Argument str1 (string 1) str2 (string 2)"
   (let ((strlen1 (length str1))
         (strlen2 (length str2)))
     (declare (type (integer 0 #.most-positive-fixnum) strlen1 strlen2))
@@ -118,7 +138,11 @@
 
 ;;文字列で名指された対象間に与えられた同値関係から、同値類を形成しリストで返す。
 (defun equivalence-clustering (data-vector)
-  "Based on Knuth's equivalence clustering algorithm"
+  "- return: clustering results list
+- arguments:
+  - data-vector : #(string-a,string-b,...,label), label = 1.0 <->(a~b), label = -1.0 <-> not (a~b)
+
+Based on Knuth's equivalence clustering algorithm"
   (when (= 0 (length data-vector))
     (return-from equivalence-clustering nil))
   ;;(assert (<= 1 (length data-vector)))

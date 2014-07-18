@@ -23,7 +23,13 @@
    #:tf-gap
    #:ts-cleaning)
   (:import-from :read-data #:clean-points #:dimension)
-  )
+  (:documentation
+   "Time-Series-Read-Data
+
+package for reading time series data
+
+*** sample usage
+#+INCLUDE: \"../sample/svm-validation.org\"  example lisp "))
 
 (defpackage :clml.time-series.util
   (:documentation "
@@ -83,12 +89,22 @@
    #:ma
    #:acf
    #:ccf
-   #:periodgram))
+   #:periodgram)
+  (:documentation "Time-Series-Statistics
+Package for statistic utils for /time-series-dataset/.
+
+*** sample usage
+#+INCLUDE: \"../sample/svm-validation.org\"  example lisp")
+  )
 
 (defpackage :clml.time-series.state-space
-  (:documentation  "
-    classes and methods for state-space-model
-    reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降")
+  (:documentation  "Package for state space model.
+Classes and methods for representing various time series model.
+Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
+
+*** sample usage
+#+INCLUDE: \"../sample/state-space-model.org\" example lisp 
+")
   (:use :cl :read-data :util :vector :matrix
         :statistics :ts-util :ts-stat :ts-read-data
         :handling-missing-value)
@@ -112,7 +128,10 @@
   (:nicknames :ts-ar :ts-autoregression)
   (:export
    #:ar #:ar-prediction
-   #:parcor #:parcor-filtering))
+   #:parcor #:parcor-filtering)
+  (:documentation "Package for AutoRegression model
+*** sample usage
+#+INCLUDE: \"../sample/time-series-autoregression.org\"  example lisp"))
 
 (defpackage :clml.time-series.changefinder
   (:use :cl
@@ -128,7 +147,19 @@
         )
   (:nicknames :changefinder)
   (:export :init-changefinder
-           :update-changefinder))
+           :update-changefinder)
+  (:documentation "ChangeFinder
+Package for "ChangeFinder"
+
+**** Comments
+- A value of 0.01 has been added to the diagonal elements of the covariance matrix
+  for the stability of the inverse matrix calculation.
+  User can edit this value by the special variable named *stabilizer*.
+**** Reference
+- J. Takeuchi, K. Yamanishi\"A Unifying framework for detecting outliers and change points from time series\" 
+- K. Yamanishi "データマイニングによる異常検知" p.45-58
+")
+  )
 
 
 (defpackage :clml.time-series.anomaly-detection
@@ -154,7 +185,15 @@
            :e-scores)
   #+allegro
   (:use :excl)
-  )
+  (:documentation "Direction-based anomaly detector
+ *** Reference
+ T.Ide and H.Kashima \"Eigenspace-based Anomaly Detection in Computer Systems\" sec.5
+*** sample usage for make-db-detector and make-periodic-detector
+#+INCLUDE: \"../sample/perodic-and-db-detector.org\"  example lisp
+
+*** sample usage for SNN and EEC
+#+INCLUDE: \"../sample/time-series-snn-eec.org\"  example lisp
+"))
 
 (defpackage :clml.time-series.exponential-smoothing
   (:use :cl
@@ -173,7 +212,9 @@
    #:best-triple-exp-parameters
    #:holtwinters
    #:holtwinters-prediction
-   ))
+   )
+  (:documentation "*** sample usage
+#+INCLUDE: \"../sample/time-series-holtwinters.org\"  example lisp "))
 
 (defpackage :clml.time-series.burst-detection
   (:use :cl :read-data :handling-missing-value

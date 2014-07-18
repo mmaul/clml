@@ -187,6 +187,9 @@
 
 (defun %association-analyze-fp-growth (labeled-dataset target-variables key-variable rule-length
 				       &key (support 0) (confident 0) (lift 0) (conviction 0))
+  "Association analyze with frequent pattern growth algorithm
+- return value and arguments are same as %association-analyze-apriori
+"
   (assert (and (<= 0 support 100) (<= 0 confident 100) (<= 0 lift) (<= 0 conviction)))
   (assert (and (integerp rule-length) (<= 2 rule-length)))
   (multiple-value-bind (trie total-count)

@@ -157,6 +157,14 @@
 
 #-fork-future
 (defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
+  "- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
+- arguments:
+ - unspecialized-dataset
+ - objective-variable-name
+ - test : delta-gini | delta-entropy , splitting criterion function, default is delta-gini
+ - tree-number : the number of decision trees, default is 500
+- reference : [[http://www-stat.stanford.edu/~tibs/ElemStatLearn/][Trevor Hastie, Robert Tibshirani and Jerome Friedman. The Elements of Statistical Learning:Data Mining, Inference, and Prediction]]
+"
   (let ((forest (make-array tree-number)))
     (dotimes (i tree-number forest)
 	     (setf (svref forest i) (make-random-decision-tree unspecialized-dataset objective-column-name :test test)))))
@@ -183,6 +191,14 @@
     forest))
 #+ (and future  sbcl)
 (defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
+  "- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
+- arguments:
+ - unspecialized-dataset
+ - objective-variable-name
+ - test : delta-gini | delta-entropy , splitting criterion function, default is delta-gini
+ - tree-number : the number of decision trees, default is 500
+- reference : [[http://www-stat.stanford.edu/~tibs/ElemStatLearn/][Trevor Hastie, Robert Tibshirani and Jerome Friedman. The Elements of Statistical Learning:Data Mining, Inference, and Prediction]]
+"
   (let ((forest (make-array tree-number)))
     (let ((futures
            (loop for nworker below hjs.learn.vars:*workers*
@@ -203,6 +219,12 @@
     forest))
 
 (defun predict-forest (query-vector unspecialized-dataset forest)
+  "- return: string, prediction
+- arguments:
+ - query-vector
+ - unspecialized-dataset : dataset used to make a random forest
+ - forest
+- comments : make predictions by a majority vote of decision trees in random forest."
   (car (reduce #'(lambda (x y) (if (<= (cdr x) (cdr y))
 				   y
 				 x))
@@ -211,6 +233,13 @@
 			   collect (predict-decision-tree query-vector unspecialized-dataset (svref forest i)))))))
 
 (defun forest-validation (validation-dataset objective-column-name forest)
+  "- return: CONS, validation result
+- arguments:
+ - unspecialized-dataset : dataset for validation
+ - objective-variable-name
+ - forest
+- comments : each element of returning association list represents that ((prediction . answer) . number).
+"
   (let* ((variable-index-hash (make-variable-index-hash validation-dataset))
 	 (k (column-name->column-number variable-index-hash objective-column-name))
 	(validation-data-vector (dataset-points validation-dataset)))
@@ -322,6 +351,11 @@
     0))
 
 (defun importance (forest)
+  "- importance of explanatory variables
+- return: NIL
+- arguments:
+ - forest
+"
   (format t "~%")
   (loop
       with column-list = (nth 5 (first (aref forest 0)))

@@ -19,4 +19,7 @@
            :scan-input-data-eclat
            :%association-analyze-eclat
            
-           ))
+           )
+  (:documentation "Package for association rule analysis
+*** sample usage
+#+INCLUDE: \"../sample/association-analyze.org\" example lisp"))

@@ -383,6 +383,17 @@
 
 
 (defun make-svr-learner (training-vector kernel-function &key c epsilon file-name external-format)
+  "- return: <Closure>, epsilon-SVR
+- arguments:
+ - training-vector : (SIMPLE-ARRAY T (* )) consist of (SIMPLE-ARRAY DOUBLE-FLOAT (* )),
+                     data-format : last column is a target value
+ - kernel-function :<Closure>, kernel function
+ - c : penalty parameter
+ - epsilon : width of epsilon-tube
+ - file-name : file-name to save the SVR
+ - external-format : character code
+- reference: A Study on SMO-type Decomposition Methods for Support Vector Machines.
+            Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"
   (assert (and (plusp c) (plusp epsilon)))
   (let* ((cc (coerce c 'double-float))
          (alpha-array (qp-solver training-vector kernel-function cc epsilon))
@@ -399,6 +410,11 @@
 
 
 (defun load-svr-learner (file-name kernel-function &key external-format)
+  "- return: <Closure>, epsilon-SVR
+- argumetns:
+ - file-name : save file name of SVR
+ - kernel-function :<Closure>, used kernel function to make the SVR
+ - external-format : character code"
   (let* ((material-list 
 	  (with-open-file (in file-name :external-format external-format :direction :input)
 	    (read in)))
@@ -414,7 +430,13 @@
 
 
 (defun svr-validation (svr-learner test-vector)
-  "Mean Squared Error"
+  "- return : MSE (Mean Squared Error)
+- arguments:
+ - svr-learner
+ - test-vector
+
+*** sample usage
+#+INCLUDE: \"../sample/svr-validation.org\" example lisp"
   (loop
       for test-sample of-type (simple-array double-float (*)) across test-vector
       with target-index of-type fixnum = (1- (length (svref test-vector 0)))

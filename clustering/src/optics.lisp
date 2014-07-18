@@ -35,7 +35,12 @@
   ((ordered-data :initform nil :initarg :ordered-data
                  :accessor ordered-data)
    (cluster-info :initform nil :initarg :cluster-info
-                 :accessor cluster-info)))
+                 :accessor cluster-info))
+  (:documentation "+ accessor:
+  - ordered-data : points, reachability-distance, core-distance, cluster-id 
+  - cluster-info : <list (cluster-id . size)>, ID and the size of elements of each cluster
++ note: when cluster-id = -1, it means a noise point.")
+  )
 
 (defmethod print-object ((o optics-output) stream)
   (with-accessors ((info cluster-info)) o
@@ -68,6 +73,21 @@
                                 (distance :manhattan)
                                 (normalize nil)
                                 (external-format :default))
+  "- return: optics-output
+- arguments:
+  - input-path : <string>
+  - epsilon : <number> above 0, neighborhood radius
+  - min-pts : <integer> above 0, minimum number of data points
+  - r-epsilon : <number> above 0 not more than epsilon, threshold for reachability-distance
+  - target-cols : <list string>, the names of target columns, each column's type is :numeric
+  - file-type : :sexp | :csv
+  - csv-type-spec : <list symbol>, type conversion of each column when reading lines from CSV file, e.g. '(string integer double-float double-float)
+  - distance : :manhattan | :euclid | :cosine
+  - normalize : t | nil
+  - external-format	:	<acl-external-format>
+*** sample usage
+#+INCLUDE: \"../sample/optics.org\" example lisp
+"
   (assert (plusp epsilon))
   (assert (plusp min-pts))
   (assert (and (plusp r-epsilon) (<= r-epsilon epsilon)))

@@ -8,7 +8,8 @@
 
 (in-package :cluster-validation)
 
-(defvar *workspace*)
+(defvar *workspace* nil
+  "*workspace* | validation target, the result of k-means clustering")
 
 (defun default-init-workspace ()
   (progn (setf cluster-validation:*workspace* 
@@ -352,6 +353,7 @@
 
 
 (defun calinski (&optional (*workspace* *workspace*))
+  "- return: <number> cluster validity index"
   (let ((n (length (pw-points *workspace*)))
 	(k (length (pw-clusters *workspace*))))
     (/ (* (ssb)  (- (1- n) k)) (* (ssw) (1- k)))))

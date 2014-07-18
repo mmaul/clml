@@ -61,6 +61,10 @@
 	   (* (aref coefficients i) (vector-mean (i-thvector numeric-dataset (nth i range)))))))))
 
 (defun mlr (numeric-dataset range)
+  "- return: <SIMPLE-ARRAY DOUBLE-FLOAT (*)>, intercept and coefficients of multiple regression formula
+- arguments:
+  - numeric-dataset : <NUMERIC-DATASET>
+  - range : <list>, '(indices of explanatory variables, index of objective variable)"
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (let* ((s (make-matrix-s numeric-dataset range))
          (c (make-vector-c numeric-dataset range))

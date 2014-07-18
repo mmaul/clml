@@ -31,7 +31,13 @@ CL-USER> (best-double-exp-parameters
    (seasonal :initarg :seasonal
              :accessor seasonal
              :type symbol
-             :initform nil)))
+             :initform nil))
+  (:documentation "- accessors:
+  - exp-type : :single | :double | :triple, type of exponential-smoothing
+  - 3-params : Value for alpha, beta, gamma
+  - err-info : Error measure function and its value
+  - seasonal : :additive | :multiplicative, the way for seasonal adjustment"))
+
 (defmethod print-object ((model holtwinters-model) stream)
   (with-accessors ((params 3-params)
                    (err err-info)
@@ -306,6 +312,19 @@ CL-USER> (best-double-exp-parameters
    (make-array 3)
    :step step))
 
+(defgeneric holtwinters (d &key)
+    (:documentation "- return: <holtwinters-model>
+- arguments:
+  - alpha : nil | 0 <= <double-float> <= 1
+  - beta  : nil | 0 <= <double-float> <= 1
+  - gamma : nil | 0 <= <double-float> <= 1
+  - err-measure : 'mse | 'mape | 'rae | 're | 'rr
+  - optim-step  : 0 <= <double-float> <= 1, step for optimizing alpha, beta and gamma
+  - seasonal    : :additive | :multiplicative
+- comments:
+  when alpha, beta and gamma are nil, optimize those parameters by /optim-step/ and /err-measure/.\\
+  Minimize the value of /err-measure/ to choose alpha, beta and gamma with optimization step specified by /optim-step/.\\
+  Accordinglly, for example, /optim-step/ = 0.001d0 takes a long time."))
 (defmethod holtwinters ((d time-series-dataset) &key alpha beta gamma 
                                                      (err-measure 'mse) 
                                                      (optim-step 0.1d0)
@@ -356,6 +375,11 @@ CL-USER> (best-double-exp-parameters
         :err-info `(,err-measure ,err) :observed-ts d
         :seasonal seasonal))))
 
+(defgeneric predict(m &key)
+    (:documentation "- return: <time-series-dataset>
+- arguments:
+  - model : <holtwinters-model>
+  - n-ahead : <non-negative integer>"))
 (defmethod predict ((model holtwinters-model) &key (n-ahead 0))
   (with-accessors ((ts observed-ts)
                    (best-score 3-params)
@@ -397,7 +421,20 @@ CL-USER> (best-double-exp-parameters
                              sp)) ested-seq)
        :start est-start :freq (ts-freq ts)))))
 
-(defmethod HoltWinters-prediction ((d time-series-dataset)
+(defgeneric holtwinters-prediction (d &key)
+  (:documentation "- return: (values <time-series-dataset> <holtwinters-model>)
+- arguments:
+  - d : <time-series-dataset>
+  - alpha : nil | 0 <= <double-float> <= 1
+  - beta  : nil | 0 <= <double-float> <= 1
+  - gamma : nil | 0 <= <double-float> <= 1
+  - err-measure : 'mse | 'mape | 'rae | 're | 'rr
+  - optim-step  : 0 <= <double-float> <= 1
+  - seasonal    : :additive | :multiplicative
+  - n-ahead   : <non-negative integer>
+  - n-learning : nil | <positive integer>, number of points for learning
+  - target-col : nil | <string>, name of target parameter  "))
+(defmethod holtwinters-prediction ((d time-series-dataset)
                                    &key alpha beta gamma
                                         (seasonal :additive)
                                         (err-measure 'mse) 

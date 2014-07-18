@@ -79,7 +79,12 @@
            #:degree-centrality
            #:eigen-centrality
            #:pagerank)
-  (:import-from :graph-shortest-path #:%find-all-shortest-paths))
+  (:import-from :graph-shortest-path #:%find-all-shortest-paths)
+  (:documentation "Graph Centrailty
+
+*** sample usage
+#+INCLUDE: \"../sample/graph-centrality.org\"  example lisp ")
+  )
 
 
 (defpackage :clml.graph.graph-anomaly-detection

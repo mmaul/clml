@@ -25,39 +25,55 @@
 
 
 (defun spectral-clustering-mcut (w ncls &key (eigen-tolerance 100d0))
-  ;; Patitions non-empty undirected graph W into NCLS clusters with
-  ;; M-cut spectral clustering method where W is a symmetric (N,N) similarity
-  ;; matrix of double-float values and NCLS is a positive integer.
-  ;; The nodes of the graph are the indices of W.
-  ;; The similarity of nodes i and j should be a non-negative double-float
-  ;; value W[i,j].  Each similarity value of node i and itself must be
-  ;; a positive value.
-  ;; The keyword argument EIGEN-TOLERANCE is a positive doulbe-float value
-  ;; or nil which controls accuracy of eigen computation checker
-  ;; described below.
-  ;;
-  ;; This function returns two values as a multiple-values.
-  ;; The first is the clustering result as a list of list of nodes.
-  ;; The second is the status symbol of the result as follows.
-  ;;
-  ;;
-  ;; Status           Meaning
-  ;;
-  ;; :success         The result is correct.
-  ;; :questionable    The result may be questionable because a set of
-  ;;                  eigen values and their vectors returned by
-  ;;                  the eigen computation library function seems erroneous
-  ;;                  with an error value, by a measure, greater than
-  ;;                  specified EIGEN-TOLERANCE.
-  ;;                  This check is skipped if EIGEN-TOLERANCE is nil.
-  ;;
-  ;; - the following cases are fatal and nil is returned as the first value -
-  ;;
-  ;; :input-error     Given arguments does not hold the above conditions.
-  ;; :fatal-error     This situation arise in the following cases:
-  ;;                   1. An eigen computation failed, or
-  ;;                   2. returned eigen values could not halve a cluster.
-  ;;
+  "- return1: Clustering result as a list of list of nodes
+- return2: Status code :success, :questionable, :input-error, or :fatal-error
+- arguments:
+  - m : <SIMPLE-ARRAY DOUBLE-FLOAT (* *)>, similarity matrix of a graph
+  - ncls : <integer>, number of cluster
+  - eigen-tolerance : Acceptable error value for eigen computation
+
+   Patitions non-empty undirected graph W into NCLS clusters with
+   M-cut spectral clustering method where W is a symmetric (N,N) similarity
+   matrix of double-float values and NCLS is a positive integer.
+   The nodes of the graph are the indices of W.
+   The similarity of nodes i and j should be a non-negative double-float
+   value W[i,j].  Each similarity value of node i and itself must be
+   a positive value.
+   The keyword argument EIGEN-TOLERANCE is a positive doulbe-float value
+   or nil which controls accuracy of eigen computation checker
+   described below.
+  
+   This function returns two values as a multiple-values.
+   The first is the clustering result as a list of list of nodes.
+   The second is the status symbol of the result as follows.
+  
+  
+   Status           Meaning
+  
+   :success         The result is correct.
+   :questionable    The result may be questionable because a set of
+                    eigen values and their vectors returned by
+                    the eigen computation library function seems erroneous
+                    with an error value, by a measure, greater than
+                    specified EIGEN-TOLERANCE.
+                    This check is skipped if EIGEN-TOLERANCE is nil.
+  
+   - the following cases are fatal and nil is returned as the first value -
+  
+   :input-error     Given arguments does not hold the above conditions.
+   :fatal-error     This situation arise in the following cases:
+                     1. An eigen computation failed, or
+                     2. returned eigen values could not halve a cluster.
+*** sample usage
+#+INCLUDE: \"../sample/spectral-clustering-mcut.org\" example lisp
+
+*** References:
+ 1. Shinnou Hiroyuki, "cluster analysis to learn in R", Ohmsha, 2007
+    新納浩幸, 「R で学ぶクラスタ解析」, オーム社, 2007.
+ 2. A Min-max Cut Algorithm for Graph Partitioning and Data Clustering
+    Chris H. Q. Ding, Xiaofeng He, Hongyuan Zha, Ming Gu, Horst D. Simon
+    First IEEE International Conference on Data Mining (ICDM'01), 2001.
+" 
   (assert (and (typep w '(array * (* *)))
                (apply #'= (array-dimensions w))
                (typep ncls '(integer 1 *))))

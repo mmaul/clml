@@ -421,6 +421,20 @@
 
 
 (defun rho-k (matrix k &key (type :row) (cost-fn :euclidean) (iteration 100) (repeat 100))
+  "- stability of nmf clustering associated with k. we consider k is more stable closer to 1.0.
+- return: DOUBLE-FLOAT
+- arguments:
+   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
+   - k : size of dimension reduction or number of features
+   - type : :row | :column, default is row
+   - cost-fn : :euclidean | :kl, default is euclidean
+   - iteration : default is 100, internal nmf iteration
+   - repeat : default is 100, external nmf iteration to compute rho-k
+- comments: Since we need to repeat nmf to take the average and then do hierarchical clustering with ward-method, computing rho-k is slow.
+- reference: [[http://www.pnas.org/content/101/12/4164][Metagenes and molecular pattern discovery using matrix factorization]]
+
+*** sample usage
+#+INCLUDE: \"../sample/rho-k.org\" example lisp"
   (let* ((avc (average-consensus-matrix matrix k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
 	 (d (sim-mat->dis-mat avc))
 	 (u (cophenetic-matrix d)))
@@ -428,6 +442,19 @@
 
 
 (defun nmf-clustering (matrix k &key (type :row) (cost-fn :euclidean) (iteration 100))
+  "- clustering using nmf, each row or column datum is placed into cluster corresponding to highest feature
+- return: (SIMPLE-ARRAY T (*)), cluster label vector
+- arguments :
+   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
+   - k : number of features
+   - type : :row | :column, default is row data clustering
+   - cost-fn : :euclidean | :kl, default is euclidean
+   - iteration : default is 100
+- comments : obtained each cluster size is not always constant (not like k-means)
+
+*** sample usage
+#+INCLUDE: \"../sample/nmf-clustering.org\" example lisp
+"
   (multiple-value-bind (weight feature) (nmf matrix k :cost-fn cost-fn :iteration iteration)
     (cond ((eq type :column) (column-clustering-vector feature))
 	  ((eq type :row) (row-clustering-vector weight))
@@ -435,6 +462,27 @@
 
 
 (defun nmf (matrix k &key (cost-fn :euclidean) (iteration 100))
+  "- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* *)), two factor matrices obtained by nmf
+- arguments:
+- non-negative matrix factorization with sparseness constraints
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* * )), two factor matrices obtained by nmf
+- arguments:
+  - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* * ))
+  - k : size of dimension reduction
+  - sparseness 0.0~1.0
+  - type : :left | :right 
+  - iteration : default is 100
+- comments : we do nmf with sparseness constrained for the left factor matrix each column vector or right factor matrix each row vector. Objective function is euclidean norm.
+- reference: [[http://www.cs.helsinki.fi/u/phoyer/papers/pdf/NMFscweb.pdf][Non-negative Matrix Factorization with Sparseness Constraints]]  - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
+  - k : size of dimension reduction or number of features
+  - cost-fn : :euclidean | :kl , default is euclidean
+  - iteration : default is 100
+- comments : we can choose Kullback–Leibler divergence as a cost function
+- reference :
+  [[http://cl-www.msi.co.jp/solutions/knowledge/lisp-world/tutorial/NMF.pdf][NMF package on CL-Machine Learning]]
+
+*** sample usage
+#+INCLUDE: \"../sample/nmf-clustering.org\" example lisp"
   (cond ((eq cost-fn :euclidean)
 	 (nmf-euc matrix k iteration))
 	((eq cost-fn :kl)
@@ -492,6 +540,18 @@
 
 
 (defun nmf-analysis (matrix k &key (cost-fn :euclidean) (iteration 100) (type :row) (results 10))
+  "- print the results of NMF feature extraction
+- return: nil
+- arguments:
+   - non-negative-matrix
+   - k : number of features
+   - cost-fn : :euclidean | :kl, default is euclidean
+   - iteration : default is 100
+   - type : :row | :column, default is feature extraction from row data
+   - results : print the number of data in descending order, default is 10
+
+*** sample usage
+#+INCLUDE: \"../sample/nmf-analysis.org\" example lisp"
   (multiple-value-bind (weight feature) (nmf matrix k :cost-fn cost-fn :iteration iteration)
     (cond ((eq type :row)
 	   (result-row-data weight :results results))
@@ -524,6 +584,19 @@
 
 
 (defun nmf-corpus-analysis (corpus-dataset k &key (cost-fn :euclidean) (iteration 100) (results 10))
+  "- print the results of NMF feature extraction from given corpus
+- return: nil
+- arguments:
+   - corpus-dataset (BOW)
+   - k : number of features
+   - cost-fn : :euclidean | :kl, default is euclidean
+   - iteration : default is 100
+   - results : print the number of terms or documents in descending order, default is 10
+- comments : the form of corpus data is 0th row is term-name vector and 0th column is document-name vector.
+
+*** sample usage
+#+INCLUDE: \"../sample/nmf-corpus-analysis.org\" example lisp
+"
   (let ((term-index-vector (make-term-index corpus-dataset))
 	(document-index-vector (make-document-index corpus-dataset))
 	(tf*idf*cosine-matrix (make-document-term-matrix corpus-dataset)))
@@ -653,6 +726,15 @@
 
 
 (defun c^3m-cluster-number (corpus-dataset)
+  "- decide the best cluster number of corpus by cover-coefficient-based concept clustering methodology
+- return: DOUBLE-FLOAT
+- arguments:
+   - corpus-dataset (BOW)
+- reference: http://wwwsoc.nii.ac.jp/mslis/pdf/LIS49033.pdf
+
+*** sample usage
+#+INCLUDE: \"../sample/c^3m-cluster-number.org\" example lisp
+"
   (let* ((dataset-length (length (dataset-dimensions corpus-dataset)))
          (range (rest (make-range dataset-length)))
          (data-types (make-data-types (length range)))
@@ -713,6 +795,20 @@
 
 
 (defun nmf-search (matrix row-or-column-number &key type (iteration 100) (results 10))
+  "- find the related or similar data by using nmf
+- return: nil
+- arguments:
+   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* * ))
+   - row-or-column-number : 
+   - type :row | :column : query type
+   - cost-fn : :euclidean | :kl, default is euclidean
+   - iteration : default is 100
+   - results : print the number of row data or column data in descending order, default is 10
+- comments : we search the related and/or similar data by using nmf(k=1).
+
+*** sample usage
+#+INCLUDE: \"../sample/nmf-search.org\" example lisp
+"
   (cond ((eq type :row)
 	 (assert (< -1 row-or-column-number (array-dimension matrix 0)))
 	 (nmf-analysis (row-theme-weighting matrix row-or-column-number) 1 
@@ -758,6 +854,19 @@
 
 (defun nmf-corpus-search (corpus-dataset term-or-document-name
 			  &key type (iteration 100) (results 10))
+  "- find the related or similar terms or documents by using nmf
+- return: nil
+- arguments:
+   - corpus-dataset (BOW)
+   - term-or-document-name
+   - type : :term | :document, query type
+   - iteration : default is 100
+   - results : print the number of terms or documents in descending order, default is 10
+- comments : we search the related and/or similar terms or documents by using nmf(k=1).
+
+*** sample usage
+#+INCLUDE: \"../sample/nmf-corpus-search.org\" example lisp
+"
   (cond ((eq type :document)
 	 (let* ((term-index-vector (make-term-index corpus-dataset)) 
 		(document-index-vector (make-document-index corpus-dataset)) 
@@ -1090,6 +1199,19 @@
     (values w h)))
 
 (defun nmf-sc (v k sparseness &key type (iteration 100))
+  "- non-negative matrix factorization with sparseness constraints
+- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* * )), two factor matrices obtained by nmf
+- arguments:
+  - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* * ))
+  - k : size of dimension reduction
+  - sparseness 0.0~1.0
+  - type : :left | :right 
+  - iteration : default is 100
+- comments : we do nmf with sparseness constrained for the left factor matrix each column vector or right factor matrix each row vector. Objective function is euclidean norm.
+- reference: [[http://www.cs.helsinki.fi/u/phoyer/papers/pdf/NMFscweb.pdf][Non-negative Matrix Factorization with Sparseness Constraints]]
+
+*** sample usage
+#+INCLUDE: \"../sample/nmf-sc.org\" example lisp"
   (cond ((eq type :left)
 	 (nmf-sc-left v k sparseness :iteration iteration))
 	((eq type :right)

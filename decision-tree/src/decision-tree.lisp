@@ -249,6 +249,15 @@
 
 (defun make-decision-tree (unspecialized-dataset objective-column-name
 			   &key (test #'delta-gini) (epsilon 0))
+  "- make decision tree based on CART algorithm
+- return: CONS, decision tree
+- arguments:
+ - unspecialized-dataset
+ - objective-variable-name
+ - test : delta-gini | delta-entropy , splitting test-function, default is delta-gini
+ - epsilon : pre-pruning parameter, default is 0,
+- comments : when split, we treat string data as nominal scale and numerical data as ordinal scale.
+- reference : Toby Segaran."Programming Collective Intelligence",O'REILLY"
   (let* ((data-vector (dataset-points unspecialized-dataset))
 	 (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
 
@@ -279,6 +288,12 @@
 
 (defun make-regression-tree (unspecialized-dataset objective-column-name
                              &key (test #'delta-variance) (epsilon 0))
+  "- return: CONS, regression tree
+- argumrnts:
+  - unspecialized-dataset
+  - objective-variable-name
+  - epsilon : pre-pruning parameter, default is 0
+- comments : we use variance difference as a split criterion."
   (let* ((data-vector (dataset-points unspecialized-dataset))
 	 (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
 
@@ -290,6 +305,10 @@
                  :test test :epsilon epsilon))))
     	 
 (defun print-regression-tree-node (tree-node &optional stream)
+  "- return: NIL
+- arguments:
+ - regression-tree
+ - stream : default is T"
   (if (numberp (cdaar tree-node))
       (format stream "[~A <= ~A?] (smean = ~,2F, n = ~A)~%" 
 	      (cdaar tree-node) (caaar tree-node) (mean (second tree-node)) (total (second tree-node)))
@@ -297,6 +316,10 @@
 	    (caaar tree-node) (cdaar tree-node) (mean (second tree-node)) (total (second tree-node)))))
 
 (defun print-regression-tree (regression-tree &optional (stream t) (indent 0))
+  "- return: NIL
+- arguments:
+ - decision-tree
+ - stream : default is T"
   (let ((indent (+ 3 indent)))
     (if (= (length regression-tree) 2)	;leaf or not leaf
 	(format stream "(mean = ~,2F, n = ~A)~%" (mean (first regression-tree)) (total (first regression-tree)))
@@ -310,6 +333,14 @@
 	(print-regression-tree (third regression-tree) stream indent)))))
 
 (defun predict-decision-tree (query-vector unspecialized-dataset tree)
+  "- return: string, prediction
+- arguments:
+ - query-vector
+ - unspecialized-dataset : dataset used to make a decision tree
+ - decision-tree
+
+*** sample usage
+#+INCLUDE: \"../sample/predict-decision-tree.org\" example lisp"
   (let ((variable-index-hash (make-variable-index-hash unspecialized-dataset)))
     (if (= (length tree) 2)		;leaf or not leaf
 	(car (reduce #'(lambda (x y) (if (<= (cdr x) (cdr y))
@@ -331,6 +362,16 @@
 		(t (error "invalid dataset."))))))))
  
 (defun decision-tree-validation (validation-dataset objective-column-name decision-tree)
+  "- return: CONS, validation result
+- arguments:
+ - unspecialized-dataset : dataset for validation
+ - objective-variable-name
+ - decision-tree
+- comments : each element of returning association list represents that ((prediction . answer) . number).
+
+*** sample usage
+#+INCLUDE: \"../sample/decision-tree-validation.org\" example lisp
+"
   (let* ((variable-index-hash (make-variable-index-hash validation-dataset))
 	 (k (column-name->column-number variable-index-hash objective-column-name))
 	 (validation-data-vector (dataset-points validation-dataset)))
@@ -341,6 +382,15 @@
 			      (svref (svref validation-data-vector i) k))))))
 
 (defun predict-regression-tree (query-vector unspecialized-dataset tree)
+  "- return: real, predictive value
+- arguments:
+ - query-vector :
+ - unspecialized-dataset : used dataset to make the regression tree
+ - regression-tree
+
+*** sample usage
+#+INCLUDE: \"../sample/predict-regression-tree.org\" example lisp
+"
   (let ((variable-index-hash (make-variable-index-hash unspecialized-dataset)))
     (if (= (length tree) 2)		;leaf or not leaf
 	(mean (first tree))
@@ -360,6 +410,14 @@
 		(t (error "invalid dataset."))))))))
 
 (defun regression-tree-validation (validation-dataset objective-column-name regression-tree)
+  "- return: MSE (Mean Squared Error)
+- arguments:
+ - unspecialized-dataset : for validation
+ - objective-variable-name
+ - regression-tree
+*** sample usage
+#+INCLUDE: \"../sample/regression-tree-validation.org\" example lisp
+"
   (let* ((variable-name-index (make-variable-index-hash validation-dataset))
 	 (k (column-name->column-number variable-name-index objective-column-name))
 	 (validation-data-vector (dataset-points validation-dataset))

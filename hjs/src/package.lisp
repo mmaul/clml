@@ -187,7 +187,9 @@
      
    #:get-cluster-centroids
    #:get-cluster-points
-   ))
+   )
+  (:documentation "*** sample usage
+#+INCLUDE: "../sample/k-means.org" example lisp"))
 
 (defpackage :hjs.util.eigensystems
   (:use :cl

@@ -22,6 +22,12 @@ OUTPUT( 3 values of property-list )
                          inf            ; infimum of the first class
                          width          ; class width
                          precision)     ; precision of measurement
+  "- Input: frequation sequence, infimum of the first class, class width, precision
+- Output( 3 values of property-list )
+    - result (:TOTAL total-frequency :MEAN mean :VARIANCE variance :SD standard-deviation)
+    - table (:MID mid-value-of-each-class :FREQ frequency-of-each-class :Z standard-score :CDF cummulative-distribution-frequency :EXPECTATION expectation)
+    - result2 (:CHI-SQ Chi-square-statistics :D.F. Degree-of-freedom :P-VALUE p-value)
+"
   (assert (notevery #'zerop freq-seq))
   (assert (> width 0))
   (assert (>= precision 0))
@@ -116,6 +122,11 @@ result2 (:CHI-SQ カイ二乗統計量
          :P-VALUE P-値)
 ||#
 (defun poisson-dist-test (d)            ; sequence of frequency
+  "- Input: sequence of frequency
+- Output( 3 values of p-list )
+    - result (:N total-frequency :MEAN mean)
+    - table (:C-ID assumed-class-value :FREQ frequency :P probability :E expectation)
+    - result2 (:CHI-SQ Chi-square-statistics :D.F. Degree-of-freedom :P-VALUE p-value)"
   (assert (> (length d) 1))
   (let* ((k (length d))
          (n (apply #'+ (coerce d 'list)))
@@ -189,6 +200,11 @@ result2 (:CHI-SQ カイ二乗統計量
 (defun binom-dist-test (d               ; sequence of frequency
                         x               ; sequence of class-value
                         size)           ; size of Bernoulli trials
+  "- Input: sequence of frequency, sequence of class-value, size of Bernoulli trials
+- Output( 3 values of p-list )
+    - result (:D-SIZE total-frequency :PROBABILITY population-rate)
+    - table (:FREQ frequency :P probability :E expectation)
+    - result2 (:CHI-SQ Chi-square-statistics :D.F. Degree-of-freedom :P-VALUE p-value)"
   (let ((k (length d)))
     (assert (= k (length x)))
     (assert (notany #'minusp d))

@@ -13,8 +13,25 @@
    (time-label-name :initarg :time-label-name 
                     :accessor time-label-name :initform nil))
   (:documentation
-   "The dataset for time-series. Values are specialized in numeric"))
+   "- accessor
+  - ts-points : vector of ts-point
+  - ts-freq : number of observed values per a cycle
+  - ts-start : time for the first observed value, ts-point is represented as list of time and freq. Please refer to the sample usage.
+  - ts-end : time for the last observed value, the form is same as ts-start.
 
+The dataset for time-series data. Values are specialized in numeric"))
+
+(defgeneric time-series-data (d &key)
+  (:documentation "- return: <time-series-dataset>
+- arguments:
+  - d          : <unspecialized-dataset>
+  - start      : <list integer integer> | integer, specify the start time, integer larger than 1 or a list of integer of such kind. e.g. (1861 3)
+  - end        : <list integer integer> | integer, specify the end time, format same as start. When unspecified, all the lines will be read in.
+  - frequency  : integer >= 1, specify the frequency 
+  - range      : :all | <list integer>, indices of columns used in the result, start from 0, e.g. '(0 1 3 4)
+  - except     : <list integer>, the opposite of :range, indices of columns which will be excluded from the result, start from 0. e.g. '(2)
+  - time-label : integer, index of column which represents the labels of time series data points, no labels when not specified.
+"))
 (defmethod time-series-data ((d unspecialized-dataset)
                              &key (start 1) end (frequency 1)
                                   (ts-type :constant)
@@ -69,6 +86,11 @@
 (defstruct (ts-point (:conc-name ts-p-)
             (:constructor %make-ts-point (time freq label pos))
             (:copier copy-ts-point))
+  "- accessor
+  - ts-p-time : n-th period of the data point, integer larger than 1.
+  - ts-p-freq : n-th of the period of the data point, integer larget than 1
+  - ts-p-label : name of the data point. e.g. \"2009/jan/5th\" 
+  - ts-p-pos : coordinate of the data point"
   (time -1 :type fixnum)
   (freq -1 :type fixnum)
   (label "" :type string)
@@ -149,7 +171,16 @@
     :ts-points (map 'vector #'copy-ts-point (ts-points d))
     :frequency (ts-freq d) :start (ts-start d)
     :end (ts-end d) :ts-type (ts-type d)))
-         
+
+(defgeneric ts-cleaning (d &key)
+  (:documentation "- return: <time-series-dataset>
+- arguments:
+  - d : <time-series-dataset>
+  - interp-types-alist   : a-list (key: column name, datum: interpolation(:zero :min :max :mean :median :mode :spline)) | nil\\
+  - outlier-types-alist  : a-list (key: column name, datum: outlier-verification(:std-dev :mean-dev :user :smirnov-grubbs :freq)) | nil\\
+  - outlier-values-alist : a-list (key: outlier-verification datum: the value according to outlier-verification) | nil
+- comment:
+  Same as /dataset-cleaning/ in read-data package."))
 (defmethod ts-cleaning ((d time-series-dataset)
                         &key interp-types-alist
                              outlier-types-alist

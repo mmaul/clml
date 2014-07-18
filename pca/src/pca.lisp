@@ -16,7 +16,15 @@ N), where M is the number of ponits and N is the dimension size.
    (loading-factors :initarg :loading-factors :accessor loading-factors)
    (pca-method :initarg :pca-method :accessor pca-method)
    (centroid :initarg :centroid :accessor centroid)
-   (orig-data-standard-deviations :initarg :orig-data-standard-deviations :accessor orig-data-standard-deviations)))
+   (orig-data-standard-deviations :initarg :orig-data-standard-deviations :accessor orig-data-standard-deviations))
+  (:documentation "
+**** pca-result (the result of principle component analysis)
+- accessor:
+ - components		:       <vector of datapoints>, principle components„ÄÅscore	
+ - contributions	:       <vector of double-float>
+ - loading-factors	:       <matrix>  (pay attention the representation of the matrix is row major)
+ - pca-method		:       :covariance | :correlation")
+  )
 
 (defun make-pca-result (components contributions loading-factors pca-method centroid orig-data-standard-deviations)
   (make-instance 'pca-result
@@ -31,7 +39,12 @@ N), where M is the number of ponits and N is the dimension size.
   ((loading-factors :initarg :loading-factors :accessor loading-factors)
    (pca-method :initarg :pca-method :accessor pca-method)
    (centroid :initarg :centroid :accessor centroid)
-   (orig-data-standard-deviations :initarg :orig-data-standard-deviations :accessor orig-data-standard-deviations)))
+   (orig-data-standard-deviations :initarg :orig-data-standard-deviations :accessor orig-data-standard-deviations))
+  (:documentation "
+**** pca-model (for calculating score)
+- accessor:
+ - loading-factors	:       <matrix>, (pay attention the representation of the matrix is row major)
+ - pca-method		:       :covariance | :correlation"))
 
 (defun make-pca-model (loading-factors pca-method centroid orig-data-standard-deviations)
   (make-instance 'pca-model
@@ -152,6 +165,12 @@ N), where M is the number of ponits and N is the dimension size.
 ;;@  - dataset must be a numeric-dataset
 ;;@  - model can either be :covariance or :correlation
 ;;@  - components is either :all or an integer
+(defgeneric princomp (dataset &key method)
+  (:documentation "*** princomp (dataset &key (method :correlation))
+- return: (values pca-result pca-model)
+- arugments:
+  - dataset		:	<numeric-dataset>
+  - method		:	:covariance | :correlation"))
 (defmethod princomp ((dataset numeric-dataset) &key (method :correlation))
   (assert (eq (type-of dataset) 'numeric-dataset))
   (assert (find method '(:covariance :correlation)))
@@ -213,6 +232,12 @@ N), where M is the number of ponits and N is the dimension size.
                                        method e-mean standard-deviations)
                       (make-pca-model eigen-vectors method e-mean standard-deviations)))))))))
 
+(defgeneric princomp-projection (dataset pca-model)
+  (:documentation "*** princomp-projection (dataset pca-model)
+- return: score (vector of datapoints)
+- arguments:
+  - dataset		:	<numeric-dataset>
+  - pca-model		:	<pca-model>, model by P.C.A."))
 (defmethod princomp-projection ((dataset numeric-dataset) (pca-model pca-model))
   (assert (eq (type-of dataset) 'numeric-dataset))
   (let* ((points (map 'vector
@@ -253,8 +278,23 @@ N), where M is the number of ponits and N is the dimension size.
           (inner-product p v))))
     score))
 
+(defgeneric sub-princomp (dataset &key)
+           (:documentation "
+*** sub-princomp (dataset &key (method :correlation) (dimension-thld 0.8d0))
+- return: (values pca-result pca-model)
+- arugments:
+  - dataset		:	<numeric-dataset>
+  - method		:	:covariance | :correlation
+  - dimension-thld : 0 < <number> < 1 | 1 <= <integer>, threshold for deciding principal components
+- note:
+  - When 0 < /dimension-thld/ < 1, it means the threshold for accumulated
+    contribution ratio. A principle component's contribution ratio means
+    its proportion in all principle components' contributions.
+  - When 1 <= /dimension-thld/ ( integer ), it means the number of principle components.")
+           )
 (defmethod sub-princomp ((dataset numeric-dataset) &key (method :correlation)
                                                         (dimension-thld 0.8d0))
+  
   (assert (find method '(:covariance :correlation)))
   (multiple-value-bind (cov-or-cor e-mean z-scores standard-deviations)
       (make-cov-or-cor dataset :method method)
@@ -307,7 +347,7 @@ N), where M is the number of ponits and N is the dimension size.
 ; kernel P.C.A. ;
 ;;;;;;;;;;;;;;;;;
 ;; reference: 
-;; - ÉpÉ^Å[ÉìîFéØÇ∆ã@äBäwèKâ∫: ÉxÉCÉYóùò_Ç…ÇÊÇÈìùåvìIó\ë™ íòé“: C.M.ÉrÉVÉáÉbÉv
+;; - „Éë„Çø„Éº„É≥Ë™çË≠ò„Å®Ê©üÊ¢∞Â≠¶Áøí‰∏ã: „Éô„Ç§„Ç∫ÁêÜË´ñ„Å´„Çà„ÇãÁµ±Ë®àÁöÑ‰∫àÊ∏¨ ËëóËÄÖ: C.M.„Éì„Ç∑„Éß„ÉÉ„Éó
 ;; - B.Schlkoph and A.J.Smola, Learning With Kernel:Section 5, MIT Press, 2002. 
 
 ;;;;;;;;;;;;;;;;;;;;

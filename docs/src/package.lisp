@@ -8,7 +8,5 @@
    :clod
    )
   (:export
-   :make-docs
-   :find-packages
-   :make-clml-docs)
+   :generate-clml-api-docs)
   )

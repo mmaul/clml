@@ -29,6 +29,8 @@ This repository contains is a modified version of CLML with the following goals 
 -   Support for Clozure Common Lisp short term and CLisp and ECL long term
 -   Improve documentation
 
+## Installation
+
 ## Requirements
 
 -   Language: SBCL, Clozure Common Lisp, Allegro or Lispworks
@@ -81,7 +83,7 @@ Or download zip archive at
 ### User and API Documentation
 
 User and API documentation may be found on line at <http://mmaul.github.io/clml/>
-and also in the project directories docs/clml-manual.org | docs/clml-manual.html 
+and also in the project directories docs/clml-manual.html 
 Notes and Algorithmic Details and Background    
     files in memo, notes and docs
 
@@ -194,8 +196,7 @@ This library requires that default reader float for mat is set to double-float. 
 be done before loading the systems.
 
     (setf *read-default-float-format* 'double-float)
-
-+Example below is using CLML.EXTRAS
+-   Example below is using CLML.EXTRAS
 
 Here is a quick demonstration:
 

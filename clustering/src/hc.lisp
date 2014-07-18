@@ -387,7 +387,10 @@
     (values (- (second obj)) (- (third obj)))))
 
 (defun cophenetic-matrix (distance-matrix &optional (method #'hc-average))
- 
+ "- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* * )), (SIMPLE-ARRAY T (* *)), cophenetic matrix and merge matrix
+- arguments:
+  - distance-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
+  - method : hc-single | hc-complete | hc-average | hc-centroid | hc-median | hc-ward, default is average"
   (declare (type dmat distance-matrix))
   (let* ((n (array-dimension distance-matrix 0))
 	 (sublst '())
@@ -585,4 +588,8 @@
       (setf u (rest u)))))
 
 (defun cutree (k merge-matrix)
+  "- return: (SIMPLE-ARRAY T), cluster label vector
+- arguments:
+  - k : the number of clusters, to divide dendrogram into k pieces
+  - merge-matrix"
   (modify k (replace-zero (pre-cutree k merge-matrix))))
