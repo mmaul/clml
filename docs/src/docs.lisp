@@ -1,4 +1,4 @@
-(in-package :clml-docs)
+(in-package :clml.docs)
 
 (defun find-packages (package-match-strings)
   "
@@ -49,10 +49,23 @@
   )
 
 (defun generate-clml-api-docs ()
-  (clml-docs:make-docs (clml-docs:find-packages '("^clml[.]" "^lapack" "^hjs[.]" "blas" "lapack" "future" "fork-future" ))))
+  "Generates Org API documentation in the *clml/docs/api* directory from loaded packages for
+CLML for packages matching the following prefix patterns:
+  +^clml[.]
+  +^lapack
+  +^hjs
+  +blas
+  +^future
+  +^fork-future
 
-;#+INCLUDE: "~/.emacs" src emacs-lisp
+  Documentation is in the form of Org files where one Org file per package is placed in
+  *clml/docs/api*.  A package index file containing Org INCLUDE directives that include Org
+  placed generated in *clml/docs/api*. 
+"
+  (clml-docs:make-docs (clml-docs:find-packages '("^clml[.]" "^lapack" "^hjs[.]"
+                                                  "^blas" "^future" "^fork-future" ))))
 
+;; Overlay custom modifications on top of CLOD
 (in-package :clod)
 
 (defparameter *include-colophon* t)

@@ -1,6 +1,6 @@
-(asdf:defsystem #:clml-docs
+(asdf:defsystem #:clml.docs
   :serial t
-  :description "Reorginized CLML library from MSI"
+  :description "Documentation generation system for CLML"
   :author "Mike Maul"
   ;:email "maul.mike@gmail.com"
   :license "LLGPL"

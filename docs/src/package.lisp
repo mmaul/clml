@@ -1,6 +1,6 @@
 (in-package :cl-user)
 
-(defpackage :clml-docs
+(defpackage :clml.docs
   (:use
    :common-lisp
    :iterate
@@ -9,4 +9,7 @@
    )
   (:export
    :generate-clml-api-docs)
+  (:documentation
+   "API Documentation Generation System for CLML"
+   )
   )
