@@ -1,0 +1,26 @@
+ CLUSTER-VALIDATION(72): (setf *workspace*
+                          (k-means:k-means
+                           5
+                           (read-data:pick-and-specialize-data
+                            (read-data:read-data-from-file
+                             "sample/syobu.csv" :type :csv
+                             :csv-type-spec '(string integer integer integer integer)
+                             :external-format #+allegro :932 #-allegro :sjis)
+                            :except '(0) :data-types (make-list 4
+                                                                :initial-element :numeric))))
+ CLUSTER-VALIDATION(73): (calinski)
+ 441.8562453167574
+ CLUSTER-VALIDATION(74): (hartigan)
+ 2.5074656538807023
+ CLUSTER-VALIDATION(75): (ball-and-hall)
+ 1127.7702976190476
+ CLUSTER-VALIDATION(76): (dunn-index :distance :euclid
+                                     :intercluster :hausdorff
+                                     :intracluster :centroid)
+ 1.2576613811360222
+ CLUSTER-VALIDATION(77): (davies-bouldin-index :distance :euclid
+                                               :intercluster :average
+                                               :intracluster :complete)
+ 1.899415427296523
+ CLUSTER-VALIDATION(78): (global-silhouette-value :distance :euclid)
+ 0.5786560352400679

@@ -1,0 +1,32 @@
+DECISION-TREE(10): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 338 POINTS
+DECISION-TREE(11): (setf *tree* (make-regression-tree *bc-train* "Cell.size"))
+(((("Class" . "benign")
+   (("Bare.nuclei" . 4.0) ("Bare.nuclei" . 1.0) ("Bare.nuclei" . 5.0) ("Bare.nuclei" . 10.0) ("Bare.nuclei" . 2.0)
+    ("Bare.nuclei" . 3.0) ("Bare.nuclei" . 8.0) ("Bare.nuclei" . 6.0) ("Bare.nuclei" . 7.0) ("Bare.nuclei" . 9.0) ...))
+  ((7.0 . 10) (9.0 . 3) (3.0 . 22) (6.0 . 11) (5.0 . 18) (2.0 . 22) (1.0 . 188) (10.0 . 25) (8.0 . 19) (4.0 . 20))
+  ((336 335 333 332 331 330 328 327 326 325 ...) (337 334 329 323 305 295 292 291 285 280 ...)))
+ (((("Cell.shape" . 7.0) (# # # # # # # # # # ...)) ((8.0 . 1) (7.0 . 1) (4.0 . 5) (2.0 . 15) (3.0 . 12) (1.0 . 187))
+   ((1 124) (0 3 4 5 6 8 9 12 13 14 ...)))
+  (((# #) (# #) (# #)) ((#) (1)) ((#) (124))) (((# #) (# # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# #) (# # #))))
+ (((("Cell.shape" . 7.0) (# # # # # # # # # # ...))
+   ((1.0 . 1) (2.0 . 7) (9.0 . 3) (3.0 . 10) (6.0 . 11) (4.0 . 15) (5.0 . 18) (7.0 . 9) (10.0 . 25) (8.0 . 18))
+   ((2 23 52 55 71 76 80 83 84 85 ...) (7 10 11 18 19 20 24 25 26 27 ...)))
+  (((# #) (# # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #)))
+  (((# #) (# # # # # # # # #) (# #)) ((# # #) (# #) (# # #)) ((# # #) (# # #) (# # #)))))
+DECISION-TREE(12): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 345 POINTS
+DECISION-TREE(13): (regression-tree-validation *bc-test* "Cell.size" *tree*)
+2.356254428341385

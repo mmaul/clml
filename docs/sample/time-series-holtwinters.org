@@ -1,0 +1,41 @@
+ EXPL-SMTHING(106): (setq ukgas (time-series-data (read-data-from-file "sample/UKgas.sexp")
+                                                  :range '(1) :time-label 0
+                                                  :frequency 4))
+ #<TIME-SERIES-DATASET>
+ DIMENSIONS: UKgas
+ TYPES:      NUMERIC
+ FREQUENCY:  4
+ START:      (1 1)
+ END:        (27 4)
+ POINTS:     108
+ TIME-LABEL: year season
+
+ EXPL-SMTHING(108): (setq model (holtwinters ukgas :seasonal :multiplicative))
+ #<HOLTWINTERS-MODEL>
+ alpha: 0.1, beta: 0.2, gamma: 0.7999999999999999
+ seasonal: MULTIPLICATIVE
+ error: 1132.6785446257877 ( MSE )
+
+ EXPL-SMTHING(109): (predict model :n-ahead 12)
+ #<TIME-SERIES-DATASET>
+ DIMENSIONS: UKgas
+ TYPES:      NUMERIC
+ FREQUENCY:  4
+ START:      (1 2)
+ END:        (30 4)
+ POINTS:     119
+
+ EXPL-SMTHING(110): (holtwinters-prediction ukgas :seasonal :multiplicative
+                                            :n-learning 80
+                                            :n-ahead 12)
+ #<TIME-SERIES-DATASET>
+ DIMENSIONS: UKgas
+ TYPES:      NUMERIC
+ FREQUENCY:  4
+ START:      (1 2)
+ END:        (30 4)
+ POINTS:     119
+ #<HOLTWINTERS-MODEL>
+ alpha: 0.1, beta: 0.2, gamma: 0.7999999999999999
+ seasonal: MULTIPLICATIVE
+ error: 1132.6785446257877 ( MSE )

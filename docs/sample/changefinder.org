@@ -1,0 +1,25 @@
+ CHANGEFINDER(189): (setf sample-ts
+                      (time-series-data 
+                       (read-data-from-file
+                        "sample/traffic-balance.csv" 
+                        :type :csv
+                        :csv-type-spec (cons 'string
+                                             (make-list 6 :initial-element 'double-float)))
+                       :except '(0) :time-label 0))
+ #<TIME-SERIES-DATASET >
+ DIMENSIONS: IF1 | IF2 | IF3 | IF4 | IF5 | IF6
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMBER OF DIMENSIONS: 6
+ FREQUENCY:  1
+ START:      (1 1)
+ END:        (1015 1)
+ POINTS:     1015
+ TIME-LABEL: TIME
+ CHANGEFINDER(191): (setf changefinder (init-changefinder (sub-ts sample-ts :start 0 :end 24)))
+ #<CHANGEFINDER @ #x1003506cb2>
+ CHANGEFINDER(192): (loop for p across (ts-points (sub-ts sample-ts :start 24))
+                        as new-dvec = (ts-p-pos p)
+                        collect (update-changefinder changefinder new-dvec))
+ (-1.3799530152768038 -1.3800702390966202 -1.3799904291394032 -1.380927096163571 -1.3812136176981418
+  -1.3811039423658487 -1.381135210396757 -1.3812016491428545 -1.3815388293872684 -1.381304668982984
+  ...)

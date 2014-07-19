@@ -1,0 +1,26 @@
+ TS-STSP(123): (defparameter tokyo
+                  (time-series-data
+                   (read-data-from-file "sample/tokyo-temperature.sexp")))
+ TOKYO
+
+ TS-STSP(7): (trend tokyo :k 2 :opt-t^2 t)
+ #<TREND-MODEL>
+ K:   2
+ T^2: 0.1
+ AIC: 2395.073754930766
+
+ TS-STSP(8): (predict * :n-ahead 10)
+ #<TIME-SERIES-DATASET>
+ DIMENSIONS: trend
+ TYPES:      NUMERIC
+ FREQUENCY:  1
+ START:      (1 1)
+ END:        (458 1)
+ POINTS:     458
+ #<TIME-SERIES-DATASET>
+ DIMENSIONS: standard error
+ TYPES:      NUMERIC
+ FREQUENCY:  1
+ START:      (1 1)
+ END:        (458 1)
+ POINTS:     458

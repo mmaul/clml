@@ -1,0 +1,60 @@
+NMF(52): (setf corpus-dataset (read-data-from-file "sample/sports-corpus-data" :external-format :utf-8))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: File | 清水 | 試合 | ヤクルト | 鹿島 | 久保田 | ブルペン | 阿部 | 海老原 | 北海道 ...
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...
+NUMBER OF DIMENSIONS: 1203
+DATA POINTS: 100 POINTS
+NMF(53): (nmf-corpus-search corpus-dataset "西武" :type :term :results 5)
+
+Feature 0
+西武     0.5251769235046575
+所沢     0.03181077447066429
+埼玉     0.031469276621575296
+期待     0.029643503937470485
+松坂     0.02532560897068374
+
+Feature 0
+00261790     8.972318348154714
+00266250     4.238044604712796
+00261710     1.289125490767428
+00261730     0.08947696606550368
+00265240     0.06077982768909628
+NIL
+NMF(54): (nmf-corpus-search corpus-dataset "00267800" :type :document :results 5)
+
+Feature 0
+大阪     0.20525379542444078
+マラソン     0.17626791348443296
+距離     0.10999092287756253
+練習     0.09982535243005934
+経験     0.08390979988118884
+
+Feature 0
+00267800     7.970296782572513
+00267780     1.1463577558558922
+00267810     0.9796321883720066
+00261590     0.9016390011411483
+00267690     0.6534929166105935
+NIL
+NMF(55): (setf corpus-dataset (read-data-from-file "sample/politics-corpus-data" :external-format :utf-8))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: File | 隠岐 | 定期 | 立場 | 比例 | 入札 | 成長 | 農水 | 秋田 | 教材 ...
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...
+NUMBER OF DIMENSIONS: 850
+DATA POINTS: 80 POINTS
+NMF(56): (nmf-corpus-search corpus-dataset "クリントン" :type :term :results 5)
+
+Feature 0
+クリントン     0.5131911387489791
+大統領     0.12539909855726378
+アイオワ     0.03805693041474284
+米     0.03336496912093245
+ヒラリー     0.03046886725695364
+
+Feature 0
+00240260     6.164303014225728
+00240860     4.927092104170816
+00266600     0.4368921996276413
+00240820     0.04974743623243792
+00251070     0.029176304053375055
+NIL

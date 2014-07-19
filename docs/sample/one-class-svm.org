@@ -1,0 +1,37 @@
+ONE-CLASS-SVM(15): (read-data-from-file "sample/bc-train-for-svm.csv"
+                                                 :type :csv
+                                                 :csv-type-spec (make-list 10 :initial-element 'double-float))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+NUMBER OF DIMENSIONS: 10
+DATA POINTS: 338 POINTS
+ONE-CLASS-SVM(16): (setf data-vector (dataset-points (pick-and-specialize-data * :data-types (make-list 10 :initial-element :numeric))))
+ #(#(5.0 4.0 4.0 5.0 7.0 10.0 3.0 2.0 1.0 1.0) #(6.0 8.0 8.0 1.0 3.0 4.0 3.0 7.0 1.0 1.0)
+  #(8.0 10.0 10.0 8.0 7.0 10.0 9.0 7.0 1.0 -1.0) #(2.0 1.0 2.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0)
+  #(4.0 2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0) #(2.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0)
+  #(1.0 1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0) #(7.0 4.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0)
+  #(4.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) #(6.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) ...)
+ONE-CLASS-SVM(17): (setf one-class-svm (one-class-svm data-vector :nu 0.01 :gamma 0.005))
+ #<Closure (:INTERNAL MAKE-DISCRIMINANT-FUNCTION 0) @ #x1003db0772>
+ONE-CLASS-SVM(18): (funcall one-class-svm (svref data-vector 0))
+1.0 ;;normal value
+ONE-CLASS-SVM(19): (loop
+		     for data across data-vector
+		     if (= -1.0 (funcall one-class-svm data))
+		     do (print data))
+;;outliers
+ #(10.0 4.0 2.0 1.0 3.0 2.0 4.0 3.0 10.0 -1.0) 
+ #(6.0 10.0 2.0 8.0 10.0 2.0 7.0 8.0 10.0 -1.0) 
+ #(5.0 10.0 6.0 1.0 10.0 4.0 4.0 10.0 10.0 -1.0) 
+ #(1.0 1.0 1.0 1.0 10.0 1.0 1.0 1.0 1.0 1.0) 
+ #(10.0 8.0 10.0 10.0 6.0 1.0 3.0 1.0 10.0 -1.0) 
+ #(10.0 10.0 10.0 3.0 10.0 10.0 9.0 10.0 1.0 -1.0) 
+ #(9.0 1.0 2.0 6.0 4.0 10.0 7.0 7.0 2.0 -1.0) 
+ #(2.0 7.0 10.0 10.0 7.0 10.0 4.0 9.0 4.0 -1.0) 
+ #(3.0 10.0 3.0 10.0 6.0 10.0 5.0 1.0 4.0 -1.0) 
+ #(1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0 1.0) 
+ #(10.0 8.0 10.0 1.0 3.0 10.0 5.0 1.0 1.0 -1.0) 
+ #(10.0 2.0 2.0 1.0 2.0 6.0 1.0 1.0 2.0 -1.0) 
+ #(5.0 7.0 10.0 10.0 5.0 10.0 10.0 10.0 1.0 -1.0) 
+ NIL

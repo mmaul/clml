@@ -1,0 +1,43 @@
+
+** Requirements
+  + Language: SBCL, Clozure Common Lisp, Allegro or Lispworks
+  + Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
+  + Optionally Intel Math Kernel Library
+  + ASDF3 and optionally Quicklisp (This document assumes [[http://quicklisp.org][Quicklisp]])
+  + C compiler
+  + gfortran compiler
+
+Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
+    
+** Installation Notes
+*** Obtaining code
+Code can be obtained by one of the following methods:
+  + Clone this repository with:
+#+BEGIN_SRC 
+  git clone https://github.com/mmaul/clml.git
+#+END_SRC
+Or download zip archive at
+  #+BEGIN_SRC 
+  https://github.com/mmaul/clml/archive/master.zip
+#+END_SRC
+
+*** Installing
+**** For Quicklisp ****
+1. Place code in ~~/quicklisp/local-projects~
+2. Start LISP and enter ~(ql:quickload :clml)~ 
+
+**** For ASDF3 only (Non quicklisp users)
+1. Place in a location on your ASDF search path path such as ~~/common-lisp~
+2. Start LISP and enter ~(asdf:load-system :clml)~
+
+*** External Dependencies ***
+#+BEGIN_SRC
+  :alexandria
+  :iterate
+  :f2cl
+  :simple-queue
+  :clod
+  :split-sequence
+  :cl-ppcre
+  :parse-number
+#+END_SRC

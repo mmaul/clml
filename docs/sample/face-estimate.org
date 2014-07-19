@@ -1,0 +1,52 @@
+PCA(10): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+PCA(11): (setf dataset (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric)))
+PCA(12): (princomp dataset :method :correlation)
+ #<PCA-RESULT @ #x20fcd88a>
+ #<PCA-MODEL @ #x20fcd8c2>
+PCA(13): (princomp-projection dataset (cadr /))
+ #(#(-0.18646787691278618 -0.5587877417431286)
+  #(-0.2586922124306382 -0.6310120772609806)
+  #(0.08929776779173992 -0.2830220970386028)
+  #(-0.311219001898167 -0.6835388667285094)
+  #(-0.19303372559622725 -0.5653535904265697)
+  #(-0.19303372559622725 -0.5653535904265697)
+  #(-0.19303372559622725 -0.5653535904265697)
+  #(-1.9046466459275095 1.014942356235892)
+  #(0.20748304409367965 -0.1648368207366632)
+  #(0.161522103309592 -0.21079776152075083) ...)
+
+;; learning and estimation by eigenface method and data for eyes
+PCA(40): (let ((eyes (pick-and-specialize-data
+                      (read-data-from-file "sample/eyes200.sexp")
+                      :except '(0)
+                      :data-types (append (make-list 1 :initial-element :category)
+                                          (make-list 1680 :initial-element :numeric)))))
+           (multiple-value-setq (for-learn for-estimate)
+             (divide-dataset eyes :divide-ratio '(1 1) :random t)))
+
+PCA(43): (multiple-value-setq (pca-result pca-model)
+             (princomp (divide-dataset for-learn :except '(0)) :method :covariance))
+
+PCA(65): (loop for dimension in '(1 5 10 20 30)
+             as estimator = (make-face-estimator for-learn :dimension-thld dimension :method :eigenface
+                                                 :pca-result pca-result :pca-model pca-model)
+             as result = (face-estimate for-estimate estimator)
+             do (format t "hitting-ratio: ~,3F~%"
+                        (/ (count-if (lambda (p) (string-equal (aref p 0) (aref p 1)))
+                                     (dataset-category-points result))
+                           (length (dataset-points result)))))
+Dimension : 1
+Number of self-misjudgement : 53
+hitting-ratio: 0.580
+Dimension : 5
+Number of self-misjudgement : 21
+hitting-ratio: 0.860
+Dimension : 10
+Number of self-misjudgement : 18
+hitting-ratio: 0.880
+Dimension : 20
+Number of self-misjudgement : 15
+hitting-ratio: 0.890
+Dimension : 30
+Number of self-misjudgement : 13
+hitting-ratio: 0.890

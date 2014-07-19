@@ -1,0 +1,14 @@
+READ-GRAPH(19): (let* ((id-name-alist (loop for i from 1 to 6
+                                          collect (cons i (format nil "~A" i))))
+                       (edgelist (list (list :nid1 1 :nid2 2 :weight 1d0)
+                                       (list :nid1 2 :nid2 3 :weight 1d0)
+                                       (list :nid1 2 :nid2 5 :weight 1d0)
+                                       (list :nid1 4 :nid2 5 :weight 1d0)
+                                       (list :nid1 5 :nid2 6 :weight 1d0)
+                                       (list :nid1 6 :nid2 4 :weight 1d0))))
+                  (make-simple-graph id-name-alist 
+                                     :edgelist edgelist
+                                     :directed nil))
+#<SIMPLE-GRAPH >
+6 nodes
+6 links

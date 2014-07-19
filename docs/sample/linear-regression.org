@@ -1,0 +1,16 @@
+LINEAR-REGRESSION(128):(setf dataset (read-data-from-file "sample/airquality.csv"
+			       :type :csv
+			       :csv-type-spec 
+			       '(integer double-float double-float double-float double-float integer integer)))
+ #<UNSPECIALIZED-DATASET>
+ DIMENSIONS: id | Ozone | Solar | Wind | Temp | Month | Day
+ TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+ DATA POINTS: 111 POINTS
+LINEAR-REGRESSION(129):(setf airquality (pick-and-specialize-data dataset :range '(0 1 2 3 4) 
+				    :data-types '(:numeric :numeric :numeric :numeric :numeric)))
+ #<NUMERIC-DATASET>
+ DIMENSIONS: id | Ozone | Solar | Wind | Temp
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+ NUMERIC DATA POINTS: 111 POINTS
+LINEAR-REGRESSION(130):(mlr airquality '(2 3 4 1))
+ #(-64.34207892859138 0.05982058996849854 -3.333591305512754 1.6520929109927098)

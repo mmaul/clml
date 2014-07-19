@@ -1,0 +1,54 @@
+ K-NN(12): (setf data-for-learn
+             (read-data-from-file "sample/learn.csv" :type :csv 
+                                  :csv-type-spec (cons 'string (make-list 105 :initial-element 'double-float))))
+ #<HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET>
+ DIMENSIONS: id | A/C CLUTCH | A/C PRESSURE | A/C PRESSURE SENSOR | A/C SWITCH | AF B1 LAMBDA CMD | AF B2 LAMBDA CMD | ...
+ TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | ...
+ DATA POINTS: 344 POINTS
+ 
+ K-NN(13): (setf estimator
+             (k-nn-analyze data-for-learn 2 "id" :all :distance :manhattan :normalize t))
+ Number of self-misjudgement : 277
+ #<K-NN-ESTIMATOR @ #x2144ae72>
+ 
+ K-NN(8): (estimator-properties estimator :verbose t)
+ (:K 2 :TARGET "id" :EXPLANATORIES ("A/C CLUTCH" "A/C PRESSURE" "A/C PRESSURE SENSOR" "A/C SWITCH" "AF B1 LAMBDA CMD" "AF B2 LAMBDA CMD" "AF FB CMD" ...)
+  :DISTANCE :MANHATTAN :MINS #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...) ...)
+
+ K-NN(14): (setf data-for-estimate
+             (read-data-from-file "sample/estimate.csv" :type :csv
+                                  :csv-type-spec (make-list 105 :initial-element 'double-float)))
+ #<HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET>
+ DIMENSIONS: A/C CLUTCH | A/C PRESSURE | A/C PRESSURE SENSOR | A/C SWITCH | AF B1 LAMBDA CMD | AF B2 LAMBDA CMD | AF FB CMD | ...
+ TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | ...
+ DATA POINTS: 23 POINTS
+ 
+ K-NN(15): (k-nn-estimate estimator data-for-estimate)
+ #<HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET>
+ DIMENSIONS: estimated-id | A/C CLUTCH | A/C PRESSURE | A/C PRESSURE SENSOR | A/C SWITCH | AF B1 LAMBDA CMD | AF B2 LAMBDA CMD | ...
+ TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | ...
+ DATA POINTS: 23 POINTS
+
+ K-NN(16): (choice-a-dimension "estimated-id" *)
+ #("24" "27" "31" "17" "110" "49" "58" "30" "58" "71" ...)
+
+ ;; Define my distance function
+ K-NN(26): (defun my-distance (x-vec y-vec profiles)
+              (declare (type (simple-array t (*)) x-vec y-vec)
+                       (ignorable profiles))
+              (loop for x across x-vec
+                  for y across y-vec
+                  sum (abs (- x y))))
+ MY-DISTANCE
+
+ K-NN(27): (compile *)
+ MY-DISTANCE
+ NIL
+ NIL
+
+ K-NN(28): (k-nn-analyze data-for-learn 2 "id" :all
+                         :distance #'my-distance
+                         :target-type :category
+                         :normalize t)
+ Number of self-misjudgement : 277
+ #<K-NN-ESTIMATOR @ #x100635d2d2>

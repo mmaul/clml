@@ -1,0 +1,14 @@
+TEXT-UTILS(4): (calculate-string-similarity "kitten" "sitting" :type :lev)
+0.5384615384615384
+TEXT-UTILS(5): (calculate-string-similarity "kitten" "sitting" :type :lcs)
+0.6153846153846154
+TEXT.UTILS(42): (setf data (read-data-from-file "sample/equivalence-class.csv" :type :csv :csv-type-spec
+ '(string string double-float) :external-format :utf-8))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: string1 | string2 | label
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 7 POINTS
+TEXT-UTILS(43): (dataset-points data)
+ #(#("x" "y" 1.0) #("y" "z" 1.0) #("x" "w" -1.0) #("a" "b" 1.0) #("c" "c" 1.0) #("e" "f" -1.0) #("f" "x" 1.0))
+TEXT-UTILS(44): (equivalence-clustering *)
+(("e") ("f" "z" "y" "x") ("c") ("b" "a") ("w"))

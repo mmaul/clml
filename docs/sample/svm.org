@@ -1,0 +1,21 @@
+SVM(8): (defparameter *positive-set*
+  '((8.0 8.0) (8.0 20.0) (8.0 44.0) (8.0 56.0) (12.0 32.0) (16.0 16.0) (16.0 48.0)
+    (24.0 20.0) (24.0 32.0) (24.0 44.0) (28.0 8.0) (32.0 52.0) (36.0 16.0)))
+SVM(9): (defparameter *negative-set*
+  '((36.0 24.0) (36.0 36.0) (44.0 8.0) (44.0 44.0) (44.0 56.0)
+    (48.0 16.0) (48.0 28.0) (56.0 8.0) (56.0 44.0) (56.0 52.0)))
+SVM(21): (setf linear-fcn
+              (svm +linear-kernel+ *positive-set* *negative-set*))
+	      #<Closure (:INTERNAL DECISION 0) @ #x212ebfc2>
+SVM(22): (funcall linear-fcn (car (last *positive-set*)))
+NIL
+-46.88582273865575
+SVM(23): (setf polynomial-fcn
+           (svm (polynomial-kernel 3 nil) *positive-set* *negative-set*))
+ #<Closure (:INTERNAL DECISION 0) @ #x20b7c122>
+SVM(24): (funcall polynomial-fcn (car (last *positive-set*)))
+T
+4.849458930036461e+7
+SVM(25): (funcall polynomial-fcn '(30.0 20.0))
+T
+2.3224182219070548e+8

@@ -1,0 +1,54 @@
+SVR(251): (read-data-from-file "sample/bc-train-for-svm.csv"
+                                                 :type :csv
+                                                 :csv-type-spec (make-list 10 :initial-element 'double-float))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+NUMBER OF DIMENSIONS: 10
+DATA POINTS: 338 POINTS
+SVR(252): (pick-and-specialize-data * :data-types (make-list 10 :initial-element :numeric))
+ #<NUMERIC-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+NUMBER OF DIMENSIONS: 10
+NUMERIC DATA POINTS: 338 POINTS
+SVR(253): (setf training-vector (choice-dimensions '("Cl.thickness" "Cell.shape" "Marg.adhesion" "Epith.c.size" "Bare.nuclei" 
+					   "Bl.cromatin" "Normal.nucleoli" "Mitoses" "Class" "Cell.size") *))
+ #(#(5.0 4.0 5.0 7.0 10.0 3.0 2.0 1.0 1.0 4.0) #(6.0 8.0 1.0 3.0 4.0 3.0 7.0 1.0 1.0 8.0)
+  #(8.0 10.0 8.0 7.0 10.0 9.0 7.0 1.0 -1.0 10.0) #(2.0 2.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0 1.0)
+  #(4.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0 2.0) #(2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0 1.0)
+  #(1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0 1.0) #(7.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0 4.0)
+  #(4.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0 1.0) #(6.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0 1.0) ...)
+SVR(254): (read-data-from-file "sample/bc-test-for-svm.csv"
+                                                 :type :csv
+                                                 :csv-type-spec (make-list 10 :initial-element 'double-float))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+NUMBER OF DIMENSIONS: 10
+DATA POINTS: 345 POINTS
+SVR(255): (pick-and-specialize-data * :data-types (make-list 10 :initial-element :numeric))
+ #<NUMERIC-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC
+NUMBER OF DIMENSIONS: 10
+NUMERIC DATA POINTS: 345 POINTS
+SVR(256): (setf test-vector (choice-dimensions '("Cl.thickness" "Cell.shape" "Marg.adhesion" "Epith.c.size" "Bare.nuclei" 
+					   "Bl.cromatin" "Normal.nucleoli" "Mitoses" "Class" "Cell.size") *))
+ #(#(5.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0 1.0) #(3.0 1.0 1.0 2.0 2.0 3.0 1.0 1.0 1.0 1.0)
+  #(4.0 1.0 3.0 2.0 1.0 3.0 1.0 1.0 1.0 1.0) #(1.0 1.0 1.0 2.0 10.0 3.0 1.0 1.0 1.0 1.0)
+  #(2.0 1.0 1.0 2.0 1.0 1.0 1.0 5.0 1.0 1.0) #(1.0 1.0 1.0 1.0 1.0 3.0 1.0 1.0 1.0 1.0)
+  #(5.0 3.0 3.0 2.0 3.0 4.0 4.0 1.0 -1.0 3.0) #(8.0 5.0 10.0 7.0 9.0 5.0 5.0 4.0 -1.0 7.0)
+  #(4.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0 1.0) #(10.0 7.0 6.0 4.0 10.0 4.0 1.0 2.0 -1.0 7.0) ...)
+SVR(257): (setf kernel (make-rbf-kernel :gamma 0.001))
+ #<Closure (:INTERNAL MAKE-RBF-KERNEL 0) @ #x100dd4de92>
+SVR(258): (setf svr (make-svr-learner training-vector kernel :c 10 :epsilon 0.01 :file-name "sample-svr" :external-format :utf-8))
+ #<Closure (:INTERNAL MAKE-REGRESSION-FUNCTION 0) @ #x1018e12f72>
+SVR(259): (funcall svr (svref test-vector 0))
+1.0226811804369387
+SVR(260): (svr-validation svr test-vector)
+1.4198010745021363
+SVR(261): (setf svr2 (load-svr-learner "sample-svr" kernel :external-format :utf-8))
+ #<Closure (:INTERNAL MAKE-REGRESSION-FUNCTION 0) @ #x1019594222>
+SVR(262): (svr-validation svr2 test-vector)
+1.4198010745021363

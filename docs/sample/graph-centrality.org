@@ -1,0 +1,27 @@
+GRAPH-CENTRALITY(36): (setf gr (let* ((id-name-alist (loop for i from 1 to 6
+                                                         collect (cons i (format nil "~A" i))))
+                                      (edgelist (list (list :nid1 1 :nid2 2 :weight 1d0)
+                                                      (list :nid1 2 :nid2 3 :weight 1d0)
+                                                      (list :nid1 2 :nid2 5 :weight 1d0)
+                                                      (list :nid1 4 :nid2 5 :weight 1d0)
+                                                      (list :nid1 5 :nid2 6 :weight 1d0)
+                                                      (list :nid1 6 :nid2 4 :weight 1d0))))
+                                 (make-simple-graph id-name-alist 
+                                                    :edgelist edgelist
+                                                    :directed nil)))
+#<SIMPLE-GRAPH >
+6 nodes
+6 links
+GRAPH-CENTRALITY(37): (eccentricity-centrality gr)
+#(0.3333333333333333 0.5 0.3333333333333333 0.3333333333333333 0.5 0.3333333333333333)
+GRAPH-CENTRALITY(38): (closeness-centrality gr)
+#(0.09090909090909091 0.14285714285714285 0.09090909090909091 0.1 0.14285714285714285 0.1)
+GRAPH-CENTRALITY(39): (degree-centrality gr)
+#(1.0 3.0 1.0 2.0 3.0 2.0)
+GRAPH-CENTRALITY(40): (eigen-centrality gr)
+#(0.18307314221469623 0.41711633875524184 0.18307314221469628 0.45698610699552694
+  0.5842172585338801 0.45698610699552716)
+2.2784136094964444
+GRAPH-CENTRALITY(41): (pagerank gr)
+#(0.22515702990803205 0.5915609362243119 0.22515702990803205 0.3631199718377685 0.5338090057356462
+  0.3631199718377685)

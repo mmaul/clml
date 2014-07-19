@@ -1,0 +1,38 @@
+ HDP-LDA(142): (setq dataset (pick-and-specialize-data
+                              (read-data-from-file "sample/sports-corpus-data" :external-format :utf-8)
+                              :except '(0) :data-types (make-list 1202 :initial-element :numeric)))
+ #<NUMERIC-DATASET>
+ DIMENSIONS: 清水 | 試合 | ヤクルト | 鹿島 | 久保田 | ブルペン | 阿部 | 海老原 | 北海道 | 横須賀 ...
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC ...
+ NUMBER OF DIMENSIONS: 1202
+ NUMERIC DATA POINTS: 100 POINTS
+
+ HDP-LDA(145): (hdp-lda dataset)
+ #<NUMERIC-DATASET>
+ DIMENSIONS: Topic 1 | Topic 2 | Topic 3 | Topic 4 | Topic 5 | Topic 6 | Topic 7 | Topic 8 | Topic 9 | Topic 10 ...
+ TYPES:      NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC ...
+ NUMBER OF DIMENSIONS: 42
+ NUMERIC DATA POINTS: 100 POINTS
+ #<NUMERIC-AND-CATEGORY-DATASET >
+ DIMENSIONS: Topic ID | 試合 | 結成 | 優勝 | 姿 | 住田 | 体育館 | 目標 | 反省 | 年齢 ...
+ TYPES:      CATEGORY | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC | NUMERIC ...
+ NUMBER OF DIMENSIONS: 1202
+ CATEGORY DATA POINTS: 42 POINTS
+ NUMERIC DATA POINTS: 42 POINTS
+ #<HDP-LDA @ #x1003b8a402>
+
+ HDP-LDA(150): (topic-count (third /))
+ 42
+
+ HDP-LDA(148): (get-trend-topics (third //) :trend :hot)
+ (("Topic 9" #("選手" "練習" "優勝" "日本" "大会" "世界" "監督" "選手権" "代表" "マラソン") . 0.038236246008561785)
+  ("Topic 2" #("選手" "少年" "スピード" "女子" "アイスホッケー" "群馬" "スケート" "国体" "成年" "フィギュア") . 0.036524581128946985)
+  ("Topic 13" #("決勝" "男子" "準決勝" "成年" "予選" "女子" "決定" "少年" "山梨学院大" "リレー") . 0.034852503455076525)
+  ("Topic 3" #("大会" "女子" "男子" "高校" "総合" "団体" "地区" "体育館" "渡辺" "クラブ") . 0.031009372447135867)
+  ("Topic 1" #("チーム" "試合" "大会" "３月" "５月" "全国" "発表" "サッカー" "メンバー" "県内") . 0.028643711953003095)
+  ("Topic 22" #("チーム" "リーグ" "得点" "今季" "移籍" "昨季" "契約" "本塁打" "昨年" "期待") . 0.027999110059900734)
+  ("Topic 17" #("決勝" "仙台" "準決勝" "長野" "協会" "イーグル" "宮城" "軽井沢" "甲府" "福祉大") . 0.024662779329262353)
+  ("Topic 5" #("東京" "福岡" "競技" "４月" "日本" "開催" "８月" "国立" "子供" "野球") . 0.02460766056146378)
+  ("Topic 21" #("佐藤" "伊藤" "鈴木" "高橋" "佐々木" "加藤" "角田" "ダブルス" "県" "シニア") . 0.02451716039711171)
+  ("Topic 35" #("新潟" "豊栄" "小千谷" "渡辺" "東京" "長岡" "小林" "鳥屋野" "津南" "妙高高原") . 0.02444346223102492))
+

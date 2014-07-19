@@ -1,0 +1,18 @@
+ ASSOC(25): (association-analyze "sample/pos.sexp" "sample/result.sexp"
+                                '("商品名") "ID番号" 3 :support 2 :external-format #+allegro :932 #-allegro :sjis)
+ #<ASSOC-RESULT-DATASET>
+ THRESHOLDS: SUPPORT 2 | CONFIDENCE 0 | LIFT 0 | CONVICTION 0
+ RULE-LENGTH: 3
+ RESULT: 4532 RULES
+ 
+ ASSOC(6): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+ #<HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET>
+ DIMENSIONS: ID番号 | 商品名 | 数量 | 金額
+ TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+ DATA POINTS: 19929 POINTS
+ 
+ ASSOC(11): (%association-analyze-apriori dataset '("商品名") "ID番号" 3 :support 2)
+ #<ASSOC-RESULT-DATASET>
+ THRESHOLDS: SUPPORT 2 | CONFIDENCE 0 | LIFT 0 | CONVICTION 0
+ RULE-LENGTH: 3
+ RESULT: 4532 RULES

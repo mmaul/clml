@@ -1,0 +1,56 @@
+K-MEANS(22): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+K-MEANS(23): (setf dataset (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric)))
+K-MEANS(24): (k-means 20 dataset :distance-fn #'manhattan-distance)
+ #S(PROBLEM-WORKSPACE :POINTS #(#S(POINT
+                                  :ID
+                                  0
+                                  :POS
+                                  #(1.0 129.0)
+                                  :OWNER
+                                  #S(CLUSTER
+                                     :ID
+                                     16
+                                     :CENTER
+                                     #(1.2455357142857142
+                                       129.12321428571428)
+                                     :OLD-CENTER
+                                     #(1.2455357142857142
+                                       129.12321428571428)
+                                     :SIZE
+                                     1120))
+                               ...)
+                     :CLUSTERS #(#S(CLUSTER
+                                    :ID
+                                    0
+                                    :CENTER
+                                    #(1.0831024930747923 110.0)
+                                    :OLD-CENTER
+                                    #(1.0831024930747923 110.0)
+                                    :SIZE
+                                    361)
+                                 ...)
+                     :DISTANCE-BETWEEN-CLUSTERS #2A((1.7976931348623157e+308
+                                                     124.38037357745417
+                                                     174.4273053916255
+                                                     151.26611354279854
+                                                     13.21191276633519
+                                                     111.08310249307479
+                                                     238.6819189661527
+                                                     294.1850209583026
+                                                     2920.083102493075
+                                                     35.26307380581604
+                                                     ...)
+                                                    ...)
+                     :DISTANCE-BETWEEN-POINT-AND-OWNER #(0.36874999999999747
+                                                         0.17974882260597758
+                                                         11.982608695652175
+                                                         0.08310249307479234
+                                                         0.347715736040624
+                                                         0.347715736040624
+                                                         0.347715736040624
+                                                         1.9458398744113148
+                                                         6.437807183364839
+                                                         0.9826086956521745
+                                                         ...)
+                     :LOWER-BOUNDS ...)
+ NIL

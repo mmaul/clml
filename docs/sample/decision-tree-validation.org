@@ -1,0 +1,29 @@
+DECISION-TREE(64): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 338 POINTS
+DECISION-TREE(65): (setf *tree* (make-decision-tree *bc-train* "Class"))
+(((("Cell.size" . 4.0)
+   (("Bare.nuclei" . 4.0) ("Bare.nuclei" . 1.0) ("Bare.nuclei" . 5.0) ("Bare.nuclei" . 10.0) ("Bare.nuclei" . 2.0) ("Bare.nuclei" . 3.0) ("Bare.nuclei" . 8.0)
+    ("Bare.nuclei" . 6.0) ("Bare.nuclei" . 7.0) ("Bare.nuclei" . 9.0) ...))
+  (("malignant" . 117) ("benign" . 221)) ((337 334 329 323 317 305 295 292 291 285 ...) (336 335 333 332 331 330 328 327 326 325 ...)))
+ (((("Bl.cromatin" . 4.0) (# # # # # # # # # # ...)) (("benign" . 7) ("malignant" . 99))
+   ((2 7 10 18 19 25 28 31 34 35 ...) (0 1 20 23 26 54 74 80 119 122 ...)))
+  (((# #) (# #) (# #)) ((#) (334 329 323 305 295 292 291 280 275 274 ...)) ((# # #) (# #) (# #)))
+  (((# #) (# #) (# #)) ((#) (145 140 133 119 80 54 26 23)) ((# # #) (# #) (# # #))))
+ (((("Bare.nuclei" . 6.0) (# # # # # # # # # # ...)) (("malignant" . 18) ("benign" . 214)) ((11 32 60 72 86 128 142 165 170 217) (3 4 5 6 8 9 12 13 14 15 ...)))
+  ((("malignant" . 10)) (11 32 60 72 86 128 142 165 170 217)) (((# #) (# #) (# #)) ((#) (131 51 50 27)) ((# # #) (# # #) (# # #)))))
+DECISION-TREE(66): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 345 POINTS
+DECISION-TREE(67): (decision-tree-validation *bc-test* "Class" *tree*)
+((("benign" . "malignant") . 4) (("malignant" . "malignant") . 118) (("malignant" . "benign") . 9) (("benign" . "benign") . 214))

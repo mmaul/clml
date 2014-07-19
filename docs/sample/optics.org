@@ -1,0 +1,9 @@
+OPTICS(10): (optics "sample/syobu.csv" 10 2 10 '("がく長" "がく幅" "花びら長" "花びら幅")
+                     :file-type :csv :csv-type-spec '(string integer integer integer integer) 
+                     :distance :manhattan :external-format #+allegro :932 #-allegro :sjis)
+ #<OPTICS-OUTPUT>
+ [ClusterID] SIZE | [-1] 6 | [1] 48 | [2] 96
+OPTICS(11): (ordered-data *)
+ #(#("ID" "reachability" "core distance" "ClusterID") #(0 10.1 2.0 1)
+  #(4 2.0 2.0 1) #(17 2.0 2.0 1) #(27 2.0 2.0 1) #(28 2.0 2.0 1)
+  #(39 2.0 2.0 1) #(37 2.0 4.0 1) #(40 2.0 3.0 1) #(7 2.0 2.0 1) ...)

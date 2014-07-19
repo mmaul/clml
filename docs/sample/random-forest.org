@@ -1,0 +1,39 @@
+RANDOM-FOREST(40): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 338 POINTS
+RANDOM-FOREST(41):(setf *regression-forest* (make-regression-forest *bc-train* "Cell.size"))
+ #((((("Class" . "malignant") NIL)
+    ((9.0 . 2) (6.0 . 7) (7.0 . 12) (8.0 . 22) (5.0 . 20) (3.0 . 23) (4.0 . 25) (1.0 . 164) (2.0 . 32) (10.0 . 31))
+    ((335 327 322 321 320 319 318 314 312 310 ...) (337 336 334 333 332 331 330 329 328 326 ...)))
+   (((# NIL) (# # # # # # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #)))
+   (((# NIL) (# # # # #) (# #)) ((# # #) (# #) (# # #)) ((# # #) (# #) (# # #))))
+  (((("Cell.shape" . 6.0) NIL)
+    ((9.0 . 1) (2.0 . 20) (5.0 . 16) (7.0 . 13) (4.0 . 16) (3.0 . 19) (10.0 . 20) (6.0 . 10) (8.0 . 22) (1.0 . 201))
+    ((335 326 325 317 316 314 312 311 307 299 ...) (337 336 334 333 332 331 330 329 328 327 ...)))
+   (((# NIL) (# # # # # # #) (# #)) ((# # #) (# # #) (# #)) ((# # #) (# # #) (# # #)))
+   (((# NIL) (# # # # # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #))))
+  (((("Epith.c.size" . 3.0) NIL)
+    ((9.0 . 4) (2.0 . 16) (4.0 . 23) (7.0 . 9) (6.0 . 5) (3.0 . 24) (5.0 . 16) (10.0 . 17) (8.0 . 21) (1.0 . 203))
+    ((334 332 324 320 319 315 314 313 312 308 ...) (337 336 335 333 331 330 329 328 327 326 ...)))
+   (((# NIL) (# # # # # # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #)))
+   (((# NIL) (# # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# #) (# # #))))
+  ...)
+RANDOM-FOREST(42): (setf *query* #(5.0 "?" 1.0 1.0 2.0 1.0 3.0 1.0 1.0 "benign"))
+ #(5.0 "?" 1.0 1.0 2.0 1.0 3.0 1.0 1.0 "benign")
+RANDOM-FOREST(43): (predict-regression-forest *query* *bc-train* *regression-forest*)
+1.0172789943526082
+RANDOM-FOREST(44): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+						     :type :csv
+						     :csv-type-spec 
+						     (append (loop for i below 9 collect 'double-float) '(string))))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+DATA POINTS: 345 POINTS
+RANDOM-FOREST(45): (regression-forest-validation *bc-test* "Cell.size" *regression-forest*)
+1.6552628917521726

@@ -1,0 +1,40 @@
+SVM.WSS3(44): (read-data-from-file "sample/bc-train-for-svm.csv"
+						 :type :csv
+						 :csv-type-spec (make-list 10 :initial-element 'double-float))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+NUMBER OF DIMENSIONS: 10
+DATA POINTS: 338 POINTS
+SVM.WSS3(45): (setf training-vector (dataset-points (pick-and-specialize-data * :data-types (make-list 10 :initial-element :numeric))))
+ #(#(5.0 4.0 4.0 5.0 7.0 10.0 3.0 2.0 1.0 1.0) #(6.0 8.0 8.0 1.0 3.0 4.0 3.0 7.0 1.0 1.0) #(8.0 10.0 10.0 8.0 7.0 10.0 9.0 7.0 1.0 -1.0)
+  #(2.0 1.0 2.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) #(4.0 2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0) #(2.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0)
+  #(1.0 1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0) #(7.0 4.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0) #(4.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0)
+  #(6.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) ...)
+SVM.WSS3(46): (read-data-from-file "sample/bc-test-for-svm.csv"
+						 :type :csv
+						 :csv-type-spec (make-list 10 :initial-element 'double-float))
+ #<UNSPECIALIZED-DATASET>
+DIMENSIONS: Cl.thickness | Cell.size | Cell.shape | Marg.adhesion | Epith.c.size | Bare.nuclei | Bl.cromatin | Normal.nucleoli | Mitoses | Class
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
+NUMBER OF DIMENSIONS: 10
+DATA POINTS: 345 POINTS
+SVM.WSS3(47): (setf test-vector (dataset-points (pick-and-specialize-data * :data-types (make-list 10 :initial-element :numeric))))
+ #(#(5.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) #(3.0 1.0 1.0 1.0 2.0 2.0 3.0 1.0 1.0 1.0) #(4.0 1.0 1.0 3.0 2.0 1.0 3.0 1.0 1.0 1.0)
+  #(1.0 1.0 1.0 1.0 2.0 10.0 3.0 1.0 1.0 1.0) #(2.0 1.0 1.0 1.0 2.0 1.0 1.0 1.0 5.0 1.0) #(1.0 1.0 1.0 1.0 1.0 1.0 3.0 1.0 1.0 1.0)
+  #(5.0 3.0 3.0 3.0 2.0 3.0 4.0 4.0 1.0 -1.0) #(8.0 7.0 5.0 10.0 7.0 9.0 5.0 5.0 4.0 -1.0) #(4.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0)
+  #(10.0 7.0 7.0 6.0 4.0 10.0 4.0 1.0 2.0 -1.0) ...)
+SVM.WSS3(49): (setf kernel (make-rbf-kernel :gamma 0.05))
+ #<Closure (:INTERNAL MAKE-RBF-KERNEL 0) @ #x101ba6a6f2>
+SVM.WSS3(50): (setf svm (make-svm-learner training-vector kernel :c 10 :file-name "svm-sample" :external-format :utf-8))
+ #<Closure (:INTERNAL MAKE-DISCRIMINANT-FUNCTION 0) @ #x101bc76a12>
+SVM.WSS3(51): (funcall svm (svref test-vector 0))
+1.0
+SVM.WSS3(52): (svm-validation svm test-vector)
+(((1.0 . -1.0) . 2) ((-1.0 . -1.0) . 120) ((-1.0 . 1.0) . 10) ((1.0 . 1.0) . 213))
+96.52173913043478
+SVM.WSS3(53): (setf svm2 (load-svm-learner "svm-sample" kernel :external-format :utf-8))
+ #<Closure (:INTERNAL MAKE-DISCRIMINANT-FUNCTION 0) @ #x101be9db02>
+SVM.WSS3(54): (svm-validation svm2 test-vector)
+(((1.0 . -1.0) . 2) ((-1.0 . -1.0) . 120) ((-1.0 . 1.0) . 10) ((1.0 . 1.0) . 213))
+96.52173913043478
