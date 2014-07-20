@@ -1,8 +1,16 @@
 #+OPTIONS:   H:2 num:t toc:t \n:nil @:t ::t |:t ^:t *:t TeX:nil LaTeX:nil f:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css" />
 #+HTML:     <div class="wrapper">
+#+HTML:      <div id="header">
+#+HTML:         <nav>
+#+HTML:           <li class="fork"><a href="https://github.com/mmaul/clml">View On GitHub</a></li>
+#+HTML:           <li class="downloads"><a href="https://github.com/mmaul/clml/zipball/master">ZIP</a></li>
+#+HTML:           <li class="downloads"><a href="https://github.com/mmaul/clml/tarball/master">TAR</a></li>
+#+HTML:           <li class="title">DOWNLOADS</li>
+#+HTML:         </nav>
+#+HTML:       </div><!-- end header -->
 #+HTML:       <section>
-#+HTML:         <div id="content">
+#+HTML:         <div id="main_content">
 #+TITLE:     CLML Common Lisp Machine Learning
 #+AUTHOR:    Salvi P,Ai(Bter, Naganuma Shigeta, Tada Masashi, Abe Yusuke, Jianshi Huang, Fujii Ryo, Abe Seika, Kuroda Hisao, Mike Maul
 

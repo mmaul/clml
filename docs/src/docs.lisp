@@ -506,5 +506,32 @@ Explanation of optional arguments:
                      :include-index include-index))
 
 
+(defmacro writing-section-for-symbol ((entity sym) &body body)
+  "Wraps all output within the body of the form in its own section. The
+title of the section describes the entity of type =ENTITY= that is
+bound to the symbol =SYM=."
+  `(let* ((*heading-level* (1+ *heading-level*))
+          (%entity ,entity)
+          (%sym ,sym)
+          (str (format nil "~:(~A~A~): ~(~A~)"
+                       (if (and (symbol-accessibility %sym))
+                           (if (not (string= (entity->tag %entity) "package"))
+                               (format nil "~A " (symbol-accessibility %sym))
+                               "")
+                           "")
+                       (entity->string %entity)
+                       (org-safe-symbol %sym))))
+     ;; Note: targets are situated *before* the heading, otherwise the heading
+     ;; is not actually visible when jumping here in HTML
+     (if (null (cdr (uses-for-symbol %sym)))   ;; only 1 use - unambiguous
+         (format *out* "# link target 2: ~A~%"
+                 (make-target %sym)))
+     (format *out* "# link target: ~A~%~%" (make-target %sym %entity))
+     (write-heading (format nil "~A~V<~A~>" str
+                            (- *line-width* (length str))
+                            (format nil ":~A:"
+                                    (entity->tag %entity))))
+     ,@body
+     (terpri *out*)))
 
  
