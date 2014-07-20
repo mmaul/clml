@@ -14,10 +14,14 @@
                              :parse-number
                              :cl-ppcre
                              :iterate
+                             :cl-fad
+                             :trivial-download
+                             :drakma
                              :clml.utility-package
                              )
                 :components (
                              (:file "csv")
                              (:file "priority-que")
+                             (:file "fetch")
                              )
                 )

@@ -88,10 +88,9 @@
                :clml.nonparametric
                :clml.numeric
                :clml.som
-
                :clml.time-series
                :clml.utility
-
+               
                )
   :components ((:file "package")
                ))

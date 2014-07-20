@@ -25,3 +25,7 @@
            #:after-decrease-key-prique
            ))
 
+(defpackage :clml.utility.data
+  (:use :common-lisp)
+  (:export #:fetch))
+
