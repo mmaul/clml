@@ -257,7 +257,7 @@
  - test : delta-gini | delta-entropy , splitting test-function, default is delta-gini
  - epsilon : pre-pruning parameter, default is 0,
 - comments : when split, we treat string data as nominal scale and numerical data as ordinal scale.
-- reference : Toby Segaran."Programming Collective Intelligence",O'REILLY"
+- reference : Toby Segaran. \"Programming Collective Intelligence\" ,O'REILLY"
   (let* ((data-vector (dataset-points unspecialized-dataset))
 	 (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
 

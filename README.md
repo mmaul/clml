@@ -1,3 +1,38 @@
+<div id="table-of-contents">
+<h2>Table of Contents</h2>
+<div id="text-table-of-contents">
+<ul>
+<li><a href="#sec-1">1. CL Machine-Learning</a>
+<ul>
+<li><a href="#sec-1-1">1.1. Author(s):</a>
+<ul>
+<li><a href="#sec-1-1-1">1.1.1. Original</a></li>
+<li><a href="#sec-1-1-2">1.1.2. Current Branch Maintainer(s)/Authors(s):</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-2">1.2. Installation</a></li>
+<li><a href="#sec-1-3">1.3. Requirements</a></li>
+<li><a href="#sec-1-4">1.4. Installation Notes</a>
+<ul>
+<li><a href="#sec-1-4-1">1.4.1. Obtaining code</a></li>
+<li><a href="#sec-1-4-2">1.4.2. Installing</a></li>
+<li><a href="#sec-1-4-3">1.4.3. External Dependencies <b>*</b></a></li>
+</ul>
+</li>
+<li><a href="#sec-1-5">1.5. Documentation</a>
+<ul>
+<li><a href="#sec-1-5-1">1.5.1. User and API Documentation</a></li>
+</ul>
+</li>
+<li><a href="#sec-1-6">1.6. Sample Data</a></li>
+<li><a href="#sec-1-7">1.7. Usage</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+
+
 # CL Machine-Learning
 
 CL Machine-Learning is high performance and large scale statistical
@@ -87,20 +122,23 @@ and also in the project directories docs/clml-manual.html
 Notes and Algorithmic Details and Background    
     files in memo, notes and docs
 
-## Sample Code, Data and Tests
+## Sample Data
 
-The test suite, along with sample datasets and example code are
-located in the CLML.EXTRAS repository located at:
--   [ CLML Extras: <https://github.com/mmaul/clml.extras.git> ](https://github.com/mmaul/clml.extras.git)
-
-To use simply obtain CLML.EXTRAS and place in ~/local-projects or in ASDF search path.
-
-A simple method of obtaining a path name to a file in the sample
-directory of CLML.EXTRAS is:
+The sample datasets are located outside the CLML repository.
+Fortunately CLML is able to download sample datasets from remote sites
+via HTTP and HTTPS via the `clml.utility.data:fetch` function. Shown
+below is an example:
 
     (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/datafile.csv")
 
-Refer to the README.md file in CLML.EXTRAS for more information.
+The `clml.utility.data:fetch` function downloads the file to a cache
+location and returns the path to the downloaded file. Therefore
+anywhere a path to a file is required the output from
+`clml.utility.data:fetch` can be provided instead.
+
+The contents of the Sample dataset repository can be found at:
+
+-   [ CLML Extras: <http://mmaul.github.io/clml.data/> ](http://mmaul.github.io/clml.data/)
 
 ## Usage
 

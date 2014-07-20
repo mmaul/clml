@@ -1,13 +1,5 @@
 #+OPTIONS:   H:2 num:t toc:t \n:nil @:t ::t |:t ^:t *:t TeX:nil LaTeX:nil f:nil
 #+HTML_HEAD: <link rel="stylesheet" type="text/css" href="style.css" />
-#+HTML:      <div id="header">
-#+HTML:         <nav>
-#+HTML:           <li class="fork"><a href="https://github.com/mmaul/clml">View On GitHub</a></li>
-#+HTML:           <li class="downloads"><a href="https://github.com/mmaul/clml/zipball/master">ZIP</a></li>
-#+HTML:           <li class="downloads"><a href="https://github.com/mmaul/clml/tarball/master">TAR</a></li>
-#+HTML:           <li class="title">DOWNLOADS</li>
-#+HTML:         </nav>
-#+HTML:       </div><!-- end header -->
 #+HTML:     <div class="wrapper">
 #+HTML:       <section>
 #+HTML:         <div id="content">
@@ -32,10 +24,8 @@ The CLML package hierarchy is to two groups primary and supporting.
 The primary group contains the CLML functionality. The secondary group
 supports the CLML library. The primary group consists of top level
 package hierarchies:
-+ BLAS
 + CLML
 + HJS
-+ LAPACK
 
 The HJS package hierarchy contains for the most part utilities and base functionality such
 as dataset access, matrix and vector manipulation, missing value

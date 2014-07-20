@@ -1,18 +1,22 @@
-** Sample Code, Data and Tests
-The test suite, along with sample datasets and example code are
-located in the CLML.EXTRAS repository located at:
-+  [[https://github.com/mmaul/clml.extras.git][ CLML Extras: https://github.com/mmaul/clml.extras.git ]] 
+** Sample Data 
+The sample datasets are located outside the CLML repository.
+Fortunately CLML is able to download sample datasets from remote sites
+via HTTP and HTTPS via the ~clml.utility.data:fetch~ function. Shown
+below is an example:
 
-To use simply obtain CLML.EXTRAS and place in ~/local-projects or in ASDF search path.
-
-A simple method of obtaining a path name to a file in the sample
-directory of CLML.EXTRAS is:
 #+BEGIN_SRC lisp
 (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/datafile.csv")
 #+END_SRC
 
-Refer to the README.md file in CLML.EXTRAS for more information.
-    
+The ~clml.utility.data:fetch~ function downloads the file to a cache
+location and returns the path to the downloaded file. Therefore
+anywhere a path to a file is required the output from
+~clml.utility.data:fetch~ can be provided instead.
+
+The contents of the Sample dataset repository can be found at:
++  [[http://mmaul.github.io/clml.data/][ CLML.DATA: http://mmaul.github.io/clml.data/ ]]
+
+   
 ** Usage
 This library is orginized as a hierarchical tree of systems, currently with two root
 nodes clml and hjs. hjs is the core.

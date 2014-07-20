@@ -15,7 +15,6 @@
                              :cl-ppcre
                              :iterate
                              :cl-fad
-                             :trivial-download
                              :drakma
                              :clml.utility-package
                              )

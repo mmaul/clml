@@ -62,8 +62,9 @@ CLML for packages matching the following prefix patterns:
   *clml/docs/api*.  A package index file containing Org INCLUDE directives that include Org
   placed generated in *clml/docs/api*. 
 "
-  (clml-docs:make-docs (clml-docs:find-packages '("^clml[.]" "^lapack" "^hjs[.]"
-                                                  "^blas" "^future" "^fork-future" ))))
+  (make-docs (find-packages '("^clml[.]" "^lapack" "^hjs[.]" "^mkl[.]"
+                                                  "^blas" "^future" "^fork-future" )))
+  )
 
 ;; Overlay custom modifications on top of CLOD
 (in-package :clod)
