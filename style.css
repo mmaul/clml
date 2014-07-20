@@ -890,9 +890,13 @@ html {
 #main_content {
     /*background: #bbb;*/
     position: absolute;
-    left: 25%;
+    left: 5%;
     top: 0;
     bottom: 0;
     right: 0;
     padding: 2em;
+}
+
+.org-src-container {
+
 }
