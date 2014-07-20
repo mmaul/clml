@@ -1,4 +1,4 @@
-DECISION-TREE(40): (setf *syobu* (read-data-from-file "sample/syobu.csv" :type :csv 
+DECISION-TREE(40): (setf *syobu* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv") :type :csv 
                                                      :csv-type-spec
 						    '(string integer integer integer integer)))
  #<UNSPECIALIZED-DATASET>

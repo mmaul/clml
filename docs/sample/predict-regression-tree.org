@@ -1,4 +1,4 @@
-DECISION-TREE(68): (setf *cars* (read-data-from-file "sample/cars.csv" :type :csv
+DECISION-TREE(68): (setf *cars* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/cars.csv") :type :csv
 						      :csv-type-spec '(double-float double-float)))
  #<UNSPECIALIZED-DATASET>
 DIMENSIONS: speed | distance

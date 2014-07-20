@@ -346,7 +346,7 @@ directory of CLML.EXTRAS is:
 </p>
 <div class="org-src-container">
 
-<pre class="src src-lisp"><span style="color: #7f7f7f;">(</span>asdf:system-relative-pathname 'clml.extras <span style="color: #ffffff;">"sample/datafile.csv"</span><span style="color: #7f7f7f;">)</span>
+<pre class="src src-lisp"><span style="color: #7f7f7f;">(</span>clml.utility.data:fetch <span style="color: #ffffff;">"https://mmaul.github.io/clml.data/sample/datafile.csv"</span><span style="color: #7f7f7f;">)</span>
 </pre>
 </div>
 
@@ -591,7 +591,7 @@ CL-USER <span style="color: #7f7f7f;">(</span>clml.text.utilities:calculate-leve
 0.6
 CL-USER 
 CL-USER <span style="color: #7f7f7f;">(</span>setf *syobu* <span style="color: #7f7f7f;">(</span>hjs.learn.read-data:read-data-from-file 
-           <span style="color: #7f7f7f;">(</span>asdf:system-relative-pathname 'clml.extras <span style="color: #ffffff;">"sample/syobu.csv"</span><span style="color: #7f7f7f;">)</span>
+           <span style="color: #7f7f7f;">(</span>clml.utility.data:fetch <span style="color: #ffffff;">"https://mmaul.github.io/clml.data/sample/syobu.csv"</span><span style="color: #7f7f7f;">)</span>
            <span style="color: #a96da0; font-style: italic;">:type</span> <span style="color: #a96da0; font-style: italic;">:csv</span> <span style="color: #a96da0; font-style: italic;">:csv-type-spec</span> '<span style="color: #7f7f7f;">(</span>string integer integer integer integer<span style="color: #7f7f7f;">)))</span>
 
 
@@ -722,14 +722,14 @@ Package for association rule analysis
 <h5 id="sec-5-1-0-1"><span class="section-number-5">5.1.0.1</span> sample usage</h5>
 <div class="outline-text-5" id="text-5-1-0-1">
 <pre class="example">
-ASSOC(25): (association-analyze "sample/pos.sexp" "sample/result.sexp"
+ASSOC(25): (association-analyze "https://mmaul.github.io/clml.data/sample/pos.sexp" "https://mmaul.github.io/clml.data/sample/result.sexp"
                                '("商品名") "ID番号" 3 :support 2 :external-format #+allegro :932 #-allegro :sjis)
 #&lt;ASSOC-RESULT-DATASET&gt;
 THRESHOLDS: SUPPORT 2 | CONFIDENCE 0 | LIFT 0 | CONVICTION 0
 RULE-LENGTH: 3
 RESULT: 4532 RULES
 
-ASSOC(6): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+ASSOC(6): (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #-allegro :sjis))
 #&lt;HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET&gt;
 DIMENSIONS: ID番号 | 商品名 | 数量 | 金額
 TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN
@@ -1222,7 +1222,7 @@ linear regression package
 <h5 id="sec-6-1-0-1"><span class="section-number-5">6.1.0.1</span> sample usage</h5>
 <div class="outline-text-5" id="text-6-1-0-1">
 <pre class="example">
-LINEAR-REGRESSION(128):(setf dataset (read-data-from-file "sample/airquality.csv"
+LINEAR-REGRESSION(128):(setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/airquality.csv")
 			       :type :csv
 			       :csv-type-spec 
 			       '(integer double-float double-float double-float double-float integer integer)))
@@ -1823,7 +1823,7 @@ CLUSTER-VALIDATION(72): (setf *workspace*
                           5
                           (read-data:pick-and-specialize-data
                            (read-data:read-data-from-file
-                            "sample/syobu.csv" :type :csv
+                            "https://mmaul.github.io/clml.data/sample/syobu.csv" :type :csv
                             :csv-type-spec '(string integer integer integer integer)
                             :external-format #+allegro :932 #-allegro :sjis)
                            :except '(0) :data-types (make-list 4
@@ -2140,7 +2140,7 @@ hierarchical-clustering package
 <h5 id="sec-10-1-0-1"><span class="section-number-5">10.1.0.1</span> sample usage</h5>
 <div class="outline-text-5" id="text-10-1-0-1">
 <pre class="example">
-HC(35): (setf data (read-data-from-file "sample/seiseki.csv"
+HC(35): (setf data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/seiseki.csv")
 					:type :csv :csv-type-spec
 					'(string double-float double-float double-float double-float double-float)))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -2874,7 +2874,7 @@ None.
 <h8 id="sec-12-2-1-1-2-0-1"><span class="section-number-8">12.2.1.1.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-12-2-1-1-2-0-1">
 <pre class="example">
-NMF(48): (setf corpus-dataset (read-data-from-file "sample/sports-corpus-data" :external-format :utf-8))
+NMF(48): (setf corpus-dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/sports-corpus-data") :external-format :utf-8))
  #&lt;UNSPECIALIZED-DATASET&gt;
 DIMENSIONS: File | 清水 | 試合 | ヤクルト | 鹿島 | 久保田 | ブルペン | 阿部 | 海老原 | 北海道 ...
 TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...
@@ -2882,7 +2882,7 @@ NUMBER OF DIMENSIONS: 1203
 DATA POINTS: 100 POINTS
 NMF(49): (c^3m-cluster-number corpus-dataset)
 20.974904271175472
-NMF(50): (setf corpus-dataset (read-data-from-file "sample/politics-corpus-data" :external-format :utf-8))
+NMF(50): (setf corpus-dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/politics-corpus-data") :external-format :utf-8))
  #&lt;UNSPECIALIZED-DATASET&gt;
 DIMENSIONS: File | 隠岐 | 定期 | 立場 | 比例 | 入札 | 成長 | 農水 | 秋田 | 教材 ...
 TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...
@@ -3198,7 +3198,7 @@ NMF(138): (nmf-clustering x 5 :type :column)
 <h8 id="sec-12-2-1-5-2-0-1"><span class="section-number-8">12.2.1.5.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-12-2-1-5-2-0-1">
 <pre class="example">
-NMF(43): (setf corpus-dataset (read-data-from-file "sample/sports-corpus-data" :external-format :utf-8))
+NMF(43): (setf corpus-dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/sports-corpus-data") :external-format :utf-8))
  #&lt;UNSPECIALIZED-DATASET&gt;
 DIMENSIONS: File | 清水 | 試合 | ヤクルト | 鹿島 | 久保田 | ブルペン | 阿部 | 海老原 | 北海道 ...
 TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...
@@ -3320,7 +3320,7 @@ NIL
 <h8 id="sec-12-2-1-6-2-0-1"><span class="section-number-8">12.2.1.6.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-12-2-1-6-2-0-1">
 <pre class="example">
-NMF(52): (setf corpus-dataset (read-data-from-file "sample/sports-corpus-data" :external-format :utf-8))
+NMF(52): (setf corpus-dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/sports-corpus-data") :external-format :utf-8))
  #&lt;UNSPECIALIZED-DATASET&gt;
 DIMENSIONS: File | 清水 | 試合 | ヤクルト | 鹿島 | 久保田 | ブルペン | 阿部 | 海老原 | 北海道 ...
 TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...
@@ -3358,7 +3358,7 @@ Feature 0
 00261590     0.9016390011411483
 00267690     0.6534929166105935
 NIL
-NMF(55): (setf corpus-dataset (read-data-from-file "sample/politics-corpus-data" :external-format :utf-8))
+NMF(55): (setf corpus-dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/politics-corpus-data") :external-format :utf-8))
  #&lt;UNSPECIALIZED-DATASET&gt;
 DIMENSIONS: File | 隠岐 | 定期 | 立場 | 比例 | 入札 | 成長 | 農水 | 秋田 | 教材 ...
 TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...
@@ -3852,7 +3852,7 @@ OPTICS &#x2013; density-based clustering package
 <h8 id="sec-13-2-1-2-2-0-1"><span class="section-number-8">13.2.1.2.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-13-2-1-2-2-0-1">
 <pre class="example">
-OPTICS(10): (optics "sample/syobu.csv" 10 2 10 '("がく長" "がく幅" "花びら長" "花びら幅")
+OPTICS(10): (optics "https://mmaul.github.io/clml.data/sample/syobu.csv" 10 2 10 '("がく長" "がく幅" "花びら長" "花びら幅")
                      :file-type :csv :csv-type-spec '(string integer integer integer integer) 
                      :distance :manhattan :external-format #+allegro :932 #-allegro :sjis)
  #&lt;OPTICS-OUTPUT&gt;
@@ -4115,7 +4115,7 @@ Status           Meaning
 <h8 id="sec-15-2-2-1-2-0-1"><span class="section-number-8">15.2.2.1.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-15-2-2-1-2-0-1">
 <pre class="example">
- SPECTRAL-CLUSTERING(25): (load "sample/spectral-clustering-sample.cl" :external-format #+allegro :932 #-allegro :sjis)
+ SPECTRAL-CLUSTERING(25): (load "https://mmaul.github.io/clml.data/sample/spectral-clustering-sample.cl" :external-format #+allegro :932 #-allegro :sjis)
  SPECTRAL-CLUSTERING(26): *spectral-nodevector*
  #("満足度" "差別" "林" "NPO" "生きがい" "中学" "服" "社会福祉" "市場" "ADL" ...)
  SPECTRAL-CLUSTERING(27): *spectral-w*
@@ -4260,7 +4260,7 @@ decision tree package
 <h8 id="sec-16-2-1-2-2-0-1"><span class="section-number-8">16.2.1.2.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-16-2-1-2-2-0-1">
 <pre class="example">
-DECISION-TREE(64): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+DECISION-TREE(64): (setf *bc-train* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.train.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))
@@ -4279,7 +4279,7 @@ DECISION-TREE(65): (setf *tree* (make-decision-tree *bc-train* "Class"))
   (((# #) (# #) (# #)) ((#) (145 140 133 119 80 54 26 23)) ((# # #) (# #) (# # #))))
  (((("Bare.nuclei" . 6.0) (# # # # # # # # # # ...)) (("malignant" . 18) ("benign" . 214)) ((11 32 60 72 86 128 142 165 170 217) (3 4 5 6 8 9 12 13 14 15 ...)))
   ((("malignant" . 10)) (11 32 60 72 86 128 142 165 170 217)) (((# #) (# #) (# #)) ((#) (131 51 50 27)) ((# # #) (# # #) (# # #)))))
-DECISION-TREE(66): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+DECISION-TREE(66): (setf *bc-test* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.test.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))
@@ -4633,7 +4633,7 @@ for regression tree, objective variable is numeric data.
 <h8 id="sec-16-2-1-13-2-0-1"><span class="section-number-8">16.2.1.13.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-16-2-1-13-2-0-1">
 <pre class="example">
-DECISION-TREE(40): (setf *syobu* (read-data-from-file "sample/syobu.csv" :type :csv 
+DECISION-TREE(40): (setf *syobu* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv") :type :csv 
                                                      :csv-type-spec
 						    '(string integer integer integer integer)))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -4741,7 +4741,7 @@ DECISION-TREE(46): (predict-decision-tree *query* *syobu* *tree*)
 <h8 id="sec-16-2-1-14-2-0-1"><span class="section-number-8">16.2.1.14.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-16-2-1-14-2-0-1">
 <pre class="example">
-DECISION-TREE(68): (setf *cars* (read-data-from-file "sample/cars.csv" :type :csv
+DECISION-TREE(68): (setf *cars* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/cars.csv") :type :csv
 						      :csv-type-spec '(double-float double-float)))
  #&lt;UNSPECIALIZED-DATASET&gt;
 DIMENSIONS: speed | distance
@@ -4898,7 +4898,7 @@ DECISION-TREE(72): (predict-regression-tree *query* *cars* *tree*)
 <h8 id="sec-16-2-1-17-2-0-1"><span class="section-number-8">16.2.1.17.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-16-2-1-17-2-0-1">
 <pre class="example">
-DECISION-TREE(10): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+DECISION-TREE(10): (setf *bc-train* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.train.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))
@@ -4920,7 +4920,7 @@ DECISION-TREE(11): (setf *tree* (make-regression-tree *bc-train* "Cell.size"))
    ((2 23 52 55 71 76 80 83 84 85 ...) (7 10 11 18 19 20 24 25 26 27 ...)))
   (((# #) (# # # # # #) (# #)) ((# # #) (# # #) (# # #)) ((# # #) (# # #) (# # #)))
   (((# #) (# # # # # # # # #) (# #)) ((# # #) (# #) (# # #)) ((# # #) (# # #) (# # #)))))
-DECISION-TREE(12): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+DECISION-TREE(12): (setf *bc-test* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.test.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))
@@ -6767,7 +6767,7 @@ None.
 <h5 id="sec-22-1-0-1"><span class="section-number-5">22.1.0.1</span> sample usage</h5>
 <div class="outline-text-5" id="text-22-1-0-1">
 <pre class="example">
-RANDOM-FOREST(40): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+RANDOM-FOREST(40): (setf *bc-train* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.train.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))
@@ -6796,7 +6796,7 @@ RANDOM-FOREST(42): (setf *query* #(5.0 "?" 1.0 1.0 2.0 1.0 3.0 1.0 1.0 "benign")
  #(5.0 "?" 1.0 1.0 2.0 1.0 3.0 1.0 1.0 "benign")
 RANDOM-FOREST(43): (predict-regression-forest *query* *bc-train* *regression-forest*)
 1.0172789943526082
-RANDOM-FOREST(44): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+RANDOM-FOREST(44): (setf *bc-test* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.test.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))
@@ -16283,7 +16283,7 @@ Package for Latent-Dirichlet-Allocation by Hierarchical-Dirichlet-Process
 <h5 id="sec-29-1-0-1"><span class="section-number-5">29.1.0.1</span> sample usage</h5>
 <div class="outline-text-5" id="text-29-1-0-1">
 <pre class="example">
-SVM.WSS3(44): (read-data-from-file "sample/bc-train-for-svm.csv"
+SVM.WSS3(44): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -16296,7 +16296,7 @@ SVM.WSS3(45): (setf training-vector (dataset-points (pick-and-specialize-data * 
   #(2.0 1.0 2.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) #(4.0 2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0) #(2.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0)
   #(1.0 1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0) #(7.0 4.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0) #(4.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0)
   #(6.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) ...)
-SVM.WSS3(46): (read-data-from-file "sample/bc-test-for-svm.csv"
+SVM.WSS3(46): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -18361,7 +18361,7 @@ divide-dataset must be used to remove one column.
 <h5 id="sec-32-1-0-2"><span class="section-number-5">32.1.0.2</span> sample usage</h5>
 <div class="outline-text-5" id="text-32-1-0-2">
 <pre class="example">
-PCA(10): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+PCA(10): (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #-allegro :sjis))
 PCA(11): (setf dataset (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric)))
 PCA(12): (princomp dataset :method :correlation)
  #&lt;PCA-RESULT @ #x20fcd88a&gt;
@@ -18380,7 +18380,7 @@ PCA(13): (princomp-projection dataset (cadr /))
 
 ;; learning and estimation by eigenface method and data for eyes
 PCA(40): (let ((eyes (pick-and-specialize-data
-                      (read-data-from-file "sample/eyes200.sexp")
+                      (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/eyes200.sexp"))
                       :except '(0)
                       :data-types (append (make-list 1 :initial-element :category)
                                           (make-list 1680 :initial-element :numeric)))))
@@ -33261,7 +33261,7 @@ Reference:
 <h8 id="sec-37-2-1-1-2-0-1"><span class="section-number-8">37.2.1.1.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-37-2-1-1-2-0-1">
 <pre class="example">
-ONE-CLASS-SVM(15): (read-data-from-file "sample/bc-train-for-svm.csv"
+ONE-CLASS-SVM(15): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
                                                  :type :csv
                                                  :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -33894,7 +33894,7 @@ Joint work with Rong-En Fan and Pai-Hsuen Chen.
 <h8 id="sec-39-2-2-6-2-0-1"><span class="section-number-8">39.2.2.6.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-39-2-2-6-2-0-1">
 <pre class="example">
-SVM.WSS3(44): (read-data-from-file "sample/bc-train-for-svm.csv"
+SVM.WSS3(44): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -33907,7 +33907,7 @@ SVM.WSS3(45): (setf training-vector (dataset-points (pick-and-specialize-data * 
   #(2.0 1.0 2.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) #(4.0 2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0) #(2.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0)
   #(1.0 1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0) #(7.0 4.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0) #(4.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0)
   #(6.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) ...)
-SVM.WSS3(46): (read-data-from-file "sample/bc-test-for-svm.csv"
+SVM.WSS3(46): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -34112,7 +34112,7 @@ Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin
 <h8 id="sec-40-2-1-3-2-0-1"><span class="section-number-8">40.2.1.3.2.0.1</span> sample usage</h8>
 <div class="outline-text-8" id="text-40-2-1-3-2-0-1">
 <pre class="example">
-SVR(251): (read-data-from-file "sample/bc-train-for-svm.csv"
+SVR(251): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
                                                  :type :csv
                                                  :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -34133,7 +34133,7 @@ SVR(253): (setf training-vector (choice-dimensions '("Cl.thickness" "Cell.shape"
   #(4.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0 2.0) #(2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0 1.0)
   #(1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0 1.0) #(7.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0 4.0)
   #(4.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0 1.0) #(6.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0 1.0) ...)
-SVR(254): (read-data-from-file "sample/bc-test-for-svm.csv"
+SVR(254): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
                                                  :type :csv
                                                  :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -34516,7 +34516,7 @@ TEXT-UTILS(4): (calculate-string-similarity "kitten" "sitting" :type :lev)
 0.5384615384615384
 TEXT-UTILS(5): (calculate-string-similarity "kitten" "sitting" :type :lcs)
 0.6153846153846154
-TEXT.UTILS(42): (setf data (read-data-from-file "sample/equivalence-class.csv" :type :csv :csv-type-spec
+TEXT.UTILS(42): (setf data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/equivalence-class.csv") :type :csv :csv-type-spec
  '(string string double-float) :external-format :utf-8))
  #&lt;UNSPECIALIZED-DATASET&gt;
 DIMENSIONS: string1 | string2 | label
@@ -34710,7 +34710,7 @@ Direction-based anomaly detector
 TS-ANOMALY-DETECTION(4): (setf sample-ts
                            (time-series-data
                             (read-data-from-file
-                             "sample/traffic-balance.csv" 
+                             "https://mmaul.github.io/clml.data/sample/traffic-balance.csv" 
                              :type :csv
                              :csv-type-spec (cons 'string
                                                   (make-list 6 :initial-element 'double-float)))
@@ -34761,7 +34761,7 @@ TS-ANOMALY-DETECTION(6): (loop with detector = (make-periodic-detector
 TS-ANOMALY-DETECTION(8): (setf exchange 
                            (time-series-data
                             (read-data-from-file
-                             "sample/exchange.csv" 
+                             "https://mmaul.github.io/clml.data/sample/exchange.csv" 
                              :type :csv
                              :csv-type-spec (cons 'string
                                                   (make-list 10 :initial-element 'double-float)))
@@ -35124,7 +35124,7 @@ Package for AutoRegression model
 <pre class="example">
 TS-AR(128): (defparameter ukgas 
                (time-series-data
-                (read-data-from-file "sample/UKgas.sexp")
+                (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
                 :range '(1) :time-label 0
                 :start 1960 :frequency 4))
 
@@ -35193,7 +35193,7 @@ POINTS:     84
 TIME-LABEL: year season
 
 TS-AR(6): (setq traffic (time-series-data
-                         (read-data-from-file "sample/mawi-traffic/pointF-20090330-0402.sexp")
+                         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/mawi-traffic/pointF-20090330-0402.sexp"))
                          :except '(0) :time-label 0))
 #&lt;TIME-SERIES-DATASET&gt;
 DIMENSIONS: [   32-   63] | [   64-  127] | [  128-  255] | [  256-  511] | [  512- 1023] | ...
@@ -35655,7 +35655,7 @@ None.
 <h5 id="sec-47-1-0-1"><span class="section-number-5">47.1.0.1</span> sample usage</h5>
 <div class="outline-text-5" id="text-47-1-0-1">
 <pre class="example">
-EXPL-SMTHING(106): (setq ukgas (time-series-data (read-data-from-file "sample/UKgas.sexp")
+EXPL-SMTHING(106): (setq ukgas (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
                                                  :range '(1) :time-label 0
                                                  :frequency 4))
 #&lt;TIME-SERIES-DATASET&gt;
@@ -35929,7 +35929,7 @@ package for reading time series data
 <h5 id="sec-48-1-0-1"><span class="section-number-5">48.1.0.1</span> sample usage</h5>
 <div class="outline-text-5" id="text-48-1-0-1">
 <pre class="example">
-SVM.WSS3(44): (read-data-from-file "sample/bc-train-for-svm.csv"
+SVM.WSS3(44): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -35942,7 +35942,7 @@ SVM.WSS3(45): (setf training-vector (dataset-points (pick-and-specialize-data * 
   #(2.0 1.0 2.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) #(4.0 2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0) #(2.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0)
   #(1.0 1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0) #(7.0 4.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0) #(4.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0)
   #(6.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) ...)
-SVM.WSS3(46): (read-data-from-file "sample/bc-test-for-svm.csv"
+SVM.WSS3(46): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -36889,7 +36889,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
 <pre class="example">
 TS-STSP(123): (defparameter tokyo
                  (time-series-data
-                  (read-data-from-file "sample/tokyo-temperature.sexp")))
+                  (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/tokyo-temperature.sexp"))))
 TOKYO
 
 TS-STSP(7): (trend tokyo :k 2 :opt-t^2 t)
@@ -37096,7 +37096,7 @@ Package for statistic utils for <i>time-series-dataset</i>.
 <h5 id="sec-50-1-0-1"><span class="section-number-5">50.1.0.1</span> sample usage</h5>
 <div class="outline-text-5" id="text-50-1-0-1">
 <pre class="example">
-SVM.WSS3(44): (read-data-from-file "sample/bc-train-for-svm.csv"
+SVM.WSS3(44): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;
@@ -37109,7 +37109,7 @@ SVM.WSS3(45): (setf training-vector (dataset-points (pick-and-specialize-data * 
   #(2.0 1.0 2.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) #(4.0 2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0) #(2.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0)
   #(1.0 1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0) #(7.0 4.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0) #(4.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0)
   #(6.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) ...)
-SVM.WSS3(46): (read-data-from-file "sample/bc-test-for-svm.csv"
+SVM.WSS3(46): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #&lt;UNSPECIALIZED-DATASET&gt;

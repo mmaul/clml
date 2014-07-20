@@ -1,4 +1,4 @@
-DECISION-TREE(64): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+DECISION-TREE(64): (setf *bc-train* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.train.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))
@@ -17,7 +17,7 @@ DECISION-TREE(65): (setf *tree* (make-decision-tree *bc-train* "Class"))
   (((# #) (# #) (# #)) ((#) (145 140 133 119 80 54 26 23)) ((# # #) (# #) (# # #))))
  (((("Bare.nuclei" . 6.0) (# # # # # # # # # # ...)) (("malignant" . 18) ("benign" . 214)) ((11 32 60 72 86 128 142 165 170 217) (3 4 5 6 8 9 12 13 14 15 ...)))
   ((("malignant" . 10)) (11 32 60 72 86 128 142 165 170 217)) (((# #) (# #) (# #)) ((#) (131 51 50 27)) ((# # #) (# # #) (# # #)))))
-DECISION-TREE(66): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+DECISION-TREE(66): (setf *bc-test* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.test.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))

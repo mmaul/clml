@@ -1,4 +1,4 @@
-LINEAR-REGRESSION(128):(setf dataset (read-data-from-file "sample/airquality.csv"
+LINEAR-REGRESSION(128):(setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/airquality.csv")
 			       :type :csv
 			       :csv-type-spec 
 			       '(integer double-float double-float double-float double-float integer integer)))

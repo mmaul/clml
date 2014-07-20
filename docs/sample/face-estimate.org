@@ -1,4 +1,4 @@
-PCA(10): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+PCA(10): (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #-allegro :sjis))
 PCA(11): (setf dataset (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric)))
 PCA(12): (princomp dataset :method :correlation)
  #<PCA-RESULT @ #x20fcd88a>
@@ -17,7 +17,7 @@ PCA(13): (princomp-projection dataset (cadr /))
 
 ;; learning and estimation by eigenface method and data for eyes
 PCA(40): (let ((eyes (pick-and-specialize-data
-                      (read-data-from-file "sample/eyes200.sexp")
+                      (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/eyes200.sexp"))
                       :except '(0)
                       :data-types (append (make-list 1 :initial-element :category)
                                           (make-list 1680 :initial-element :numeric)))))

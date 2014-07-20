@@ -3,7 +3,7 @@
 (setf train-data
       (pick-and-specialize-data
        (read-data-from-file
-        (asdf:system-relative-pathname 'clml "sample/svm-benchmark-train.csv")
+        (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/svm-benchmark-train.csv")
         :type :csv
         :csv-type-spec (make-list 24 :initial-element 'double-float)
         :external-format :utf-8)
@@ -12,7 +12,7 @@
 (setf train-data-2
       (pick-and-specialize-data
        (read-data-from-file
-        (asdf:system-relative-pathname 'clml "sample/svm-benchmark2.csv")
+        (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/svm-benchmark2.csv")
         :type :csv
         :csv-type-spec (make-list 24 :initial-element 'double-float)
         :external-format :utf-8)
@@ -21,7 +21,7 @@
 (setf train-data-3
       (pick-and-specialize-data
        (read-data-from-file
-        (asdf:system-relative-pathname 'clml "sample/svm-benchmark3.csv")
+        (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/svm-benchmark3.csv")
         :type :csv
         :csv-type-spec (make-list 14 :initial-element 'double-float)
         :external-format :utf-8)

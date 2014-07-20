@@ -8,7 +8,7 @@ To use simply obtain CLML.EXTRAS and place in ~/local-projects or in ASDF search
 A simple method of obtaining a path name to a file in the sample
 directory of CLML.EXTRAS is:
 #+BEGIN_SRC lisp
-(asdf:system-relative-pathname 'clml.extras "sample/datafile.csv")
+(clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/datafile.csv")
 #+END_SRC
 
 Refer to the README.md file in CLML.EXTRAS for more information.
@@ -118,7 +118,7 @@ Here is a quick demonstration:
     0.6
     CL-USER 
     CL-USER (setf *syobu* (hjs.learn.read-data:read-data-from-file 
-               (asdf:system-relative-pathname 'clml.extras "sample/syobu.csv")
+               (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv")
                :type :csv :csv-type-spec '(string integer integer integer integer)))
 
 

@@ -1,11 +1,11 @@
- ASSOC(25): (association-analyze "sample/pos.sexp" "sample/result.sexp"
+ ASSOC(25): (association-analyze "https://mmaul.github.io/clml.data/sample/pos.sexp" "sample/result.sexp"
                                 '("商品名") "ID番号" 3 :support 2 :external-format #+allegro :932 #-allegro :sjis)
  #<ASSOC-RESULT-DATASET>
  THRESHOLDS: SUPPORT 2 | CONFIDENCE 0 | LIFT 0 | CONVICTION 0
  RULE-LENGTH: 3
  RESULT: 4532 RULES
  
- ASSOC(6): (setf dataset (read-data-from-file "sample/pos.sexp" :external-format #+allegro :932 #-allegro :sjis))
+ ASSOC(6): (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #-allegro :sjis))
  #<HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET>
  DIMENSIONS: ID番号 | 商品名 | 数量 | 金額
  TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN

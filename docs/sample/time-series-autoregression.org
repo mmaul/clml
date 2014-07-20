@@ -1,6 +1,6 @@
  TS-AR(128): (defparameter ukgas 
                 (time-series-data
-                 (read-data-from-file "sample/UKgas.sexp")
+                 (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
                  :range '(1) :time-label 0
                  :start 1960 :frequency 4))
 
@@ -69,7 +69,7 @@
  TIME-LABEL: year season
 
  TS-AR(6): (setq traffic (time-series-data
-                          (read-data-from-file "sample/mawi-traffic/pointF-20090330-0402.sexp")
+                          (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/mawi-traffic/pointF-20090330-0402.sexp"))
                           :except '(0) :time-label 0))
  #<TIME-SERIES-DATASET>
  DIMENSIONS: [   32-   63] | [   64-  127] | [  128-  255] | [  256-  511] | [  512- 1023] | ...

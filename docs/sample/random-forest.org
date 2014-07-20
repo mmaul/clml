@@ -1,4 +1,4 @@
-RANDOM-FOREST(40): (setf *bc-train* (read-data-from-file "sample/bc.train.csv"
+RANDOM-FOREST(40): (setf *bc-train* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.train.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))
@@ -27,7 +27,7 @@ RANDOM-FOREST(42): (setf *query* #(5.0 "?" 1.0 1.0 2.0 1.0 3.0 1.0 1.0 "benign")
  #(5.0 "?" 1.0 1.0 2.0 1.0 3.0 1.0 1.0 "benign")
 RANDOM-FOREST(43): (predict-regression-forest *query* *bc-train* *regression-forest*)
 1.0172789943526082
-RANDOM-FOREST(44): (setf *bc-test* (read-data-from-file "sample/bc.test.csv"
+RANDOM-FOREST(44): (setf *bc-test* (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.test.csv")
 						     :type :csv
 						     :csv-type-spec 
 						     (append (loop for i below 9 collect 'double-float) '(string))))

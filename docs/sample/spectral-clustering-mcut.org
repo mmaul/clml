@@ -1,4 +1,4 @@
- SPECTRAL-CLUSTERING(25): (load "sample/spectral-clustering-sample.cl" :external-format #+allegro :932 #-allegro :sjis)
+ SPECTRAL-CLUSTERING(25): (load "https://mmaul.github.io/clml.data/sample/spectral-clustering-sample.cl" :external-format #+allegro :932 #-allegro :sjis)
  SPECTRAL-CLUSTERING(26): *spectral-nodevector*
  #("満足度" "差別" "林" "NPO" "生きがい" "中学" "服" "社会福祉" "市場" "ADL" ...)
  SPECTRAL-CLUSTERING(27): *spectral-w*

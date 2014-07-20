@@ -1,6 +1,6 @@
  TS-STSP(123): (defparameter tokyo
                   (time-series-data
-                   (read-data-from-file "sample/tokyo-temperature.sexp")))
+                   (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/tokyo-temperature.sexp"))))
  TOKYO
 
  TS-STSP(7): (trend tokyo :k 2 :opt-t^2 t)

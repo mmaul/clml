@@ -1,5 +1,5 @@
  K-NN(12): (setf data-for-learn
-             (read-data-from-file "sample/learn.csv" :type :csv 
+             (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/learn.csv") :type :csv 
                                   :csv-type-spec (cons 'string (make-list 105 :initial-element 'double-float))))
  #<HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET>
  DIMENSIONS: id | A/C CLUTCH | A/C PRESSURE | A/C PRESSURE SENSOR | A/C SWITCH | AF B1 LAMBDA CMD | AF B2 LAMBDA CMD | ...
@@ -16,7 +16,7 @@
   :DISTANCE :MANHATTAN :MINS #(0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 ...) ...)
 
  K-NN(14): (setf data-for-estimate
-             (read-data-from-file "sample/estimate.csv" :type :csv
+             (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/estimate.csv") :type :csv
                                   :csv-type-spec (make-list 105 :initial-element 'double-float)))
  #<HJS.LEARN.READ-DATA::UNSPECIALIZED-DATASET>
  DIMENSIONS: A/C CLUTCH | A/C PRESSURE | A/C PRESSURE SENSOR | A/C SWITCH | AF B1 LAMBDA CMD | AF B2 LAMBDA CMD | AF FB CMD | ...

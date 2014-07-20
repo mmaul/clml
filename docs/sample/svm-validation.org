@@ -1,4 +1,4 @@
-SVM.WSS3(44): (read-data-from-file "sample/bc-train-for-svm.csv"
+SVM.WSS3(44): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #<UNSPECIALIZED-DATASET>
@@ -11,7 +11,7 @@ SVM.WSS3(45): (setf training-vector (dataset-points (pick-and-specialize-data * 
   #(2.0 1.0 2.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) #(4.0 2.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0) #(2.0 1.0 1.0 1.0 2.0 1.0 2.0 1.0 1.0 1.0)
   #(1.0 1.0 1.0 1.0 2.0 3.0 3.0 1.0 1.0 1.0) #(7.0 4.0 6.0 4.0 6.0 1.0 4.0 3.0 1.0 -1.0) #(4.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0)
   #(6.0 1.0 1.0 1.0 2.0 1.0 3.0 1.0 1.0 1.0) ...)
-SVM.WSS3(46): (read-data-from-file "sample/bc-test-for-svm.csv"
+SVM.WSS3(46): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
 						 :type :csv
 						 :csv-type-spec (make-list 10 :initial-element 'double-float))
  #<UNSPECIALIZED-DATASET>

@@ -1,5 +1,5 @@
 
-(in-package :random-forest)
+(in-package :clml.decision-tree.random-forest)
 
 (defun make-bootstrap-sample (unspecialized-dataset)
   (let* ((data-vector (dataset-points unspecialized-dataset))

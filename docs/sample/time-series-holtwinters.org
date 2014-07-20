@@ -1,4 +1,4 @@
- EXPL-SMTHING(106): (setq ukgas (time-series-data (read-data-from-file "sample/UKgas.sexp")
+ EXPL-SMTHING(106): (setq ukgas (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
                                                   :range '(1) :time-label 0
                                                   :frequency 4))
  #<TIME-SERIES-DATASET>

@@ -1,5 +1,5 @@
- TS-STAT(90): (setq ukgas (time-series-data (read-data-from-file "sample/UKgas.sexp") :range '(1) :time-label 0)
-                    useco (time-series-data (read-data-from-file "sample/USeconomic.sexp")))
+ TS-STAT(90): (setq ukgas (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp")) :range '(1) :time-label 0)
+                    useco (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/USeconomic.sexp"))))
 
  TS-STAT(91): (acf useco)
  log(M1)

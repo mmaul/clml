@@ -1,4 +1,4 @@
-HC(35): (setf data (read-data-from-file "sample/seiseki.csv"
+HC(35): (setf data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/seiseki.csv")
 					:type :csv :csv-type-spec
 					'(string double-float double-float double-float double-float double-float)))
  #<UNSPECIALIZED-DATASET>

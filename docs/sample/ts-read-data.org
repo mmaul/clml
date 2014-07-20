@@ -1,4 +1,4 @@
- TS-READ-DATA(26): (setf d (read-data-from-file "sample/msi-access-stat/access-log-stat-0.sexp"))
+ TS-READ-DATA(26): (setf d (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/msi-access-stat/access-log-stat-0.sexp")))
  #<UNSPECIALIZED-DATASET>
  DIMENSIONS: date/time | hits
  TYPES:      UNKNOWN | UNKNOWN

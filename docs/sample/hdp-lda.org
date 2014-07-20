@@ -1,5 +1,5 @@
  HDP-LDA(142): (setq dataset (pick-and-specialize-data
-                              (read-data-from-file "sample/sports-corpus-data" :external-format :utf-8)
+                              (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/sports-corpus-data") :external-format :utf-8)
                               :except '(0) :data-types (make-list 1202 :initial-element :numeric)))
  #<NUMERIC-DATASET>
  DIMENSIONS: 清水 | 試合 | ヤクルト | 鹿島 | 久保田 | ブルペン | 阿部 | 海老原 | 北海道 | 横須賀 ...

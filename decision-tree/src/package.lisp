@@ -29,7 +29,7 @@
    #:make-variable-index-hash)
   (:documentation "decision tree package"))
 
-(defpackage :clml-decision-tree.random-forest
+(defpackage :clml.decision-tree.random-forest
   (:nicknames :random-forest)
   (:use :cl
 	:hjs.learn.read-data

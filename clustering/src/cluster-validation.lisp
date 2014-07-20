@@ -17,7 +17,7 @@
                 10 
                 (read-data:pick-and-specialize-data 
                  (read-data:read-data-from-file
-                  (asdf:system-relative-pathname 'clml "sample/norm-interp-feature.sexp")) :except '(0)
+                  (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/norm-interp-feature.sexp")) :except '(0)
                   :data-types (make-list 12 :initial-element :numeric))))nil))
 (defdoublefunc v-diff-sum^2 (dvec dvec))
 

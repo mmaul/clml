@@ -1,7 +1,7 @@
  TS-ANOMALY-DETECTION(4): (setf sample-ts
                             (time-series-data
                              (read-data-from-file
-                              "sample/traffic-balance.csv" 
+                              "https://mmaul.github.io/clml.data/sample/traffic-balance.csv" 
                               :type :csv
                               :csv-type-spec (cons 'string
                                                    (make-list 6 :initial-element 'double-float)))

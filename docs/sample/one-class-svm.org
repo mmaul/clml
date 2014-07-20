@@ -1,4 +1,4 @@
-ONE-CLASS-SVM(15): (read-data-from-file "sample/bc-train-for-svm.csv"
+ONE-CLASS-SVM(15): (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
                                                  :type :csv
                                                  :csv-type-spec (make-list 10 :initial-element 'double-float))
  #<UNSPECIALIZED-DATASET>

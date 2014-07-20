@@ -1,4 +1,4 @@
-NMF(48): (setf corpus-dataset (read-data-from-file "sample/sports-corpus-data" :external-format :utf-8))
+NMF(48): (setf corpus-dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/sports-corpus-data") :external-format :utf-8))
  #<UNSPECIALIZED-DATASET>
 DIMENSIONS: File | 清水 | 試合 | ヤクルト | 鹿島 | 久保田 | ブルペン | 阿部 | 海老原 | 北海道 ...
 TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...
@@ -6,7 +6,7 @@ NUMBER OF DIMENSIONS: 1203
 DATA POINTS: 100 POINTS
 NMF(49): (c^3m-cluster-number corpus-dataset)
 20.974904271175472
-NMF(50): (setf corpus-dataset (read-data-from-file "sample/politics-corpus-data" :external-format :utf-8))
+NMF(50): (setf corpus-dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/politics-corpus-data") :external-format :utf-8))
  #<UNSPECIALIZED-DATASET>
 DIMENSIONS: File | 隠岐 | 定期 | 立場 | 比例 | 入札 | 成長 | 農水 | 秋田 | 教材 ...
 TYPES:      UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN | UNKNOWN ...

@@ -2,7 +2,7 @@ TEXT-UTILS(4): (calculate-string-similarity "kitten" "sitting" :type :lev)
 0.5384615384615384
 TEXT-UTILS(5): (calculate-string-similarity "kitten" "sitting" :type :lcs)
 0.6153846153846154
-TEXT.UTILS(42): (setf data (read-data-from-file "sample/equivalence-class.csv" :type :csv :csv-type-spec
+TEXT.UTILS(42): (setf data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/equivalence-class.csv") :type :csv :csv-type-spec
  '(string string double-float) :external-format :utf-8))
  #<UNSPECIALIZED-DATASET>
 DIMENSIONS: string1 | string2 | label

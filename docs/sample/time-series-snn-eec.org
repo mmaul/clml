@@ -1,7 +1,7 @@
  TS-ANOMALY-DETECTION(8): (setf exchange 
                             (time-series-data
                              (read-data-from-file
-                              "sample/exchange.csv" 
+                              "https://mmaul.github.io/clml.data/sample/exchange.csv" 
                               :type :csv
                               :csv-type-spec (cons 'string
                                                    (make-list 10 :initial-element 'double-float)))
