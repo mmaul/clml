@@ -1,3 +1,4 @@
+
 .highlight .hll { background-color: #404040 }
 .highlight  { color: #d0d0d0 }
 .highlight .c { color: #999999; font-style: italic } /* Comment */
@@ -767,14 +768,18 @@ dt {
   font-weight: normal;
 }
 
+/* -----------------------------------------------*/
 #header {
   /*z-index: 0;
   left: 0;
-  top: 0px;*/
-  height: 60px;
+  top: 0px;
+  height: 60px;*/
+    height: 40px;
   /*width: 100%;*/
   /*position: fixed;*/
-  /*position:absolute;*/
+    left: 0;
+  top: 0px;
+  position:absolute; 
   /*
   position:relative;*/
   background: url(../images/nav-bg.gif) #353535;
@@ -784,22 +789,13 @@ dt {
   -o-box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
   box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.25);
 }
-#table-of-contents {
-    position:fixed;
-    overflow:scroll;
-    height: 700px;
-    width: 350px;
-    
-}
-#main_content {
-    left:375px;
-}
+
 #header nav {
   max-width: var(--main-max-width);
   margin: 0 auto;
   padding: 0 10px;
-  background: blue;
-  margin: 6px auto;
+  background: blue; 
+  /*margin: 6px auto;*/
 }
 #header nav li {
   font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -866,72 +862,37 @@ dt {
   font-size: 11px;
 }
 
-section {
-  max-width: var(--main-max-width);
-  padding: 30px 0px 50px 0px;
-  margin: 20px 0;
-  margin-top: 70px;
-}
-section #title {
-  border: 0;
-  outline: none;
-  margin: 0 0 50px 0;
-  padding: 0 0 5px 0;
-}
-section #title h1 {
-  font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: normal;
-  font-size: 40px;
-  text-align: center;
-  line-height: 36px;
-}
-section #title p {
-  color: #d7cfbe;
-  font-family: 'OpenSansLight', "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: normal;
-  font-size: 18px;
-  text-align: center;
-}
-section #title .credits {
-  font-size: 11px;
-  font-family: 'OpenSansRegular', "Helvetica Neue", Helvetica, Arial, sans-serif;
-  font-weight: normal;
-  color: #696969;
-  margin-top: -10px;
-}
-section #title .credits.left {
-  float: left;
-}
-section #title .credits.right {
-  float: right;
+#postamble {
+    display:none;
 }
 
-@media print, screen and (max-width: 720px) {
-  #title .credits {
-    display: block;
+
+
+html, body, * {
+    padding: 0;
+    margin: 0;
+}
+html {
     width: 100%;
-    line-height: 30px;
-    text-align: center;
-  }
-  #title .credits .left {
-    float: none;
-    display: block;
-  }
-  #title .credits .right {
-    float: none;
-    display: block;
-  }
+    height: 100%;
+    position: absolute;
 }
-@media print, screen and (max-width: 880px) {
-  #header {
-    margin-top: -20px;
-  }
-
-  section {
-    margin-top: 40px;
-  }
-
-  nav {
-    display: none;
-  }
+#table-of-contents {
+    /*background: #ddd;*/
+    position: fixed;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    right: 75%;
+    overflow-y: scroll;
+    padding: 2em;
+}
+#main_content {
+    /*background: #bbb;*/
+    position: absolute;
+    left: 25%;
+    top: 0;
+    bottom: 0;
+    right: 0;
+    padding: 2em;
 }
