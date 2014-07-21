@@ -16,7 +16,6 @@
 <ul>
 <li><a href="#sec-1-4-1">1.4.1. Obtaining code</a></li>
 <li><a href="#sec-1-4-2">1.4.2. Installing</a></li>
-<li><a href="#sec-1-4-3">1.4.3. External Dependencies <b>*</b></a></li>
 </ul>
 </li>
 <li><a href="#sec-1-5">1.5. Documentation</a>
@@ -72,8 +71,6 @@ This repository contains is a modified version of CLML with the following goals 
 -   Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
 -   Optionally Intel Math Kernel Library
 -   ASDF3 and optionally Quicklisp (This document assumes [Quicklisp](http://quicklisp.org))
--   C compiler
--   gfortran compiler
 
 Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
 
@@ -102,17 +99,6 @@ Or download zip archive at
     1.  Place in a location on your ASDF search path path such as `~/common-lisp`
     2.  Start LISP and enter `(asdf:load-system :clml)`
 
-### External Dependencies **\***
-
-    :alexandria
-    :iterate
-    :f2cl
-    :simple-queue
-    :clod
-    :split-sequence
-    :cl-ppcre
-    :parse-number
-
 ## Documentation
 
 ### User and API Documentation
@@ -138,12 +124,11 @@ anywhere a path to a file is required the output from
 
 The contents of the Sample dataset repository can be found at:
 
--   [ CLML Extras: <http://mmaul.github.io/clml.data/> ](http://mmaul.github.io/clml.data/)
+-   [ CLML.DATA: <http://mmaul.github.io/clml.data/> ](http://mmaul.github.io/clml.data/)
 
 ## Usage
 
-This library is orginized as a hierarchical tree of systems, currently with two root
-nodes clml and hjs. hjs is the core.
+This library is organized as a hierarchical tree of systems.
 -   clml
 -   clml.association-rule
     -   clml.association-rule

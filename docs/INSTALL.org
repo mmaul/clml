@@ -4,8 +4,6 @@
   + Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
   + Optionally Intel Math Kernel Library
   + ASDF3 and optionally Quicklisp (This document assumes [[http://quicklisp.org][Quicklisp]])
-  + C compiler
-  + gfortran compiler
 
 Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
     
@@ -30,14 +28,4 @@ Or download zip archive at
 1. Place in a location on your ASDF search path path such as ~~/common-lisp~
 2. Start LISP and enter ~(asdf:load-system :clml)~
 
-*** External Dependencies ***
-#+BEGIN_SRC
-  :alexandria
-  :iterate
-  :f2cl
-  :simple-queue
-  :clod
-  :split-sequence
-  :cl-ppcre
-  :parse-number
-#+END_SRC
+
