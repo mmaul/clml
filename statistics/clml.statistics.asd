@@ -2,10 +2,10 @@
 
 (in-package :cl-user)
 
-(defpackage :statistics-asd
+(defpackage :clml.statistics-asd
   (:use :cl :asdf))
 
-(in-package :statistics-asd)
+(in-package :clml.statistics-asd)
 
 (defsystem :clml.statistics.rand
   :author "Yotsutsuji Tetsuaki"
@@ -13,7 +13,7 @@
   :description "Random Number Generator Library"
   
   :components 
-  ((:module :statistics.rand
+  ((:module :clml.statistics.rand
             :pathname #p "src/rand"
             :components 
             ((:file "rand/package" )

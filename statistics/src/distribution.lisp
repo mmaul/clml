@@ -1,7 +1,7 @@
 ;; update-distribution call timing?
 ;; Main Focus: change strategy to 'reuse' a dist instance for changing parameter
 
-(in-package :statistics)
+(in-package :clml.statistics)
 
 (defclass distribution ()
   ((mean)

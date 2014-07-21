@@ -1,4 +1,4 @@
-(in-package :statistics)
+(in-package :clml.statistics)
 
 (defun histogram (values n)
   (let ((min (reduce #'min values))

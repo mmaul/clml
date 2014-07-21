@@ -6,7 +6,7 @@
         :hjs.util.eigensystems
         :hjs.util.vector
         :hjs.learn.read-data
-        :statistics
+        :clml.statistics
         :hjs.learn.vars)
   (:nicknames :pca)
   (:export 

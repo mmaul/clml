@@ -5,7 +5,7 @@
    :cl
    :vars
    :read-data
-   :statistics
+   :clml.statistics
    :clml.clustering.CLUSTER-VALIDATION
    :clml.clustering.optics
    :clml.clustering.nmf

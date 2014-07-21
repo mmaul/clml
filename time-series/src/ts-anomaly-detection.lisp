@@ -567,7 +567,7 @@
     (if (and (< 0 scale *+inf*)
              (< 0 shape *+inf*))
         (let ((gamma-dist (gamma-distribution scale shape)))
-          (if (typep gamma-dist 'statistics::gamma-like-distribution)
+          (if (typep gamma-dist 'clml.statistics::gamma-like-distribution)
               (quantile-ili gamma-dist 1-pc)
             (quantile gamma-dist 1-pc)))
       :na)))

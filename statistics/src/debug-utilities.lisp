@@ -2,7 +2,7 @@
 
 ;;; Peter Salvi, 2008
 
-(in-package :statistics)
+(in-package :clml.statistics)
 
 (defmacro do-all-functions ((f &optional (package '*package*)) &body body)
   "Do BODY on all functions that are internal/external in PACKAGE, but

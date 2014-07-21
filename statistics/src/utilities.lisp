@@ -2,7 +2,7 @@
 
 ;;; Peter Salvi, 2008
 
-(in-package :statistics)
+(in-package :clml.statistics)
 
 (defun sqr (x)
   (* x x))

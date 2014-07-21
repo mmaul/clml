@@ -16,7 +16,7 @@
 ;;;   given distribution).
 ;;; * Places marked with TODO are not optimal or not finished.
 
-(in-package :statistics)
+(in-package :clml.statistics)
 
 
 ;;;;;;;;;;;;;;;;;;;;;

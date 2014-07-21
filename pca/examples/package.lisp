@@ -5,7 +5,7 @@
         ;:hjs.util.matrix
         ;:hjs.util.vector
         hjs.learn.read-data
-        ;:statistics
+        ;:clml.statistics
         ;:hjs.learn.vars
         :clml.pca
         )

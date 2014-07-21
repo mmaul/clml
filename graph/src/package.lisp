@@ -70,7 +70,7 @@
         :hjs.util.matrix
         :hjs.util.vector
         :hjs.util.meta
-        :statistics
+        :clml.statistics
         :clml.graph.read-graph
         :clml.graph.graph-utils
         :clml.graph.shortest-path)
@@ -96,7 +96,7 @@
         :hjs.util.vector
         :hjs.util.meta
         
-        :statistics
+        :clml.statistics
         :read-data
         :missing-val
         :clml.utility.csv

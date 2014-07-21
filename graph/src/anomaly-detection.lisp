@@ -295,7 +295,7 @@
     (if (and (< 0 scale *+inf*)
              (< 0 shape *+inf*))
         (let ((gamma-dist (gamma-distribution scale shape)))
-          (if (typep gamma-dist 'statistics::gamma-like-distribution)
+          (if (typep gamma-dist 'clml.statistics::gamma-like-distribution)
               (quantile-ili gamma-dist 1-pc)
             (quantile gamma-dist 1-pc)))
       :na)))
@@ -351,7 +351,7 @@
   (let* ((alpha (/ (- 1 confidence-coefficient) 2.0d0))
          (lower-confident-limit (quantile dist alpha))
          (upper-confident-limit 
-          (- (* 2 (statistics::expected-value dist)) lower-confident-limit)
+          (- (* 2 (clml.statistics::expected-value dist)) lower-confident-limit)
           #+ignore (quantile dist (- 1.0d0 alpha))))
     (cons lower-confident-limit upper-confident-limit)))
 (defun degree-of-outrange (gaussian val &key (confidence-coefficient 0.99d0))
@@ -1087,7 +1087,7 @@
                         :smoothing-args smoothing-args
                         :sig-alpha sig-alpha
                         :sig-hash (when (numberp sig-alpha)
-                                    (statistics::make-sig-p-hash window-size sig-alpha)))
+                                    (clml.statistics::make-sig-p-hash window-size sig-alpha)))
       for start from 0
       for end from window-size to (length points)
       as window = (subseq points start end)
@@ -1529,7 +1529,7 @@
                   (let ((params (gamma-params 1st-moment (var 1st-moment 2nd-moment))))
                     (gamma-distribution (getf params :scale) (getf params :shape))))))
           (lower-pc (- 1d0 pc)))
-      (values (if (typep pdf 'statistics::gamma-like-distribution)
+      (values (if (typep pdf 'clml.statistics::gamma-like-distribution)
                   (quantile-ili pdf lower-pc) (quantile pdf lower-pc))
               (next-moments score (cons 1st-moment 2nd-moment) beta)))))
 
@@ -1912,7 +1912,7 @@
          (constant (+ (exp 2log-mean) var))
          (fn (lambda (s) (- (exp (+ 2log-mean (expt s 2))) constant)))
          (derivative (lambda (s) (* (exp (+ 2log-mean (expt s 2))) (* 2d0 s))))
-         (sigma (statistics::newton-raphson fn derivative :initial-guess (sqrt var)))
+         (sigma (clml.statistics::newton-raphson fn derivative :initial-guess (sqrt var)))
          (mu (- log-mean (/ (expt sigma 2) 2))))
     `(:mu ,mu :sigma ,sigma)))
 ;; ガンマ分布のパラメータ推定
@@ -2049,7 +2049,7 @@
              (sig-p (when (hash-table-p sig-p-hash)
                       (cdr (assoc alpha (gethash n sig-p-hash) :test #'=)))))
         (declare (type double-float target u-dev m))
-        (unless sig-p (setf sig-p (statistics::get-sig-p n alpha)))
+        (unless sig-p (setf sig-p (clml.statistics::get-sig-p n alpha)))
         (if (zerop u-dev)
             (values t nil sig-p n)
           (let ((t_i (/ (abs (- target m)) u-dev)))

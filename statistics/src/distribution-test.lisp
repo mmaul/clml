@@ -2,7 +2,7 @@
 ; distribution-test ;
 ;;;;;;;;;;;;;;;;;;;;;
 
-(in-package :statistics)
+(in-package :clml.statistics)
 
 ;;; refer R-code at http://aoki2.si.gunma-u.ac.jp/R/
       

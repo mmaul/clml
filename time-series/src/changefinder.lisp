@@ -130,7 +130,7 @@
 
 
 ;; multi-dimensional gaussian mixture
-(defclass multi-gaussian (statistics::continuous-distribution)
+(defclass multi-gaussian (clml.statistics::continuous-distribution)
   ((mean :initarg :mean :reader mean)
    (sigma :initarg :sigma :reader sigma)))
 (defun multi-gaussian (mean sigma)

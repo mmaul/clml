@@ -6,7 +6,8 @@
 (in-package :cl-user)
 
 (defpackage :clml.statistics
-  (:nicknames :distribution :statistics)
+  (:nicknames :distribution ;:clml.statistics
+              )
   (:use :cl :clml.statistics.rand)
   (:export
    ;; DATA ANALYSIS

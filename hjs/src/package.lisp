@@ -106,7 +106,7 @@
 	   ))
 
 (defpackage :hjs.util.missing-value
-  (:use :cl :util :vector :statistics :hjs.util.meta)
+  (:use :cl :util :vector :clml.statistics :hjs.util.meta)
   (:import-from :alexandria #:define-constant)
   (:nicknames :missing-val :handling-missing-value)
   (:export
@@ -161,7 +161,7 @@
 
 (defpackage :hjs.learn.k-means
   (:use :cl :hjs.util.vector :hjs.util.meta :hjs.learn.read-data
-	:statistics :hjs.util.matrix :iterate
+	:clml.statistics :hjs.util.matrix :iterate
 	:hjs.learn.vars)
   (:nicknames :k-means)
   (:export

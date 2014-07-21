@@ -4,7 +4,7 @@
 
 ;;; (mainly translated from various sources)
 
-(in-package :statistics)
+(in-package :clml.statistics)
 
 ;;; Contents:
 ;;; ---------

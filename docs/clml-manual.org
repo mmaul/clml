@@ -216,7 +216,7 @@ CL-USER> (load "statistics")
 T
 CL-USER> (load "distribution-test")
 T
-CL-USER> (in-package :statistics)
+CL-USER> (in-package :clml.statistics)
 #<PACKAGE "STATISTICS">
 STAT> 
 **** QUOTE Loading with ASDF
@@ -226,7 +226,7 @@ CL-USER> (asdf:operate 'asdf:load-op 'statistics)
 ; into #<PACKAGE "ASDF0">
 ; registering #<SYSTEM :STATISTICS {B65C489}> as STATISTICS
 NIL
-CL-USER> (in-package :statistics)
+CL-USER> (in-package :clml.statistics)
 #<PACKAGE "STATISTICS">
 STAT> 
 **** Simple usage (examples taken from "Lisp-Statによる統計解析入門" by 垂水共之)

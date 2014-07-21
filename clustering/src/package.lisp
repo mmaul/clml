@@ -73,7 +73,7 @@
   (:use :cl
         :hjs.learn.read-data
         :hjs.util.matrix
-        :statistics)
+        :clml.statistics)
   (:export :optics
            :optics-main
            :make-optics-input)
@@ -129,7 +129,7 @@
 
 (defpackage :clml.clustering.k-means2
     (:use :cl :hjs.util.vector :hjs.util.meta
-          :statistics :hjs.util.matrix)
+          :clml.statistics :hjs.util.matrix)
   (:nicknames :k-means2)
   (:export #:k-means
            #:make-cluster

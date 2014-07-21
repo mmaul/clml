@@ -45,7 +45,7 @@ package for reading time series data
   (:use :cl 
         
         :hjs.learn.read-data :hjs.util.meta :hjs.util.vector
-        :hjs.util.matrix :statistics
+        :hjs.util.matrix :clml.statistics
         :clml.time-series.read-data)
   #+allegro
   (:use :excl)
@@ -69,7 +69,7 @@ package for reading time series data
 
 (defpackage :clml.time-series.statistics
   (:use :cl :hjs.learn.read-data :hjs.util.meta :hjs.util.vector
-        :hjs.util.matrix :statistics :hjs.learn.vars
+        :hjs.util.matrix :clml.statistics :hjs.learn.vars
         :clml.time-series.read-data
         :clml.time-series.util
         :clml.numeric.fast-fourier-transform)
@@ -106,7 +106,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
 #+INCLUDE: \"../sample/state-space-model.org\" example lisp 
 ")
   (:use :cl :read-data :util :vector :matrix
-        :statistics :ts-util :ts-stat :ts-read-data
+        :clml.statistics :ts-util :ts-stat :ts-read-data
         :handling-missing-value)
   (:nicknames :ts-stsp)
   (:export 
@@ -120,7 +120,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :hjs.util.vector
         :hjs.util.matrix
         :hjs.learn.vars
-        :statistics
+        :clml.statistics
         :clml.time-series.util
         :clml.time-series.statistics
         :clml.time-series.read-data
@@ -139,7 +139,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :hjs.util.meta
         :hjs.util.vector
         :hjs.util.matrix
-        :statistics
+        :clml.statistics
         :clml.time-series.util
         :clml.time-series.statistics
         :clml.time-series.read-data
@@ -170,7 +170,7 @@ Package for "ChangeFinder"
         :hjs.util.matrix
         :hjs.learn.vars
         :hjs.util.missing-value
-        :statistics
+        :clml.statistics
         :clml.utility.csv
         :clml.time-series.util
         :clml.time-series.statistics
