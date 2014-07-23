@@ -111,5 +111,7 @@
                   :pathname "src/"
                   :serial :blas
                   :depends-on (
+                               :f2cl
+                               :blas
                                :lapack-package
                                :lapack-real))

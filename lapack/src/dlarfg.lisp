@@ -35,7 +35,7 @@
             (cond ((= xnorm zero) (setf tau zero))
                   (t
                    (setf beta
-                         (- (f2cl-lib:sign (dlapy2 alpha xnorm)
+                         (- (f2cl-lib:dsign (dlapy2 alpha xnorm)
                                            alpha)))
                    (setf safmin (/ (dlamch "S") (dlamch "E")))
                    (cond ((< (abs beta) safmin)
@@ -53,7 +53,7 @@
                                     (dnrm2 (f2cl-lib:int-sub n 1) x
                                      incx))
                               (setf beta
-                                    (- (f2cl-lib:sign (dlapy2 alpha
+                                    (- (f2cl-lib:dsign (dlapy2 alpha
                                                        xnorm)
                                                       alpha)))
                               (setf tau (/ (- beta alpha) beta))
@@ -78,6 +78,7 @@
 (in-package #-gcl #:cl-user #+gcl "CL-USER")
 #+#.(cl:if (cl:find-package '#:f2cl) '(and) '(or))
 (eval-when (:load-toplevel :compile-toplevel :execute)
+
   (setf (gethash 'fortran-to-lisp::dlarfg
                  fortran-to-lisp::*f2cl-function-info*)
         (fortran-to-lisp::make-f2cl-finfo :arg-types '((fortran-to-lisp::integer4)
