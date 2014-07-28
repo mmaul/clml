@@ -2,7 +2,7 @@
 
 ;;; Peter Salvi, 2008
 
-(in-package :clml.statistics)
+(in-package :clml.statistics.math)
 
 (defun sqr (x)
   (* x x))
@@ -160,3 +160,5 @@ on the result, if PRED was true."
 	  (push slot class-slots))))
     (values (nreverse class-slots)
 	    (nreverse methods))))
+
+

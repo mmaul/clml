@@ -1336,7 +1336,10 @@
   ;; decrease
   ;; union
   (declare (optimize (speed 3) (safety 0) (debug 0)))
+  #-sbcl
   (setq *random-state* (make-random-state t #xABE))
+  #+sbcl
+  (setq *random-state* (make-random-state #xABE))
   (format t "size = ~d ... " size)
   (gc t)
   (time

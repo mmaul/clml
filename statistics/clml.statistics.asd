@@ -11,17 +11,20 @@
   :author "Yotsutsuji Tetsuaki"
   :licence "?"
   :description "Random Number Generator Library"
-  
+  :serial t
   :components 
-  ((:module :clml.statistics.rand
+  ((:module
+    
+    :clml.statistics.rand
             :pathname #p "src/rand"
             :components 
             ((:file "rand/package" )
              (:file "rand/utilities" :depends-on ("rand/package"))
-             (:file "rand/rand" :depends-on ("rand/utilities"))) 
+             (:file "rand/rand" :depends-on ("rand/utilities"))
+             )
             )
+   ;(:static-file "src/rand/README.md")
    
-   (:static-file "README")
    ))
 
 (asdf:defsystem :clml.statistics
@@ -29,18 +32,19 @@
   :licence "?"
   :description "Statistics Library"
   :depends-on (:clml.statistics.rand)
+  :serial t
   :components 
   ((:module "statistics" 
             :pathname "src/"
             :components
             ((:file "package")
              (:file "utilities" )
-             (:file "math"  :depends-on ("utilities"))
-             (:file "statistics" :depends-on ("math"))
-             (:file "histogram" :depends-on ("distribution"))
-             
+             (:file "math")
+             (:file "statistics")
              (:file "distribution" :depends-on ("utilities" "math"))
-             (:file "distribution-test" :depends-on ("distribution")))
+             (:file "histogram")
+                                        ;(:file "distribution-test" :depends-on ("distribution"))
+             )
             )
    
    

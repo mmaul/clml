@@ -1,10 +1,10 @@
 ;; update-distribution call timing?
 ;; Main Focus: change strategy to 'reuse' a dist instance for changing parameter
 
-(in-package :clml.statistics)
+(in-package :clml.statistics.distribution)
 
 (defclass distribution ()
-  ((mean)
+  (;(mean)
    (variance)
    (skewness)
    (kurtosis)
@@ -20,23 +20,24 @@
   (update-distribution instance))
 
 (defclass discrete-distribution (distribution) ())
-(defclass continuous-distribution (distribution) ())
+(defclass continuous-distribution (distribution)
+  ((mean :initarg :mean :accessor mean :initform 0d0)))
 
 (defdistribution gamma-like-distribution (continuous-distribution)
   ((scale :initarg :scale :accessor scale)
    (shape :initarg :shape :accessor shape)))
 (defmethod update-distribution ((distribution gamma-like-distribution))
-  (with-slots (scale shape mean variance skewness kurtosis mode) distribution
+  (with-slots (scale shape variance skewness kurtosis mode) distribution
     (assert (and (realp scale) (> scale 0)) (scale)
       "SCALE should be a positive real number.")
     (assert (and (realp shape) (> shape 0)) (shape)
       "SHAPE should be a positive real number.")
-    (setf mean (* shape scale))
+    (setf (slot-value distribution mean) (* shape scale))
     (setf variance (* mean scale))
     (setf skewness (/ 2d0 (sqrt shape)))
     (setf kurtosis (/ (* 3d0 (+ shape 2d0)) shape))
     (if (> shape 1d0)
-	(setf mode (* (- shape 1d0) scale))
+        (setf (slot-value distribution mode) (* (- shape 1d0) scale))
       (slot-makunbound distribution 'mode)))
   distribution)
 
@@ -195,20 +196,26 @@
 ;;; 1. Normal Distribution
 
 (defdistribution normal-distribution (continuous-distribution)
-  ((average :initarg :average :accessor average)
-   (std     :initarg :std     :accessor std)
+  (
+   #-sbcl
+   (average :initarg :average :accessor average)
+   #+sbcl
+   (average :initarg :average :accessor average :initform 0d0)
+   (std     :initarg :std     :accessor std :initform 0d0)
    (skewness :initform 0d0)
    (kurtosis :initform 3d0)))
 
 (defmethod update-distribution ((distribution normal-distribution))
-  (with-slots (average std mean variance mode) distribution
-    (assert (realp average) (average)
+  (with-slots (std variance mode mean) distribution
+    #-sbcl
+    (assert (realp (slot-value distribution 'average)) 
       "AVERAGE should be a real number.")
+    #-sbcl
     (assert (and (realp std) (> std 0)) (std)
       "STD should be a positive real number.")
-    (setf mean average)
+    (setf mean (slot-value distribution 'average))
     (setf variance (* std std))
-    (setf mode average)
+    (setf mode (slot-value distribution 'average))
     )
   distribution)
 
@@ -271,13 +278,13 @@
    (std     :initarg :std     :accessor std)))
 
 (defmethod update-distribution ((distribution log-normal-distribution))
-  (with-slots (average std mean variance skewness kurtosis mode) distribution
+  (with-slots (average std  variance skewness kurtosis mode) distribution
     (assert (realp average) (average)
       "AVERAGE should be a real number.")
     (assert (and (realp std) (> std 0)) (std)
       "STD should be a positive real number.")
     (let ((std2 (* std std)))
-      (setf mean (exp (+ (average (/ std2 2d0)))))
+      (setf (slot-value distribution mean) (exp (+ (average (/ std2 2d0)))))
       (setf variance (* (exp (+ (* 2d0 average) std2))
 			(- (exp std2) 1d0)))
       (setf skewness (* (+ (exp std2) 2d0)
@@ -357,12 +364,13 @@
     (format stream ": [~a, ~a]" (uniform-from obj) (uniform-to obj))))
 
 (defmethod update-distribution ((distribution uniform-distribution))
-  (with-slots (from to width denominator mean variance skewness kurtosis) distribution
+  (with-slots (from to width denominator mean  variance skewness kurtosis) distribution
     (assert (and (realp from) (realp to) (> to from)) (from to)
       "FROM and TO should be real numbers such that TO > FROM.")
     (setf width (dfloat (- to from)))
     (setf denominator (/ width))
-    (setf mean (/ (+ from to) 2d0))
+    (setf mean
+          (/ (+ from to) 2d0))
     (setf variance (/ (* width width) 12.0d0)))
   distribution)
 
@@ -450,11 +458,11 @@
    (mode :initform 0d0)))
 
 (defmethod update-distribution ((distribution exponential-distribution))
-  (with-slots (hazard scale mean variance) distribution
+  (with-slots (hazard scale variance) distribution
     (assert (and (realp hazard) (> hazard 0)) (hazard)
       "SCALE should be a positive real number.")
     (setf scale (dfloat (/ hazard)))
-    (setf mean scale)
+    (setf (slot-value distribution mean) scale)
     (setf variance (* scale scale)))
   distribution)
 
@@ -611,11 +619,11 @@ this method would be solve it. However this is slower than Newton-Raphson."
     (format stream ": FREEDOM = ~d" (freedom obj))))
 
 (defmethod update-distribution ((distribution chi-square-distribution))
-  (with-slots (freedom eq-gamma mean variance skewness kurtosis mode) distribution
+  (with-slots (freedom eq-gamma variance skewness kurtosis mode) distribution
     (assert (and (integerp freedom) (> freedom 0)) (freedom)
       "FREEDOM should be a positive integer.")
     (setf (shape eq-gamma) (dfloat (/ freedom 2)))
-    (setf mean (slot-value eq-gamma 'mean))
+    (setf (slot-value distribution mean) (slot-value eq-gamma 'mean))
     (setf variance (slot-value eq-gamma 'variance))
     (setf skewness (slot-value eq-gamma 'skewness))
     (setf kurtosis (slot-value eq-gamma 'kurtosis))
@@ -726,11 +734,11 @@ freedom than the one precalculated."
       (setf t2 (/ (+ t1 1d0) 2 b))
       (setf v1 (+ r (* b b)))
       (setf v2 (/ 2d0 (- r 1d0)))))
-  (with-slots (freedom r mean variance skewness kurtosis mode) distribution
+  (with-slots (freedom r  variance skewness kurtosis mode) distribution
     (declare (type fixnum freedom)
 	     (type double-float r))
     (cond ((> freedom 1)
-	   (setf mean 0d0 mode 0d0))
+           (setf (slot-value distribution mean) 0d0 mode 0d0))
 	  (t
 	   (slot-makunbound distribution 'mean)
 	   (slot-makunbound distribution 'mode)))
@@ -825,7 +833,7 @@ uses it."
     (format stream ": SHAPE = (~d, ~d)" (shape1 obj) (shape2 obj))))
 
 (defmethod update-distribution ((distribution beta-distribution))
-  (with-slots (shape1 shape2 alpha-gamma beta-gamma mean variance skewness kurtosis mode) distribution
+  (with-slots (shape1 shape2 alpha-gamma beta-gamma variance skewness kurtosis mode) distribution
     (assert (and (realp shape1) (> shape1 0)) (shape1)
       "SHAPE1 should be a positive real number.")
     (assert (and (realp shape2) (> shape2 0)) (shape2)
@@ -834,7 +842,7 @@ uses it."
     (setf (shape beta-gamma)  shape2)
     (let ((sum (+ shape1 shape2))
 	  (prod (* shape1 shape2)))
-      (setf mean (/ shape1 sum))
+      (setf (slot-value distribution mean) (/ shape1 sum))
       (setf variance (/ prod (* sum sum (+ sum 1d0))))
       (setf skewness (/ (* 2d0 (- shape2 shape1) (sqrt (+ sum 1d0)))
 			(* (+ sum 2d0) (sqrt prod))))
@@ -938,13 +946,13 @@ uses it."
     (setf (freedom chi1) freedom1)
     (setf (freedom chi2) freedom2)
     (setf f (/ (dfloat freedom2) (dfloat freedom1))))
-  (with-slots (freedom1 freedom2 chi1 chi2 mean variance skewness kurtosis mode) distribution
+  (with-slots (freedom1 freedom2 chi1 chi2 variance skewness kurtosis mode) distribution
     (declare (type fixnum freedom1 freedom2))
     (let* ((r1 (slot-value chi1 'r))
 	   (r2 (slot-value chi2 'r))
 	   (sum (+ r1 r2)))
       (cond ((> freedom2 2)
-	     (setf mean (/ r2 (- r2 2d0))))
+             (setf (slot-value distribution mean) (/ r2 (- r2 2d0))))
 	    (t
 	     (slot-makunbound distribution 'mean)))
       (cond ((> freedom1 2)
@@ -1064,8 +1072,8 @@ otherwise it uses the beta distribution quantile."
     (assert (and (real-integer-p size) (>= size 0)) (size)
       "SIZE should be a nonnegative integer.")
     (multiple-value-setq (table ki vi b k w nsq) (binomial-table-histogram size probability)))
-  (with-slots (size probability mean variance skewness kurtosis mode) distribution
-    (setf mean (* size probability))
+  (with-slots (size probability variance skewness kurtosis mode) distribution
+    (setf (slot-value distribution mean) (* size probability))
     (if (> size 1)
 	(setf variance (* mean (- 1d0 probability)))
       (slot-makunbound distribution 'variance))
@@ -1166,9 +1174,9 @@ otherwise it uses the beta distribution quantile."
   (call-next-method)
   (with-slots (probability table ki vi b k w nsq psq q r c) distribution
     (multiple-value-setq (table ki vi b k w nsq psq q r c) (geometric-table-histogram probability)))
-  (with-slots (probability mean variance skewness kurtosis mode) distribution
+  (with-slots (probability variance skewness kurtosis mode) distribution
     (let ((fail (- 1d0 probability)))
-      (setf mean (/ probability))
+      (setf (slot-value distribution mean) (/ probability))
       (setf variance (* mean mean fail))
       (setf skewness (/ (- 2d0 probability) (sqrt fail)))
       (setf kurtosis (+ (/ (* probability probability) fail) 9d0))
@@ -1237,11 +1245,11 @@ otherwise it uses the beta distribution quantile."
     (assert (and (real-integer-p samples) (>= samples 0)) (samples)
       "SAMPLES should be a nonnegative integer.")
     (multiple-value-setq (table ki vi b k w nsq a1) (hypergeometric-table-histogram elements successes samples)))
-  (with-slots (elements successes samples mean variance skewness kurtosis mode) distribution
+  (with-slots (elements successes samples variance skewness kurtosis mode) distribution
     (let ((enu (dfloat elements))
 	  (m (dfloat successes))
 	  (n (dfloat samples)))
-      (setf mean (/ (* n m) enu))
+      (setf (slot-value distribution mean) (/ (* n m) enu))
       (setf variance (/ (* n m (- enu n) (- enu m))
 			(* enu enu (- enu 1d0))))
       (setf skewness (* (/ (* (- enu (* 2 n)) (- enu (* 2 m)))
@@ -1396,11 +1404,11 @@ otherwise it uses the beta distribution quantile."
     (format stream ": LOCATION = ~a, SCALE = ~a" (location obj) (scale obj))))
 
 (defmethod update-distribution ((distribution logistic-distribution))
-  (with-slots (location scale mean variance skewness kurtosis mode) distribution
+  (with-slots (location scale variance skewness kurtosis mode) distribution
     (assert (realp location) (location) "LOCATION should be a real number.")
     (assert (and (realp scale) (> scale 0)) (scale)
       "SCALE should be a positive real number.")
-    (setf mean location)
+    (setf (slot-value distribution mean) location)
     (setf variance (/ (sqr (* location scale)) 3d0))
     (setf mode location))
   distribution)
@@ -1484,15 +1492,17 @@ otherwise it uses the beta distribution quantile."
       "SUCCESS-R should be a positive real number.")
     (multiple-value-setq (table ki vi b k w nsq psq q r xl xu pl pu que s tee)
       (negative-binomial-table-histogram success-r probability)))
-  (with-slots (probability success-r mean variance skewness kurtosis mode) distribution
+
+  (with-slots (probability success-r  variance skewness kurtosis mode) distribution
     (let ((fail (- 1d0 probability)))
-      (setf mean (/ (* fail success-r) probability))
+      (setf (slot-value distribution  mean) (/ (* fail success-r) probability))
       (setf variance (/ mean probability))
       (setf skewness (/ (- 2d0 probability) (sqrt (* fail success-r))))
       (setf kurtosis (+ 3d0 (/ 6d0 success-r) (/ variance)))
       (setf mode (if (> success-r 1d0)
 		     (floor (/ (* (1- success-r) fail) probability))
-		   0d0))))
+             0d0))))
+
   distribution)
 
 (defun negative-binomial-distribution (successes probability)
@@ -1652,13 +1662,24 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
       "RATE should be a positive real number.")
     (multiple-value-setq (table ki vi b k w nsq psq q r xl xu pl pu c rate)
       (poisson-table-histogram rate)))
+  #-sbcl
   (with-slots (rate mean variance skewness kurtosis mode) distribution
     (setf mean rate)
     (setf variance rate)
     (setf skewness (/ (sqrt rate)))
     (setf kurtosis (+ (/ rate) 3d0))
     (setf mode (floor rate))) ;; if rate is integer, (- rate 1) is also mode -- in case of def of mode, take average of 2
+  #+sbcl
+  (setf (slot-value 'distribution mean)  rate)
+    (setf (slot-value  distribution variance) rate)
+    (setf (slot-value distribution skewness) (/ (sqrt rate)))
+    (setf (slot-value distribution kurtosis) (+ (/ rate) 3d0))
+    (setf (slot-value distribution mode) (floor rate))
+  
   distribution)
+
+    
+  
 
 (defun poisson-distribution (rate)
   "- Parameters: rate"
@@ -1716,6 +1737,7 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
     (assert (and (realp shape) (> shape 0)) (shape)
       "SHAPE should be a positive real number.")
     (setf r-inv (/ shape)))
+  #-sbcl
   (with-slots (shape scale mean variance skewness kurtosis mode) distribution
     (setf mean (* scale (gamma (+ (/ shape) 1d0))))
     (setf variance (* scale scale
@@ -1735,7 +1757,33 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
 			    (sqr (gamma (+ (/ shape) 1d0))))
 			 (- (* 3d0 (int-power (gamma (+ (/ shape) 1d0)) 4))))
 		      (sqr (- (gamma (+ (/ 2d0 shape) 1d0))
-			      (sqr (gamma (+ (/ shape) 1d0))))))))
+                      (sqr (gamma (+ (/ shape) 1d0))))))))
+  #+sbcl
+   
+  (let ((t-shape (slot-value distribution shape))
+        (t-scale (slot-value distribution scale))
+        )
+    (setf (slot-value distribution mean) (* t-scale (gamma (+ (/ t-shape) 1d0))))
+    (setf (slot-value distribution variance) (* t-scale t-scale
+                                                  (- (gamma (+ (/ 2d0 t-shape) 1d0))
+                                                     (sqr (gamma (+ (/ t-shape) 1d0))))))
+    (setf (slot-value distribution skewness) (/ (+ (gamma (+ (/ 3d0 t-shape) 1d0))
+                                                     (- (* 3d0 (gamma (+ (/ 2d0 t-shape) 1d0))
+                                                           (gamma (+ (/ t-shape) 1d0))))
+                                                     (* 2d0 (int-power (gamma (+ (/ t-shape) 1d0)) 3)))
+                                                  (half-integer-power (- (gamma (+ (/ 2d0 t-shape) 1d0))
+                                                                         (sqr (gamma (+ (/ t-shape) 1d0))))
+                                                                      3/2)))
+    (setf (slot-value distribution kurtosis) (/ (+ (gamma (+ (/ 4d0 shape) 1d0))
+                                                     (- (* 4d0 (gamma (+ (/ 3d0 shape) 1d0))
+                                                           (gamma (+ (/ shape) 1d0))))
+                                                     (* 6d0 (gamma (+ (/ 2d0 shape) 1d0))
+                                                        (sqr (gamma (+ (/ shape) 1d0))))
+                                                     (- (* 3d0 (int-power (gamma (+ (/ shape) 1d0)) 4))))
+                                                  (sqr (- (gamma (+ (/ 2d0 shape) 1d0))
+                                                          (sqr (gamma (+ (/ shape) 1d0)))))))
+    
+    )
   distribution)
 
 (defun weibull-distribution (scale shape)

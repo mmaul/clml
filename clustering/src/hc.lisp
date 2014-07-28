@@ -2,8 +2,10 @@
 (in-package :hc)
 
 (defun i-thvector (numeric-dataset i)
+  #-sbcl
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   ;; (declare (:explain :inlining))
+  "TODO: Optimize in SBCL"
   (assert (typep numeric-dataset 'numeric-dataset))
   (assert (<= 0 i (- (length (aref (dataset-numeric-points numeric-dataset) 0)) 1)))
   (assert (<= 3 (length (dataset-numeric-points numeric-dataset))))
@@ -44,8 +46,14 @@
   (setf (get 'vector-sum 'sys::immed-args-call)
     '((:lisp) double-float)))
 
-(declaim (ftype (function (simple-array fixnum) double-float)
-                max-vector min-vector vector-sum vector-mean))
+(declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
+                max-vector))
+(declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
+                min-vector))
+(declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
+                vector-sum))
+(declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
+                vector-mean))
 
 (defun max-vector (v)
   (declare (optimize (speed 3) (debug 0) (safety 0))
@@ -452,9 +460,9 @@
 
 (defun pearson-cc (x y)
   (let* ((x-bar (vector-mean x))
-	 (y-bar (vector-mean y))
-	 (u (vector-shift x x-bar))
-	 (v (vector-shift y y-bar)))
+         (y-bar (vector-mean y))
+         (u (vector-shift x x-bar))
+         (v (vector-shift y y-bar)))
  
     (/ (product-sum u v)
        (sqrt (* (product-sum u u)

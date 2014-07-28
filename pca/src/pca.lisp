@@ -482,7 +482,7 @@ N), where M is the number of ponits and N is the dimension size.
 (defmethod kernel-princomp ((dataset numeric-dataset) 
                             &key dimension-thld
                                  (kernel-fcn +linear+))
-  (declare (optimize debug))
+;  (declare (optimize debug))
   (unless dimension-thld 
     (setf dimension-thld (length (dataset-numeric-points dataset))))
   (let ((eigen-method #-mkl :power
@@ -517,6 +517,7 @@ N), where M is the number of ponits and N is the dimension size.
                              collect vec)
                          'vector))))
                (score))
+          #-sbcl
           (declare (type (simple-array dvec (*)) score))
           ;; normalize
           (do-vecs ((vec eigen-vecs :type dvec)
@@ -531,8 +532,10 @@ N), where M is the number of ponits and N is the dimension size.
           (values (make-kernel-pca-result
                    score eigen-vals eigen-vecs kernel-fcn e-mean n)
                   (make-kernel-pca-model eigen-vecs kernel-fcn e-mean demean-pts))
-          )))))
-          
+          )
+
+        ))))
+ 
 (defmethod princomp-projection ((dataset numeric-dataset) (kpca-model kernel-pca-model))
   (with-accessors ((e-mean centroid)
                    (egn-vecs loading-factors)

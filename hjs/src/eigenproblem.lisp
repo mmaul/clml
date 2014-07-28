@@ -133,31 +133,31 @@
 		(setf (fref a j iq) (+ h (* s (+ g (* (- h) tau))))))
 	      (do ((j (+ ip 1) (+ j 1)))
 		  ((> j (+ iq (- 1))) t)
-		(declare (type fixnum j))
-		(setf g (fref a ip j))
-		(setf h (fref a j iq))
-		(setf (fref a ip j) (+ g (* (- s) (+ h (* g tau)))))
-		(setf (fref a j iq) (+ h (* s (+ g (* (- h) tau))))))
+            (declare (type fixnum j))
+            (setf g (fref a ip j))
+            (setf h (fref a j iq))
+            (setf (fref a ip j) (+ g (* (- s) (+ h (* g tau)))))
+            (setf (fref a j iq) (+ h (* s (+ g (* (- h) tau))))))
 	      (do ((j (+ iq 1) (+ j 1)))
-		  ((> j n) t)
-		(declare (type fixnum j))
-		(setf g (fref a ip j))
-		(setf h (fref a iq j))
-		(setf (fref a ip j) (+ g (* (- s) (+ h (* g tau)))))
-		(setf (fref a iq j) (+ h (* s (+ g (* (- h) tau))))))
+              ((> j n) t)
+            (declare (type fixnum j))
+            (setf g (fref a ip j))
+            (setf h (fref a iq j))
+            (setf (fref a ip j) (+ g (* (- s) (+ h (* g tau)))))
+            (setf (fref a iq j) (+ h (* s (+ g (* (- h) tau))))))
 	      (do ((j 1 (+ j 1)))
-		  ((> j n) t)
-		(declare (type fixnum j))
-		(setf g (fref v j ip))
-		(setf h (fref v j iq))
-		(setf (fref v j ip) (+ g (* (- s) (+ h (* g tau)))))
-		(setf (fref v j iq) (+ h (* s (+ g (* (- h) tau))))))
+              ((> j n) t)
+            (declare (type fixnum j))
+            (setf g (fref v j ip))
+            (setf h (fref v j iq))
+            (setf (fref v j ip) (+ g (* (- s) (+ h (* g tau)))))
+            (setf (fref v j iq) (+ h (* s (+ g (* (- h) tau))))))
 	      (setf nrot (+ nrot 1))))))
        (do ((ip 1 (+ ip 1)))
-	   ((> ip n) t)
-	 (declare (type fixnum ip))
-	 (setf (fref b ip) (+ (fref b ip) (fref z ip)))
-	 (setf (fref d ip) (fref b ip))
+           ((> ip n) t)
+         (declare (type fixnum ip))
+         (setf (fref b ip) (+ (fref b ip) (fref z ip)))
+         (setf (fref d ip) (fref b ip))
 	 (setf (fref z ip) 0d0))) 
      (error "jacobi should not reach this point") 
      end
@@ -202,6 +202,7 @@
 					;------------------------------------------------------------------------------
 (defun tred2 (a &key (eigenvectors t))
   ;; (declare (optimize (speed 3) (safety 0) (debug 0)))
+  #-sbcl
   (declare (optimize (speed 3) (safety 1) (debug 0))) ; Due to spr36469
   (declare (type dmat a)) 
   (declare (type symbol eigenvectors))
@@ -235,8 +236,8 @@
 	 ((> l 1)
 	  (do ((k 1 (+ k 1)))
 	      ((> k l) t)
-	    (declare (type fixnum l))
-	    (declare (dynamic-extent l))
+	    (declare (type fixnum k))
+	    (declare (dynamic-extent k))
 	    (setf scale (+ scale (abs (fref2 a i k)))))
 	  (cond 
 	    ((= scale 0d0)
@@ -330,14 +331,14 @@
 
 (defun tqli (d e z &key (eigenvectors t))
   ;; (declare (optimize (speed 3) (safety 0) (debug 0)))
-  (declare (optimize (speed 3) (safety 1) (debug 0))) ; Due to spr36469
+  #-sbcl (declare (optimize (speed 3) (safety 1) (debug 0))) ; Due to spr36469
   (declare (type dvec d)) 
   (declare (type symbol eigenvectors))
   (declare (type dvec e)) 
   (declare (type dmat z)) 
 
   ;; (print 'tqli)
-  (prog ((n 0) (m 0) (iter 0) (f 0d0) (s 0d0) (c 0d0) 
+  (prog* ((n 0) (m 0) (iter 0) (f 0d0) (s 0d0) (c 0d0) 
 	 (b 0d0) (r 0d0) (g 0d0) (dd 0d0) (p 0d0)
          (itermax 30))
      (declare (type fixnum n m iter itermax))
@@ -817,19 +818,24 @@
 
 
 ;;; exported routines
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  (mapc #'export '(eigen-by-jacobi eigen-by-householder-ql eigen-by-power)))
+
 
 (defun eigen-by-jacobi (a)
   (declare (type dmat a))
+  #+sbcl
+  (check-type a :dmat)
+  #-sbcl
   (assert (typep a 'dmat)
-	  (a)
-	  "Type of array A is ~A: not (simple-arry double-float (* *))"
-	  (type-of a))
+          (a)
+          "Type of array A is ~A: not (simple-arry double-float (* *))"
+          (type-of a))
   (jacobi (copy-mat a)))
 
 (defun eigen-by-householder-ql (a)
   (declare (type dmat a))
+  #+sbcl
+  (check-type a :dmat)
+  #-sbcl
   (assert (typep a 'dmat)
 	  (a)
 	  "Type of array A is ~A: not (simple-arry double-float (* *))"
@@ -848,6 +854,9 @@
                                 (precision 1d-8))
   "assume that mat is a positive definite matrix"
   (declare (type dmat mat))
+  #+sbcl
+  (check-type mat :dmat)
+  #-sbcl
   (assert (typep mat 'dmat)
       (mat)
 	  "Type of array A is ~A: not (simple-arry double-float (* *))"
@@ -865,20 +874,20 @@
                               (<= 1 eigen-thld (array-dimension mat 0)))
                          eigen-thld)
                         (t (error "illegal value for eingen-thld: ~A" eigen-thld)))
-      with cum-eigen = (case thld-type (:float 0d0) (:integer 0))
+      with cum-eigen = (ecase thld-type (:float 0d0) (:integer 0) )
       with eigen-values
       with eigen-vectors
       while (< cum-eigen thld)
       do (multiple-value-bind (ev evec)
              (power-method mat :precision precision :method from)
            (incf cum-eigen ;; without concerning about negative eigen-value
-                 (case thld-type (:float ev) (:integer 1)))
+                 (ecase thld-type (:float ev) (:integer 1) ))
            (push ev eigen-values)
            (push evec eigen-vectors)
            (do-vec (r evec :type double-float :index-var row)
              (do-vec (c evec :type double-float :index-var col)
                (decf (aref mat row col)
-                     (* (case from
+                     (* (ecase from
                           (:max (the double-float ev))
                           (:min
                            (coerce most-positive-fixnum 'double-float)
@@ -890,6 +899,7 @@
       finally (return (values (specialize-vec (coerce (reverse eigen-values) 'vector))
                               (coerce (reverse eigen-vectors) 'vector)))))
 
+#-sbcl
 (defun power-method (a &key (method :max)
                             (precision 1d-8)
                             initial-dvec)
@@ -918,6 +928,7 @@
                  (declare (type double-float m))
                  (do-vecs ((val v :type double-float)
                            (r result :type double-float :setf-var sf))
+                   #-sbcl
                    (declare (ignore r))
                    (setf sf (/ (the double-float val) (the double-float m))))))
              (standardize (v)
@@ -941,6 +952,7 @@
           as diff = (abs (- (the double-float premax) (the double-float nvmax)))
           while (< precision diff)
           do (when (> count (/ precision))
+               #-sbcl
                (error 
                 "It seems endless loop, unable to finish calculation for eigen pair: ~A" 
                 diff))

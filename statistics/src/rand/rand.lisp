@@ -30,7 +30,9 @@
 	  (* sqr (the double-float (sin angle))))
 	(* sqr (the double-float (cos angle)))))))
 
+
 ;; Polar transform
+
 (let (tmp-value)
   (declare (type (or null double-float) tmp-value))
   (defun gauss-polar ()
@@ -50,41 +52,45 @@
 	      (setf tmp-value (* v1 w))
 	      (return (* v2 w)))))))))
 
+
+
 ;; Monty Python method
-(let* ((a (sqrt (log 4d0)))
-       (b (sqrt (* 2d0 pi)))
-       (d (* b b))
-       (s (/ a (- b a)))
-       (p (/ (+ s 1d0) 2d0))
-       (q (log s)))
-  (declare (type double-float a b d s p q))
-  (defun gauss-monty-python ()
-    (declare (optimize (speed 3) (safety 0) (debug 0)))
-    (let ((u1 (* 2d0 (unit-random :[])))
-	  (sign 1d0)
-	  (ux 0d0))
-      (declare (type double-float u1 ux sign))
-      (if (> u1 1d0)
-	  (setf sign -1d0
-		ux (* b (the double-float (- u1 1d0))))
-	(setf ux (* b u1)))
-      (when (< ux a)
-	(return-from gauss-monty-python (* sign ux)))
-      (let ((u2 (/ (unit-random) 2d0)))
-	(declare (type double-float u2))
-	(when (< (the double-float (log u2)) (the double-float (- (/ (* ux ux) 2d0))))
-	  (return-from gauss-monty-python (* sign ux)))
-	(let ((y (* sign s (the double-float (- b ux)))))
-	  (declare (type double-float y))
-	  (if (< (the double-float (log (- p u2))) (the double-float (- q (/ (* y y) 2))))
-	      (return-from gauss-monty-python y)
-	    (loop
-	      (let* ((v1 (unit-random))
-		     (v2 (unit-random :[))
-		     (x (sqrt (- d (* 2d0 (the double-float (log v1)))))))
-		(declare (type double-float v1 v2 x))
-		(when (<= (the double-float (* x v2)) b)
-		  (return-from gauss-monty-python (* sign x)))))))))))
+  (let* ((a (sqrt (log 4d0)))
+         (b (sqrt (* 2d0 pi)))
+         (d (* b b))
+         (s (/ a (- b a)))
+         (p (/ (+ s 1d0) 2d0))
+         (q (log s)))
+    (declare (type double-float a b d s p q))
+    (defun gauss-monty-python ()
+      (declare (optimize (speed 3) (safety 0) (debug 0)))
+      (let ((u1 (* 2d0 (unit-random :[])))
+            (sign 1d0)
+            (ux 0d0))
+        (declare (type double-float u1 ux sign))
+        (if (> u1 1d0)
+            (setf sign -1d0
+                  ux (* b (the double-float (- u1 1d0))))
+            (setf ux (* b u1)))
+        (when (< ux a)
+          (return-from gauss-monty-python (* sign ux)))
+        (let ((u2 (/ (unit-random) 2d0)))
+          (declare (type double-float u2))
+          (when (< (the double-float (log u2)) (the double-float (- (/ (* ux ux) 2d0))))
+            (return-from gauss-monty-python (* sign ux)))
+          (let ((y (* sign s (the double-float (- b ux)))))
+            (declare (type double-float y))
+            (if (< (the double-float (log (- p u2))) (the double-float (- q (/ (* y y) 2))))
+                (return-from gauss-monty-python y)
+                (loop
+                   (let* ((v1 (unit-random))
+                          (v2 (unit-random :[))
+                          (x (sqrt (- d (* 2d0 (the double-float (log v1)))))))
+                     (declare (type double-float v1 v2 x))
+                     (when (<= (the double-float (* x v2)) b)
+                       (return-from gauss-monty-python (* sign x)))))))))))
+                                        ;^^^^^^^ bad
+
 
 ;; monty python with bit operation
 (let* ((a (sqrt (log 4d0)))
@@ -130,153 +136,159 @@
 		(when (<= (the double-float (* x v2)) b)
 		  (return-from gauss-monty-python-bit (* sign x)))))))))))
 
+;;;;;^^^^^ bad
+
 (let* ((k +zuggurat-k+)
        (n (expt 2 k))
        (n-minus-1 (- n 1))
        (r (ecase k
-	    (7 3.442619855899d0)
-	    (8 3.6541528853610088d0)))
+            (7 3.442619855899d0)
+            (8 3.6541528853610088d0)))
        (v (ecase k
-	    (7 9.91256303526217d-3)
-	    (8 4.92867323399d-3)))
+            (7 9.91256303526217d-3)
+            (8 4.92867323399d-3)))
        (d (* r r))
        (xn (make-array (1+ n) :element-type 'double-float)))
   (declare (type double-float r v d)
-	   (type fixnum k n n-minus-1)
-	   (type (vector double-float *) xn))
+           (type fixnum k n n-minus-1)
+           (type (vector double-float *) xn))
   ;; build xn
   (setf (aref xn n) (* v (exp (/ (* r r) 2))))
   (setf (aref xn (1- n)) r)
   (loop
-      for i from (- n 2) downto 1
-      for back = (aref xn (+ i 1)) do
-	(setf (aref xn i) (sqrt (* -2d0
-				   (log (+ (exp (/ (* back back) -2d0))
-					   (/ v back)))))))
+     for i from (- n 2) downto 1
+     for back = (aref xn (+ i 1)) do
+       (setf (aref xn i) (sqrt (* -2d0
+                                  (log (+ (exp (/ (* back back) -2d0))
+                                          (/ v back)))))))
   (setf (aref xn 0) 0d0)
+  (declaim (ftype (function () (double-float)) gauss-ziggurat))
   (defun gauss-ziggurat ()
     (declare (optimize (speed 3) (safety 0) (debug 0)))
     (loop named gauss do
-	  (let ((i 0)
-		(j 0)
-		(b 1)
-		(u1 (unit-random :[)))
-	    (declare (type fixnum i j b)
-		     (type double-float u1))
-	    (loop
-	      (let ((u1-dash (* 2d0 u1)))
-		(declare (type double-float u1-dash))
-		(if (< u1-dash 1d0)
-		    (setf i (+ i b)
-			  u1 u1-dash)
-		  (setf u1 (- u1-dash 1d0)))
-		(incf j)
-		(if (< j k)
-		    (setf b (* b 2))
-		  (return))))
-	    (let* ((ux (* 2d0 u1))
-		   (sign 1d0))		      
-	      (declare (type double-float ux sign))
-	      (when (>= ux 1d0)
-		(setf sign -1d0)
-		(setf ux (- ux 1d0)))
-	      (setf ux (* ux (aref xn (+ i 1))))
-	      (when (< ux (aref xn i))
-		(return-from gauss (* sign ux)))
-	      ;; step 6
-	      (if (= i n-minus-1)
-		  ;; step a
-		  (loop
-		    (let* ((v1 (unit-random :[))
-			   (v2 (unit-random :[))
-			   (x (sqrt (- d (* 2d0 (the double-float (log (- 1d0 v1))))))))
-		      (declare (type double-float v1 v2 x))
-		      (when (<= (the double-float (* x v2)) r)
-			(return-from gauss (* sign x)))))
-		;; step b
-		(let ((gu (exp (/ (- (the double-float (* (aref xn i) (aref xn i)))
-				     (the double-float (* ux ux)))
-				  -2d0)))
-		      (gl (exp (/ (- (the double-float (* (aref xn (1+ i)) (aref xn (1+ i))))
-				     (the double-float (* ux ux)))
-				  -2d0)))
-		      (u2 (unit-random :[)))
-		  (declare (type double-float gu gl u2))
-		  (when (<= (the double-float (* u2 (- gu gl))) (the double-float (- 1d0 gl)))
-		    (return-from gauss (* sign ux))))))))))
+         (let ((i 0)
+               (j 0)
+               (b 1)
+               (u1 (unit-random :[)))
+           (declare (type fixnum i j b)
+                    (type double-float u1))
+           (loop
+              (let ((u1-dash (* 2d0 u1)))
+                (declare (type double-float u1-dash))
+                (if (< u1-dash 1d0)
+                    (setf i (+ i b)
+                          u1 u1-dash)
+                    (setf u1 (- u1-dash 1d0)))
+                (incf j)
+                (if (< j k)
+                    (setf b (* b 2))
+                    (return))))
+           (let* ((ux (* 2d0 u1))
+                  (sign 1d0))		      
+             (declare (type double-float ux sign))
+             (when (>= ux 1d0)
+               (setf sign -1d0)
+               (setf ux (- ux 1d0)))
+             (setf ux (* ux (aref xn (+ i 1))))
+             (when (< ux (aref xn i))
+               (return-from gauss (* sign ux)))
+             ;; step 6
+             (if (= i n-minus-1)
+                 ;; step a
+                 (loop
+                    (let* ((v1 (unit-random :[))
+                           (v2 (unit-random :[))
+                           (x (sqrt (- d (* 2d0 (the double-float (log (- 1d0 v1))))))))
+                      (declare (type double-float v1 v2 x))
+                      (when (<= (the double-float (* x v2)) r)
+                        (return-from gauss (* sign x)))))
+                 ;; step b
+                 (let ((gu (exp (/ (- (the double-float (* (aref xn i) (aref xn i)))
+                                      (the double-float (* ux ux)))
+                                   -2d0)))
+                       (gl (exp (/ (- (the double-float (* (aref xn (1+ i)) (aref xn (1+ i))))
+                                      (the double-float (* ux ux)))
+                                   -2d0)))
+                       (u2 (unit-random :[)))
+                   (declare (type double-float gu gl u2))
+                   (when (<= (the double-float (* u2 (- gu gl))) (the double-float (- 1d0 gl)))
+                     (return-from gauss (* sign ux))))))))))
 
-(let* ((k +zuggurat-k+)
-       (n (expt 2 k))
-       (n-minus-1 (- n 1))
-       (r (ecase k
-	    (7 3.442619855899d0)
-	    (8 3.6541528853610088d0)))
-       (v (ecase k
-	    (7 9.91256303526217d-3)
-	    (8 4.92867323399d-3)))
-       (d (* r r))
-       (kn (make-array n :element-type 'fixnum))
-       (wn (make-array n :element-type 'double-float))
-       (fn (make-array n :element-type 'double-float))
-       (base (expt 2 (- +bit-operation-m+ k 1))))
-  (declare (type double-float r v d)
-	   (type fixnum k n n-minus-1 base)
-	   (type (vector double-float *) wn fn)
-	   (type (vector fixnum *) kn))
-  ;; build arrays
-  (setf (aref wn (- n 1)) (/ (* v (exp (/ (* r r) 2))) base))
-  (setf (aref wn (- n 2)) (/ r base))
-  (setf (aref kn (- n 1)) (floor (/ r (aref wn (- n 1)))))
-  (setf (aref fn (- n 1)) (exp (/ (* r r) -2d0)))
-  (loop
-      with xn = (sqrt (* -2d0
-			 (log (+ (exp (/ (* r r) -2d0))
-				 (/ v r)))))
-      for i from (- n 2) downto 1 do
-	(setf (aref wn (- i 1)) (/ xn base))
-	(setf (aref kn i) (floor (/ xn (aref wn i))))
-	(setf (aref fn i) (exp (/ (* xn xn) -2d0)))
-	(setf xn (sqrt (* -2d0
-			  (log (+ (exp (/ (* xn xn) -2d0))
-				  (/ v xn)))))))
-  (setf (aref kn 0) 0)
-  (setf (aref fn 0) 1d0)
-  (defun gauss-ziggurat-bit ()
-    (declare (optimize (speed 3) (safety 0) (debug 0)))
-    (loop named gauss do
-		 (let* ((u-mbit (random most-positive-fixnum))
-			(i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1)))) 
-		   (declare (type fixnum u-mbit i))
-		   (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
-		   (let ((sign (if (zerop (logand u-mbit 1))
-				   1d0
-				 -1d0)))
-		     (declare (type double-float sign))
-		     (setf u-mbit (ash u-mbit -1))
-		     (when (< u-mbit (aref kn i))
-		       (return-from gauss (* u-mbit (aref wn i) sign)))
-		     ;; step 5
-		     (if (= i n-minus-1)
-			 ;; step a
-			 (loop
-			   (let* ((v1 (unit-random :[))
-				  (v2 (unit-random :[))
-				  (x (sqrt (- d (* 2 (log (- 1d0 v1)))))))
-			     (declare (type double-float v1 v2 x))
-			     (when (<= (* x v2) r)
-			       (return-from gauss (* sign x)))))
-		       ;; step b
-		       (let* ((ux (* u-mbit (aref wn i)))
-			      (f (exp (/ (* ux ux) -2d0)))
-			      (u (unit-random :[))
-			      (fi1 (aref fn (+ i 1))))
-			 (declare (type double-float f ux u))
-			 (when (<= (* u (- (aref fn i) fi1))
-				   (- f fi1))
-			   (return-from gauss (* sign ux))))))))))
+  (let* ((k +zuggurat-k+)
+         (n (expt 2 k))
+         (n-minus-1 (- n 1))
+         (r (ecase k
+              (7 3.442619855899d0)
+              (8 3.6541528853610088d0)))
+         (v (ecase k
+              (7 9.91256303526217d-3)
+              (8 4.92867323399d-3)))
+         (d (* r r))
+         (kn (make-array n :element-type 'fixnum))
+         (wn (make-array n :element-type 'double-float))
+         (fn (make-array n :element-type 'double-float))
+         (base (expt 2 (- +bit-operation-m+ k 1))))
+    (declare (type double-float r v d)
+             (type fixnum k n n-minus-1 base)
+             (type (vector double-float *) wn fn)
+             (type (vector fixnum *) kn))
+    ;; build arrays
+    (setf (aref wn (- n 1)) (/ (* v (exp (/ (* r r) 2))) base))
+    (setf (aref wn (- n 2)) (/ r base))
+    (setf (aref kn (- n 1)) (floor (/ r (aref wn (- n 1)))))
+    (setf (aref fn (- n 1)) (exp (/ (* r r) -2d0)))
+    (loop
+       with xn = (sqrt (* -2d0
+                          (log (+ (exp (/ (* r r) -2d0))
+                                  (/ v r)))))
+       for i from (- n 2) downto 1 do
+         (setf (aref wn (- i 1)) (/ xn base))
+         (setf (aref kn i) (floor (/ xn (aref wn i))))
+         (setf (aref fn i) (exp (/ (* xn xn) -2d0)))
+         (setf xn (sqrt (* -2d0
+                           (log (+ (exp (/ (* xn xn) -2d0))
+                                   (/ v xn)))))))
+    (setf (aref kn 0) 0)
+    (setf (aref fn 0) 1d0)
+    (defun gauss-ziggurat-bit ()
+      (declare (optimize (speed 3) (safety 0) (debug 0)))
+      (loop named gauss do
+           (let* ((u-mbit (random most-positive-fixnum))
+                  (i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1)))) 
+             (declare (type fixnum u-mbit i))
+             (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
+             (let ((sign (if (zerop (logand u-mbit 1))
+                             1d0
+                             -1d0)))
+               (declare (type double-float sign))
+               (setf u-mbit (ash u-mbit -1))
+               (when (< u-mbit (aref kn i))
+                 (return-from gauss (* u-mbit (aref wn i) sign)))
+               ;; step 5
+               (if (= i n-minus-1)
+                   ;; step a
+                   (loop
+                      (let* ((v1 (unit-random :[))
+                             (v2 (unit-random :[))
+                             (x (sqrt (- d (* 2 (log (- 1d0 v1)))))))
+                        (declare (type double-float v1 v2 x))
+                        (when (<= (* x v2) r)
+                          (return-from gauss (* sign x)))))
+                   ;; step b
+                   (let* ((ux (* u-mbit (aref wn i)))
+                          (f (exp (/ (* ux ux) -2d0)))
+                          (u (unit-random :[))
+                          (fi1 (aref fn (+ i 1))))
+                     (declare (type double-float f ux u))
+                     (when (<= (* u (- (aref fn i) fi1))
+                               (- f fi1))
+                       (return-from gauss (* sign ux))))))))))
+
+
 
 ;;; gauss-ziggurat-bit is fastest of all these, so use this wrapper
 ;;; if you want, remove other algorithms and wrapper, just rename gauss-ziggurat-bit to normal-random
+
 (defun standard-normal-random ()
   (gauss-ziggurat-bit))
 
@@ -305,77 +317,78 @@
 	 `(+ ,average (the double-float (standard-normal-random))))
 	(t
 	 `(+ ,average (* ,std (the double-float (standard-normal-random)))))))
-		
+
+	
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                          ;;
 ;; Half Normal distribution ;;
 ;;                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
 (let* ((k +zuggurat-k+)
-       (n (expt 2 k))
-       (n-minus-1 (- n 1))
-       (r (ecase k
-	    (7 3.442619855899d0)
-	    (8 3.6541528853610088d0)))
-       (v (ecase k
-	    (7 9.91256303526217d-3)
-	    (8 4.92867323399d-3)))
-       (d (* r r))
-       (kn (make-array n :element-type 'fixnum))
-       (wn (make-array n :element-type 'double-float))
-       (fn (make-array n :element-type 'double-float))
-       (base (expt 2 (- +bit-operation-m+ k))))
-  (declare (type double-float r v d)
-	   (type fixnum k n n-minus-1 base)
-	   (type (vector double-float *) wn fn)
-	   (type (vector fixnum *) kn))
-  ;; build arrays
-  (setf (aref wn (- n 1)) (/ (* v (exp (/ (* r r) 2))) base))
-  (setf (aref wn (- n 2)) (/ r base))
-  (setf (aref kn (- n 1)) (floor (/ r (aref wn (- n 1)))))
-  (setf (aref fn (- n 1)) (exp (/ (* r r) -2d0)))
-  (loop
-      with xn = (sqrt (* -2d0
-			 (log (+ (exp (/ (* r r) -2d0))
-				 (/ v r)))))
-      for i from (- n 2) downto 1 do
-	(setf (aref wn (- i 1)) (/ xn base))
-	(setf (aref kn i) (floor (/ xn (aref wn i))))
-	(setf (aref fn i) (exp (/ (* xn xn) -2d0)))
-	(setf xn (sqrt (* -2d0
-			  (log (+ (exp (/ (* xn xn) -2d0))
-				  (/ v xn)))))))
-  (setf (aref kn 0) 0)
-  (setf (aref fn 0) 1d0)
-  (defun gauss-half-ziggurat-bit ()
-    (declare (optimize (speed 3) (safety 0) (debug 0)))
-    (loop named gauss do
-	  (let* ((u-mbit (random most-positive-fixnum))
-		 (i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1)))) 
-	    (declare (type fixnum u-mbit i))
-	    (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
-	    (when (< u-mbit (aref kn i))
-	      (return-from gauss (* u-mbit (aref wn i))))
-	    ;; step 5
-	    (if (= i n-minus-1)
-		;; step a
-		(loop
-		  (let* ((v1 (unit-random :[))
-			 (v2 (unit-random :[))
-			 (x (sqrt (- d (* 2 (log (- 1d0 v1)))))))
-		    (declare (type double-float v1 v2 x))
-		    (when (<= (* x v2) r)
-		      (return-from gauss x))))
-	      ;; step b
-	      (let* ((ux (* u-mbit (aref wn i)))
-		     (f (exp (/ (* ux ux) -2d0)))
-		     (u (unit-random :[))
-		     (fi1 (aref fn (+ i 1))))
-		(declare (type double-float f ux u))
-		(when (<= (* u (- (aref fn i) fi1))
-			  (- f fi1))
-		  (return-from gauss ux))))))))
+         (n (expt 2 k))
+         (n-minus-1 (- n 1))
+         (r (ecase k
+              (7 3.442619855899d0)
+              (8 3.6541528853610088d0)))
+         (v (ecase k
+              (7 9.91256303526217d-3)
+              (8 4.92867323399d-3)))
+         (d (* r r))
+         (kn (make-array n :element-type 'fixnum))
+         (wn (make-array n :element-type 'double-float))
+         (fn (make-array n :element-type 'double-float))
+         (base (expt 2 (- +bit-operation-m+ k))))
+    (declare (type double-float r v d)
+             (type fixnum k n n-minus-1 base)
+             (type (vector double-float *) wn fn)
+             (type (vector fixnum *) kn))
+    ;; build arrays
+    (setf (aref wn (- n 1)) (/ (* v (exp (/ (* r r) 2))) base))
+    (setf (aref wn (- n 2)) (/ r base))
+    (setf (aref kn (- n 1)) (floor (/ r (aref wn (- n 1)))))
+    (setf (aref fn (- n 1)) (exp (/ (* r r) -2d0)))
+    (loop
+       with xn = (sqrt (* -2d0
+                          (log (+ (exp (/ (* r r) -2d0))
+                                  (/ v r)))))
+       for i from (- n 2) downto 1 do
+         (setf (aref wn (- i 1)) (/ xn base))
+         (setf (aref kn i) (floor (/ xn (aref wn i))))
+         (setf (aref fn i) (exp (/ (* xn xn) -2d0)))
+         (setf xn (sqrt (* -2d0
+                           (log (+ (exp (/ (* xn xn) -2d0))
+                                   (/ v xn)))))))
+    (setf (aref kn 0) 0)
+    (setf (aref fn 0) 1d0)
+    (defun gauss-half-ziggurat-bit ()
+      (declare (optimize (speed 3) (safety 0) (debug 0)))
+      (loop named gauss do
+           (let* ((u-mbit (random most-positive-fixnum))
+                  (i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1)))) 
+             (declare (type fixnum u-mbit i))
+             (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
+             (when (< u-mbit (aref kn i))
+               (return-from gauss (* u-mbit (aref wn i))))
+             ;; step 5
+             (if (= i n-minus-1)
+                 ;; step a
+                 (loop
+                    (let* ((v1 (unit-random :[))
+                           (v2 (unit-random :[))
+                           (x (sqrt (- d (* 2 (log (- 1d0 v1)))))))
+                      (declare (type double-float v1 v2 x))
+                      (when (<= (* x v2) r)
+                        (return-from gauss x))))
+                 ;; step b
+                 (let* ((ux (* u-mbit (aref wn i)))
+                        (f (exp (/ (* ux ux) -2d0)))
+                        (u (unit-random :[))
+                        (fi1 (aref fn (+ i 1))))
+                   (declare (type double-float f ux u))
+                   (when (<= (* u (- (aref fn i) fi1))
+                             (- f fi1))
+                     (return-from gauss ux))))))))
+
 
 (defun standard-half-normal-random ()
   (gauss-half-ziggurat-bit))
@@ -398,6 +411,7 @@
 	 `(standard-half-normal-random))
 	(t
 	 `(* ,std (the double-float (standard-half-normal-random))))))
+
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                     ;;
@@ -430,144 +444,145 @@
 	  (setf y2 (normal-random 0d0 1d0)))
     (/ y1 y2)))
 
-(let* ((b 4.766d0)
-       (d (/ 1d0 (* 2d0 b)))
-       (a (sqrt (- (/ (* 2d0 b) pi) 1d0)))
-       (s (/ a (- b a)))
-       (p (/ s))
-       (q (* d (+ p 1d0)))
-       (myt (atan b))
-       (v (- (/ pi 2) myt)))
-  (declare (type double-float a b d s p q myt v))
-  (defun cauchy-monty-python ()
-    (declare (optimize (speed 3) (safety 0) (debug 0)))
-    (let ((u1 (* 2d0 (unit-random :[])))
-	  (sign 1d0)
-	  (ux 0d0))
-      (declare (type double-float u1 ux sign))
-      (if (> u1 1d0)
-	  (setf sign -1d0
-		ux (* b (the double-float (- u1 1d0))))
-	(setf ux (* b u1)))
-      (when (< ux a)
-	(return-from cauchy-monty-python (* sign ux)))
-      (let ((uy (* (unit-random :[]) d)))
-	(declare (type double-float uy))
-	(when (< (* (+ (* ux ux) 1d0) uy) #.(/ pi))
-	  (return-from cauchy-monty-python (* sign ux)))
-	(let ((y (* sign s (the double-float (- b ux)))))
-	  (declare (type double-float y))
-	  (if (< (* (+ 1d0 (* y y)) (- q (* p uy))) #.(/ pi))
-	      (return-from cauchy-monty-python y)
-	    (let ((u3 (unit-random)))
-	      (return-from cauchy-monty-python (* sign (tan (+ myt (* v u3))))))))))))
+(eval-when (:execute) ; DNC
+  (let* ((b 4.766d0)
+         (d (/ 1d0 (* 2d0 b)))
+         (a (sqrt (- (/ (* 2d0 b) pi) 1d0)))
+         (s (/ a (- b a)))
+         (p (/ s))
+         (q (* d (+ p 1d0)))
+         (myt (atan b))
+         (v (- (/ pi 2) myt)))
+    (declare (type double-float a b d s p q myt v))
+    (defun cauchy-monty-python ()
+      (declare (optimize (speed 3) (safety 0) (debug 0)))
+      (let ((u1 (* 2d0 (unit-random :[])))
+            (sign 1d0)
+            (ux 0d0))
+        (declare (type double-float u1 ux sign))
+        (if (> u1 1d0)
+            (setf sign -1d0
+                  ux (* b (the double-float (- u1 1d0))))
+            (setf ux (* b u1)))
+        (when (< ux a)
+          (return-from cauchy-monty-python (* sign ux)))
+        (let ((uy (* (unit-random :[]) d)))
+          (declare (type double-float uy))
+          (when (< (* (+ (* ux ux) 1d0) uy) #.(/ pi))
+            (return-from cauchy-monty-python (* sign ux)))
+          (let ((y (* sign s (the double-float (- b ux)))))
+            (declare (type double-float y))
+            (if (< (* (+ 1d0 (* y y)) (- q (* p uy))) #.(/ pi))
+                (return-from cauchy-monty-python y)
+                (let ((u3 (unit-random)))
+                  (return-from cauchy-monty-python (* sign (tan (+ myt (* v u3)))))))))))))
 
-(let* ((b 4.766d0)
-       (d (/ (* b (- (expt 2 (floor +bit-operation-m+ 2)) 2))))
-       (a (sqrt (- (/ (* 2d0 b) pi) 1d0)))
-       (s (/ a (- b a)))
-       (p (/ s))
-       (q (/ (+ 1d0 p) (* 2d0 b)))
-       (myt (atan b))
-       (v (- (/ pi 2) myt))
-       (k (floor (* (- (expt 2 (floor +bit-operation-m+ 2)) 1)
-		    (/ a b))))
-       (w (/ b (- (expt 2 (floor +bit-operation-m+ 2)) 1))))
-  (declare (type double-float a b d s p q w myt v)
-	   (type fixnum k))
-  (defun cauchy-monty-python-bit ()
-    (declare (optimize (speed 3) (safety 0) (debug 0)))
-    (let ((u-mbit (random most-positive-fixnum))
-	  (sign -1d0)
-	  (ux 0d0))
-      (declare (type fixnum u-mbit)
-	       (type double-float ux sign))
-      (when (zerop (logand u-mbit 1))
-	(setf sign 1d0))
-      (setf u-mbit (ash u-mbit -1))
-      (let ((u-m/2 (logand u-mbit #.(- (expt 2 (floor +bit-operation-m+ 2)) 1))))
-	(declare (type fixnum u-m/2))
-	(setf ux (* (dfloat u-m/2) w))
-	(when (< u-m/2 k)
-	  (return-from cauchy-monty-python-bit (* sign ux))))
-      (setf u-mbit (ash u-mbit #.(- (floor +bit-operation-m+ 2))))
-      (let ((uy (* d u-mbit)))
-	(declare (type double-float uy))
-	(when (< (* (+ (* ux ux) 1d0) uy) #.(/ pi))
-	  (return-from cauchy-monty-python-bit (* sign ux)))
-	(let ((y (* sign s (the double-float (- b ux)))))
-	  (declare (type double-float y))
-	  (if (< (* (+ 1d0 (* y y)) (- q (* p uy))) #.(/ pi))
-	      (return-from cauchy-monty-python-bit y)
-	    (let ((u3 (unit-random)))
-	      (return-from cauchy-monty-python-bit (* sign (tan (+ myt (* v u3))))))))))))
-
-(let* ((k +zuggurat-k+)
-       (n (expt 2 k))
-       (n-minus-1 (- n 1))
-       (r (ecase k
-	    (7 158.3765842122476d0)
-	    (8 320.7855843133476d0)))
-       (v (ecase k
-	    (7 1.26277937821681d-2)
-	    (8 6.2346537399969d-3)))
-       (tr1 (atan r))
-       (tr2 (- (/ pi 2) tr1))
-       (kn (make-array n :element-type 'fixnum))
-       (wn (make-array n :element-type 'double-float))
-       (fn (make-array n :element-type 'double-float))
-       (base (expt 2 (- +bit-operation-m+ k 1))))
-  (declare (type double-float r v tr1 tr2)
-	   (type fixnum k n n-minus-1 base)
-	   (type (vector double-float *) wn fn)
-	   (type (vector fixnum *) kn))
-  ;; build arrays
-  (setf (aref wn (- n 1)) (/ (* v (+ 1 (* r r))) base))
-  (setf (aref wn (- n 2)) (/ r base))
-  (setf (aref kn (- n 1)) (floor (/ r (aref wn (- n 1)))))
-  (setf (aref fn (- n 1)) (/ (+ (* r r) 1d0)))
-  (flet ((update-x (x)
-	   (sqrt (/ (- (* x x x (/ (+ (* x x) 1d0))) v)
-		    (+ (* x (/ (+ (* x x) 1d0))) v)))))
-    (loop
-	with xn = (update-x r)
-	for i from (- n 2) downto 1 do
-	  (setf (aref wn (- i 1)) (/ xn base))
-	  (setf (aref kn i) (floor (/ xn (aref wn i))))
-	  (setf (aref fn i) (/ (+ (* xn xn) 1d0)))
-	  (setf xn (update-x xn))))
-  (setf (aref kn 0) 0)
-  (setf (aref fn 0) 1d0)
-  (defun cauchy-ziggurat-bit ()
-    (declare (optimize (speed 3) (safety 0) (debug 0)))
-    (loop named cauchy do
-	  (let* ((u-mbit (random most-positive-fixnum))
-		 (i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1)))) 
-	    (declare (type fixnum u-mbit i))
-	    (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
-	    (let ((sign (if (zerop (logand u-mbit 1))
-			    1d0
-			  -1d0)))
-	      (declare (type double-float sign))
-	      (setf u-mbit (ash u-mbit -1))
-	      (when (< u-mbit (aref kn i))
-		(return-from cauchy (* u-mbit (aref wn i) sign)))
-	      ;; step 5
-	      (if (= i n-minus-1)
-		  ;; step a
-		  (let* ((u (unit-random :[)))
-		    (declare (type double-float u))
-		    (return-from cauchy (* sign (tan (+ tr1 (* tr2 u))))))
-		;; step b
-		(let* ((ux (* u-mbit (aref wn i)))
-		       (f (/ (+ (* ux ux) 1d0)))
-		       (u (unit-random :[))
-		       (fi1 (aref fn (+ i 1))))
-		  (declare (type double-float f ux u))
-		  (when (<= (* u (- (aref fn i) fi1))
-			    (- f fi1))
-		    (return-from cauchy (* sign ux))))))))))
-
+(eval-when (:execute) ; DNC
+  (let* ((b 4.766d0)
+         (d (/ (* b (- (expt 2 (floor +bit-operation-m+ 2)) 2))))
+         (a (sqrt (- (/ (* 2d0 b) pi) 1d0)))
+         (s (/ a (- b a)))
+         (p (/ s))
+         (q (/ (+ 1d0 p) (* 2d0 b)))
+         (myt (atan b))
+         (v (- (/ pi 2) myt))
+         (k (floor (* (- (expt 2 (floor +bit-operation-m+ 2)) 1)
+                      (/ a b))))
+         (w (/ b (- (expt 2 (floor +bit-operation-m+ 2)) 1))))
+    (declare (type double-float a b d s p q w myt v)
+             (type fixnum k))
+    (defun cauchy-monty-python-bit ()
+      (declare (optimize (speed 3) (safety 0) (debug 0)))
+      (let ((u-mbit (random most-positive-fixnum))
+            (sign -1d0)
+            (ux 0d0))
+        (declare (type fixnum u-mbit)
+                 (type double-float ux sign))
+        (when (zerop (logand u-mbit 1))
+          (setf sign 1d0))
+        (setf u-mbit (ash u-mbit -1))
+        (let ((u-m/2 (logand u-mbit #.(- (expt 2 (floor +bit-operation-m+ 2)) 1))))
+          (declare (type fixnum u-m/2))
+          (setf ux (* (dfloat u-m/2) w))
+          (when (< u-m/2 k)
+            (return-from cauchy-monty-python-bit (* sign ux))))
+        (setf u-mbit (ash u-mbit #.(- (floor +bit-operation-m+ 2))))
+        (let ((uy (* d u-mbit)))
+          (declare (type double-float uy))
+          (when (< (* (+ (* ux ux) 1d0) uy) #.(/ pi))
+            (return-from cauchy-monty-python-bit (* sign ux)))
+          (let ((y (* sign s (the double-float (- b ux)))))
+            (declare (type double-float y))
+            (if (< (* (+ 1d0 (* y y)) (- q (* p uy))) #.(/ pi))
+                (return-from cauchy-monty-python-bit y)
+                (let ((u3 (unit-random)))
+                  (return-from cauchy-monty-python-bit (* sign (tan (+ myt (* v u3)))))))))))))
+(eval-when (:execute) ; DNC
+    (let* ((k +zuggurat-k+)
+         (n (expt 2 k))
+         (n-minus-1 (- n 1))
+         (r (ecase k
+              (7 158.3765842122476d0)
+              (8 320.7855843133476d0)))
+         (v (ecase k
+              (7 1.26277937821681d-2)
+              (8 6.2346537399969d-3)))
+         (tr1 (atan r))
+         (tr2 (- (/ pi 2) tr1))
+         (kn (make-array n :element-type 'fixnum))
+         (wn (make-array n :element-type 'double-float))
+         (fn (make-array n :element-type 'double-float))
+         (base (expt 2 (- +bit-operation-m+ k 1))))
+    (declare (type double-float r v tr1 tr2)
+             (type fixnum k n n-minus-1 base)
+             (type (vector double-float *) wn fn)
+             (type (vector fixnum *) kn))
+    ;; build arrays
+    (setf (aref wn (- n 1)) (/ (* v (+ 1 (* r r))) base))
+    (setf (aref wn (- n 2)) (/ r base))
+    (setf (aref kn (- n 1)) (floor (/ r (aref wn (- n 1)))))
+    (setf (aref fn (- n 1)) (/ (+ (* r r) 1d0)))
+    (flet ((update-x (x)
+             (sqrt (/ (- (* x x x (/ (+ (* x x) 1d0))) v)
+                      (+ (* x (/ (+ (* x x) 1d0))) v)))))
+      (loop
+         with xn = (update-x r)
+         for i from (- n 2) downto 1 do
+           (setf (aref wn (- i 1)) (/ xn base))
+           (setf (aref kn i) (floor (/ xn (aref wn i))))
+           (setf (aref fn i) (/ (+ (* xn xn) 1d0)))
+           (setf xn (update-x xn))))
+    (setf (aref kn 0) 0)
+    (setf (aref fn 0) 1d0)
+    (defun cauchy-ziggurat-bit ()
+      (declare (optimize (speed 3) (safety 0) (debug 0)))
+      (loop named cauchy do
+           (let* ((u-mbit (random most-positive-fixnum))
+                  (i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1)))) 
+             (declare (type fixnum u-mbit i))
+             (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
+             (let ((sign (if (zerop (logand u-mbit 1))
+                             1d0
+                             -1d0)))
+               (declare (type double-float sign))
+               (setf u-mbit (ash u-mbit -1))
+               (when (< u-mbit (aref kn i))
+                 (return-from cauchy (* u-mbit (aref wn i) sign)))
+               ;; step 5
+               (if (= i n-minus-1)
+                   ;; step a
+                   (let* ((u (unit-random :[)))
+                     (declare (type double-float u))
+                     (return-from cauchy (* sign (tan (+ tr1 (* tr2 u))))))
+                   ;; step b
+                   (let* ((ux (* u-mbit (aref wn i)))
+                          (f (/ (+ (* ux ux) 1d0)))
+                          (u (unit-random :[))
+                          (fi1 (aref fn (+ i 1))))
+                     (declare (type double-float f ux u))
+                     (when (<= (* u (- (aref fn i) fi1))
+                               (- f fi1))
+                       (return-from cauchy (* sign ux)))))))))))
 ;; cauchy wrapper
 (defun standard-cauchy-random ()
   (cauchy-ziggurat-bit))
@@ -609,14 +624,16 @@
   (let ((u (unit-random)))
     (declare (type double-float u))
     (* -1.0d0 (the double-float (log u)))))
+(eval-when (:execute)
+  (defun exp-inverse-include-zero ()
+    
+    (declare (optimize (speed 3) (safety 0) (debug 0)))
+    (let ((u (- 1d0 (unit-random :[))))
+      (declare (type double-float u))
+      (* -1.0d0 (the double-float (log u))))))
 
-(defun exp-inverse-include-zero ()
-  (declare (optimize (speed 3) (safety 0) (debug 0)))
-  (let ((u (- 1d0 (unit-random :[))))
-    (declare (type double-float u))
-    (* -1.0d0 (the double-float (log u)))))
-
-(let* ((k +zuggurat-k+)
+(eval-when (:execute)
+  (let* ((k +zuggurat-k+)
        (n (expt 2 k))
        (n-minus-1 (- n 1))
        (r (ecase k
@@ -695,6 +712,8 @@
 		(when (<= (* u (- (aref fn i) fi1))
 			  (- f fi1))
 		  (return-from exp ux))))))))
+)
+
 
 ;; exponential wrapper
 (defun standard-exp-random (&optional include-zero)
@@ -735,7 +754,6 @@
 	 `(standard-exp-random ,include-zero))
 	(t
 	 `(* ,scale (the double-float (standard-exp-random ,include-zero))))))
-
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                      ;;
 ;; Laplace distribution ;;
@@ -750,66 +768,68 @@
 	(log (* 2d0 u))
       (- (log (* 2d0 (- 1 u)))))))
 
-(let* ((k +zuggurat-k+)
-       (n (expt 2 k))
-       (n-minus-1 (- n 1))
-       (r (ecase k
-	    (7 6.898315116616d0)
-	    (8 7.697117470131d0)))
-       (v (ecase k
-	    (7 7.97322953955d-3)
-	    (8 3.94965982258d-3)))
-       (kn (make-array n :element-type 'fixnum))
-       (wn (make-array n :element-type 'double-float))
-       (fn (make-array n :element-type 'double-float))
-       (base (expt 2 (- +bit-operation-m+ k 1))))
-  (declare (type double-float r v)
-	   (type fixnum k n n-minus-1 base)
-	   (type (vector double-float *) wn fn)
-	   (type (vector fixnum *) kn))
-  ;; build arrays
-  (setf (aref wn (- n 1)) (/ (* v (exp r)) base))
-  (setf (aref wn (- n 2)) (/ r base))
-  (setf (aref kn (- n 1)) (floor (/ r (aref wn (- n 1)))))
-  (setf (aref fn (- n 1)) (exp (- r)))
-  (loop
-      with xn = (- (log (+ (exp (- r)) (/ v r))))
-      for i from (- n 2) downto 1 do
-	(setf (aref wn (- i 1)) (/ xn base))
-	(setf (aref kn i) (floor (/ xn (aref wn i))))
-	(setf (aref fn i) (exp (- xn)))
-	(setf xn (- (log (+ (exp (- xn)) (/ v xn))))))
-  (setf (aref kn 0) 0)
-  (setf (aref fn 0) 1d0)
-  (defun laplace-ziggurat-bit ()
-    (declare (optimize (speed 3) (safety 0) (debug 0)))
-    (loop named laplace do
-	  (let* ((u-mbit (random most-positive-fixnum))
-		 (i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1)))) 
-	    (declare (type fixnum u-mbit i))		  
-	    (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
-	    (let ((sign (if (zerop (logand u-mbit 1))
-			    1d0
-			  -1d0)))
-	      (declare (type double-float sign))
-	      (setf u-mbit (ash u-mbit -1))
-	      (when (< u-mbit (aref kn i))
-		(return-from laplace (* sign u-mbit (aref wn i))))
-	      ;; step 5
-	      (if (= i n-minus-1)
-		  ;; step a
-		  (let* ((u (unit-random :[)))
-		    (declare (type double-float u))
-		    (return-from laplace (* sign (- r (log (- 1d0 u))))))
-		;; step b
-		(let* ((ux (* u-mbit (aref wn i)))
-		       (f (exp (- ux)))
-		       (u (unit-random :[))
-		       (fi1 (aref fn (+ i 1))))
-		  (declare (type double-float f ux u))
-		  (when (<= (* u (- (aref fn i) fi1))
-			    (- f fi1))
-		    (return-from laplace (* sign ux))))))))))
+(eval-when (:execute)
+  (let* ((k +zuggurat-k+)
+         (n (expt 2 k))
+         (n-minus-1 (- n 1))
+         (r (ecase k
+              (7 6.898315116616d0)
+              (8 7.697117470131d0)))
+         (v (ecase k
+              (7 7.97322953955d-3)
+              (8 3.94965982258d-3)))
+         (kn (make-array n :element-type 'fixnum))
+         (wn (make-array n :element-type 'double-float))
+         (fn (make-array n :element-type 'double-float))
+         (base (expt 2 (- +bit-operation-m+ k 1))))
+    (declare (type double-float r v)
+             (type fixnum k n n-minus-1 base)
+             (type (vector double-float *) wn fn)
+             (type (vector fixnum *) kn))
+    ;; build arrays
+    (setf (aref wn (- n 1)) (/ (* v (exp r)) base))
+    (setf (aref wn (- n 2)) (/ r base))
+    (setf (aref kn (- n 1)) (floor (/ r (aref wn (- n 1)))))
+    (setf (aref fn (- n 1)) (exp (- r)))
+    (loop
+       with xn = (- (log (+ (exp (- r)) (/ v r))))
+       for i from (- n 2) downto 1 do
+         (setf (aref wn (- i 1)) (/ xn base))
+         (setf (aref kn i) (floor (/ xn (aref wn i))))
+         (setf (aref fn i) (exp (- xn)))
+         (setf xn (- (log (+ (exp (- xn)) (/ v xn))))))
+    (setf (aref kn 0) 0)
+    (setf (aref fn 0) 1d0)
+    (defun laplace-ziggurat-bit ()
+      (declare (optimize (speed 3) (safety 0) (debug 0)))
+      (loop named laplace do
+           (let* ((u-mbit (random most-positive-fixnum))
+                  (i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1)))) 
+             (declare (type fixnum u-mbit i))		  
+             (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
+             (let ((sign (if (zerop (logand u-mbit 1))
+                             1d0
+                             -1d0)))
+               (declare (type double-float sign))
+               (setf u-mbit (ash u-mbit -1))
+               (when (< u-mbit (aref kn i))
+                 (return-from laplace (* sign u-mbit (aref wn i))))
+               ;; step 5
+               (if (= i n-minus-1)
+                   ;; step a
+                   (let* ((u (unit-random :[)))
+                     (declare (type double-float u))
+                     (return-from laplace (* sign (- r (log (- 1d0 u))))))
+                   ;; step b
+                   (let* ((ux (* u-mbit (aref wn i)))
+                          (f (exp (- ux)))
+                          (u (unit-random :[))
+                          (fi1 (aref fn (+ i 1))))
+                     (declare (type double-float f ux u))
+                     (when (<= (* u (- (aref fn i) fi1))
+                               (- f fi1))
+                       (return-from laplace (* sign ux)))))))))))
+
 
 ;; laplace wrapper
 (defun standard-laplace-random ()
@@ -839,14 +859,14 @@
 ;; weibull distribution ;;
 ;;                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun-with-cached-values weibull-inverse (shape &optional include-zero)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float shape))
-  ((rinv (/ shape)))
-  (declare (type double-float shape)
-	   (ignorable shape))
-  (the double-float (expt (the double-float (standard-exp-random include-zero)) rinv)))
+(eval-when (:execute)
+  (defun-with-cached-values weibull-inverse (shape &optional include-zero)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float shape))
+    ((rinv (/ shape)))
+    (declare (type double-float shape)
+             (ignorable shape))
+    (the double-float (expt (the double-float (standard-exp-random include-zero)) rinv))))
 
 (defun standard-weibull-random (shape &optional include-zero)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -894,52 +914,51 @@
 ;; Gamma distribution ;;
 ;;                    ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;
+(eval-when (:execute)
+  (defun-with-cached-values gamma-inverse-shape-big (shape)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float shape))
+    ((d (- shape #.(dfloat 1/3)))
+     (c (/ (sqrt (* 9d0 d)))))
+    (declare (ignorable shape)
+             (type double-float d c))
+    (loop
+       (let ((z 0d0)
+             (v 0d0))
+         (loop named inner do
+              (setf z (normal-random 0d0 1d0))
+              (setf v (+ 1d0 (* c z)))
+              (when (> v 0d0)
+                (return-from inner)))
+         (let* ((w (* v v v))
+                (y (* d w)))    
+           (declare (type double-float z w y))
+           (let ((e (standard-exp-random)))
+             (unless (< (+ e (/ (* z z) 2d0) (* d (the double-float (log w))) (- y) d) 0d0)
+               (return y)))))))
 
-(defun-with-cached-values gamma-inverse-shape-big (shape)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float shape))
-  ((d (- shape #.(dfloat 1/3)))
-   (c (/ (sqrt (* 9d0 d)))))
-  (declare (ignorable shape)
-	   (type double-float d c))
-  (loop
-    (let ((z 0d0)
-	  (v 0d0))
-      (loop named inner do
-	    (setf z (normal-random 0d0 1d0))
-	    (setf v (+ 1d0 (* c z)))
-	    (when (> v 0d0)
-	      (return-from inner)))
-      (let* ((w (* v v v))
-	     (y (* d w)))    
-	(declare (type double-float z w y))
-	(let ((e (standard-exp-random)))
-	  (unless (< (+ e (/ (* z z) 2d0) (* d (the double-float (log w))) (- y) d) 0d0)
-	    (return y)))))))
-
-(defun-with-cached-values gamma-inverse-shape-small (shape)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float shape))
-  ((shape-inv (/ shape))
-   (d (- (+ shape 1d0) #.(dfloat 1/3)))
-   (c (/ (sqrt (* 9d0 d)))))
-  (declare (ignorable shape)
-	   (type double-float shape-inv d c))
-  (loop
-    (let ((z 0d0)
-	  (v 0d0))
-      (loop named inner do
-	    (setf z (normal-random 0d0 1d0))
-	    (setf v (+ 1d0 (* c z)))
-	    (when (> v 0d0)
-	      (return-from inner)))
-      (let* ((w (* v v v))
-	     (y (* d w)))    
-	(declare (type double-float z w y))
-	(let ((e (exp-random 1d0)))
-	  (unless (< (+ e (/ (* z z) 2d0) (* d (the double-float (log w))) (- y) d) 0d0)
-	    (return (* y (expt (unit-random) shape-inv)))))))))
-
+  (defun-with-cached-values gamma-inverse-shape-small (shape)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float shape))
+    ((shape-inv (/ shape))
+     (d (- (+ shape 1d0) #.(dfloat 1/3)))
+     (c (/ (sqrt (* 9d0 d)))))
+    (declare (ignorable shape)
+             (type double-float shape-inv d c))
+    (loop
+       (let ((z 0d0)
+             (v 0d0))
+         (loop named inner do
+              (setf z (normal-random 0d0 1d0))
+              (setf v (+ 1d0 (* c z)))
+              (when (> v 0d0)
+                (return-from inner)))
+         (let* ((w (* v v v))
+                (y (* d w)))    
+           (declare (type double-float z w y))
+           (let ((e (exp-random 1d0)))
+             (unless (< (+ e (/ (* z z) 2d0) (* d (the double-float (log w))) (- y) d) 0d0)
+               (return (* y (expt (unit-random) shape-inv))))))))))
 (defun gamma-inverse (shape)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float shape))
@@ -948,29 +967,30 @@
 	(t (gamma-inverse-shape-small shape))))
 
 (defun-with-cached-values gamma-compression-shape-big (shape)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float shape))
-  ((d (- shape #.(dfloat 1/3)))
-   (c (/ (sqrt (* 9d0 d)))))
-  (declare (ignorable shape)
-	   (type double-float d c))
-  (loop
-    (let ((z 0d0)
-	  (v 0d0))
-      (loop named inner do
-	    (setf z (normal-random 0d0 1d0))
-	    (setf v (+ 1d0 (* c z)))
-	    (when (> v 0d0)
-	      (return-from inner)))
-      (let* ((w (* v v v))
-	     (y (* d w)))
-	(declare (type double-float z w y))
-	(let ((u (unit-random)))
-	  (if (<= u (- 1d0
-		       (* 0.0331 z z z z)))
-	      (return y)
-	    (unless (< (+ (/ (* z z) 2d0) (* d (the double-float (log w))) (- y) d) (the double-float (log u)))
-	      (return y))))))))
+        (declare (optimize (speed 3) (safety 0) (debug 0))
+                 (type double-float shape))
+        ((d (- shape #.(dfloat 1/3)))
+         (c (/ (sqrt (* 9d0 d)))))
+        (declare (ignorable shape)
+                 (type double-float d c))
+        (loop
+           (let ((z 0d0)
+                 (v 0d0))
+             (loop named inner do
+                  (setf z (normal-random 0d0 1d0))
+                  (setf v (+ 1d0 (* c z)))
+                  (when (> v 0d0)
+                    (return-from inner)))
+             (let* ((w (* v v v))
+                    (y (* d w)))
+               (declare (type double-float z w y))
+               (let ((u (unit-random)))
+                 (if (<= u (- 1d0
+                              (* 0.0331 z z z z)))
+                     (return y)
+                     (unless (< (+ (/ (* z z) 2d0) (* d (the double-float (log w))) (- y) d) (the double-float (log u)))
+                       (return y))))))))
+
 
 (defun-with-cached-values gamma-compression-shape-small (shape)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -997,6 +1017,7 @@
 	      (return (* y (expt (unit-random) shape-inv)))
 	    (unless (< (+ (/ (* z z) 2d0) (* d (the double-float (log w))) (- y) d) (the double-float (log u)))
 	      (return (* y (expt (unit-random) shape-inv))))))))))
+
 
 (defun gamma-compression (shape)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -1049,37 +1070,37 @@
 ;;                             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun-with-cached-values right-triangular-inverse (a b)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float a b))
-  ((s (- b a)))
-  (declare (type double-float s)
-	   (ignorable b))
-  (+ a (* s (the double-float (sqrt (unit-random))))))
+  (defun-with-cached-values right-triangular-inverse (a b)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float a b))
+    ((s (- b a)))
+    (declare (type double-float s)
+             (ignorable b))
+    (+ a (* s (the double-float (sqrt (unit-random))))))
 
-(defun-with-cached-values right-triangular-compare (a b)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float a b))
-  ((s (- b a)))
-  (declare (type double-float s)
-	   (ignorable b))
-  (+ a (* s (the double-float (max (unit-random) (unit-random))))))
+  (defun-with-cached-values right-triangular-compare (a b)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float a b))
+    ((s (- b a)))
+    (declare (type double-float s)
+             (ignorable b))
+    (+ a (* s (the double-float (max (unit-random) (unit-random))))))
 
-(defun-with-cached-values left-triangular-inverse (a b)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float a b))
-  ((s (- b a)))
-  (declare (type double-float s)
-	   (ignorable b))
-  (+ a (* s (- 1d0 (the double-float (sqrt (unit-random)))))))
+  (defun-with-cached-values left-triangular-inverse (a b)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float a b))
+    ((s (- b a)))
+    (declare (type double-float s)
+             (ignorable b))
+    (+ a (* s (- 1d0 (the double-float (sqrt (unit-random)))))))
 
-(defun-with-cached-values left-triangular-compare (a b)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float a b))
-  ((s (- b a)))
-  (declare (type double-float s)
-	   (ignorable b))
-  (+ a (* s (the double-float (min (unit-random) (unit-random))))))
+  (defun-with-cached-values left-triangular-compare (a b)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float a b))
+    ((s (- b a)))
+    (declare (type double-float s)
+             (ignorable b))
+    (+ a (* s (the double-float (min (unit-random) (unit-random))))))
 
 (defun right-triangular-random (a b)
   (right-triangular-inverse a b))
@@ -1112,26 +1133,26 @@
 ;; Power Function distribution ;;
 ;;                             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-
-(defun-with-cached-values power-function-inverse (shape lower-boundary upper-boundary)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float shape lower-boundary upper-boundary))
-  ((shape-inv (/ shape))
-   (s (- upper-boundary lower-boundary)))
-  (declare (type double-float shape-inv s)
-	   (ignorable upper-boundary shape))
-  (+ lower-boundary (* s (expt (unit-random) shape-inv))))
+  (defun-with-cached-values power-function-inverse (shape lower-boundary upper-boundary)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float shape lower-boundary upper-boundary))
+    ((shape-inv (/ shape))
+     (s (- upper-boundary lower-boundary)))
+    (declare (type double-float shape-inv s)
+             (ignorable upper-boundary shape))
+    (+ lower-boundary (* s (expt (unit-random) shape-inv))))
 
 (defun-with-cached-values power-function-with-gamma (shape lower-boundary upper-boundary)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float shape lower-boundary upper-boundary))
-  ((s (- upper-boundary lower-boundary)))
-  (declare (type double-float s)
-	   (ignorable upper-boundary))
-  (let ((y1 (gamma-random shape 1d0))
-	(y2 (exp-random 1d0)))
-    (declare (type double-float y1 y2))
-    (+ lower-boundary (* s (/ y1 (+ y1 y2))))))
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float shape lower-boundary upper-boundary))
+    ((s (- upper-boundary lower-boundary)))
+    (declare (type double-float s)
+             (ignorable upper-boundary))
+    (let ((y1 (gamma-random shape 1d0))
+          (y2 (exp-random 1d0)))
+      (declare (type double-float y1 y2))
+      (+ lower-boundary (* s (/ y1 (+ y1 y2))))))
+
 
 ;;; power function wrapper
 (defun power-function-random (shape lower-boundary upper-boundary)
@@ -1145,6 +1166,7 @@
 	 (power-function-with-gamma shape lower-boundary upper-boundary))
 	(t
 	 (power-function-inverse shape lower-boundary upper-boundary))))
+
 
 ;;; compiler macro for effectiveness
 (define-compiler-macro power-function-random (&whole form shape a b)
@@ -1342,6 +1364,7 @@
 	    (declare (type double-float y1 y2))
 	    (/ y1 (+ y1 y2))))))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                     ;;
 ;; Erlang distribution ;;
@@ -1452,6 +1475,8 @@
   (let ((u (unit-random)))
     (declare (type double-float u))
     (* 2d0 (gamma-random 1.5d0 2d0) u u)))
+(declaim (ftype (function (fixnum) (double-float)) chi-square-convolution)
+         (inline chi-square-convolution))
 
 (defun chi-square-convolution (freedom)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -1464,7 +1489,8 @@
       (declare (type fixnum quotient remainder))
       (setf n quotient)
       (unless (zerop remainder)
-	(let ((z (half-normal-random 1d0)))
+        (let ((z (half-normal-random 1d0)))
+          (declare (type double-float z))
 	  (setf x (* z z)))))
     (loop repeat n do
 	  (incf x (exp-random 2d0 nil)))
@@ -1472,18 +1498,18 @@
 
 
 (defvar chi-square-switch-freedom 30)
-
-(defun chi-square-random (freedom)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum freedom))
-  (case freedom
-    (1 (let ((u (half-normal-random 1d0)))
-	 (declare (type double-float u))
-	 (* u u)))
-    (2 (exp-random 2d0 nil))
-    (t (if (< freedom (the fixnum chi-square-switch-freedom))
-	   (chi-square-convolution freedom)
-	 (* 2d0 (the double-float (gamma-compression-shape-big (/ (the double-float freedom) 2d0))))))))
+(eval-when (:execute)
+  (defun chi-square-random (freedom)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type fixnum freedom))
+    (case freedom
+      (1 (let ((u (half-normal-random 1d0)))
+           (declare (type double-float u))
+           (* u u)))
+      (2 (exp-random 2d0 nil))
+      (t (if (< freedom (the fixnum chi-square-switch-freedom))
+             (chi-square-convolution freedom)
+             (* 2d0 (the double-float (gamma-compression-shape-big (/ (the double-float freedom) 2d0)))))))))
 
 (define-compiler-macro chi-square-random (&whole form freedom)
   (cond ((numberp freedom)
@@ -1504,14 +1530,14 @@
 ;;;;;;;;;;;;;;;;;;;;
 
 ;; variance is not stable -- low accuracy?
-
-(defun-with-cached-values f-random (freedom1 freedom2)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum freedom1 freedom2))
-  ((f (/ (dfloat freedom2) (dfloat freedom1))))
-  (declare (type double-float f))
-  (/ (* f (the double-float (chi-square-random freedom1)))
-     (the double-float (chi-square-random freedom2))))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defun-with-cached-values f-random (freedom1 freedom2)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type fixnum freedom1 freedom2))
+    ((f (/ (dfloat freedom2) (dfloat freedom1))))
+    (declare (type double-float f))
+    (/ (* f (the double-float (chi-square-random freedom1)))
+       (the double-float (chi-square-random freedom2)))))
 
 (define-compiler-macro f-random (&whole form freedom1 freedom2)
   (cond ((and (numberp freedom1) (numberp freedom2))
@@ -1537,23 +1563,29 @@
 		 (the double-float (chi-square-random ,freedom2))))))
 	(t form)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                          ;;
 ;; student's t distribution ;;
 ;;                          ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+  (defun-with-cached-values t-with-gamma (freedom)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type fixnum freedom))
+    ((rdiv2 (/ (dfloat freedom) 2d0))
+     (d (sqrt rdiv2)))
+    (declare (type double-float rdiv2 d)
+             (ignorable freedom))
+    (/ (* d (the double-float (normal-random 0d0 1d0)))
+       (the double-float (sqrt (the double-float (gamma-random rdiv2 1d0))))))
 
-(defun-with-cached-values t-with-gamma (freedom)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum freedom))
-  ((rdiv2 (/ (dfloat freedom) 2d0))
-   (d (sqrt rdiv2)))
-  (declare (type double-float rdiv2 d)
-	   (ignorable freedom))
-  (/ (* d (the double-float (normal-random 0d0 1d0)))
-     (the double-float (sqrt (the double-float (gamma-random rdiv2 1d0))))))
 
-(defun-with-cached-values t-monty-python (freedom)
+
+
+
+(eval-when (:execute)
+  
+  (defun-with-cached-values t-monty-python (freedom)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type fixnum freedom))
   ((r (dfloat freedom))
@@ -1621,50 +1653,51 @@
 	      (setf ux (sqrt (- (* v1 (the double-float (expt u3 (- v2)))) r)))
 	      (unless (>= (* ux (unit-random)) b)
 		(return-from outer)))))))
-    (* sign ux)))
-
-(defun-with-cached-values t-monty-python-bit (freedom)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum freedom))
-  ((r (dfloat freedom))
-   (b (case freedom       
-	(3 3.142d0)
-	(4 2.968d0)
-	(5 2.868d0)
-	(6 2.783d0)
-	(7 2.756d0)
-	(8 2.724d0)
-	(t
-	 (assert (> freedom 8))
-	 (+ 2.5074d0 (expt (* 1.876d0 r) -1.042d0)))))
-   (c (multiple-value-bind (quotient remainder) (floor freedom 2)
-	(declare (type fixnum quotient remainder))
-	(if (= remainder 0)
+`    (* sign ux)))
+  
+  (defun-with-cached-values t-monty-python-bit (freedom)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type fixnum freedom))
+    ((r (dfloat freedom))
+     (b (case freedom       
+          (3 3.142d0)
+          (4 2.968d0)
+          (5 2.868d0)
+          (6 2.783d0)
+          (7 2.756d0)
+          (8 2.724d0)
+          (t
+           (assert (> freedom 8))
+           (+ 2.5074d0 (expt (* 1.876d0 r) -1.042d0)))))
+     (c (multiple-value-bind (quotient remainder) (floor freedom 2)
+          (declare (type fixnum quotient remainder))
+          (if (= remainder 0)
 	    ;;; even
-	    (/ (loop with ans = 1d0
-		   for i fixnum from 1 below quotient do
-		     (setf ans (* ans (+ (/ (* 2d0 i)) 1d0)))
-		   finally (return ans))
-	       (* 2d0 (the double-float (sqrt r))))
+              (/ (loop with ans = 1d0
+                    for i fixnum from 1 below quotient do
+                      (setf ans (* ans (+ (/ (* 2d0 i)) 1d0)))
+                    finally (return ans))
+                 (* 2d0 (the double-float (sqrt r))))
 	  ;;; odd	  
-	  (/ (loop with ans = 1d0
-		 for i fixnum from 1 upto quotient do
-		   (setf ans (* ans (+ (/ (- (* 2d0 i) 1d0)) 1d0)))
-		 finally (return ans))
-	     (* pi (the double-float (sqrt r)))))))
-   (a (sqrt (* r (- (expt (* 2 b c) (/ 2 (+ freedom 1))) 1d0))))
-   (d (/ (* b (- (expt 2 (floor +bit-operation-m+ 2)) 2))))
-   (k (floor (/ (* a (- (expt 2 (floor +bit-operation-m+ 2)) 1)) b)))
-   (w (/ b (- (expt 2 (floor +bit-operation-m+ 2)) 1)))
-   (s (/ a (- b a)))
-   (p (/ r))
-   (q (/ (+ freedom 1) 2))
-   (t1 (/ s))
-   (t2 (/ (+ t1 1d0) 2 b))
-   (v1 (+ r (* b b)))
-   (v2 (/ 2d0 (- r 1d0))))
+              (/ (loop with ans = 1d0
+                    for i fixnum from 1 upto quotient do
+                      (setf ans (* ans (+ (/ (- (* 2d0 i) 1d0)) 1d0)))
+                    finally (return ans))
+                 (* pi (the double-float (sqrt r)))))))
+     (a (sqrt (* r (- (expt (* 2 b c) (/ 2 (+ freedom 1))) 1d0))))
+     (d (/ (* b (- (expt 2 (floor +bit-operation-m+ 2)) 2))))
+     (k (floor (/ (* a (- (expt 2 (floor +bit-operation-m+ 2)) 1)) b)))
+     (w (/ b (- (expt 2 (floor +bit-operation-m+ 2)) 1)))
+     (s (/ a (- b a)))
+     (p (/ r))
+     (q (/ (+ freedom 1) 2))
+     (t1 (/ s))
+     (t2 (/ (+ t1 1d0) 2 b))
+     (v1 (+ r (* b b)))
+     (v2 (/ 2d0 (- r 1d0)))))
+  
   (declare (type double-float r b c a d w s p t1 t2 v1 v2)
-	   (type rational q)
+	   ;(type rational q)
 	   (type fixnum k)
 	   (ignorable freedom a))
   (let ((u-mbit (random most-positive-fixnum))
@@ -1700,6 +1733,7 @@
 		(unless (>= (* ux (unit-random)) b)
 		  (return-from outer))))))))
     (* sign ux)))
+
 
 (define-compiler-macro t-monty-python-bit (&whole form freedom)
   (cond ((numberp freedom)
@@ -1744,6 +1778,8 @@
 	   `(t-monty-python-bit-cached ,freedom ,r ,b ,c ,a ,d ,k ,w ,s ,p ,q ,t1 ,t2 ,v1 ,v2)))
 	(t form)))
 
+(eval-when (:execute)
+  
 (defun-with-cached-values t-compression (freedom)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type fixnum freedom))
@@ -1830,62 +1866,62 @@
 		  (return-from outer z)))))
 	 (setf u (* a (unit-random :[)) i -1))
        sign)))
+)
+
 
 (define-compiler-macro t-compression (&whole form freedom)
-  (cond ((numberp freedom)
-	 (assert (typep freedom 'fixnum))
-	 (let*   ((r (dfloat freedom))
-		  (p (/ r))
-		  (q (/(+ freedom 1) 2))
-		  (xf (sqrt (/ r (+ r 2d0))))
-		  (fxf (half-integer-power (/ (+ 1d0 (* p xf xf))) q))
-		  (x2 (/ (sqrt (* r (+ r 2d0))) q))
-		  (fx2 (half-integer-power (/ (+ 1d0 (* p x2 x2))) q))
-		  (x1 (- x2
-			 (/ (* (+ r 3) (sqrt r))
-			    (* (+ r 1) (sqrt (+ r 2)) fxf))))
-		  (fx1 (half-integer-power (/ (+ 1d0 (* p x1 x1))) q))
-		  (d1 (/ fxf))
-		  (d2 (/ fx2))
-		  (r4 (- 1d0 fxf))
-		  (d3 (/ r4))
-		  (s3 (/ (- fxf 1d0) x1))
-		  (d4 (- xf x1))
-		  (s4 (- fx1 fxf))
-		  (d5 (- x2 xf))
-		  (r5 (- fxf fx2))
-		  (t5 (- 1d0 (/ (* xf d1 r5 (+ r 3d0))
-				(* d5 (+ r 1d0)))))
-		  (c6 (/ -2d0 (- r 1d0)))
-		  (d6 (* r (expt (* x2 (- 1d0 p)) c6)))
-		  (aarray (make-array 6
-				      :element-type 'double-float
-				      :initial-contents `(,(* xf fxf) ,(* d5 fx2) ,(* x1 r4)
-								      ,(/ (* d4 r4) 2d0) ,(/ (* d5 r5) 2d0) ,(/ (* (+ r (* x2 x2)) fx2)
-														(* (- r 1d0) x2)))))
-		  (a (reduce #'+ aarray)))
-	   `(t-compression-cached ,freedom ,r ,p ,q ,xf ,fxf ,x2 ,fx2 ,x1 ,fx1 
-				 ,d1 ,d2 ,r4 ,d3 ,s3 ,d4 ,s4 ,d5 ,r5 ,t5 ,c6 ,d6 ,aarray ,a)))
-	(t form)))
-
+    (cond ((numberp freedom)
+           (assert (typep freedom 'fixnum))
+           (let*   ((r (dfloat freedom))
+                    (p (/ r))
+                    (q (/(+ freedom 1) 2))
+                    (xf (sqrt (/ r (+ r 2d0))))
+                    (fxf (half-integer-power (/ (+ 1d0 (* p xf xf))) q))
+                    (x2 (/ (sqrt (* r (+ r 2d0))) q))
+                    (fx2 (half-integer-power (/ (+ 1d0 (* p x2 x2))) q))
+                    (x1 (- x2
+                           (/ (* (+ r 3) (sqrt r))
+                              (* (+ r 1) (sqrt (+ r 2)) fxf))))
+                    (fx1 (half-integer-power (/ (+ 1d0 (* p x1 x1))) q))
+                    (d1 (/ fxf))
+                    (d2 (/ fx2))
+                    (r4 (- 1d0 fxf))
+                    (d3 (/ r4))
+                    (s3 (/ (- fxf 1d0) x1))
+                    (d4 (- xf x1))
+                    (s4 (- fx1 fxf))
+                    (d5 (- x2 xf))
+                    (r5 (- fxf fx2))
+                    (t5 (- 1d0 (/ (* xf d1 r5 (+ r 3d0))
+                                  (* d5 (+ r 1d0)))))
+                    (c6 (/ -2d0 (- r 1d0)))
+                    (d6 (* r (expt (* x2 (- 1d0 p)) c6)))
+                    (aarray (make-array 6
+                                        :element-type 'double-float
+                                        :initial-contents `(,(* xf fxf) ,(* d5 fx2) ,(* x1 r4)
+                                                             ,(/ (* d4 r4) 2d0) ,(/ (* d5 r5) 2d0) ,(/ (* (+ r (* x2 x2)) fx2)
+                                                                                                       (* (- r 1d0) x2)))))
+                    (a (reduce #'+ aarray)))
+             `(t-compression-cached ,freedom ,r ,p ,q ,xf ,fxf ,x2 ,fx2 ,x1 ,fx1 
+                                    ,d1 ,d2 ,r4 ,d3 ,s3 ,d4 ,s4 ,d5 ,r5 ,t5 ,c6 ,d6 ,aarray ,a)))
+          (t form)))
 (defun t-random (freedom)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum freedom))
-  (case freedom
-    (1 (cauchy-random 0d0 1d0))
-    (2 (/ (the double-float (normal-random 0d0 1d0))
-	  (the double-float (sqrt (exp-random 1d0)))))
-    (t (t-with-gamma freedom))))
-
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type fixnum freedom))
+    (case freedom
+      (1 (cauchy-random 0d0 1d0))
+      (2 (/ (the double-float (normal-random 0d0 1d0))
+            (the double-float (sqrt (exp-random 1d0)))))
+      (t (t-with-gamma freedom))))
 (define-compiler-macro t-random (&whole form freedom)
-  (cond ((numberp freedom)
-	 (assert (typep freedom 'fixnum))
-	 (case freedom
-	   (1 `(cauchy-random 0d0 1d0))
-	   (2 `(/ (the double-float (normal-random 0d0 1d0))
-		  (the double-float (sqrt (exp-random 1d0)))))
-	   (t `(t-monty-python-bit ,freedom))))
-	(t form)))
+    (cond ((numberp freedom)
+           (assert (typep freedom 'fixnum))
+           (case freedom
+             (1 `(cauchy-random 0d0 1d0))
+             (2 `(/ (the double-float (normal-random 0d0 1d0))
+                    (the double-float (sqrt (exp-random 1d0)))))
+             (t `(t-monty-python-bit ,freedom))))
+          (t form)))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                       ;;
@@ -1898,8 +1934,8 @@
   (let ((u (unit-random)))
     (declare (type double-float u))
     (log (/ u (- 1d0 u)))))
-
-(let* ((k +zuggurat-k+)
+(eval-when (:execute)
+  (let* ((k +zuggurat-k+)
        (n (expt 2 k))
        (n-minus-1 (- n 1))
        (r (ecase k
@@ -1973,6 +2009,9 @@
 			    (- f fi1))
 		    (return-from logistic (* sign ux))))))))))
 
+  )
+
+
 (defun standard-logistic-random ()
   (logistic-ziggurat-bit))
 
@@ -2012,97 +2051,100 @@
 ;; Binomial distribution ;;
 ;;                       ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(eval-when (:execute)
+  
 
-(defun-with-cached-values binomial-inverse (size probability)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float probability)
-	   (type fixnum size))
-  ((s (if (<= probability 0.5d0)
-	  (/ probability (- 1d0 probability))
-	(/ (- 1d0 probability) probability)))
-   (a (* (+ size 1) s))
-   (d (if (<= probability 0.5d0)
-	  (int-power (- 1d0 probability) size)
-	(int-power probability size))))
-  (declare (type double-float s a d))
-  (let ((x (if (<= probability 0.5d0)
-	       0
-	     size))
-	(p d)
-	(u (unit-random :[)))
-    (declare (type fixnum x)
-	     (type double-float p u))
-    (loop
-      (let ((v (- u p)))
-	(declare (type double-float v))
-	(when (<= v 0d0)
-	  (return x))
-	(cond ((<= probability 0.5d0)
-	       (incf x)
-	       (setf p (* p (- (/ a x) s))))
-	      (t
-	       (decf x)
-	       (setf p (* p (- (/ a (- size x)) s)))))
-	(setf u v)))))
 
-(defun-with-cached-values binomial-inverse-mode (size probability)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float probability)
-	   (type fixnum size))
-  ((s (/ probability (- 1d0 probability)))
-   (a (* (+ size 1) s))
-   (tee (/ s))
-   (b (* (+ size 1) tee))
-   (m (floor (* probability (+ size 1))))
-   (d (* (the double-float (int-power (- 1d0 probability) size))
-	 (the double-float
-	   (loop with ans double-float = 1d0	     
-	       for i fixnum from 1 to m do
-		 (setf ans (* ans (dfloat (/ (+ (- size i) 1) i)) s))
-	       finally (return ans))))))
-  (declare (type double-float s a tee b d)
-	   (type fixnum m)
-	   (ignorable probability))
-  (let ((pu d)
-	(pl d)
-	(xu m)
-	(xl m)
-	(u (unit-random :[)))
-    (declare (type double-float pu pl u)
-	     (type fixnum xu xl))
-    (let ((v (- u pu)))
-      (declare (type double-float v))
-      ;; step 4
-      (if (<= v 0d0)
-	  xu
-	(progn
-	  (setf u v)
-	  (loop
-	    ;; step 5
-	    (cond ((> xl 0)
-		   (decf xl)
-		   (setf pl (* pl (- (/ b (- size xl)) tee)))
-		   ;; step 6
-		   (setf v (- u pl))
-		   ;; step 7
-		   (when (<= v 0d0)
-		     (return xl))
-		   (setf u v))
-		  ((and (= xl 0) (= xu size))
-		   (return size)))
-	    ;; step 8
-	    (cond ((< xu size)
-		   (incf xu)
-		   (setf pu (* pu (- (/ a xu) s)))
-		   ;; step 3
-		   (setf v (- u pu))
-		   ;; step 4
-		   (when (<= v 0d0)
-		     (return xu))
-		   (setf u v))
-		  ((and (= xu size) (= xl 0))
-		   (return 0)))))))))
+  (defun-with-cached-values binomial-inverse (size probability)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float probability)
+             (type fixnum size))
+    ((s (if (<= probability 0.5d0)
+            (/ probability (- 1d0 probability))
+            (/ (- 1d0 probability) probability)))
+     (a (* (+ size 1) s))
+     (d (if (<= probability 0.5d0)
+            (int-power (- 1d0 probability) size)
+            (int-power probability size))))
+    (declare (type double-float s a d))
+    (let ((x (if (<= probability 0.5d0)
+                 0
+                 size))
+          (p d)
+          (u (unit-random :[)))
+      (declare (type fixnum x)
+               (type double-float p u))
+      (loop
+         (let ((v (- u p)))
+           (declare (type double-float v))
+           (when (<= v 0d0)
+             (return x))
+           (cond ((<= probability 0.5d0)
+                  (incf x)
+                  (setf p (* p (- (/ a x) s))))
+                 (t
+                  (decf x)
+                  (setf p (* p (- (/ a (- size x)) s)))))
+           (setf u v)))))
 
+
+  (defun-with-cached-values binomial-inverse-mode (size probability)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float probability)
+             (type fixnum size))
+    ((s (/ probability (- 1d0 probability)))
+     (a (* (+ size 1) s))
+     (tee (/ s))
+     (b (* (+ size 1) tee))
+     (m (floor (* probability (+ size 1))))
+     (d (* (the double-float (int-power (- 1d0 probability) size))
+           (the double-float
+                (loop with ans double-float = 1d0	     
+                   for i fixnum from 1 to m do
+                     (setf ans (* ans (dfloat (/ (+ (- size i) 1) i)) s))
+                   finally (return ans))))))
+    (declare (type double-float s a tee b d)
+             (type fixnum m)
+             (ignorable probability))
+    (let ((pu d)
+          (pl d)
+          (xu m)
+          (xl m)
+          (u (unit-random :[)))
+      (declare (type double-float pu pl u)
+               (type fixnum xu xl))
+      (let ((v (- u pu)))
+        (declare (type double-float v))
+        ;; step 4
+        (if (<= v 0d0)
+            xu
+            (progn
+              (setf u v)
+              (loop
+                 ;; step 5
+                 (cond ((> xl 0)
+                        (decf xl)
+                        (setf pl (* pl (- (/ b (- size xl)) tee)))
+                        ;; step 6
+                        (setf v (- u pl))
+                        ;; step 7
+                        (when (<= v 0d0)
+                          (return xl))
+                        (setf u v))
+                       ((and (= xl 0) (= xu size))
+                        (return size)))
+                 ;; step 8
+                 (cond ((< xu size)
+                        (incf xu)
+                        (setf pu (* pu (- (/ a xu) s)))
+                        ;; step 3
+                        (setf v (- u pu))
+                        ;; step 4
+                        (when (<= v 0d0)
+                          (return xu))
+                        (setf u v))
+                       ((and (= xu size) (= xl 0))
+                        (return 0)))))))))
 (defun binomial-convolution (size probability)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float probability)
@@ -2132,7 +2174,7 @@
 	    (t
 	     (setf u (* q (- u probability))))))
     x))
-
+)
 (defun binomial-convolution-coinflip (size)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type fixnum size))
@@ -2149,7 +2191,7 @@
       (incf j)
       (if (= j +bit-operation-m+)
 	  (setf u-mbit (random most-positive-fixnum))
-	(setf u-mbit (ash u-mbit -1))))))
+      (setf u-mbit (ash u-mbit -1))))))
 
 ;; compression table lookup methods -- single call is *very* slow and use much memory
 ;; only use for compiler macro for efficient code
@@ -2295,7 +2337,7 @@
 	  (if (< u (aref vi j))
 	      j
             (aref ki j)))
-      tilk)))
+    tilk)))
 
 ;; you will fix this value for your implementation
 (defvar binomial-switch-size 30)
@@ -2341,36 +2383,39 @@
 	   `(binomial-convolution-recycle ,size ,probability)))
 	(t form)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                        ;;
 ;; Geometric distribution ;;
 ;;                        ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun geometric-bernoulli (probability)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float probability))
-  (let ((x 1))
-    (declare (type fixnum x))
-    (loop
-      (if (<= (unit-random :[) probability)
-	  (return x)
-	(incf x)))))
+(eval-when (:execute)
+  (defun geometric-bernoulli (probability)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float probability))
+    (let ((x 1))
+      (declare (type fixnum x))
+      (loop
+         (if (<= (unit-random :[) probability)
+             (return x)
+             (incf x)))))
 
-(defun-with-cached-values geometric-bernoulli-recycle (probability)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float probability))
-  ((q (/ (- 1d0 probability))))
-  (declare (type double-float q))
-  (let ((x 1)
-	(u (unit-random :[)))
-    (declare (type fixnum x)
-	     (type double-float u))
-    (loop
-      (if (<= u probability)
-	  (return x)
-	(progn (incf x)
-	       (setf u (* q (- u probability))))))))
+  (defun-with-cached-values geometric-bernoulli-recycle (probability)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float probability))
+    ((q (/ (- 1d0 probability))))
+    (declare (type double-float q))
+    (let ((x 1)
+          (u (unit-random :[)))
+      (declare (type fixnum x)
+               (type double-float u))
+      (loop
+         (if (<= u probability)
+             (return x)
+             (progn (incf x)
+                    (setf u (* q (- u probability)))))))))
+
 
 (defun geometric-bernoulli-coinflip ()
   (declare (optimize (speed 3) (safety 0) (debug 0)))
@@ -2387,23 +2432,24 @@
 		   (setf u-mbit (random most-positive-fixnum) j 0)
 		 (setf u-mbit (ash u-mbit -1))))))))
 
-(defun-with-cached-values geometric-inverse (probability)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float probability))
-  ((q (- 1d0 probability)))
-  (declare (type double-float q))
-  (let ((x 1)
-	(p probability)
-	(u (unit-random :[)))
-    (declare (type fixnum x)
-	     (type double-float p u))
-    (loop
-      (let ((v (- u p)))
-	(declare (type double-float v))
-	(if (<= v 0d0)
-	    (return x)
-	  (progn (incf x)
-		 (setf p (* p q) u v)))))))
+(eval-when (:execute)
+  (defun-with-cached-values geometric-inverse (probability)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float probability))
+    ((q (- 1d0 probability)))
+    (declare (type double-float q))
+    (let ((x 1)
+          (p probability)
+          (u (unit-random :[)))
+      (declare (type fixnum x)
+               (type double-float p u))
+      (loop
+         (let ((v (- u p)))
+           (declare (type double-float v))
+           (if (<= v 0d0)
+               (return x)
+               (progn (incf x)
+                      (setf p (* p q) u v)))))))
 
 (defun-with-cached-values geometric-inverse-exp (probability)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -2414,6 +2460,8 @@
   ;;; floor is faster than ceiling
   (+ (the fixnum (floor (* d (exp-random 1d0))))
      1))
+
+  )
 
 (defun geometric-table-histogram (probability)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -2492,6 +2540,7 @@
 	  (declare (type double-float ptx0 psq q r))
 	  (values table ki vi (- b 1) (- k) w nsq psq q r c1))))))
 
+
 (defun geometric-table-histogram-lookup (table ki vi b k w nsq psq q r c)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float w psq q r c)
@@ -2526,6 +2575,7 @@
       (geometric-bernoulli-coinflip)
     (geometric-inverse probability)))
 
+
 (define-compiler-macro geometric-random (&whole form probability)
   (cond ((numberp probability)
 	 (assert (typep probability 'double-float))
@@ -2535,29 +2585,33 @@
 	     `(geometric-table-histogram-lookup ,table ,ki ,vi ,b ,k ,w ,nsq ,psq ,q ,r ,c))))
 	(t form)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                      ;;
 ;; Poisson distribution ;;
 ;;                      ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;
 
-(defun-with-cached-values poisson-simulate (rate)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float rate))
-  ((d (exp rate)))
-  (declare (type double-float d)
-	   (ignorable rate))
-  (let ((x 0)
-	(v d))
-    (declare (type fixnum x)
-	     (type double-float v))
-    (loop
-      (let* ((u (unit-random))
-	     (w (* u v)))
-	(declare (type double-float u w))
-	(if (< w 1d0)
-	    (return x)
-	  (progn (incf x) (setf v w)))))))
+(eval-when (:execute)
+  (defun-with-cached-values poisson-simulate (rate)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float rate))
+    ((d (exp rate)))
+    (declare (type double-float d)
+             (ignorable rate))
+    (let ((x 0)
+          (v d))
+      (declare (type fixnum x)
+               (type double-float v))
+      (loop
+         (let* ((u (unit-random))
+                (w (* u v)))
+           (declare (type double-float u w))
+           (if (< w 1d0)
+               (return x)
+               (progn (incf x) (setf v w))))))))
+
+
 
 (defun poisson-simulate-exp (rate)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -2574,6 +2628,8 @@
 	    (return x)
 	  (progn (incf x) (setf v w)))))))
 
+(eval-when (:execute)
+  
 (defun-with-cached-values poisson-inverse (rate)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float rate))
@@ -2632,6 +2688,7 @@
 	    (when (zerop pu)
 	      ;; cut off underflow
 	      (return xu))))))))
+)
 
 (defun poisson-table-histogram (rate)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -2780,7 +2837,7 @@
 		      (setf pu (* pu (/ rate xu)))
 		      (when (zerop pu)
 			(return xu)))))))))
-      tilk)))
+    tilk)))
 
 (declaim (type double-float poisson-switch-rate1))
 (defvar poisson-switch-rate1 1d0)
@@ -2800,12 +2857,16 @@
 	 `(poisson-table-histogram-lookup ,@(multiple-value-list (poisson-table-histogram rate))))
 	(t form)))
 
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                             ;;
 ;; Hypergeometric distribution ;;
 ;;                             ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
+
+
+(eval-when (:execute)
 (defun hypergeometric-simulate (elements successes samples)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type fixnum elements successes samples))
@@ -2828,7 +2889,7 @@
 	(decf m)
 	(when (zerop m)
 	  (return x))))))
-
+  
 (defun-with-cached-values hypergeometric-inverse (elements successes samples)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type fixnum elements successes samples))
@@ -2859,6 +2920,7 @@
 	      u v)
 	(when (zerop p)
 	  (return x))))))
+
 
 (defun-with-cached-values hypergeometric-inverse-mode (elements successes samples)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -2923,6 +2985,10 @@
 		   (when (<= v 0d0)
 		     (return xu))
 		   (setf u v)))))))))
+
+
+  )
+
 
 (defun hypergeometric-table-histogram (elements successes samples)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -3002,6 +3068,7 @@
 	(map-into ki #'(lambda (x) (+ x a1)) ki)
 	(values table ki vi (- b 1) (- k) w nsq a1)))))
 
+
 (defun hypergeometric-table-histogram-lookup (table ki vi b k w nsq a1)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float w)
@@ -3035,19 +3102,22 @@
 						      (hypergeometric-table-histogram elements successes samples))))
 	(t form)))
 
+
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                                ;;
 ;; Negative Binomial distribution ;;
 ;;                                ;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+(eval-when (:execute)
+  (defun-with-cached-values negative-binomial-compose (successes probability)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float successes probability))
+    ((beta (- (/ probability) 1d0)))
+    (declare (type double-float beta)
+             (ignorable probability))
+    (poisson-random (gamma-random successes beta))))
 
-(defun-with-cached-values negative-binomial-compose (successes probability)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float successes probability))
-  ((beta (- (/ probability) 1d0)))
-  (declare (type double-float beta)
-	   (ignorable probability))
-  (poisson-random (gamma-random successes beta)))
 
 (defun negative-binomial-convolution-integer (successes probability)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -3056,28 +3126,31 @@
       summing (- (the fixnum (geometric-random probability)) 1) of-type fixnum
       do (decf successes)))
 
-(defun-with-cached-values negative-binomial-inverse (successes probability)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float successes probability))
-  ((d (expt probability successes))
-   (q (- 1d0 probability))
-   (s (- successes 1d0)))
-  (declare (type double-float d q s)
-	   (ignorable successes probability))
-  (let ((x 0)
-	(p d)
-	(u (unit-random :[)))
-    (declare (type fixnum x)
-	     (type double-float p u))
-    (loop
-      (let ((v (- u p)))
-	(declare (type double-float v))
-	(when (<= v 0d0)
-	  (return x))
-	(incf x)
-	(setf p (/ (* p q (+ s x)) x))
-	(setf u v)))))
+(eval-when (:execute)
+  (defun-with-cached-values negative-binomial-inverse (successes probability)
+    (declare (optimize (speed 3) (safety 0) (debug 0))
+             (type double-float successes probability))
+    ((d (expt probability successes))
+     (q (- 1d0 probability))
+     (s (- successes 1d0)))
+    (declare (type double-float d q s)
+             (ignorable successes probability))
+    (let ((x 0)
+          (p d)
+          (u (unit-random :[)))
+      (declare (type fixnum x)
+               (type double-float p u))
+      (loop
+         (let ((v (- u p)))
+           (declare (type double-float v))
+           (when (<= v 0d0)
+             (return x))
+           (incf x)
+           (setf p (/ (* p q (+ s x)) x))
+           (setf u v))))))
 
+(eval-when (:execute)
+  
 (defun-with-cached-values negative-binomial-inverse-mode (successes probability)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float successes probability))
@@ -3123,6 +3196,8 @@
 	;; step8
 	(incf xu)
 	(setf pu (/ (* pu q (+ tee xu)) xu))))))
+)
+
 
 (defun negative-binomial-table-histogram (successes probability)
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -3234,6 +3309,7 @@
 	  (declare (type double-float ptx0 psq q r))
 	  (values table ki vi (- b 1) (- k) w nsq psq q r xl d pl pu s u v))))))
 
+
 (defun negative-binomial-table-histogram-lookup (table ki vi b k w nsq psq q r xl xu pl pu que s tee)
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float w psq q r pl pu que s tee)
@@ -3291,4 +3367,4 @@
 	 (assert (and (typep successes 'double-float) (typep probability 'double-float)))
 	 `(negative-binomial-table-histogram-lookup ,@(multiple-value-list
 						       (negative-binomial-table-histogram successes probability))))
-	(t form)))
+        (t form)))

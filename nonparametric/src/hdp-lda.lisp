@@ -64,9 +64,12 @@
       (make-word :id oldid))))
 
 (defmethod add-customer ((hdp-lda hdp-lda) word doc &optional (old 1))
+  #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type fixnum old))
-  "add new customer word belong to doc randomly"
+  "add new customer word belong to doc randomly
+
+TODO: Optimize in SBCL"
   (let ((tables (document-restaurant doc))
 	(p      (document-p doc))
 	(topic-p (hdp-lda-p hdp-lda))
@@ -163,9 +166,11 @@
 	ref))))
 
 (defmethod sample-new-topic ((hdp-lda hdp-lda) topic-p k-new)
+  #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type (array double-float (*)) topic-p)
 	   (type double-float k-new))
+  "TODO: Optimize in SBCL"
   ;; trick! topic-p must calculated at above and never used again -- so we can use side effect
   (let* ((ttables (hdp-lda-topic-tables hdp-lda))
 	 (gamma  (hdp-lda-gamma hdp-lda))
@@ -198,9 +203,12 @@
 	  (vector-push-extend 0 ttables)))
       ref)))
 
+#-sbcl
 (defmethod remove-customer ((hdp-lda hdp-lda) word doc)
+  #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0)))
-  "remove customer"
+  "remove customer
+TODO: Fix in SBCL"
   (let* ((tables (document-restaurant doc))
 	 (table (word-assign word))
 	 (topic (table-dish table))
@@ -220,7 +228,7 @@
       (when (zerop (decf (the fixnum (aref (the (array fixnum (*)) (hdp-lda-topic-tables hdp-lda)) topic))))
 	;; delete topic
 	(decf (the fixnum (topic-count hdp-lda)))))
-    (decf (the fixnum (aref
+    (decf (the (values fixnum &optional) (aref
 		       (the (array fixnum (*))(aref
 					       (the (array fixnum (*)) (hdp-lda-topics hdp-lda))
 					       (the fixnum (word-id word))))
@@ -229,8 +237,11 @@
     old))
 
 (defmethod add-table ((hdp-lda hdp-lda) table &optional (old 1))
+  #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum old))
+           (type fixnum old))
+  "
+TODO:Optimize in SBCL"
   (let ((customers (table-customers table))
 	(topic-p (hdp-lda-p hdp-lda))
 	(beta (hdp-lda-beta hdp-lda))
@@ -363,8 +374,10 @@
     old))
 
 (defmethod hypers-sampling ((hdp-lda hdp-lda))
+  #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0)))
-  "hyperparameter sampling"
+  "hyperparameter sampling
+TODO: Optimize in SBCL"
   (let ((ntables (dfloat (hdp-lda-ntables hdp-lda)))
 	(old-alpha (hdp-lda-alpha hdp-lda))
 	(old-gamma (hdp-lda-gamma hdp-lda)))

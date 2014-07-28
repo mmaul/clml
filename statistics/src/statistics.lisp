@@ -18,7 +18,7 @@
 
 (in-package :clml.statistics)
 
-
+
 ;;;;;;;;;;;;;;;;;;;;;
 ;;; Data analysis ;;;
 ;;;;;;;;;;;;;;;;;;;;;
@@ -63,7 +63,7 @@ CUTS is a single number or a list of numbers, each in the interval [0,1]."
 	  (section cuts)))))
 
 (def-on-sorted five-number-summary (sequence)
-  "Returns the "five number summary" of SEQ, ie. the discrete quantiles at the
+  "Returns the \"five number summary\" of SEQ, ie. the discrete quantiles at the
 cut points 0, 1/4, 1/2, 3/4 and 1.
 (Variant: five-number-summary-on-sorted (sorted-seq))"
   (discrete-quantile-on-sorted sequence '(0 1/4 1/2 3/4 1)))
@@ -97,7 +97,7 @@ quantiles at 3/4 and 1/4.
 		   (if populationp (length sequence) (1- (length sequence))))
 		'double-float)))
 |#
-
+
 ;;; Functions on two-valued data
 
 (defun covariance (seq1 seq2)
@@ -174,7 +174,7 @@ given values."
         (/ (- (+ t1 t2) sum-d) (* 2 (sqrt (* t1 t2))))))))
 
 (defun kendall-rank-correlation (seq1 seq2)
-  "Returns the Kendall "tau" rank correlation coefficient."
+  "Returns the Kendall \"tau\" rank correlation coefficient."
   (let ((n1 (length seq1))
         (n2 (length seq1)))
     (assert (= n1 n2) (seq1 seq2)
@@ -221,7 +221,7 @@ given values."
            (* (sqrt (- (/ denom 2) t1))
               (sqrt (- (/ denom 2) t2))))))))
 
-
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; Probability distribution ;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -255,7 +255,7 @@ given values."
   "N random numbers according to DISTRIBUTION."
   (loop repeat n collect (rand distribution)))
 
-
+
 ;;; Quantile guess/search functions (using moments)
 
 (defun cornish-fisher-guess-with-central-moments (mean moment-fn p)
@@ -314,7 +314,7 @@ given values."
 	      (search-around #'1+ max #'<)
 	      (search-around #'1- min #'>))))))
 
-
+
 ;;; 1. Normal Distribution
 
 (defclass normal-distribution (continuous-distribution)
@@ -376,7 +376,7 @@ given values."
   (normal-distribution (mean sequence)
 		       (standard-deviation sequence :populationp t)))
 
-
+
 ;;; 2. Lognormal Distribution
 
 (defclass log-normal-distribution (continuous-distribution)
@@ -442,7 +442,7 @@ given values."
 	 (sigma2 (/ (loop for x in lst sum (sqr (- (log x) mu))) n)))
     (log-normal-distribution (exp mu) (sqrt sigma2))))
 
-
+
 ;;; 3. Uniform Distribution
 
 (defclass uniform-distribution (continuous-distribution)
@@ -502,7 +502,7 @@ given values."
 (defun uniform-distribution-estimate-maximum-likelihood (sequence)
   (uniform-distribution (reduce #'min sequence) (reduce #'max sequence)))
 
-
+
 ;;; 4. Erlang Distribution
 
 (defclass erlang-distribution (gamma-like-distribution)
@@ -546,7 +546,7 @@ given values."
   (destructuring-bind (scale shape) (gamma-like-distribution-estimate sequence)
     (erlang-distribution scale (round shape))))
 
-
+
 ;;; 5. Exponential Distribution
 
 (defclass exponential-distribution (continuous-distribution)
@@ -588,7 +588,7 @@ given values."
   "Unbiased maximum likelihood estimate."
   (exponential-distribution (mean sequence) nil))
 
-
+
 ;;; 6. Gamma Distribution
 
 (defclass gamma-distribution (gamma-like-distribution)
@@ -703,7 +703,7 @@ for sampling from gamma, beta, poisson and binomial distributions.'"
   "Estimates by matching moments."
   (apply #'gamma-distribution (gamma-like-distribution-estimate sequence)))
 
-
+
 ;;; 7. Chi-squared Distribution
 
 (defclass chi-square-distribution (continuous-distribution)
@@ -830,7 +830,7 @@ uses it."
 	    "VARIANCE is undefined when DEGREE is less than 3.")
     (/ degree (- degree 2))))
 
-
+
 ;;; 9. Beta Distribution
 
 (defclass beta-distribution (continuous-distribution)
@@ -939,7 +939,7 @@ uses it."
     (beta-distribution (* mu (- (/ (* mu (- 1.0d0 mu)) s2) 1.0d0))
 		       (* (- 1.0d0 mu) (- (/ (* mu (- 1.0d0 mu)) s2) 1.0d0)))))
 
-
+
 ;;; 10. F Distribution
 
 (defclass f-distribution (continuous-distribution)
@@ -1082,7 +1082,7 @@ otherwise it uses the beta distribution quantile."
   "Maximum likelihood estimate."
   (binomial-distribution size (/ successes size)))
 
-
+
 ;;; 12. Geometric Distribution
 
 ;;; This is a Pascal distribution with SUCCESSES = 1.
@@ -1126,7 +1126,7 @@ otherwise it uses the beta distribution quantile."
   "Maximum likelihood estimate."
   (geometric-distribution (/ trials)))
 
-
+
 ;;; 13. Hypergeometric Distribution
 
 (defclass hypergeometric-distribution (discrete-distribution)
@@ -1211,7 +1211,7 @@ otherwise it uses the beta distribution quantile."
 					 sample-successes))
 			       successes samples))
 
-
+
 ;;; 14. Cauchy Distribution
 
 (defclass cauchy-distribution (continuous-distribution)
@@ -1268,7 +1268,7 @@ otherwise it uses the beta distribution quantile."
      for e1 = (/ (loop for ui in u sum (/ ui (+ (sqr ui) 1.0d0))) n)
      finally (return (cauchy-distribution c s))))
 
-
+
 ;;; 15. Logistic Distribution
 
 (defclass logistic-distribution (continuous-distribution)
@@ -1326,7 +1326,7 @@ otherwise it uses the beta distribution quantile."
        while (> (abs (- last s)) tolerance)
        finally (return (logistic-distribution mu s)))))
 
-
+
 ;;; 17. Negative Binomial Distribution
 
 (defclass negative-binomial-distribution (discrete-distribution)
@@ -1466,7 +1466,7 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   (negative-binomial-distribution
    successes (/ (1- successes) (1- trials)) failuresp))
 
-
+
 ;;; 18. Poisson Distribution
 
 (defclass poisson-distribution (discrete-distribution)
@@ -1518,7 +1518,7 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   "Maximum likelihood estimate, also unbiased and minimum variance."
   (poisson-distribution (mean sequence)))
 
-
+
 ;;; 19. Weibull Distribution
 
 (defclass weibull-distribution (continuous-distribution)

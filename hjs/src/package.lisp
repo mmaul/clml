@@ -206,4 +206,8 @@
    #:tqli
    #:balanc
    #:elmhes
-	   ))
+   #:eigen-by-jacobi
+   #:eigen-by-householder-ql
+   #:eigen-by-power
+
+   ))

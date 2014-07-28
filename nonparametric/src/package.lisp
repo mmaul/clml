@@ -184,6 +184,33 @@
 
 (defpackage :clml.nonparametric.hdp-hmm
   (:nicknames :nonparametric.hdp-hmm)
+  (:use :cl
+        :hjs.util.meta
+        :clml.nonparameteric.statistics
+        :clml.nonparametric.dpm
+        :clml.nonparametric.hdp)
+  (:export :hidden-state
+           :emission
+
+           :hdp-hmm
+           :vocabulary
+           :hdp-hmm-eos
+
+           :cluster-dist-table
+           :trans-prob
+           :emission-prob
+
+           :state-uniform
+
+           :make-pattern-data
+           :make-repeat-pattern
+           :show-hidden-states
+
+           :*smooth-beta*
+           ))
+
+(defpackage :clml.nonparametric.gauss-hdp-hmm
+  (:nicknames :nonparametric.gauss-hdp-hmm)
   (:use :cl)
   (:import-from :clml.nonparametric.dpm
                 :gaussian-cluster
@@ -243,32 +270,7 @@
 	   :ihmm-state-uniform))
 
 
-(defpackage :clml.nonparametric.hdp-hmm
-  (:nicknames :nonparametric.hdp-hmm)
-  (:use :cl
-        :hjs.util.meta
-        :clml.nonparameteric.statistics
-        :clml.nonparametric.dpm
-        :clml.nonparametric.hdp)
-  (:export :hidden-state
-           :emission
 
-           :hdp-hmm
-           :vocabulary
-           :hdp-hmm-eos
-
-           :cluster-dist-table
-           :trans-prob
-           :emission-prob
-
-           :state-uniform
-
-           :make-pattern-data
-           :make-repeat-pattern
-           :show-hidden-states
-
-           :*smooth-beta*
-           ))
 
 (defpackage :clml.nonparametric.ftm
   (:nicknames :nonparametric.ftm)

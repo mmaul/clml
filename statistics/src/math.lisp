@@ -4,7 +4,7 @@
 
 ;;; (mainly translated from various sources)
 
-(in-package :clml.statistics)
+(in-package :clml.statistics.math)
 
 ;;; Contents:
 ;;; ---------
@@ -723,73 +723,78 @@ TODO: This should be implemented in a more stable way, see ACM TOMS 708."
 	      (* -0.5d0 (log (* 2.0d0 pi))))))
     (- (+ (del a0) (del b0)) (del (+ a0 b0)))))
 
+;; TODO: (* CLML.STATISTICS.MATH::HN CLML.STATISTICS.MATH::H2) illegal
+;; function call WTf
+
+#+ignore
 (let* ((e0 (/ 2 (sqrt pi)))
-       (e1 (expt 2.0d0 -3/2)))
-  (defun %reg-inc-beta-basym (a b l &optional (iterations 20))
-    "Asymptotic expansion for large A and B, L = \(A + B) * Y - B.
+         (e1 (expt 2.0d0 -3/2)))
+    (defun %reg-inc-beta-basym (a b l &optional (iterations 20))
+      "Asymptotic expansion for large A and B, L = \(A + B) * Y - B.
 ITERATIONS should be even.
 TODO: Spaghetti code."
-    (flet ((rlog1 (x) (- x (log (1+ x)))))
-      (let* ((f (+ (* a (rlog1 (/ (- l) a))) (* b (rlog1 (/ (- l) b)))))
-	     (e-f (exp (- f))))
-	(if (= e-f 0.0d0)
-	    0.0d0
-	    (let* ((z0 (sqrt f))
-		   (z (* (sqrt 2.0d0) z0))
-		   (z2 (+ f f))
-		   (size (+ iterations 2))
-		   (a0 (make-array size :element-type 'double-float))
-		   (b0 (make-array size :element-type 'double-float))
-		   (c (make-array size :element-type 'double-float))
-		   (d (make-array size :element-type 'double-float)))
-	      (setf (elt b0 0) -1.0d0)
-	      (conditional-let* (< a b) #'identity
-		  ((h (/ a b) (/ b a))
-		   (r0 (/ (1+ h)) (/ (1+ h)))
-		   (r1 (/ (- b a) b) (/ (- b a) a))
-		   (w0sq (/ (* a (1+ h))) (/ (* b (1+ h))))
-		   (w0 (sqrt w0sq)))
-		(loop with h2 = (* h h)
-		   for n from 0 to iterations by 2
-		   for hn = 1 then (* hn h2)
-		   for zn-1 = (/ z) then (* zn-1 z2)
-		   for zn = 1 then (* zn z2)
-		   for w = 1 then (* w w0sq)
-		   for s = 1 then (+ s hn)
-		   for j0 = (/ (* 2.0d0 e0 (exp (* z0 z0)) (- 1.0d0 (erf z0))))
-		   then (+ (* e1 zn-1) (* (1- n) j0))
-		   for j1 = e1 then (+ (* e1 zn) (* n j1))
-		   for (d1 d2) =
-		     (progn
-		       (setf (elt a0 n) (/ (* r0 2 (1+ (* h hn))) (+ n 2)))
-		       (setf (elt a0 (1+ n)) (/ (* r1 2 s) (+ n 3)))
-		       (loop for i from n to (1+ n)
-			  for r = (* (1+ i) -1/2)
-			  do
-			    (setf (elt b0 1) (* r (elt a0 1)))
-			    (loop for m from 2 to i
-			       do (setf (elt b0 m)
-					(+ (* r (elt a0 m))
-					   (/ (loop for j from 1 below m
-						 sum (* (- (* j (1+ r)) m)
-							(elt a0 j)
-							(elt b0 (- m j))))
-					      m))))
-			    (setf (elt c i) (/ (elt b0 i) (1+ i)))
-			    (setf (elt d i)
-				  (- (+ (elt c i)
-					(loop for j from 1 below i
-					   sum (* (elt d (- i j)) (elt c j))))))
-			  finally (return (list (elt d n) (elt d (1+ n))))))
-		   for t0 = (* d1 w j0)
-		   for t1 = (* d2 (* w w0) j1)
-		   for change = (+ t0 t1)
-		   while (> (abs change) (* 100.0d0 double-float-epsilon sum))
-		   sum change into sum
-		   finally
-		   (return (* e0 e-f sum
-			      (exp (- (%reg-inc-beta-bcorr a b)))))))))))))
-
+      (flet ((rlog1 (x) (- x (log (1+ x)))))
+        (let* ((f (+ (* a (rlog1 (/ (- l) a))) (* b (rlog1 (/ (- l) b)))))
+               (e-f (exp (- f))))
+          (if (= e-f 0.0d0)
+              0.0d0
+              (let* ((z0 (sqrt f))
+                     (z (* (sqrt 2.0d0) z0))
+                     (z2 (+ f f))
+                     (size (+ iterations 2))
+                     (a0 (make-array size :element-type 'double-float))
+                     (b0 (make-array size :element-type 'double-float))
+                     (c (make-array size :element-type 'double-float))
+                     (d (make-array size :element-type 'double-float)))
+                (setf (elt b0 0) -1.0d0)
+                (conditional-let* (< a b) #'identity
+                    ((h (/ a b) (/ b a))
+                     (r0 (/ (1+ h)) (/ (1+ h)))
+                     (r1 (/ (- b a) b) (/ (- b a) a))
+                     (w0sq (/ (* a (1+ h))) (/ (* b (1+ h))))
+                     (w0 (sqrt w0sq)))
+                  (loop with h2 = (* h h)
+                     for n from 0 to iterations by 2
+                     for hn = 1 then (* hn h2)
+                     for zn-1 = (/ z) then (* zn-1 z2)
+                     for zn = 1 then (* zn z2)
+                     for w = 1 then (* w w0sq)
+                     for s = 1 then (+ s hn)
+                     for j0 = (/ (* 2.0d0 e0 (exp (* z0 z0)) (- 1.0d0 (erf z0))))
+                     then (+ (* e1 zn-1) (* (1- n) j0))
+                     for j1 = e1 then (+ (* e1 zn) (* n j1))
+                     for (d1 d2) =
+                       (progn
+                         (setf (elt a0 n) (/ (* r0 2 (1+ (* h hn))) (+ n 2)))
+                         (setf (elt a0 (1+ n)) (/ (* r1 2 s) (+ n 3)))
+                         (loop for i from n to (1+ n)
+                            for r = (* (1+ i) -1/2)
+                            do
+                              (setf (elt b0 1) (* r (elt a0 1)))
+                              (loop for m from 2 to i
+                                 do (setf (elt b0 m)
+                                          (+ (* r (elt a0 m))
+                                             (/ (loop for j from 1 below m
+                                                   sum (* (- (* j (1+ r)) m)
+                                                          (elt a0 j)
+                                                          (elt b0 (- m j))))
+                                                m))))
+                              (setf (elt c i) (/ (elt b0 i) (1+ i)))
+                              (setf (elt d i)
+                                    (- (+ (elt c i)
+                                          (loop for j from 1 below i
+                                             sum (* (elt d (- i j)) (elt c j))))))
+                            finally (return (list (elt d n) (elt d (1+ n))))))
+                     for t0 = (* d1 w j0)
+                     for t1 = (* d2 (* w w0) j1)
+                     for change = (+ t0 t1)
+                     while (> (abs change) (* 100.0d0 double-float-epsilon sum))
+                     sum change into sum
+                     finally
+                       (return (* e0 e-f sum
+                                  (exp (- (%reg-inc-beta-bcorr a b)))))))))))))
+;; TODO: lneg missing what is it, whare is it
+#+ignore
 (defun regularized-incomplete-beta (a b x)
   (assert (and (>= a 0) (>= b 0) (<= 0 x 1)) (a b x)
 	  "A and B should be nonnegative and X should be less than 1.")
