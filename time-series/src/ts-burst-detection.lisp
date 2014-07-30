@@ -229,18 +229,7 @@
         (r-list (mapcar #'second batches)))
     (/ (apply #'+ r-list) (apply #'+ d-list))))
 
-(defun index-of-minimum-value (value-vector &key key)
-  (declare (optimize (speed 3) (debug 0) (safety 0)))
-  (loop for val across value-vector
-      for i fixnum from 0
-      with min-val = *+inf*
-      with index = 0
-      when key
-      do (setq val (funcall key val i))
-      when (< val min-val)
-      do (setq index i)
-         (setq min-val val)
-      finally (return (values index min-val))))
+
 
 (defun compute-enumerate-burst-index (batches
                                       &key (scaling-param 2) 

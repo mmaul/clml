@@ -1203,9 +1203,9 @@
         unless (member new-param target-params :test #'equal)
         collect (let ((new-pos pos))
                   (setf new-pos (- new-pos (count-if (lambda (rpos) (< rpos new-pos)) 
-                                                     removed-poss :test #'eql))
+                                                     removed-poss ))
                         new-pos (- new-pos (count-if (lambda (npos) (<= npos new-pos))
-                                                     new-poss :test #'eql)))
+                                                     new-poss )))
                   `(:name ,new-param :pos ,new-pos :vals ,(getf plis :vals)))))
   (loop for i from 0
       for param in (params detector)

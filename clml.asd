@@ -88,6 +88,7 @@
                :clml.nonparametric
                :clml.numeric
                :clml.som
+               :clml.text
                :clml.time-series
                :clml.utility
                

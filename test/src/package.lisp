@@ -5,7 +5,8 @@
    :cl
    :vars
    :read-data
-   :clml.statistics
+   ;:clml.statistics
+   :clml.statistics.distribution
    :clml.clustering.CLUSTER-VALIDATION
    :clml.clustering.optics
    :clml.clustering.nmf
@@ -46,6 +47,8 @@
   (:shadow :make-polynomial-kernel :make-svm-learner :make-rbf-kernel :make-svm-validation
            :svm-validation :load-svm-learner :make-svm-kernel :make-linear-kernel
            :make-one-class-svm-kernel)
+  
+  
   (:import-from :LISP-UNIT
                :define-test
                :run-tests

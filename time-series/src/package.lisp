@@ -170,7 +170,7 @@ Package for "ChangeFinder"
         :hjs.util.matrix
         :hjs.learn.vars
         :hjs.util.missing-value
-        :clml.statistics
+        :clml.statistics.distribution
         :clml.utility.csv
         :clml.time-series.util
         :clml.time-series.statistics

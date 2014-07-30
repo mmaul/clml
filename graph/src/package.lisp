@@ -96,7 +96,7 @@
         :hjs.util.vector
         :hjs.util.meta
         
-        :clml.statistics
+        :clml.statistics.distribution
         :read-data
         :missing-val
         :clml.utility.csv

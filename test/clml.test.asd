@@ -10,7 +10,9 @@
                 :pathname "src/"
                 :serial t
                 :depends-on (:lisp-unit
-                             :clml.statistics
+                             :clml
+                             :clml.test-package
+                             #|:clml.statistics
                              :hjs
                              :blas
                              :clml.decision-tree
@@ -24,7 +26,7 @@
                              :clml.text
                              :clml.pca
                              :clml.nearest-search
-                             :clml.test-package
+                              |#
                              )
                 :components (
                              (:file "test-utils")

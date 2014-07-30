@@ -757,12 +757,12 @@
       sum (* (+phi matrix i j)
 	     (-phi matrix h j))))
 
-
+(declaim (ftype (function ((simple-array double-float)) (simple-array double-float))column-power-vector) )
 (defun column-power-vector (matrix)
   (let* ((n (array-dimension matrix 1))
-  	 (column-power-vector (make-array n :element-type 'double-float)))
-    (dotimes (j n column-power-vector)
-      (setf (aref column-power-vector j)
+  	 (column-power-vector-v (make-array n :element-type 'double-float)))
+    (dotimes (j n column-power-vector-v)
+      (setf (aref column-power-vector-v j)
 	(loop
 	    for i below (array-dimension matrix 0)
 	    sum (aref matrix i j))))))
@@ -777,16 +777,18 @@
 	    for j below (array-dimension matrix 1)
 	    sum (aref matrix i j))))))
 
-
+#-sbcl
 (defun column-adjusting-factor (matrix column-number)
-  (let* ((column-power-vector (column-power-vector matrix))
-	 (max-column-power (max-vector column-power-vector))
-	 (semantic-weight 1.7))
+  "TODO: enable in SBCL"
+  (let* ((column-power-vector-v (column-power-vector matrix))
+	 (max-column-power (max-vector column-power-vector-v))
+         (semantic-weight 1.7))
     (/ (* semantic-weight max-column-power)
-       (aref column-power-vector column-number))))
+       (aref column-power-vector-v column-number))))
 
-
+#-sbcl
 (defun row-adjusting-factor (matrix row-number)
+  "TODO: enable in SBCL"
   (let* ((row-power-vector (row-power-vector matrix))
 	 (max-row-power (max-vector row-power-vector))
 	 (semantic-weight 1.7))
@@ -1003,9 +1005,11 @@
       (setf z (remove-duplicates (append z (list i)))))))
 
 (defun set-s0 (x sparseness)
+  #-sbcl
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dvec x))
   ;; (declare (:explain :inlining))
+  "TODO: fix optimization in SBCL"
   (assert (< 0.0 sparseness 1.0))
   (let ((l1-norm (set-l1 x sparseness))
 	(sum (vector-sum x))

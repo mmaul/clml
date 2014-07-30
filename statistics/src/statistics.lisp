@@ -1892,6 +1892,7 @@ length of seq must be more than 4"
           (values t nil sig-p n)
         (let ((t_i (/ (abs (- target m)) u-dev)))
           (values (< t_i sig-p) t_i sig-p n))))))
+
 (defun get-sig-p (n alpha)
   (let* ((dist (t-distribution (- n 2)))
          (t_alpha^2 (expt 

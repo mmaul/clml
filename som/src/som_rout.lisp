@@ -129,6 +129,7 @@
   (declare (optimize (speed 3)))
   (declare (type (integer 0 #.most-positive-fixnum) bx by tx ty))
   (declare (type (simple-array double-float (1)) arr))
+  #-sbcl
   (declare (:explain :boxing))
   (let ((ret 0.0d0)
 	(diff 0.0d0)

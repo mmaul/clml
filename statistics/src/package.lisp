@@ -35,6 +35,8 @@
    :stirling-error
    :gamma
    :gamma-half
+   :gammp
+   :inverse-linear-interpolation
    :digamma
    :erf
    :erf-inverse
@@ -54,20 +56,24 @@
    :*newton-raphson-initial-divisions*
    :newton-raphson
    :numerical-derivative
-   :median :median-on-sorted))
+   
+   :*inv-lin-interp-precision*
+   :*inv-lin-interp-max-iteration*))
 
 (defpackage :clml.statistics.distribution
   (:use :cl :clml.statistics.utilities :clml.statistics.math :clml.statistics.rand)
   (:export
    ;; DATA ANALYSIS
    ;; (Functions on 1-valued data)
-   :mean :mode :count-values
+   :mean
+   :mode
+   :count-values
    
    :discrete-quantile :discrete-quantile-on-sorted
    :five-number-summary :five-number-summary-on-sorted
    :range
    :interquartile-range :interquartile-range-on-sorted
-   :mean-deviation
+   
    :variance
    :standard-deviation
    ;; (Functions on 2-valued data)
@@ -116,8 +122,7 @@
    :normal-dist-test :poisson-dist-test
    :binom-dist-test 
    ;; Outlier verification
-   :smirnov-grubbs
-   :smirnov-grubbs-p
+   
    )
   (:documentation ""))
 
@@ -133,7 +138,7 @@
    :five-number-summary :five-number-summary-on-sorted
    :range
    :interquartile-range :interquartile-range-on-sorted
-   :mean-deviation
+   
    :variance
    :standard-deviation
    ;; (Functions on 2-valued data)
@@ -182,6 +187,13 @@
    :normal-dist-test :poisson-dist-test
    :binom-dist-test 
    ;; Outlier verification
+   
+
+   ;; other
+   :get-sig-p 
+   :make-sig-p-hash
+   :mean-deviation
+   :median :median-on-sorted
    :smirnov-grubbs
    :smirnov-grubbs-p
    )

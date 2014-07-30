@@ -60,7 +60,7 @@
 (defconstant +lookup-table-k+ 6)
 (defconstant +lookup-table-l+
   (multiple-value-bind (fixnum-v remainder) (floor (/ +bit-operation-m+ +lookup-table-k+))
-    (if (zerop remainder)
+    (if (= remainder 0); (zerop remainder)
         (- fixnum-v 1)
         fixnum-v)))
 
@@ -112,20 +112,25 @@
         1d0))
 
   (declaim (ftype (function (double-float integer) double-float) int-power))
-  (defun int-power (double integer)
-    (declare (optimize (speed 3) (safety 0) (debug 0))
+  (defun int-power (double integer_a)
+    
+    (declare
+     #-sbcl (optimize (speed 3) (safety 0) (debug 0))
              (type double-float double)
-             (type fixnum integer))
-    (let ((y 1d0)
-          (w double))
-      (declare (type double-float y w))
-      (loop repeat +bit-operation-m+ do
-           (when (= (logand integer 1) 1)
-             (setf y (* y w)))
-           (setf integer (ash integer -1))
-           (when (zerop integer)
-             (return y))
-           (setf w (* w w)))))
+             (type fixnum integer_a))
+    (let ((integer integer_a))
+      (declare (type fixnum integer))
+      (let ((y 1d0)
+            (w double))
+        (declare (type double-float y w))
+        (loop repeat +bit-operation-m+ do
+             (when (= (logand integer 1) 1)
+               (setf y (* y w)))
+             (setf integer (ash integer -1))
+             (when (zerop integer))
+             (return y)
+             (setf w (* w w)))
+        )))
 
   (declaim (ftype (function (double-float rational) double-float) half-integer-power))
   (defun half-integer-power (double half-integer)

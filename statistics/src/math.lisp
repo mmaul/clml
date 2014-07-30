@@ -726,7 +726,7 @@ TODO: This should be implemented in a more stable way, see ACM TOMS 708."
 ;; TODO: (* CLML.STATISTICS.MATH::HN CLML.STATISTICS.MATH::H2) illegal
 ;; function call WTf
 
-#+ignore
+
 (let* ((e0 (/ 2 (sqrt pi)))
          (e1 (expt 2.0d0 -3/2)))
     (defun %reg-inc-beta-basym (a b l &optional (iterations 20))
@@ -794,71 +794,71 @@ TODO: Spaghetti code."
                        (return (* e0 e-f sum
                                   (exp (- (%reg-inc-beta-bcorr a b)))))))))))))
 ;; TODO: lneg missing what is it, whare is it
-#+ignore
+
 (defun regularized-incomplete-beta (a b x)
   (assert (and (>= a 0) (>= b 0) (<= 0 x 1)) (a b x)
-	  "A and B should be nonnegative and X should be less than 1.")
+          "A and B should be nonnegative and X should be less than 1.")
   (assert (not (= a x 0)) (a x) "One of A and X should not be 0.")
   (assert (not (and (= b 0) (= x 1))) (b x) "X cannot be 1 when B is 0.")
   (let ((y (- 1.0d0 x)))
     (cond ((or (= b 0.0d0) (= x 0.0d0)) 0.0d0)
-	  ((or (= a 0.0d0) (= y 0.0d0)) 1.0d0)
-	  ((< (max a b) (* 0.001d0 #.(max double-float-epsilon 1.0d-15)))
-	   (/ b (+ a b)))
-	  ((<= (min a b) 1.0d0)
-	   (conditional-swap-let (> x 0.5d0) (lambda (x) (- 1.0d0 x))
-	       ((a b) (x y))
-	     (cond ((< b (min double-float-epsilon
-			      (* double-float-epsilon a)))
-		    (%reg-inc-beta-fpser a b x))
-		   ((and (< a (min double-float-epsilon
-				   (* double-float-epsilon b)))
-			 (<= (* b x) 1.0d0))
-		    (- 1.0d0 (%reg-inc-beta-apser a b x)))
-		   ((> (max a b) 1.0d0)
-		    (cond ((or (<= b 1.0d0)
-			       (and (< x 0.1d0)
-				    (<= (expt (* x b) a) 0.7d0)))
-			   (%reg-inc-beta-bpser a b x))
-			  ((>= x 0.3d0)
-			   (- 1.0d0 (%reg-inc-beta-bpser b a y)))
-			  ((> b 15.0d0)
-			   (- 1.0d0 (%reg-inc-beta-bgrat b a y x 0)))
-			  (t (let ((w1 (%reg-inc-beta-bup b a y x 20)))
-			       (- 1.0d0 (%reg-inc-beta-bgrat
-					 (+ b 20) a y x w1))))))
-		   (t (cond ((or (> a (min 0.2d0 b))
-				 (< (expt x a) 0.9d0))
-			     (%reg-inc-beta-bpser a b x))
-			    ((>= x 0.3d0)
-			     (- 1.0d0 (%reg-inc-beta-bpser b a y)))
-			    (t (let ((w1 (%reg-inc-beta-bup b a y x 20)))
-				 (- 1.0d0 (%reg-inc-beta-bgrat
-					   (+ b 20) a y x w1)))))))))
-	  (t (let* ((l (if (> a b) (- (* (+ a b) y) b) (- a (* (+ a b) x))))
-		    (lneg (- l)))
-	       (conditional-swap-let (< l 0.0d0) (lambda (x) (- 1.0d0 x))
-		   ((l lneg) (a b) (x y))
-		 (cond ((< b 40.0d0)
-			(if (<= (* b x) 0.7d0)
-			    (%reg-inc-beta-bpser a b x)
-			    (multiple-value-bind (n b) (floor b)
-			      (when (= b 0.0d0) (decf n) (setf b 1.0d0))
-			      (let ((w (%reg-inc-beta-bup b a y x n)))
-				(cond ((<= x 0.7d0)
-				       (+ w (%reg-inc-beta-bpser a b x)))
-				      ((<= a 15.0d0)
-				       (let ((w (+ w (%reg-inc-beta-bup
-						      a b x y 20))))
-					 (%reg-inc-beta-bgrat
-					  (+ a 20) b x y w)))
-				      (t (%reg-inc-beta-bgrat a b x y w)))))))
-		       ((or (and (> a b)
-				 (or (<= b 100.0d0) (> l (* b 0.03d0))))
-			    (<= a 100.0d0)
-			    (> l (* a 0.03d0)))
-			(%reg-inc-beta-bfrac a b x y l))
-		       (t (%reg-inc-beta-basym a b l)))))))))
+          ((or (= a 0.0d0) (= y 0.0d0)) 1.0d0)
+          ((< (max a b) (* 0.001d0 #.(max double-float-epsilon 1.0d-15)))
+           (/ b (+ a b)))
+          ((<= (min a b) 1.0d0)
+           (conditional-swap-let (> x 0.5d0) (lambda (x) (- 1.0d0 x))
+               ((a b) (x y))
+             (cond ((< b (min double-float-epsilon
+                              (* double-float-epsilon a)))
+                    (%reg-inc-beta-fpser a b x))
+                   ((and (< a (min double-float-epsilon
+                                   (* double-float-epsilon b)))
+                         (<= (* b x) 1.0d0))
+                    (- 1.0d0 (%reg-inc-beta-apser a b x)))
+                   ((> (max a b) 1.0d0)
+                    (cond ((or (<= b 1.0d0)
+                               (and (< x 0.1d0)
+                                    (<= (expt (* x b) a) 0.7d0)))
+                           (%reg-inc-beta-bpser a b x))
+                          ((>= x 0.3d0)
+                           (- 1.0d0 (%reg-inc-beta-bpser b a y)))
+                          ((> b 15.0d0)
+                           (- 1.0d0 (%reg-inc-beta-bgrat b a y x 0)))
+                          (t (let ((w1 (%reg-inc-beta-bup b a y x 20)))
+                               (- 1.0d0 (%reg-inc-beta-bgrat
+                                         (+ b 20) a y x w1))))))
+                   (t (cond ((or (> a (min 0.2d0 b))
+                                 (< (expt x a) 0.9d0))
+                             (%reg-inc-beta-bpser a b x))
+                            ((>= x 0.3d0)
+                             (- 1.0d0 (%reg-inc-beta-bpser b a y)))
+                            (t (let ((w1 (%reg-inc-beta-bup b a y x 20)))
+                                 (- 1.0d0 (%reg-inc-beta-bgrat
+                                           (+ b 20) a y x w1)))))))))
+          (t (let* ((l (if (> a b) (- (* (+ a b) y) b) (- a (* (+ a b) x))))
+                    (lneg (- l)))
+               (conditional-swap-let (< l 0.0d0) (lambda (x) (- 1.0d0 x))
+                   ((l lneg) (a b) (x y))
+                 (cond ((< b 40.0d0)
+                        (if (<= (* b x) 0.7d0)
+                            (%reg-inc-beta-bpser a b x)
+                            (multiple-value-bind (n b) (floor b)
+                              (when (= b 0.0d0) (decf n) (setf b 1.0d0))
+                              (let ((w (%reg-inc-beta-bup b a y x n)))
+                                (cond ((<= x 0.7d0)
+                                       (+ w (%reg-inc-beta-bpser a b x)))
+                                      ((<= a 15.0d0)
+                                       (let ((w (+ w (%reg-inc-beta-bup
+                                                      a b x y 20))))
+                                         (%reg-inc-beta-bgrat
+                                          (+ a 20) b x y w)))
+                                      (t (%reg-inc-beta-bgrat a b x y w)))))))
+                       ((or (and (> a b)
+                                 (or (<= b 100.0d0) (> l (* b 0.03d0))))
+                            (<= a 100.0d0)
+                            (> l (* a 0.03d0)))
+                        (%reg-inc-beta-bfrac a b x y l))
+                       (t (%reg-inc-beta-basym a b l)))))))))
 
 (defun incomplete-beta-inverse (a b x)
   "TODO: a much better guess should be computed. A very detailed treatise
@@ -930,9 +930,12 @@ of all the cases can be found in the Boost library documentation."
 
 ;; incomplete gamma function
 ;; ref: Numerical Recipes
+(declaim (ftype (function (double-float double-float) (double-float)) gammp))
 (defun gammp (a x)
-  (declare (type double-float a x))
+  (declare (type double-float a)(type double-float x))
+  #-sbcl
   (check-type a double-float)
+  #-sbcl
   (check-type x double-float)
   (let ((gamser 0d0) (gammcf 0d0) (gammp 0d0))
     (declare (type double-float gamser gammcf gammp))
@@ -947,8 +950,10 @@ of all the cases can be found in the Boost library documentation."
       (setf gammp (- 1d0 gammcf)))) 
     gammp))
 
+(declaim (ftype (function (double-float double-float) (double-float)) gammp))
 (defun gammln (xx)
   (declare (type double-float xx))
+  #-sbcl
   (check-type xx double-float)
   (let* ((cof (make-array 6 :element-type 'double-float :initial-contents
                           '(76.18009173d0 -86.50532033d0 24.01409822d0 
