@@ -9,6 +9,7 @@
                 :depends-on (:hjs
                              :split-sequence
                              :clml.som.package
+                             :clml.statistics
                              )
                 :components (
                              (:file "param")

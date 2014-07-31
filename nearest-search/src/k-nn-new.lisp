@@ -464,7 +464,7 @@
 
 (defun k-nn-estimate (estimator in-data)
   "- return: <unspecialized-dataset>, estimated result\\
-  The column named "estimated-*" (* is the name of target parameter) is appended to 1st column of /in-data/.
+  The column named 'estimated-*' (* is the name of target parameter) is appended to 1st column of /in-data/.
 - arguments:
   - estimator : <k-nn-estimator> 
   - in-data :  <unspecialized-dataset> data to be estimated."

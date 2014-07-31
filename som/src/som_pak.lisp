@@ -50,8 +50,7 @@
 	(g-data)
         (out-pathname)
         (sammon-pathname)
-	(gif-pathname)
-	(gif-label-pos-list))
+		(gif-label-pos-list))
     (format t "in-data-file [~a]~%" in-data-file)
     (format t "s-topol[~a] s-neigh[~a] xdim[~d] ydim[~d] nrand[~d]~%"
 	    s-topol s-neigh xdim ydim randomize)

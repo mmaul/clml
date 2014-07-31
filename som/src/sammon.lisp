@@ -439,7 +439,7 @@
 ;; gif-label-pos-list (("gif-left-upper-x,gif-left-upper-y,gif-right-lower-x,gif-right-lower-y" label) ...)
 ;; som-target-hash (key id, value som-target instance)
 (defun sammon (g-data length randomize directory &key (debug nil))
-  (declare (ignore directory))
+  (declare (ignore directory) (ignorable debug))
   (let ((eps)
 	(ps t)
 	(out-code-file #+allegro (sys:make-temp-file-name)
@@ -605,7 +605,11 @@
 		    :directory (pathname-directory ps-path)
 		    :name (pathname-name ps-path)
 		    :type "gif")))
-    (run-shell-command (format nil "~a -page ~dx~d ~a ~a"
+    #-allegro
+    (UIOP/RUN-PROGRAM:RUN-PROGRAM (list *convert-command* "-page"
+                                        (format nil "~dx~d" *gif-page-width* *gif-page-height*)
+                                        ps-path gif-path  ))
+    #+allegro (run-shell-command (format nil "~a -page ~dx~d ~a ~a"
 			       *convert-command*
 			       *gif-page-width*
 			       *gif-page-height*

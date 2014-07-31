@@ -11,6 +11,7 @@
                 :depends-on (:hjs
                              :clml.time-series
                              :clml.graph-package
+                             :clml.statistics
                              )
                 :components (
                              (:file "read-graph")

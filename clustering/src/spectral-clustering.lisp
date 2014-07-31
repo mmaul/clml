@@ -68,7 +68,7 @@
 #+INCLUDE: \"../sample/spectral-clustering-mcut.org\" example lisp
 
 *** References:
- 1. Shinnou Hiroyuki, "cluster analysis to learn in R", Ohmsha, 2007
+ 1. Shinnou Hiroyuki, 'cluster analysis to learn in R', Ohmsha, 2007
     新納浩幸, 「R で学ぶクラスタ解析」, オーム社, 2007.
  2. A Min-max Cut Algorithm for Graph Partitioning and Data Clustering
     Chris H. Q. Ding, Xiaofeng He, Hongyuan Zha, Ming Gu, Horst D. Simon

@@ -169,7 +169,7 @@
 	 (dim (entries-dimension codes))
 	 (alp (aref alpha 0)))
     (declare (type entries codes)
-	     (type (integer 0 #.most-positive-fixnum) xdim ydim dim)
+	     (type (integer 0 #.most-positive-fixnum) xdim  dim)
 	     (type double-float alp))
     (rewind-entries codes)
     (let ((index 0)
@@ -190,7 +190,7 @@
 		     (sample-data-entry-mask (data-entry-mask sample))
 		     (sample-data-entry-points (data-entry-points sample))
 		     (codes-data-entry-points (data-entry-points codes-data-entry)))
-		 (declare (type double-float new current)
+		 (declare (type double-float current)
 			  (type (simple-array double-float (*)) sample-data-entry-points
 				codes-data-entry-points)
 			  (type (simple-array (signed-byte 32) (*)) sample-data-entry-mask))
@@ -233,7 +233,7 @@
 
 
     (declare (type entries codes)
-	     (type (integer 0 #.most-positive-fixnum) xdim ydim dim))
+	     (type (integer 0 #.most-positive-fixnum) xdim dim))
 
     (rewind-entries codes)
     (let ((index 0)
@@ -269,7 +269,7 @@
 	      (sample-data-entry-mask (data-entry-mask sample))
 	      (sample-data-entry-points (data-entry-points sample))
 	      (codes-data-entry-points (data-entry-points codes-data-entry)))
-	  (declare (type double-float new current)
+	  (declare (type double-float current)
 		   (type (simple-array double-float (*)) sample-data-entry-points
 			 codes-data-entry-points))
 	  (if sample-data-entry-mask
@@ -324,7 +324,7 @@
 	(byind 0)
 	(win-info (make-instance 'winner-info)))
     (declare (type double-float alpha radius))
-    (declare (type fixnum bxind byind length alpha-type))
+    (declare (type fixnum bxind byind length))
     (declare (type winner-info win-info))
     (rewind-entries data)
     (let ((dim (entries-dimension codes))

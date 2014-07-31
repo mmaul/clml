@@ -14,18 +14,23 @@
   v.v
   m.v
   m.m)
-
+#+ignore
 (defun trial ()
+  "TODO: problem-workspace not defined???
+rest-iteration not defined
+         "
   (loop
-    do (progn
-         (update-lower-bounds problem-workspace)
-         (select-points-for-update)
-         (update-center-for-selected-points)
-         (update-all-centers-and-save-old-centers)
-         (update-distance-between-point-and-owner)
-         (decf rest-iteration))
-    until (stop-p))
-  )
+     do (progn
+          #+ignore
+          (update-lower-bounds problem-workspace)
+          (select-points-for-update)
+          (update-center-for-selected-points)
+          (update-all-centers-and-save-old-centers)
+          (update-distance-between-point-and-owner)
+          #+ignore
+          st-iteration))
+     until (stop-p))
+  
 
 (defun k-means ()
   (loop repeat *num-of-trials*

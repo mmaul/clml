@@ -106,7 +106,7 @@
 	   ))
 
 (defpackage :hjs.util.missing-value
-  (:use :cl :util :vector :clml.statistics :hjs.util.meta)
+  (:use :cl :util :vector :clml.statistics :clml.statistics.distribution hjs.util.meta)
   (:import-from :alexandria #:define-constant)
   (:nicknames :missing-val :handling-missing-value)
   (:export
@@ -123,7 +123,7 @@
         ;handling-missing-value
         )
   (:nicknames :read-data)
-  (:import-from hjs.util.missing-value
+  (:import-from #:hjs.util.missing-value
                 ;:handling-missing-value
                 #:interpolate
                 )

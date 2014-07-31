@@ -71,6 +71,7 @@
         :hjs.util.vector
         :hjs.util.meta
         :clml.statistics
+        :clml.statistics.distribution
         :clml.graph.read-graph
         :clml.graph.graph-utils
         :clml.graph.shortest-path)

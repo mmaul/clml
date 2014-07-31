@@ -7,25 +7,9 @@
 (defmethod mean ((sequence sequence))
   (/ (reduce #'+ sequence) (length sequence)))
 
-(defclass distribution ()
-  (;(mean)
-   (variance)
-   (skewness)
-   (kurtosis)
-   (mode)))
 
-(defgeneric update-distribution (distribution)
-  (:method (distribution)
-	   distribution))
 
-(defmethod initialize-instance ((instance distribution) &rest initargs)
-  (declare (ignore initargs))
-  (call-next-method)
-  (update-distribution instance))
 
-(defclass discrete-distribution (distribution) ())
-(defclass continuous-distribution (distribution)
-  ((mean :initarg :mean :accessor mean :initform 0d0)))
 
 (defdistribution gamma-like-distribution (continuous-distribution)
   ((scale :initarg :scale :accessor scale)
@@ -661,24 +645,24 @@ this method would be solve it. However this is slower than Newton-Raphson."
     (t (rand (eq-gamma distribution)))))
 
 ;;; 8. Student's t Distribution
-
-(defdistribution t-distribution (continuous-distribution)
-  ((freedom :initarg :freedom :accessor freedom)
-   (t-precalc :accessor t-precalc)
-   (r)
-   (b)
-   (c)
-   (a)
-   (d)
-   (k)
-   (w)
-   (s)
-   (p)
-   (q)
-   (t1)
-   (t2)
-   (v1)
-   (v2)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution t-distribution (continuous-distribution)
+    ((freedom :initarg :freedom :accessor freedom)
+     (t-precalc :accessor t-precalc)
+     (r)
+     (b)
+     (c)
+     (a)
+     (d)
+     (k)
+     (w)
+     (s)
+     (p)
+     (q)
+     (t1)
+     (t2)
+     (v1)
+     (v2))))
 
 (defmethod print-object ((obj t-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1856,3 +1840,113 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
     (ignore-errors (format t "KURTOSIS:  sample=~A   predict=~A~%" (kurtosis  rands) (kurtosis dist)))))
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;
+; Outlier verification ;
+;;;;;;;;;;;;;;;;;;;;;;;;
+;;; Smirnov-Grubbs test
+;;; http://aoki2.si.gunma-u.ac.jp/lecture/Grubbs/Grubbs.html
+(defun smirnov-grubbs (seq alpha &key (type :max) (recursive nil) (sig-p-hash nil))
+  "**** smirnov-grubbs (seq alpha &key (type :max) (recursive nil))
+Smirnov-Grubbs method for outlier verification.
+- return: nil | sequence
+- arguments:
+  - seq   : <sequence of number>
+  - alpha : <number> , significance level
+  - type  : :min | :max, which side of outlier value
+  - recursive : nil | t
+- reference: http://aoki2.si.gunma-u.ac.jp/lecture/Grubbs/Grubbs.html
+
+length of seq must be more than 4"
+  (assert (> 1 alpha 0))
+  (assert (every #'numberp seq))
+  (if (>= (length seq) 4)
+      (let* ((target (case type 
+                       (:max (reduce #'max seq))
+                       (:min (reduce #'min seq))))
+             (target-pos (position target seq :test #'=)))
+        (multiple-value-bind (ok t_i sig-p n)
+            (smirnov-grubbs-p seq target-pos alpha :sig-p-hash sig-p-hash)
+          (cond ((and recursive ok) seq)
+                ((and recursive (not ok))
+                 (multiple-value-bind (%seq removed-poss)
+                     (smirnov-grubbs (loop for i below (length seq)
+                                         unless (eql i target-pos)
+                                         collect (elt seq i))
+                                     alpha :type type :recursive recursive
+                                     :sig-p-hash sig-p-hash)
+                   (values %seq
+                           (if removed-poss 
+                               (cons target-pos 
+                                     (mapcar (lambda (pos) (if (>= pos target-pos) (1+ pos) pos))
+                                             removed-poss))
+                             `(,target-pos)))))
+                (t
+                 (princ (format nil "~&Data: ~A = ~,3F~%" type target))
+                 (princ (format nil "~&t= ~,3F, p-value = ~,3F, df = ~A~%"
+                                t_i sig-p (- n 2)))
+                 nil))))
+    (error "The sequence is too short. It should be more than 4.")))
+;;; input: sequence, target position, alpha
+;;; return: boolean( t -> o.k. nil -> outlier )
+(defun smirnov-grubbs-p (seq position alpha &key (sig-p-hash nil))
+  (assert (> 1 alpha 0))
+  (assert (every #'numberp seq))
+  (when (and (>= (length seq) 4) position)
+    (let* ((target (elt seq position))
+           (n (length seq))
+           (m (/ (reduce #'+ seq) n))
+           (u-dev (sqrt
+                   (/ (loop for i below n as val = (elt seq i)
+                          sum (expt (- val m) 2))
+                      (1- n))))
+           (sig-p (when (hash-table-p sig-p-hash)
+                    (cdr (assoc alpha (gethash n sig-p-hash) :test #'=)))))
+      (unless sig-p (setf sig-p (get-sig-p n alpha)))
+      (if (zerop u-dev)
+          (values t nil sig-p n)
+        (let ((t_i (/ (abs (- target m)) u-dev)))
+          (values (< t_i sig-p) t_i sig-p n))))))
+
+(defun get-sig-p (n alpha)
+  (let* ((dist (t-distribution (- n 2)))
+         (t_alpha^2 (expt 
+                     (quantile
+                      dist
+                      (- 1 (/ (/ (* 100 alpha) n)
+                              100))) 2)))
+    (* (1- n)
+       (sqrt (/ t_alpha^2
+                (+ (* n (- n 2))
+                   (* n t_alpha^2)))))))
+(defun make-sig-p-hash (n alpha)
+  (assert (>= n 4))
+  (let ((hash (make-hash-table :test #'eql)))
+    (loop for i from 4 to n
+        do (setf (gethash i hash) 
+             `(,(cons alpha (get-sig-p i alpha))))
+        finally (return hash))))
+
+(defun covariance (seq1 seq2)
+  "Returns the covariance of SEQ1 and SEQ2."
+  (let ((mean1 (mean seq1))
+	(mean2 (mean seq2))
+	(n1 (length seq1))
+	(n2 (length seq2)))
+    (assert (= n1 n2) (seq1 seq2)
+	    "The two sequences must have the same length.")
+    (/ (apply #'+ (map 'list (lambda (x y) (* (- x mean1) (- y mean2)))
+		       seq1 seq2))
+       (1- n1))))
+
+
+(defun linear-regression (seq1 seq2)
+  "Fits a line y = A + Bx on the data points from SEQ1 x SEQ2. Returns (A B)."
+  (let ((b (/ (covariance seq1 seq2) (sqr (standard-deviation seq1)))))
+    (list (- (mean seq2) (* b (mean seq1))) b)))
+
+(defun correlation-coefficient (seq1 seq2)
+  "Returns the correlation coefficient of SEQ1 and SEQ2, ie.
+covariance / (standard-deviation1 * standard-deviation2)."
+  (/ (covariance seq1 seq2)
+     (* (standard-deviation seq1)
+	(standard-deviation seq2))))
