@@ -1,12 +1,12 @@
 ;; update-distribution call timing?
 ;; Main Focus: change strategy to 'reuse' a dist instance for changing parameter
 
-(in-package :clml.statistics.distribution)
-(defgeneric mean (obj)
+(in-package :clml.statistics)
+#|(defgeneric mean (obj)
   (:documentation "Returns the mean of SEQ."))
 (defmethod mean ((sequence sequence))
   (/ (reduce #'+ sequence) (length sequence)))
-
+|#
 
 
 

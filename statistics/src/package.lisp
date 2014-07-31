@@ -58,7 +58,7 @@
    
    :*inv-lin-interp-precision*
    :*inv-lin-interp-max-iteration*))
-
+#|
 (defpackage :clml.statistics.distribution
   (:use :cl :clml.statistics.utilities :clml.statistics.math :clml.statistics.rand)
   (:export
@@ -133,7 +133,7 @@
    :smirnov-grubbs-p
    )
   (:documentation ""))
-
+|#
 (defpackage :clml.statistics
   ;  (:nicknames :statistics)
   (:use :cl :clml.statistics.utilities :clml.statistics.math :clml.statistics.rand)
@@ -156,6 +156,75 @@
    :kendall-rank-correlation
 
 
+      :parse-dist-slots
+   :defdistribution
+   
+   ;; DATA ANALYSIS
+   ;; (Functions on 1-valued data)
+   :mean
+   :mode
+   :count-values
+   
+   
+   
+   
+   
+   
+   :variance
+   :standard-deviation
+   ;; (Functions on 2-valued data)
+   :covariance
+   :linear-regression
+   :correlation-coefficient
+
+   ;; PROBABILITY DISTRIBUTION
+   :update-distribution
+   :cdf :density :quantile :rand :rand-n
+   :normal-distribution :standard-normal-distribution
+   :normal-distribution-estimate-unbiased
+   :normal-distribution-estimate-maximum-likelihood
+   :log-normal-distribution
+   :log-normal-distribution-estimate-unbiased
+   :log-normal-distribution-estimate-maximum-likelihood
+   :uniform-distribution :standard-uniform-distribution
+   :uniform-distribution-estimate-moments
+   :uniform-distribution-estimate-maximum-likelihood
+   :erlang-distribution :erlang-distribution-estimate
+   :exponential-distribution :exponential-distribution-estimate
+   :gamma-distribution :gamma-distribution-estimate
+   :quantile-ili
+   :chi-square-distribution
+   :t-distribution
+   :beta-distribution :beta-distribution-estimate
+   :f-distribution
+   :binomial-distribution :binomial-distribution-estimate
+   :geometric-distribution :geometric-distribution-estimate
+   :hypergeometric-distribution
+   :hypergeometric-distribution-estimate-successes-unbiased
+   :hypergeometric-distribution-estimate-successes-maximum-likelihood
+   :hypergeometric-distribution-estimate-elements
+   :cauchy-distribution :cauchy-distribution-estimate
+   :pascal-distribution
+   :pascal-distribution-estimate-maximum-likelihood
+   :pascal-distribution-estimate-unbiased
+   :negative-binomial-distribution
+   :negative-binomial-distribution-estimate-unbiased
+   :negative-binomial-distribution-estimate-maximum-likelihood
+   :logistic-distribution :logistic-distribution-estimate
+   :poisson-distribution :poisson-distribution-estimate
+   :weibull-distribution :weibull-distribution-estimate
+
+   ;; DISTRIBUTION tests
+   :normal-dist-test :poisson-dist-test
+   :binom-dist-test 
+   ;; Outlier verification
+   ;; other
+   :get-sig-p 
+   :make-sig-p-hash
+   :mean-deviation
+   :median :median-on-sorted
+   :smirnov-grubbs
+   :smirnov-grubbs-p
    
    )
   (:documentation "

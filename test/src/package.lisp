@@ -5,8 +5,8 @@
    :cl
    :vars
    :read-data
-   ;:clml.statistics
-   :clml.statistics.distribution
+                                        ;:clml.statistics
+   :clml.statistics.math
    :clml.clustering.CLUSTER-VALIDATION
    :clml.clustering.optics
    :clml.clustering.nmf

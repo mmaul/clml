@@ -1,4 +1,4 @@
-(in-package :clml.statistics.distribution)
+(in-package :clml.statistics)
 (defclass distribution ()
   (;(mean)
    (variance)
