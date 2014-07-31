@@ -45,6 +45,15 @@ This library is organized as a hierarchical tree of systems.
   - clml.graph.graph-utils
   - clml.graph.read-graph
   - clml.graph.shortest-path
+- clml.hjs 
+  - clml.hjs.k-means
+  - clml.hjs.read-data
+  - clml.hjs.vars
+  - clml.hjs.eigensystems
+  - clml.hjs.matrix
+  - clml.hjs.meta
+  - clml.hjs.missing-value
+  - clml.hjs.vector
 - clml.nearest-search
   - clml.nearest-search.k-nn
   - clml.nearest-search.k-nn-new
@@ -91,15 +100,6 @@ This library is organized as a hierarchical tree of systems.
   - clml.utility.priority-que
 - fork-future
 - future
-- hjs
-  - hjs.learn.k-means
-  - hjs.learn.read-data
-  - hjs.learn.vars
-  - hjs.util.eigensystems
-  - hjs.util.matrix
-  - hjs.util.meta
-  - hjs.util.missing-value
-  - hjs.util.vector
 - lapack
 
 Each system can be loaded independantly or the the clml system can be loaded which contains
@@ -120,7 +120,7 @@ Here is a quick demonstration:
     CL-USER (clml.text.utilities:calculate-levenshtein-similarity "Howdy" "doody")
     0.6
     CL-USER 
-    CL-USER (setf *syobu* (hjs.learn.read-data:read-data-from-file 
+    CL-USER (setf *syobu* (clml.hjs.read-data:read-data-from-file 
                (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv")
                :type :csv :csv-type-spec '(string integer integer integer integer)))
 

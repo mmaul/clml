@@ -1,8 +1,8 @@
 (defpackage :clml.association-rule
   (:nicknames :assoc :association-rule)
   (:use :cl
-        :hjs.util.vector
-        :hjs.learn.read-data)
+        :clml.hjs.vector
+        :clml.hjs.read-data)
   (:export :association-analyze
            :%association-analyze
            :%association-analyze-apriori

@@ -321,7 +321,7 @@
 (defun LU-factorization (A)
   (declare (type dmat A))
   (let* ((Ar #+mkl (transpose A)
-             #-mkl (hjs.util.matrix::mat2array (transpose A)))
+             #-mkl (clml.hjs.matrix::mat2array (transpose A)))
          (m (array-dimension A 1))
          (n (array-dimension A 0))
          (lda (max 1 m))
@@ -335,7 +335,7 @@
              #-mkl (lapack::dgetrf m n Ar lda ipiv info)))))
     (assert (= 0 info))
     #+mkl (transpose Ar)
-    #-mkl (transpose (hjs.util.matrix::array2mat Ar m))))
+    #-mkl (transpose (clml.hjs.matrix::array2mat Ar m))))
   
 (defun cholesky-decomp (mat &optional (result (make-array (array-dimensions mat)
 							  :element-type 'double-float

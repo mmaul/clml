@@ -1,6 +1,6 @@
 (cl:defpackage :mkl-pca
-  (:use :cl :hjs.util.meta :hjs.util.matrix :hjs.util.vector
-        :hjs.learn.read-data :clml.statistics :hjs.learn.vars
+  (:use :cl :clml.hjs.meta :clml.hjs.matrix :clml.hjs.vector
+        :clml.hjs.read-data :clml.statistics :clml.hjs.vars
         :mkl.blas :mkl.lapack :mkl-matrix-utils)
   (:export 
    #:princomp

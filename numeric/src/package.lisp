@@ -1,5 +1,5 @@
 (defpackage :clml.numeric.fast-fourier-transform
-  (:use :cl :hjs.util.meta)
+  (:use :cl :clml.hjs.meta)
   (:nicknames :fft)
   (:export
    #:make-expt-array

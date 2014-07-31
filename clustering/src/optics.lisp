@@ -150,9 +150,9 @@
   (assert (<= r-epsilon epsilon))
   (setq distance
     (case distance
-      (:manhattan #'hjs.util.vector:manhattan-distance)
-      (:euclid #'hjs.util.vector:euclid-distance)
-      (:cosine #'hjs.util.vector:cosine-distance)
+      (:manhattan #'clml.hjs.vector:manhattan-distance)
+      (:euclid #'clml.hjs.vector:euclid-distance)
+      (:cosine #'clml.hjs.vector:cosine-distance)
       (t (error "illegal name for distance | ~A" distance))))
   (let* ((optics-input (make-instance 'optics-input
                          :input-data input-data :distance distance

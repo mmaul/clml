@@ -2,9 +2,9 @@
 (defpackage :clml.classifiers.linear-regression
   ;(:nicknames :linear-regression)
   (:use :cl
-        :hjs.learn.read-data
-        :hjs.util.matrix
-        :hjs.util.meta)
+        :clml.hjs.read-data
+        :clml.hjs.matrix
+        :clml.hjs.meta)
   (:import-from :hc 
                 #:i-thvector
                 #:square-sum
@@ -33,14 +33,14 @@
 (defpackage :clml.classifiers.logistic-regression
   (:use :cl
         :clml.svm.wss3;比較実験用
-        :hjs.learn.read-data
-        :hjs.util.vector
-        :hjs.util.matrix))
+        :clml.hjs.read-data
+        :clml.hjs.vector
+        :clml.hjs.matrix))
 
 (defpackage :clml.classifiers.nbayes
   (:nicknames :nbayes)
   (:use :cl
-	:hjs.learn.read-data)
+	:clml.hjs.read-data)
   (:export
    :mbnb-learn
    :make-mbnb-learner

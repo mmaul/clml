@@ -44,8 +44,8 @@ package for reading time series data
   ")
   (:use :cl 
         
-        :hjs.learn.read-data :hjs.util.meta :hjs.util.vector
-        :hjs.util.matrix :clml.statistics
+        :clml.hjs.read-data :clml.hjs.meta :clml.hjs.vector
+        :clml.hjs.matrix :clml.statistics
         :clml.time-series.read-data)
   #+allegro
   (:use :excl)
@@ -68,8 +68,8 @@ package for reading time series data
            #:ut-to-date-time))
 
 (defpackage :clml.time-series.statistics
-  (:use :cl :hjs.learn.read-data :hjs.util.meta :hjs.util.vector
-        :hjs.util.matrix :clml.statistics :hjs.learn.vars
+  (:use :cl :clml.hjs.read-data :clml.hjs.meta :clml.hjs.vector
+        :clml.hjs.matrix :clml.statistics :clml.hjs.vars
         :clml.time-series.read-data
         :clml.time-series.util
         :clml.numeric.fast-fourier-transform)
@@ -115,11 +115,11 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
 
 (defpackage :clml.time-series.autoregression
   (:use :cl
-        :hjs.learn.read-data
-        :hjs.util.meta
-        :hjs.util.vector
-        :hjs.util.matrix
-        :hjs.learn.vars
+        :clml.hjs.read-data
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.matrix
+        :clml.hjs.vars
         :clml.statistics
         :clml.time-series.util
         :clml.time-series.statistics
@@ -135,15 +135,15 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
 
 (defpackage :clml.time-series.changefinder
   (:use :cl
-        :hjs.learn.read-data
-        :hjs.util.meta
-        :hjs.util.vector
-        :hjs.util.matrix
+        :clml.hjs.read-data
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.matrix
         :clml.statistics
         :clml.time-series.util
         :clml.time-series.statistics
         :clml.time-series.read-data
-        :hjs.util.missing-value
+        :clml.hjs.missing-value
         )
   (:nicknames :changefinder)
   (:export :init-changefinder
@@ -164,12 +164,12 @@ Package for "ChangeFinder"
 
 (defpackage :clml.time-series.anomaly-detection
   (:use :cl 
-        :hjs.learn.read-data
-        :hjs.util.meta
-        :hjs.util.vector
-        :hjs.util.matrix
-        :hjs.learn.vars
-        :hjs.util.missing-value
+        :clml.hjs.read-data
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.matrix
+        :clml.hjs.vars
+        :clml.hjs.missing-value
         
         :clml.utility.csv
         :clml.time-series.util
@@ -200,10 +200,10 @@ Package for "ChangeFinder"
         :iter
         :clml.time-series.util
         :clml.time-series.statistics
-        :hjs.util.meta
-        :hjs.util.vector
-        :hjs.learn.vars
-        :hjs.learn.read-data
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.vars
+        :clml.hjs.read-data
         :clml.time-series.read-data)
   (:nicknames :expl-smoothing :exponential-smoothing)
   (:export

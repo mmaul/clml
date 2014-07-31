@@ -173,18 +173,18 @@
 (defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
   (let ((forest (make-array tree-number)))
     (let ((futures
-           (loop for nworker below hjs.learn.vars:*workers*
+           (loop for nworker below clml.hjs.vars:*workers*
                  collect
               (fork-future:future 
-                (loop for i from nworker below tree-number by hjs.learn.vars:*workers*
+                (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
                       do
                    (setf (svref forest i)
                          (make-random-decision-tree unspecialized-dataset objective-column-name :test test)))
                 forest))))
       (mapc 'fork-future:touch futures)
-      (loop for nworker below hjs.learn.vars:*workers*
+      (loop for nworker below clml.hjs.vars:*workers*
             do  
-         (loop for i from nworker below tree-number by hjs.learn.vars:*workers*
+         (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
                do
             (setf (svref forest i)
                   (aref (fork-future:touch (elt futures nworker)) i)))))
@@ -201,18 +201,18 @@
 "
   (let ((forest (make-array tree-number)))
     (let ((futures
-           (loop for nworker below hjs.learn.vars:*workers*
+           (loop for nworker below clml.hjs.vars:*workers*
                  collect
               (future:future 
-                (loop for i from nworker below tree-number by hjs.learn.vars:*workers*
+                (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
                       do
                    (setf (svref forest i)
                          (make-random-decision-tree unspecialized-dataset objective-column-name :test test)))
                 forest))))
       (mapc 'future:touch futures)
-      (loop for nworker below hjs.learn.vars:*workers*
+      (loop for nworker below clml.hjs.vars:*workers*
             do  
-         (loop for i from nworker below tree-number by hjs.learn.vars:*workers*
+         (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
                do
             (setf (svref forest i)
                   (aref (future:touch (elt futures nworker)) i)))))
@@ -291,18 +291,18 @@
 (defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
   (let ((forest (make-array tree-number)))
     (let ((futures
-           (loop for nworker below hjs.learn.vars:*workers*
+           (loop for nworker below clml.hjs.vars:*workers*
                collect
                  (fork-future:future 
-                  (loop for i from nworker below tree-number by hjs.learn.vars:*workers*
+                  (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
                       do
                         (setf (svref forest i)
                           (make-random-regression-tree unspecialized-dataset objective-column-name)))
                   forest))))
       (mapc 'fork-future:touch futures)
-      (loop for nworker below hjs.learn.vars:*workers*
+      (loop for nworker below clml.hjs.vars:*workers*
           do  
-            (loop for i from nworker below tree-number by hjs.learn.vars:*workers*
+            (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
                 do
                   (setf (svref forest i)
                     (aref (fork-future:touch (elt futures nworker)) i)))))

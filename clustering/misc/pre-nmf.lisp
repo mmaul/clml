@@ -2,8 +2,8 @@
   (:use :cl
 	:hc
 	:linear-regression
-	:hjs.learn.read-data
-	:hjs.util.matrix))
+	:clml.hjs.read-data
+	:clml.hjs.matrix))
 
 (in-package :pre-nmf)
 

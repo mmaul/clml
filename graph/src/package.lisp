@@ -3,9 +3,9 @@
   (:nicknames :read-graph)
   (:use :cl 
         :parse-number
-         :hjs.util.matrix
-        :hjs.util.vector
-        :hjs.util.meta
+         :clml.hjs.matrix
+        :clml.hjs.vector
+        :clml.hjs.meta
         )
   #+allegro
   (:use :excl)
@@ -35,9 +35,9 @@
 (defpackage :clml.graph.graph-utils
   (:use :cl 
         :parse-number
-         :hjs.util.matrix
-        :hjs.util.vector
-        :hjs.util.meta
+         :clml.hjs.matrix
+        :clml.hjs.vector
+        :clml.hjs.meta
         :clml.graph.read-graph
         )
   (:export #:retrieve-node
@@ -49,14 +49,14 @@
 (defpackage :clml.graph.shortest-path
   (:nicknames :graph-shortest-path)
   (:use :cl
-        :hjs.util.meta
-        :hjs.util.vector
-        :hjs.learn.read-data
-        :hjs.util.matrix
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.read-data
+        :clml.hjs.matrix
         :clml.graph.read-graph
         :clml.graph.graph-utils
         :clml.utility.priority-que
-        :hjs.util.missing-value
+        :clml.hjs.missing-value
         )
   #+allegro
   (:use :excl)
@@ -66,10 +66,10 @@
 
 (defpackage :clml.graph.graph-centrality
   (:use :cl
-        :hjs.learn.vars
-        :hjs.util.matrix
-        :hjs.util.vector
-        :hjs.util.meta
+        :clml.hjs.vars
+        :clml.hjs.matrix
+        :clml.hjs.vector
+        :clml.hjs.meta
         :clml.statistics
         
         :clml.graph.read-graph
@@ -91,11 +91,11 @@
 (defpackage :clml.graph.graph-anomaly-detection
   (:use :cl
         
-        :hjs.learn.vars
-        :hjs.learn.read-data
-        :hjs.util.matrix
-        :hjs.util.vector
-        :hjs.util.meta
+        :clml.hjs.vars
+        :clml.hjs.read-data
+        :clml.hjs.matrix
+        :clml.hjs.vector
+        :clml.hjs.meta
         
         :clml.statistics
         :read-data

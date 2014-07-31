@@ -3,10 +3,10 @@
 (defpackage :clml.clustering.hc
   (:nicknames :hc)
   (:use :cl
-	:hjs.learn.read-data
-	:hjs.util.vector
-	:hjs.util.matrix
-        :hjs.util.meta)
+	:clml.hjs.read-data
+	:clml.hjs.vector
+	:clml.hjs.matrix
+        :clml.hjs.meta)
   (:export #:cophenetic-matrix
 	   #:cophenetic-cc
 	   #:distance-matrix
@@ -40,9 +40,9 @@
 	:hc
 	:blas
 	:lapack
-	:hjs.learn.read-data
-	:hjs.util.matrix
-        :hjs.util.meta)
+	:clml.hjs.read-data
+	:clml.hjs.matrix
+        :clml.hjs.meta)
   (:import-from :hc 
 		#:i-thvector
 		#:vector-sum
@@ -71,8 +71,8 @@
 (defpackage :clml.clustering.optics
   (:nicknames :optics)
   (:use :cl
-        :hjs.learn.read-data
-        :hjs.util.matrix
+        :clml.hjs.read-data
+        :clml.hjs.matrix
         :clml.statistics)
   (:export :optics
            :optics-main
@@ -94,7 +94,7 @@
 
 (defpackage :clml.clustering.spectral-clustering
   (:nicknames :spectral-clustering)
-    (:use :cl :hjs.util.matrix :hjs.util.meta)
+    (:use :cl :clml.hjs.matrix :clml.hjs.meta)
     (:export #:spectral-clustering-mcut
              #:*sample-w*)
     (:import-from #+allegro "EXCL" #+sbcl "SB-INT" #+lispworks "LISPWORKS" #+ccl "CCL"
@@ -104,11 +104,11 @@
 (defpackage :clml.clustering.cluster-validation
   (:nicknames :cluster-validation)
   (:use :cl
-        :hjs.learn.k-means
-        :hjs.util.vector
-        :hjs.util.meta
+        :clml.hjs.k-means
+        :clml.hjs.vector
+        :clml.hjs.meta
         :iterate)
-  (:import-from :hjs.learn.k-means :point)
+  (:import-from :clml.hjs.k-means :point)
   #+ccl
   (:import-from :ccl :fixnump)
   (:export
@@ -128,8 +128,8 @@
 - [[http://www.cs.tcd.ie/publications/tech-reports/reports.02/TCD-CS-2002-33.pdf][Cluster validation techniques for genome expression data]]"))
 
 (defpackage :clml.clustering.k-means2
-    (:use :cl :hjs.util.vector :hjs.util.meta
-          :clml.statistics :hjs.util.matrix)
+    (:use :cl :clml.hjs.vector :clml.hjs.meta
+          :clml.statistics :clml.hjs.matrix)
   (:nicknames :k-means2)
   (:export #:k-means
            #:make-cluster

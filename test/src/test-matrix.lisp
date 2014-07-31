@@ -11,10 +11,10 @@
 
 (defun setup-test-matrix-data ()
   (setq eyes
-    (hjs.learn.read-data:read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/eyes200.sexp")))
+    (clml.hjs.read-data:read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/eyes200.sexp")))
   (setf vecs
-        (hjs.learn.read-data:dataset-points 
-         (hjs.learn.read-data:pick-and-specialize-data
+        (clml.hjs.read-data:dataset-points 
+         (clml.hjs.read-data:pick-and-specialize-data
           eyes
           :except '(0 1)
           :data-types (make-list 1680 :initial-element :numeric))))

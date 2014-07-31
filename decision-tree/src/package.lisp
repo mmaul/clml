@@ -1,8 +1,8 @@
 (defpackage :clml.decision-tree.decision-tree
   (:nicknames :decision-tree)
   (:use :cl
-	:hjs.learn.read-data
-	:hjs.util.matrix)
+	:clml.hjs.read-data
+	:clml.hjs.matrix)
   (:export  
    #:make-decision-tree
    #:make-regression-tree
@@ -32,7 +32,7 @@
 (defpackage :clml.decision-tree.random-forest
   (:nicknames :random-forest)
   (:use :cl
-	:hjs.learn.read-data
+	:clml.hjs.read-data
 	:decision-tree)
   (:import-from :decision-tree 
 		#:make-variable-index-hash

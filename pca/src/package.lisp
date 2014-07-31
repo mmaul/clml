@@ -1,13 +1,13 @@
 (defpackage :clml.pca
-  (:nicknames :hjs.learn.pca)
+  (:nicknames :clml.hjs.pca)
   (:use :cl
-        :hjs.util.meta
-        :hjs.util.matrix
-        :hjs.util.eigensystems
-        :hjs.util.vector
-        :hjs.learn.read-data
+        :clml.hjs.meta
+        :clml.hjs.matrix
+        :clml.hjs.eigensystems
+        :clml.hjs.vector
+        :clml.hjs.read-data
         :clml.statistics
-        :hjs.learn.vars)
+        :clml.hjs.vars)
   (:nicknames :pca)
   (:export 
    #:pca-result

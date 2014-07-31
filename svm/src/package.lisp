@@ -3,7 +3,7 @@
 (defpackage :clml.svm.mu
   (:nicknames :svm)
   (:use :common-lisp
-        :hjs.util.meta)
+        :clml.hjs.meta)
   (:export :kernel
            :polynomial-kernel 
            :+linear-kernel+
@@ -28,10 +28,10 @@ A nice and clear explanation of SVMs can be found in
 (defpackage :clml.svm.wss3
   (:nicknames :svm.wss3)
   (:use :cl
-	:hjs.util.meta
-	:hjs.util.vector
-	:hjs.learn.read-data
-    :hjs.util.matrix)
+	:clml.hjs.meta
+	:clml.hjs.vector
+	:clml.hjs.read-data
+    :clml.hjs.matrix)
   (:import-from :decision-tree
 		#:sum-up)
   (:export #:make-svm-learner
@@ -51,10 +51,10 @@ A nice and clear explanation of SVMs can be found in
 (defpackage :clml.svm.one-class
   (:use :cl
 	:clml.svm.wss3
-	:hjs.util.meta
-	:hjs.util.vector
-	:hjs.learn.read-data
-    :hjs.util.matrix)
+	:clml.hjs.meta
+	:clml.hjs.vector
+	:clml.hjs.read-data
+    :clml.hjs.matrix)
   (:nicknames :one-class-svm)
   (:import-from :svm.wss3
 		#:sign
@@ -71,10 +71,10 @@ Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"))
 (defpackage :clml.svm.pwss3
   (:nicknames :pwss3-svm)
   (:use :cl
-          :hjs.util.meta
-          :hjs.util.vector
-          :hjs.learn.read-data
-          :hjs.util.matrix)
+          :clml.hjs.meta
+          :clml.hjs.vector
+          :clml.hjs.read-data
+          :clml.hjs.matrix)
   (:import-from :decision-tree
 		#:sum-up)
   (:export #:make-svm-learner
@@ -88,10 +88,10 @@ Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"))
 
 (defpackage :clml.svm.smo
   (:use :cl
-	:hjs.learn.read-data
-        :hjs.util.vector
-        :hjs.util.matrix
-        :hjs.util.meta)
+	:clml.hjs.read-data
+        :clml.hjs.vector
+        :clml.hjs.matrix
+        :clml.hjs.meta)
   (:import-from :decision-tree
 		#:sum-up)
   (:export
@@ -114,10 +114,10 @@ Reference: Jhon C. Platt. "Fast Training of Support Vector Machines using Sequen
   (:nicknames :svr)
   (:use :cl
 	:svm.wss3
-	:hjs.util.meta
-	:hjs.util.vector
-	:hjs.learn.read-data
-        :hjs.util.matrix)
+	:clml.hjs.meta
+	:clml.hjs.vector
+	:clml.hjs.read-data
+        :clml.hjs.matrix)
   (:import-from :svm.wss3
 		#:call-kernel-function-uncached
 		#:call-kernel-function

@@ -1,7 +1,7 @@
 ;; package of interfaces for :text.hdp-lda
 (defpackage :clml.text.hdp-lda
   (:nicknames :text.hdp :hdp-lda)
-  (:use :cl :hjs.learn.read-data :hjs.util.vector )
+  (:use :cl :clml.hjs.read-data :clml.hjs.vector )
   
   (:export #:hdp-lda
            #:get-trend-topics

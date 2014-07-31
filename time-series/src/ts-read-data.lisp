@@ -187,7 +187,7 @@ The dataset for time-series data. Values are specialized in numeric"))
                              outlier-values-alist)
   (let ((names (map 'list #'dimension-name (dataset-dimensions d))))
     (multiple-value-bind (interp-types outlier-types outlier-values)
-        (hjs.learn.read-data::convert-cleaning-alist-to-list 
+        (clml.hjs.read-data::convert-cleaning-alist-to-list 
          names
          interp-types-alist
          outlier-types-alist

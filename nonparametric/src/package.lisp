@@ -1,7 +1,7 @@
 
 (defpackage :clml.nonparameteric.statistics
   (:nicknames :nonparameteric.statistics :nonpara.stat)
-  (:use :cl :hjs.util.matrix :hjs.util.vector :hjs.util.meta)
+  (:use :cl :clml.hjs.matrix :clml.hjs.vector :clml.hjs.meta)
   (:export :make-adarray
    
 	   :unit-random
@@ -54,9 +54,9 @@
 (defpackage :clml.nonparametric.dpm
   (:nicknames :dpm :nonparametric.dpm)
   (:use :cl
-        :hjs.util.meta
-        :hjs.util.matrix
-        :hjs.util.vector
+        :clml.hjs.meta
+        :clml.hjs.matrix
+        :clml.hjs.vector
         :nonpara.stat)
   (:export :dpm
 	   :dpm-k
@@ -121,7 +121,7 @@
 
 (defpackage :clml.nonparametric.hdp-lda
   ;; (:nicknames :hdp-lda :text.hdp-lda)
-  (:use :cl :nonparameteric.statistics :hjs.util.meta)
+  (:use :cl :nonparameteric.statistics :clml.hjs.meta)
   (:export :hdp-lda
 	   :word
 	   :document
@@ -165,7 +165,7 @@
 
 (defpackage :clml.nonparametric.hdp
   (:nicknames :nonparametric.hdp)
-  (:use :cl :hjs.util.meta :nonpara.stat :nonparametric.dpm)
+  (:use :cl :clml.hjs.meta :nonpara.stat :nonparametric.dpm)
   (:export :hdp-cluster
 	   :cluster-latent-table
 	   :cluster-tmp-table
@@ -185,7 +185,7 @@
 (defpackage :clml.nonparametric.hdp-hmm
   (:nicknames :nonparametric.hdp-hmm)
   (:use :cl
-        :hjs.util.meta
+        :clml.hjs.meta
         :clml.nonparameteric.statistics
         :clml.nonparametric.dpm
         :clml.nonparametric.hdp)
@@ -223,7 +223,7 @@
 
 (defpackage :clml.nonparametric.sticky-hdp-hmm
   (:nicknames :nonparametric.sticky-hdp-hmm)
-  (:use :cl :nonpara.stat :hjs.util.meta
+  (:use :cl :nonpara.stat :clml.hjs.meta
 	:nonparametric.dpm
 	:nonparametric.hdp
 	:nonparametric.hdp-hmm)
@@ -238,7 +238,7 @@
 
 (defpackage :clml.nonparametric.blocked-hdp-hmm
   (:nicknames nonparametric.blocked-hdp-hmm)
-  (:use :cl :nonpara.stat :hjs.util.meta
+  (:use :cl :nonpara.stat :clml.hjs.meta
 	:nonparametric.dpm 
 	:nonparametric.hdp
 	:nonparametric.hdp-hmm)
@@ -258,7 +258,7 @@
 
 (defpackage :clml.nonparametric.ihmm
   (:nicknames :nonparametric.ihmm)
-  (:use :cl :hjs.util.meta
+  (:use :cl :clml.hjs.meta
 	:nonpara.stat
 	:nonparametric.dpm
 	:nonparametric.hdp
@@ -293,8 +293,8 @@
 
 (defpackage :clml.nonparametric.lfm
   (:nicknames :nonparametric.lfm)
-  (:use :cl :nonpara.stat :hjs.util.meta
-	:hjs.util.matrix :hjs.util.vector
+  (:use :cl :nonpara.stat :clml.hjs.meta
+	:clml.hjs.matrix :clml.hjs.vector
 	:nonparametric.dpm)
   (:export :ibp
 	   :ibp-row

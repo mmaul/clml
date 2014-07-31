@@ -3,7 +3,7 @@
 (defpackage :clml.text.utilities
   (:nicknames :text-utils :text-utilities)
   (:use :common-lisp
-        :hjs.learn.read-data)
+        :clml.hjs.read-data)
   (:export :calculate-string-similarity
            :equivalence-clustering
            :calculate-lcs-distance

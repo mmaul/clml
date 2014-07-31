@@ -21,10 +21,10 @@
    :clml.time-series.burst-detection
    :clml.time-series.changefinder
    :clml.clustering.hc
-   :hjs.util.matrix
-   :hjs.util.vector
-   :hjs.learn.k-means
-   :hjs.util.missing-value
+   :clml.hjs.matrix
+   :clml.hjs.vector
+   :clml.hjs.k-means
+   :clml.hjs.missing-value
    :clml.clustering.nmf
    :clml.clustering.optics
    :clml.clustering.spectral-clustering

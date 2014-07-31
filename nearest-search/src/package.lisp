@@ -2,9 +2,9 @@
 (defpackage :clml.nearest-search.k-nn
   (:nicknames :k-nn :learn.k-nn)
   (:use :cl
-        :hjs.util.vector
-        :hjs.learn.read-data
-        :hjs.util.meta)
+        :clml.hjs.vector
+        :clml.hjs.read-data
+        :clml.hjs.meta)
   (:export :k-nn-analyze
            :k-nn-estimate
            :estimator-properties)
@@ -22,11 +22,11 @@ self analysis is displayed.
 (defpackage :clml.nearest-search.nearest
   (:nicknames :learn.nearest)
   (:use :cl
-	:hjs.learn.read-data
-	:hjs.util.vector
-	:hjs.util.meta
+	:clml.hjs.read-data
+	:clml.hjs.vector
+	:clml.hjs.meta
 	:nonpara.stat
-	:hjs.util.matrix
+	:clml.hjs.matrix
 	:clml.pca
 	:clml.utility.priority-que)
   (:export :nearest-search
@@ -62,9 +62,9 @@ self analysis is displayed.
 (defpackage :clml.nearest-search.k-nn-new
   (:nicknames :k-nn-new :learn.k-nn-new)
   (:use :cl
-        :hjs.util.vector
-        :hjs.learn.read-data
-        :hjs.util.meta
+        :clml.hjs.vector
+        :clml.hjs.read-data
+        :clml.hjs.meta
         :clml.nearest-search.nearest)
   (:export :k-nn-analyze
            :k-nn-estimate
