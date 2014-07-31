@@ -5,7 +5,7 @@
 ;;Numerical Recipies in Fortran Copyright (c) Numerical Recipies 1986, 1989;;;;
 ;;;;;;;;;;;;;;;Modified by Ken Olum for Common Lisp, April 1996;;;;;;;;;;;;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(in-package :hjs.util.eigensystems)
+(in-package :clml.hjs.eigensystems)
 ;; functions:
 ;;	jacobi: eigenvalues and vectors of a symmetric matrix
 ;;	eigsrt: sorts eigenvectors into order by eigenvalue

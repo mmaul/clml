@@ -1,4 +1,4 @@
-(defpackage :hjs.util.meta
+(defpackage :clml.hjs.meta
   (:use :cl)
   (:nicknames :util)
   (:export #:with-unique-names
@@ -27,7 +27,7 @@
            #:mat2vecs
            #:flatmat2vecs
 	   ))
-(defpackage :hjs.learn.vars
+(defpackage :clml.hjs.vars
   (:use :cl)
   (:nicknames :vars)
   (:import-from :alexandria #:define-constant)
@@ -38,9 +38,9 @@
            ))
 
 
-(defpackage :hjs.util.vector
+(defpackage :clml.hjs.vector
   (:use :cl
-	:hjs.util.meta)
+	:clml.hjs.meta)
   (:nicknames :vector)
   (:export #:make-dvec
            #:fill-vec
@@ -66,8 +66,8 @@
            ))
 
 ;; --
-(defpackage :hjs.util.matrix
-  (:use :cl :hjs.util.meta :hjs.util.vector :blas :lapack)
+(defpackage :clml.hjs.matrix
+  (:use :cl :clml.hjs.meta :clml.hjs.vector :blas :lapack)
   (:nicknames :matrix)
   (:export #:sum-mat
 	   #:copy-mat
@@ -105,8 +105,8 @@
            #:c*mat
 	   ))
 
-(defpackage :hjs.util.missing-value
-  (:use :cl :util :vector :clml.statistics :hjs.util.meta)
+(defpackage :clml.hjs.missing-value
+  (:use :cl :util :vector :clml.statistics :clml.hjs.meta)
   (:import-from :alexandria #:define-constant)
   (:nicknames :missing-val :handling-missing-value)
   (:export
@@ -116,14 +116,14 @@
    #:outlier-verification #:interpolate))
 
 
-(defpackage :hjs.learn.read-data
+(defpackage :clml.hjs.read-data
   (:documentation "package for reading data for machine learning")
-  (:use :cl :hjs.util.meta :hjs.util.vector :hjs.learn.vars :hjs.util.matrix
-        :hjs.util.missing-value
+  (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.hjs.vars :clml.hjs.matrix
+        :clml.hjs.missing-value
         ;handling-missing-value
         )
   (:nicknames :read-data)
-  (:import-from #:hjs.util.missing-value
+  (:import-from #:clml.hjs.missing-value
                 ;:handling-missing-value
                 #:interpolate
                 )
@@ -159,10 +159,10 @@
    #:copy-dataset
    #:make-bootstrap-sample-datasets))
 
-(defpackage :hjs.learn.k-means
-  (:use :cl :hjs.util.vector :hjs.util.meta :hjs.learn.read-data
-	:clml.statistics :hjs.util.matrix :iterate
-	:hjs.learn.vars)
+(defpackage :clml.hjs.k-means
+  (:use :cl :clml.hjs.vector :clml.hjs.meta :clml.hjs.read-data
+	:clml.statistics :clml.hjs.matrix :iterate
+	:clml.hjs.vars)
   (:nicknames :k-means)
   (:export
    #:k-means
@@ -191,11 +191,11 @@
   (:documentation "*** sample usage
 #+INCLUDE: "../sample/k-means.org" example lisp"))
 
-(defpackage :hjs.util.eigensystems
+(defpackage :clml.hjs.eigensystems
   (:use :cl
-        :hjs.util.meta
-        :hjs.util.vector
-        :hjs.util.matrix
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.matrix
         :blas
         :lapack)
   (:nicknames :eigensystems)

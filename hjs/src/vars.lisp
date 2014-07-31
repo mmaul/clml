@@ -1,5 +1,5 @@
 
-(in-package :hjs.learn.vars)
+(in-package :clml.hjs.vars)
 
 
 (eval-when (:compile-toplevel :load-toplevel :execute)

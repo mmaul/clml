@@ -1,7 +1,7 @@
 ;;;; Use Elkan's algorithm to avoid excessive distance computation.
 
 
-(in-package :hjs.learn.k-means)
+(in-package :clml.hjs.k-means)
 
 (declaim (optimize (speed 3) (debug 1) (safety 1)))
 

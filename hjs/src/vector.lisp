@@ -1,5 +1,5 @@
 
-(in-package :hjs.util.vector)
+(in-package :clml.hjs.vector)
 
 (declaim (optimize (speed 3) (safety 1) (space 0) (debug 1)))
 

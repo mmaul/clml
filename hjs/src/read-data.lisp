@@ -1,5 +1,5 @@
 
-(in-package :hjs.learn.read-data)
+(in-package :clml.hjs.read-data)
 
 #+lispworks
 (eval-when (:load-toplevel :execute)

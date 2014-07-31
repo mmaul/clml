@@ -1,5 +1,5 @@
 
-(in-package :hjs.util.meta)
+(in-package :clml.hjs.meta)
 
 (setf iterate::*always-declare-variables* t)
 
