@@ -523,6 +523,7 @@ updated)."
     finally (setf (aref *kernel-function-result* 0) result))
   nil)
 
+#+ignore
 (defun make-linear-kernel ()
   "- return: <Closure>, linear kernel"
   (define-kernel-function (z-i z-j :linear)

@@ -63,8 +63,8 @@
   (assert (not (eq (que-list que) (que-last que))))
   (let ((last (que-last que))
 	(last1 (que-list que)))
-    (while (not (eq (cdr last1) last))
-      (setq last1 (cdr last1)))
+    (iterate (while (not (eq (cdr last1) last)))
+             (setq last1 (cdr last1)))
     (setf (cdr last1) (cons x last))
     x))
 
@@ -175,16 +175,16 @@
 (defmacro do-dque ((var dqh) &rest body)
   `(let ((,var ,dqh))
      (assert (dque-header-p ,dqh))
-     (while (not (eq (setq ,var (dque-next ,var))
-                     ,dqh))
-       ,@body)))
+     (iterate (while (not (eq (setq ,var (dque-next ,var))
+                              ,dqh)))
+              ,@body)))
 
 (defmacro do-dque-reverse ((var dqh) &rest body)
   `(let ((,var ,dqh))
      (assert (dque-header-p ,dqh))
-     (while (not (eq (setq ,var (dque-prev ,var))
-                     ,dqh))
-       ,@body)))
+     (iterate (while (not (eq (setq ,var (dque-prev ,var))
+                              ,dqh)))
+              ,@body)))
 
 (defun list-to-dque (list)
   (let ((dqh (make-dque-header)))
@@ -203,13 +203,13 @@
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;; LHEAP - List implementation of priority queue
-
-(defstruct (lheap
-            (:constructor _make-lheap))
-  (head nil)
-  (tail nil)
-  (lessp #'<)
-  (key #'identity))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defstruct (lheap
+               (:constructor _make-lheap))
+    (head nil)
+    (tail nil)
+    (lessp #'<)
+    (key #'identity)))
 
 (defstruct lheap-box
   item
@@ -273,6 +273,7 @@
 (defun delete-min-lheap (lh)
   ;; Removes an item of minimum key in linear heap LH
   ;; and returns the item.
+  
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (unless (lheap-p lh)
     (error "find-min-lheap: ~s is not lheap-p" lh))
@@ -470,14 +471,14 @@
       (error "insert-biheap: cannot insert more than maxcount=~d items"
              (length array)))
     (incf (biheap-count bh))
-    (while (and (<= 1 id)
-                (funcall lessp
-                         keyval
-                         (biheap-box-keyval
-                          (aref array (biheap-parent id)))))
-      (setf (aref array id) (aref array (biheap-parent id))
-            (biheap-box-node (aref array id)) id
-            id (biheap-parent id)))
+    (iterate (while (and (<= 1 id)))
+             (funcall lessp
+                      keyval
+                      (biheap-box-keyval
+                       (aref array (biheap-parent id))))
+             (setf (aref array id) (aref array (biheap-parent id))
+                     (biheap-box-node (aref array id)) id
+                     id (biheap-parent id)))
     (setf (aref array id) ib
           (biheap-box-node (aref array id)) id)
     ;;
@@ -565,21 +566,21 @@
       (error "after-decrease-key-biheap: key ~s of item ~s has been increased"
              newkey (biheap-box-item (aref array id1))))
     (setf (biheap-box-keyval (aref array id1)) newkey)
-    (while (and (<= 0 id2)
-                (funcall
-                 lessp
-                 (funcall key (biheap-box-item (aref array id1)))
-                 (funcall key (biheap-box-item (aref array id2)))))
-      ;; Swap boxes of elements at id1 and id2 in array.
-      (let ((ib1 (aref array id1))
-            (ib2 (aref array id2)))
-        (setf (aref array id1) ib2
-              (biheap-box-node ib2) id1)
-        (setf (aref array id2) ib1
-              (biheap-box-node ib1) id2))
-      ;; Up
-      (setq id1 id2
-            id2 (biheap-parent id2)))))
+    (iterate (while (and (<= 0 id2)))
+             (funcall
+                          lessp
+                          (funcall key (biheap-box-item (aref array id1)))
+                          (funcall key (biheap-box-item (aref array id2))))
+              ;; Swap boxes of elements at id1 and id2 in array.
+               (let ((ib1 (aref array id1))
+                     (ib2 (aref array id2)))
+                 (setf (aref array id1) ib2
+                       (biheap-box-node ib2) id1)
+                 (setf (aref array id2) ib1
+                       (biheap-box-node ib1) id2))
+               ;; Up
+               (setq id1 id2
+                     id2 (biheap-parent id2)))))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -698,28 +699,28 @@
                       (bn2 (bnheap-head bh2))
                       (head (make-bnheap-node))
                       (tail head))
-                 (while (or bn1 bn2)
-                   (cond
-                    ((and bn1 bn2)
-                     (let ((bn (cond
-                                ((<= (bnheap-node-degree bn1)
-                                     (bnheap-node-degree bn2))
-                                 (prog1
-                                     bn1
-                                   (setq bn1 (bnheap-node-sibling bn1))))
-                                (t
-                                 (prog1
-                                     bn2
-                                   (setq bn2 (bnheap-node-sibling bn2)))))))
-                       (setf (bnheap-node-sibling bn) nil
-                             (bnheap-node-sibling tail) bn
-                             tail bn)))
-                    (bn1
-                     (setf (bnheap-node-sibling tail) bn1
-                           bn1 nil))
-                    (bn2
-                     (setf (bnheap-node-sibling tail) bn2
-                           bn2 nil))))
+                 (iterate (while (or bn1 bn2))
+                          (cond
+                              ((and bn1 bn2)
+                               (let ((bn (cond
+                                           ((<= (bnheap-node-degree bn1)
+                                                (bnheap-node-degree bn2))
+                                            (prog1
+                                                bn1
+                                              (setq bn1 (bnheap-node-sibling bn1))))
+                                           (t
+                                            (prog1
+                                                bn2
+                                              (setq bn2 (bnheap-node-sibling bn2)))))))
+                                 (setf (bnheap-node-sibling bn) nil
+                                       (bnheap-node-sibling tail) bn
+                                       tail bn)))
+                              (bn1
+                               (setf (bnheap-node-sibling tail) bn1
+                                     bn1 nil))
+                              (bn2
+                               (setf (bnheap-node-sibling tail) bn2
+                                     bn2 nil))))
                  ;;
                  (bnheap-node-sibling head))))
         ;;
@@ -730,29 +731,29 @@
         (let* ((prev-x nil)
                (x (bnheap-head bh))
                (next-x (bnheap-node-sibling x)))
-          (while next-x
-            (cond
-             ((or (/= (bnheap-node-degree x)
-                      (bnheap-node-degree next-x))
-                  (and (bnheap-node-sibling next-x)
-                       (eq (bnheap-node-degree (bnheap-node-sibling next-x))
-                           (bnheap-node-degree x))))
-              (setq prev-x x
-                    x next-x))
-             ((not (funcall lessp
-                            (bnheap-node-keyval next-x)
-                            (bnheap-node-keyval x)))
-              (setf (bnheap-node-sibling x) (bnheap-node-sibling next-x))
-              (link-bnheap-node next-x x))
-             (t
-              (cond
-               ((null prev-x)
-                (setf (bnheap-head bh) next-x))
-               (t
-                (setf (bnheap-node-sibling prev-x) next-x)))
-              (link-bnheap-node x next-x)
-              (setq x next-x)))
-            (setq next-x (bnheap-node-sibling x))))
+          (iterate (while next-x)
+                   (cond
+                       ((or (/= (bnheap-node-degree x)
+                                (bnheap-node-degree next-x))
+                            (and (bnheap-node-sibling next-x)
+                                 (eq (bnheap-node-degree (bnheap-node-sibling next-x))
+                                     (bnheap-node-degree x))))
+                        (setq prev-x x
+                              x next-x))
+                       ((not (funcall lessp
+                                      (bnheap-node-keyval next-x)
+                                      (bnheap-node-keyval x)))
+                        (setf (bnheap-node-sibling x) (bnheap-node-sibling next-x))
+                        (link-bnheap-node next-x x))
+                       (t
+                        (cond
+                          ((null prev-x)
+                           (setf (bnheap-head bh) next-x))
+                          (t
+                           (setf (bnheap-node-sibling prev-x) next-x)))
+                        (link-bnheap-node x next-x)
+                        (setq x next-x)))
+                   (setq next-x (bnheap-node-sibling x))))
         ;;
         (setf (bnheap-head bh1) (bnheap-head bh)
               (bnheap-lessp bh1) (bnheap-lessp bh)
@@ -871,19 +872,20 @@
       (error "after-decrease-key-bnheap: key of ~s has been increased"
              (bnheap-box-item ib)))
     (setf (bnheap-node-keyval bn1) newkey)
-    (while (and bn2 (funcall lessp
-                             (bnheap-node-keyval bn1)
-                             (bnheap-node-keyval bn2)))
-      ;; Swap boxes of bn1 and bn2.
-      (let ((ib1 (bnheap-node-box bn1))
-            (ib2 (bnheap-node-box bn2)))
-        (setf (bnheap-node-box bn1) ib2
-              (bnheap-box-node ib2) bn1)
-        (setf (bnheap-node-box bn2) ib1
-              (bnheap-box-node ib1) bn2))
-      ;; Up
-      (setq bn1 bn2
-            bn2 (bnheap-node-parent bn2))))
+    (iterate (while (and bn2 (funcall lessp
+                                      (bnheap-node-keyval bn1)
+                                      (bnheap-node-keyval bn2))))
+             ;; Swap boxes of bn1 and bn2.
+               (let ((ib1 (bnheap-node-box bn1))
+                     (ib2 (bnheap-node-box bn2)))
+                 (setf (bnheap-node-box bn1) ib2
+                       (bnheap-box-node ib2) bn1)
+                 (setf (bnheap-node-box bn2) ib1
+                       (bnheap-box-node ib1) bn2))
+               ;; Up
+               (setq bn1 bn2
+                     bn2 (bnheap-node-parent bn2))
+             ))
   ;;
   ib)
 
@@ -945,9 +947,9 @@
 
 (defmacro do-fdque ((var dqh) &rest body)
   `(let ((,var ,dqh))
-     (while (not (eq (setq ,var (fdque-next ,var))
-                     ,dqh))
-       ,@body)))
+     (iterate (while (not (eq (setq ,var (fdque-next ,var))
+                              ,dqh)))
+              ,@body)))
 
 
 (defstruct (fheap
@@ -1116,11 +1118,11 @@
     (error "delete-min-fheap: ~s is empty" fh))
   (let* ((minnode (fheap-minnode fh))
          (child (fheap-node-child minnode)))
-    (while (not (fdque-empty-p child))
-      (let ((cn (fdque-next child)))
-        (delete-fdque cn)
-        (setf (fheap-node-parent cn) nil)
-        (append-fdque minnode cn)))
+    (iterate (while (not (fdque-empty-p child)))
+             (let ((cn (fdque-next child)))
+                 (delete-fdque cn)
+                 (setf (fheap-node-parent cn) nil)
+                 (append-fdque minnode cn)))
     ;;
     (delete-fdque minnode)
     (decf (fheap-count fh))
@@ -1157,25 +1159,25 @@
                (setf (fheap-node-mark y) nil))))
       (loop for d fixnum from 0 to (fheap-Dn fh)
           do (setf (aref A d) nil))
-      (while (not (eq w trees))
-        (let* ((w2 (fdque-next w))
-               (x w)
-               (d (fheap-node-degree x)))
-          (declare (type fixnum d))
-          (while (progn
-                   (adjustA d)
-                   (aref A d))
-            (let ((y (aref A d)))
-              (when (funcall lessp
-                             (fheap-node-keyval y)
-                             (fheap-node-keyval x))
-                (rotatef x y))
-              (link y x)
-              (setf (aref A d) nil)
-              (incf d)))
-          (setf (aref A d) x)
-          (setf (fheap-node-parent x) nil)
-          (setq w w2)))
+      (iterate (while (not (eq w trees)))
+               (let* ((w2 (fdque-next w))
+                        (x w)
+                        (d (fheap-node-degree x)))
+                   (declare (type fixnum d))
+                   (iterate (while (progn
+                                     (adjustA d)
+                                     (aref A d)))
+                            (let ((y (aref A d)))
+                                (when (funcall lessp
+                                               (fheap-node-keyval y)
+                                               (fheap-node-keyval x))
+                                  (rotatef x y))
+                                (link y x)
+                                (setf (aref A d) nil)
+                                (incf d)))
+                   (setf (aref A d) x)
+                   (setf (fheap-node-parent x) nil)
+                   (setq w w2)))
       ;;
       (setf (fheap-minnode fh) nil)
       (loop for d fixnum from 0 to (fheap-Dn fh)
@@ -1341,7 +1343,7 @@
   #+sbcl
   (setq *random-state* (make-random-state #xABE))
   (format t "size = ~d ... " size)
-  (gc t)
+  (trivial-garbage:gc :verbose t)
   (time
    (let ((rnums (loop repeat size collect (random most-positive-fixnum)))
          (q (make-prique implementation :maxcount size)))

@@ -16,6 +16,7 @@
                              :iterate
                              :cl-fad
                              :drakma
+                             :trivial-garbage
                              :clml.utility-package
                              )
                 :components (
