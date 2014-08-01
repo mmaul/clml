@@ -823,7 +823,7 @@
 (defun eigen-by-jacobi (a)
   (declare (type dmat a))
   #+sbcl
-  (check-type a :dmat)
+  (check-type a dmat)
   #-sbcl
   (assert (typep a 'dmat)
           (a)
@@ -834,7 +834,7 @@
 (defun eigen-by-householder-ql (a)
   (declare (type dmat a))
   #+sbcl
-  (check-type a :dmat)
+  (check-type a dmat)
   #-sbcl
   (assert (typep a 'dmat)
 	  (a)
@@ -855,7 +855,7 @@
   "assume that mat is a positive definite matrix"
   (declare (type dmat mat))
   #+sbcl
-  (check-type mat :dmat)
+  (check-type mat dmat)
   #-sbcl
   (assert (typep mat 'dmat)
       (mat)
@@ -899,7 +899,7 @@
       finally (return (values (specialize-vec (coerce (reverse eigen-values) 'vector))
                               (coerce (reverse eigen-vectors) 'vector)))))
 
-#-sbcl
+
 (defun power-method (a &key (method :max)
                             (precision 1d-8)
                             initial-dvec)
@@ -910,7 +910,11 @@
         (lin-eq-solver 
          (when (eq method :min)
            (let ((flag nil) (clone-a (copy-mat a)) index)
-             (declare (type dmat clone-a) (type (simple-array fixnum (*)) index))
+             (declare (type dmat clone-a)
+                      ;SBCL not cool with assigning int to declared
+                      ;array in lambda below
+                      #-sbcl
+                      (type (simple-array fixnum (*)) index))
              (lambda (vec)
                (unless flag 
                  (setf index (second (multiple-value-list (lu-decomposition clone-a)))
