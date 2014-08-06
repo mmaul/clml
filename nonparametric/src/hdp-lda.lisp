@@ -203,7 +203,7 @@ TODO: Optimize in SBCL"
 	  (vector-push-extend 0 ttables)))
       ref)))
 
-#-sbcl
+
 (defmethod remove-customer ((hdp-lda hdp-lda) word doc)
   #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0)))
@@ -228,11 +228,12 @@ TODO: Fix in SBCL"
       (when (zerop (decf (the fixnum (aref (the (array fixnum (*)) (hdp-lda-topic-tables hdp-lda)) topic))))
 	;; delete topic
 	(decf (the fixnum (topic-count hdp-lda)))))
-    (decf (the (values fixnum &optional) (aref
-		       (the (array fixnum (*))(aref
-					       (the (array fixnum (*)) (hdp-lda-topics hdp-lda))
-					       (the fixnum (word-id word))))
-		       topic)))
+    (decf (aref (aref (hdp-lda-topics hdp-lda)
+					       
+					       (the fixnum (word-id word)))
+		       
+		       topic);(the (values fixnum &optional) (the (array fixnum (*))) (the (array fixnum (*)) ))
+          )
     (decf (the fixnum (aref (the (array fixnum (*)) (hdp-lda-topic-occurs hdp-lda)) topic)))
     old))
 

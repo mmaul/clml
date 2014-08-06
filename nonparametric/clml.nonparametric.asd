@@ -19,6 +19,8 @@
                              (:file "multi-dpm")
                              (:file "hdp-lda")
                              (:file "hdp")
+                             (:file "hdp-hmm-class")
+                             (:file "hdp-hmm")
                              (:file "gauss-hmm")
                              (:file "sticky-hdp-hmm")
                              (:file "blocked-hdp-hmm")

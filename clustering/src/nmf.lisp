@@ -757,6 +757,7 @@
       sum (* (+phi matrix i j)
 	     (-phi matrix h j))))
 
+
 (declaim (ftype (function ((simple-array double-float)) (simple-array double-float))column-power-vector) )
 (defun column-power-vector (matrix)
   (let* ((n (array-dimension matrix 1))
@@ -777,11 +778,11 @@
 	    for j below (array-dimension matrix 1)
 	    sum (aref matrix i j))))))
 
-#-sbcl
+
 (defun column-adjusting-factor (matrix column-number)
   "TODO: enable in SBCL"
   (let* ((column-power-vector-v (column-power-vector matrix))
-	 (max-column-power (max-vector column-power-vector-v))
+         (max-column-power (max-vector (coerce  column-power-vector-v '(simple-array fixnum))))
          (semantic-weight 1.7))
     (/ (* semantic-weight max-column-power)
        (aref column-power-vector-v column-number))))

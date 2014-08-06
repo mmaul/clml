@@ -94,7 +94,7 @@
 
 (defpackage :clml.clustering.spectral-clustering
   (:nicknames :spectral-clustering)
-    (:use :cl :clml.hjs.matrix :clml.hjs.meta)
+    (:use :cl :clml.hjs.matrix :clml.hjs.meta :clml.hjs.eigensystems)
     (:export #:spectral-clustering-mcut
              #:*sample-w*)
     (:import-from #+allegro "EXCL" #+sbcl "SB-INT" #+lispworks "LISPWORKS" #+ccl "CCL"

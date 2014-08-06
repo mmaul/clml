@@ -1,27 +1,21 @@
 ;-*- coding: utf-8 -*-
 ;; HDP-HMM (or infinite HMM)
+(in-package :clml.nonparametric.hdp-hmm)
 
-(in-package :clml-nonparametric.hdp-hmm)
 
 (defparameter *smooth-beta* 1d-2)
 
-(defclass hidden-state (hdp-cluster)
-  ((dist  :initform (make-hash-table) :accessor cluster-dist-table)
-   (emission :initform (make-hash-table :test #'equal) :accessor emission)))
 
-(defclass hdp-hmm (hdp)
-  ((base-distribution :initform (make-instance 'state-uniform))
-   (vocabulary :initarg :v :initform 27 :accessor vocabulary)
-   (eos-state :accessor hdp-hmm-eos)))
+;;;;;;
 
-(defclass state-uniform (hdp-distribution) 
-  ((cluster-class :initform 'hidden-state)))
 
 (defmethod initialize-instance ((instance hdp-hmm) &rest initargs)
   (declare (ignore initargs))
   (call-next-method)
   (setf (hdp-hmm-eos instance) (make-instance (cluster-class (dpm-base instance))))
   instance)
+
+
 
 ;; specific methods for distribution
 (defmethod add-to-cluster ((cluster hidden-state) data &rest args &key franchise)

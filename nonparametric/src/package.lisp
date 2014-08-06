@@ -239,9 +239,10 @@
 (defpackage :clml.nonparametric.blocked-hdp-hmm
   (:nicknames nonparametric.blocked-hdp-hmm)
   (:use :cl :nonpara.stat :clml.hjs.meta
-	:nonparametric.dpm 
-	:nonparametric.hdp
-	:nonparametric.hdp-hmm)
+        :nonparametric.hdp-hmm
+        :nonparametric.dpm 
+        :nonparametric.hdp
+	)
   (:export :blocked-hidden-state
 	   :blocked-hdp-hmm
 	   :block-uniform
