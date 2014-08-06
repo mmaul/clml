@@ -787,11 +787,11 @@
     (/ (* semantic-weight max-column-power)
        (aref column-power-vector-v column-number))))
 
-#-sbcl
+
 (defun row-adjusting-factor (matrix row-number)
   "TODO: enable in SBCL"
   (let* ((row-power-vector (row-power-vector matrix))
-	 (max-row-power (max-vector row-power-vector))
+         (max-row-power (max-vector (coerce  row-power-vector '(simple-array fixnum))))
 	 (semantic-weight 1.7))
     (/ (* semantic-weight max-row-power)
        (aref row-power-vector row-number))))

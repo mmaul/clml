@@ -73,7 +73,8 @@
   (:use :cl
         :clml.hjs.read-data
         :clml.hjs.matrix
-        :clml.statistics)
+        :clml.statistics
+        :clml.nearest-search.nearest)
   (:export :optics
            :optics-main
            :make-optics-input)
@@ -83,8 +84,9 @@
 (defpackage :clml.clustering.optics-speed
   (:nicknames :optics-speed)
   (:use
+   :clml.nearest-search.nearest
    :optics
-   :learn.nearest)
+   )
   (:export
    :optics-input-speed
    :get-neighbors
@@ -127,6 +129,7 @@
 - [[http://www.msi.co.jp/vmstudio/materials/tech/index.html][VMS Technical Reference]]
 - [[http://www.cs.tcd.ie/publications/tech-reports/reports.02/TCD-CS-2002-33.pdf][Cluster validation techniques for genome expression data]]"))
 
+#+ignore   ;; Package apparently a work in progress
 (defpackage :clml.clustering.k-means2
     (:use :cl :clml.hjs.vector :clml.hjs.meta
           :clml.statistics :clml.hjs.matrix)

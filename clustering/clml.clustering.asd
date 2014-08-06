@@ -19,6 +19,8 @@
                              (:file "optics")
                              (:file "spectral-clustering")
                              (:file "cluster-validation")
-                             (:file "k-means2")
                              (:file "optics-speed")
+                             #+ignlre ;; k-means2 is a work in progess
+                             (:file "k-means2")
+                             
                              ))

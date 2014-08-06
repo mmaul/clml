@@ -30,7 +30,7 @@ self analysis is displayed.
 	:clml.pca
 	:clml.utility.priority-que)
   (:export :nearest-search
-	   
+           	   :find-nearest-epsilon
 	   :exact-nearest-search
 	   :stochastic-nearest-search
 	   
@@ -54,7 +54,7 @@ self analysis is displayed.
 	   
 	   :find-nearest
 	   :find-nearest-k
-	   :find-nearest-epsilon
+
 	   
 	   :stochastic-validation
 	   ))

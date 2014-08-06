@@ -1,4 +1,4 @@
-
+;; Pulled from system this package looks like a work in progress
 (in-package :clml.clustering.k-means2)
 
 ;;;; global variables
@@ -31,8 +31,9 @@ rest-iteration not defined
           st-iteration))
      until (stop-p))
   
-
+#+ignore 
 (defun k-means ()
+  "TODO: update-best-trial not defined"
   (loop repeat *num-of-trials*
         do
      (trial)
