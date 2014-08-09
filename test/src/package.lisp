@@ -5,7 +5,7 @@
    :cl
    :vars
    :read-data
-                                        ;:clml.statistics
+   :clml.statistics
    :clml.statistics.math
    :clml.clustering.CLUSTER-VALIDATION
    :clml.clustering.optics
@@ -39,6 +39,7 @@
    :clml.nonparametric.hdp-lda
    :clml.decision-tree.random-forest
    :clml.text.utilities
+   :clml.text.hdp-lda
    ;:clml.nonparametric.dpm
    :clml.association-rule
    :clml.som

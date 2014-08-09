@@ -1,24 +1,11 @@
-;; package of interfaces for :text.hdp-lda
-(defpackage :clml.text.hdp-lda
-  (:nicknames :text.hdp :hdp-lda)
-  (:use :cl :clml.hjs.read-data :clml.hjs.vector )
-  
-  (:export #:hdp-lda
-           #:get-trend-topics
-           #:extract-words
-           #:topic-names
-           #:hdp-lda-gamma
-           #:make-document-theta-result
-           #:make-topic-beta-result
-           #:make-docs
-           #:make-bow-hash))
-           
+
 (in-package :clml.text.hdp-lda)
 
 (defmethod hdp-lda ((dataset numeric-dataset) &key (sampling 100)
                                                    (initial-k 0)
                                                    hyper-parameters ;; (alpha gamma beta)
                                                    )
+  (print sampling)
   (assert (and (integerp sampling) (plusp sampling)))
   (let* ((bow-hash (make-bow-hash dataset))
          (docs (make-docs dataset bow-hash))
@@ -30,11 +17,15 @@
                                           :alpha (first hyper-parameters)
                                           :beta (second hyper-parameters)
                                           :gamma (third hyper-parameters)))
-                  (make-instance 'hdp-lda :data docs :k initial-k))))
+                    (make-instance 'hdp-lda :data docs :k initial-k))))
+    (print model)
+    (initialize model)
+    (print "0000000000")
     (loop repeat sampling
         initially (initialize model)
-        do (sampling model)
-        finally (assign-theta model))
+       do (progn (sampling model) (print ":::::"))
+       finally (assign-theta model))
+    (print "=======")
     (values (make-document-theta-result model)
             (make-topic-beta-result model)
             model)))

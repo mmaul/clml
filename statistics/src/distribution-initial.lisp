@@ -1,6 +1,6 @@
 (in-package :clml.statistics)
 (defclass distribution ()
-  (;(mean)
+  ((mean)
    (variance)
    (skewness)
    (kurtosis)

@@ -12,4 +12,5 @@
                              )
                 :components (
                              (:file "text-utils")
+                             (:file "hdp-lda")
                              ))

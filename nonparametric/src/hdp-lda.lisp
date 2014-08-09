@@ -71,23 +71,23 @@
 
 TODO: Optimize in SBCL"
   (let ((tables (document-restaurant doc))
-	(p      (document-p doc))
-	(topic-p (hdp-lda-p hdp-lda))
-	(alpha  (hdp-lda-alpha hdp-lda))
-	(beta   (hdp-lda-beta  hdp-lda))
-	(gamma  (hdp-lda-gamma hdp-lda))
-	(occurs  (hdp-lda-topic-occurs hdp-lda))
-	(v      (1+ (vocabulary hdp-lda)))
-	(ttables (hdp-lda-topic-tables hdp-lda))
-	(sims   (aref (hdp-lda-topics hdp-lda) (word-id word)))
-	(layers (document-layer-points doc)))
+        (p      (document-p doc))
+        (topic-p (hdp-lda-p hdp-lda))
+        (alpha  (hdp-lda-alpha hdp-lda))
+        (beta   (hdp-lda-beta  hdp-lda))
+        (gamma  (hdp-lda-gamma hdp-lda))
+        (occurs  (hdp-lda-topic-occurs hdp-lda))
+        (v      (1+ (vocabulary hdp-lda)))
+        (ttables (hdp-lda-topic-tables hdp-lda))
+        (sims   (aref (hdp-lda-topics hdp-lda) (word-id word)))
+        (layers (document-layer-points doc)))
     (declare (type double-float alpha beta gamma)
-	     (type (array fixnum (*)) occurs ttables sims layers)
-	     (type (simple-array t (*)) tables)
-	     (type (array double-float (*)) topic-p)
-	     (type (simple-array double-float (*)) p)
-	     (type fixnum v))
-    ;;; slice sampling -- l(x): customers + alpha / pi(x): topic relationship
+             (type (array fixnum (*)) occurs ttables sims layers)
+             (type (simple-array t (*)) tables)
+             (type (array double-float (*)) topic-p)
+             (type (simple-array double-float (*)) p)
+             (type fixnum v))
+        ;;; slice sampling -- l(x): customers + alpha / pi(x): topic relationship
     ;;; assume tables are sorted by customer number
     (let* ((slice (random old))
 	   (sum 0d0)
@@ -99,71 +99,77 @@ TODO: Optimize in SBCL"
 	       (type double-float sum base))
       ;; calculated flag to minus
       (fill topic-p -1d0)
+      
       (when (>= alpha slice) ;; consider backoff
-	;; calculate f_k(x_ij) into topic-p
-	(loop
-	    for s fixnum across sims
-	    for occur fixnum across occurs
-	    for i fixnum from 0
-	    unless (zerop occur) do
-	      (setf (aref topic-p i)
-		(the double-float
-		  (/ (the double-float (+ s beta))
-		     (the double-float (+ occur base))))))
-	(incf sum
-	      (the double-float
-		(loop for tt fixnum across ttables
-		    for f-k double-float across topic-p
-		    unless (minusp f-k)
-		    summing (the double-float (* f-k tt)) into ans double-float
-		    finally (return
-			      (/ (the double-float (+ ans (the double-float (* gamma (/ v)))))
-				 (the double-float (+ (the fixnum (hdp-lda-ntables hdp-lda)) gamma))))))))
+        
+        ;; calculate f_k(x_ij) into topic-p
+        (loop
+           for s fixnum across sims
+           for occur fixnum across occurs
+           for i fixnum from 0
+           unless (zerop occur) do
+             (setf (aref topic-p i)
+                   (the double-float
+                        (/ (the double-float (+ s beta))
+                           (the double-float (+ occur base))))))
+        (incf sum
+              (the double-float
+                   (loop for tt fixnum across ttables
+                      for f-k double-float across topic-p
+                      unless (minusp f-k)
+                      summing (the double-float (* f-k tt)) into ans double-float
+                      finally (return
+                                (/ (the double-float (+ ans (the double-float (* gamma (/ v)))))
+                                   (the double-float (+ (the fixnum (hdp-lda-ntables hdp-lda)) gamma))))))))
       ;; calculate sliced pi(x) into p
       (loop for i fixnum from 0 upto limit
-	  for table across tables
-	  while table do
-	    (let* ((assign (table-dish table))
-		   (subp (aref topic-p assign)))
-	      (declare (type fixnum assign)
-		       (type double-float subp))
-	      (when (minusp subp)
-		(let ((new (/ (the double-float (+ (aref sims assign) beta))
-			      (the double-float (+ (aref occurs assign) base)))))
-		  (declare (type double-float new))
-		  (setf subp new)
-		  (setf (aref topic-p assign) new)))
-	      (incf sum subp)
-	      (setf (aref p i) subp)))
+         for table across tables
+         while table do
+           (let* ((assign (table-dish table))
+                  (subp (aref topic-p assign)))
+             (declare (type fixnum assign)
+                      (type double-float subp))
+             (when (minusp subp)
+               
+               (let ((new (/ (the double-float (+ (aref sims assign) beta))
+                             (the double-float (+ (aref occurs assign) base)))))
+                 (declare (type double-float new))
+                 (setf subp new)
+                 (setf (aref topic-p assign) new)))
+             (incf sum subp)
+             (setf (aref p i) subp)))
       (let ((ref (randomize-slice p sum limit))) ;; now sample new seating by slice-sampling
-	(declare (type fixnum ref))
-	;; add new customer
-	(when(= ref -1) ;; new table
-	  (incf (hdp-lda-ntables hdp-lda))
-	  (setf ref (aref layers 0))
-	  (unless (aref tables ref)
-	    (setf (aref tables ref) (make-table)))
-	  (let ((topic (sample-new-topic hdp-lda topic-p (dfloat (/ v)))))
-	    (declare (type fixnum topic))
-	    (setf (table-dish (aref tables ref)) topic) 
-	    (incf (aref ttables topic))))
-	(let* ((table (aref tables ref))
-	       (topic (table-dish table))
-	       (old (table-customer table))
-	       (new-position (aref layers old)))
-	  (declare (type fixnum topic))
-	  (incf (table-customer table))
-	  (vector-push-extend word (table-customers table))
-	  (setf (word-assign word) table)
-	  (incf (aref sims topic))
-	  (incf (aref (hdp-lda-topic-occurs hdp-lda) topic))
-	  ;; resort tables
-	  (rotatef (aref tables ref)
-		   (aref tables new-position))
-	  (incf (aref layers old))
-	  (when (= (length layers) (1+ old))
-	    (vector-push-extend 0 layers)))
-	ref))))
+        (declare (type fixnum ref))
+        ;; add new customer
+        (when(= ref -1) ;; new table
+          (incf (hdp-lda-ntables hdp-lda))
+          (setf ref (aref layers 0))
+          (unless (aref tables ref)
+            (setf (aref tables ref) (make-table)))
+          ;(format t "~%DEBUG 1~%")
+          (let ((topic (sample-new-topic hdp-lda topic-p (dfloat (/ v)))))
+            (declare (type fixnum topic))
+            ;(format t "~%DEBUG 1.5 ~a ~a ~a ~a~%" tables ref topic (table-dish (aref tables ref)))
+            (setf (table-dish (aref tables ref)) topic) 
+            (incf (aref ttables topic))))
+        ;(format t "~%DEBUG 2~%")
+        (let* ((table (aref tables ref))
+               (topic (table-dish table))
+               (old (table-customer table))
+               (new-position (aref layers old)))
+          (declare (type fixnum topic))
+          (incf (table-customer table))
+          (vector-push-extend word (table-customers table))
+          (setf (word-assign word) table)
+          (incf (aref sims topic))
+          (incf (aref (hdp-lda-topic-occurs hdp-lda) topic))
+          ;; resort tables
+          (rotatef (aref tables ref)
+                   (aref tables new-position))
+          (incf (aref layers old))
+          (when (= (length layers) (1+ old))
+            (vector-push-extend 0 layers)))
+        ref))))
 
 (defmethod sample-new-topic ((hdp-lda hdp-lda) topic-p k-new)
   #-sbcl
@@ -510,3 +516,5 @@ TODO: Optimize in SBCL"
 		(setf (aref n-best j) (revert-word model x)))
 	  (setf (aref phi i) n-best))
     phi))
+
+

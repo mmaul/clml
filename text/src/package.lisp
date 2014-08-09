@@ -15,3 +15,18 @@
 *** sample usage
 #+INCLUDE: \"../sample/text-utils.org\"  example lisp "))
 
+;; package of interfaces for :text.hdp-lda
+(defpackage :clml.text.hdp-lda
+  (:nicknames :text.hdp :hdp-lda)
+  (:use :cl :clml.hjs.read-data :clml.hjs.vector :clml.nonparametric.hdp-lda)
+  
+  (:export #:hdp-lda
+           #:get-trend-topics
+           #:extract-words
+           #:topic-names
+           #:hdp-lda-gamma
+           #:make-document-theta-result
+           #:make-topic-beta-result
+           #:make-docs
+           #:make-bow-hash))
+           

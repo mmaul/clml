@@ -155,7 +155,9 @@
 	   :*gamma-base-a*
 	   :*gamma-base-b*
 	   
-	   :*default-beta*)
+	   :*default-beta*
+
+       )
   (:documentation "Package for Latent-Dirichlet-Allocation by Hierarchical-Dirichlet-Process
 
 *** sample usage

@@ -5,7 +5,9 @@
     (let ((dataset (pick-and-specialize-data
                     (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/sports-corpus-data") :external-format :utf-8)
                     :except '(0) :data-types (make-list 1202 :initial-element :numeric))))
+      (print dataset)
       (multiple-value-bind (res1 res2 model) (hdp-lda dataset)
+        (format t "~a, ~a ~a" res1 res2 model)
         (assert-eql (topic-count model) (length (dataset-dimensions res1)))
         (assert-eql (length (dataset-dimensions dataset)) (1- (length (dataset-dimensions res2))))
         (assert-eql (topic-count model) (length (dataset-category-points res2)))
