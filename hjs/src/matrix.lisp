@@ -489,7 +489,7 @@
          (work (make-array lwork :element-type 'double-float))
          (info 0))
     (assert (= m n))
-    (format t "IPIV: ~a" ipiv)
+    ;(format t "IPIV: ~a" ipiv)
     (f2cl-lib:with-multi-array-data ((ipiv f2cl-lib:integer4
                                       ipiv-%data% ipiv-%offset%)
                                      )
@@ -499,7 +499,9 @@
                                                                               *))
                                                                             ipiv-%offset%)
             5)
-       (format t "IPIV DATA ~a ~% IPIV OFFSET ~a ~%" ipiv-%data% ipiv-%offset%))
+       ;(format t "IPIV DATA ~a ~% IPIV OFFSET ~a ~%" ipiv-%data%
+       ;ipiv-%offset%)
+      )
     (setq info 
       (car (last
             (multiple-value-list
@@ -508,8 +510,8 @@
                              #-ccl ipiv
                              info)))))
     (assert (= 0 info))
-    (print (list n Ar lda 'X work lwork info))
-    (format t "IPIV: ~a" ipiv)
+    ;(print (list n Ar lda 'X work lwork info))
+    ;(format t "IPIV: ~a" ipiv)
     (setq info
       (car (last (multiple-value-list
                   (lapack::dgetri n Ar lda

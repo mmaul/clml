@@ -26,4 +26,5 @@
                              (:file "blocked-hdp-hmm")
                              (:file "ihmm")
                              (:file "ftm")
+                             (:file "dpm-interface")
                              ))

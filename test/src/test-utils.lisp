@@ -16,20 +16,25 @@
                    always (point-equal pt1 pt2 :test test))))
 
 (defun run-all-test-sample ()
-  (run-tests test-sample-assoc test-sample-cluster-validation
-             test-decision-tree test-sample-expl-smthing
-             test-hc test-sample-k-means
-             test-sample-k-nn test-sample-linear-regression
-             test-nmf test-sample-optics
-             test-sample-pca test-random-forest
-             test-sample-read-data test-sample-som
-             test-sample-spectral-clustering test-sample-stat
-             test-sample-svm wss3.kernels wss3.svm test-svr test-one-class-svm
-             test-sample-ts-ar test-sample-ts-read-data test-sample-ts-stat
-             test-sample-ts-stsp test-changefinder test-ts-anomaly-detection
-             test-sample-hdp-lda
-             test-sample-dpm
-             test-sample-text-utils))
+  (run-tests #'test-sample-assoc #'test-sample-cluster-validation
+             #'test-decision-tree #'test-sample-expl-smthing
+             #'test-hc #'test-sample-k-means
+             #'test-sample-k-nn #'test-sample-linear-regression
+             #'test-nmf #'test-sample-optics
+             #'test-sample-pca #'test-random-forest
+             #'test-sample-read-data #'test-sample-som
+             #'test-sample-spectral-clustering #'test-sample-stat
+             #'test-sample-svm
+             #'test-wss3.kernels
+             #'test-wss3.svm test-svr
+             #'test-test-one-class-svm
+             #'test-sample-ts-ar test-sample-ts-read-data test-sample-ts-stat
+             #'test-sample-ts-stsp
+             #'test-changefinder
+             #'test-ts-anomaly-detection
+             #'test-sample-hdp-lda
+             #'test-sample-dpm
+             #'test-sample-text-utils))
 
 
 ;;;

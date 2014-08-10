@@ -16,13 +16,22 @@
                :csv-type-spec (append (make-list 9 :initial-element 'double-float)
                                       '(symbol)))))
 
-    (multiple-value-bind (true false per) (classify test train "Class" :double-manhattan)
+    (multiple-value-bind (true false per) (classify-k-nn test train "Class" :double-manhattan)
       (assert-equalp true 336)
       (assert-equalp false 9)
-      (assert-true (> per 0.97))
+      (assert-true (> per 0.97)))
+
+    (multiple-value-bind (true false per) (classify-decision-tree test train "Class" :double-manhattan)
+      
+      (assert-equalp true 332)
+      (assert-equalp false 13)
+      (assert-true (> per 0.96))
       )
     )
-  )
+  
+  
+    )
+  
 
 (define-test test-classifier-spam
   (let ((train (read-data-from-file

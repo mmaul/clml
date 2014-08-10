@@ -18,14 +18,10 @@
                                           :beta (second hyper-parameters)
                                           :gamma (third hyper-parameters)))
                     (make-instance 'hdp-lda :data docs :k initial-k))))
-    (print model)
-    (initialize model)
-    (print "0000000000")
     (loop repeat sampling
-        initially (initialize model)
-       do (progn (sampling model) (print ":::::"))
+        initially (initialize model) ; problem
+       do (progn (sampling model) )
        finally (assign-theta model))
-    (print "=======")
     (values (make-document-theta-result model)
             (make-topic-beta-result model)
             model)))

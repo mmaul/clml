@@ -69,7 +69,8 @@
 	   (type fixnum old))
   "add new customer word belong to doc randomly
 
-TODO: Optimize in SBCL"
+TODO: Optimize in SBCL
+Find out why tables is not an array of table"
   (let ((tables (document-restaurant doc))
         (p      (document-p doc))
         (topic-p (hdp-lda-p hdp-lda))
@@ -125,7 +126,9 @@ TODO: Optimize in SBCL"
       (loop for i fixnum from 0 upto limit
          for table across tables
          while table do
-           (let* ((assign (table-dish table))
+           (let* ((assign (table-dish table)) ; TODO DEBUG table should be an
+                                        ; arrray of table but it is
+                                        ; array for numbers instead why
                   (subp (aref topic-p assign)))
              (declare (type fixnum assign)
                       (type double-float subp))
@@ -149,7 +152,7 @@ TODO: Optimize in SBCL"
           ;(format t "~%DEBUG 1~%")
           (let ((topic (sample-new-topic hdp-lda topic-p (dfloat (/ v)))))
             (declare (type fixnum topic))
-            ;(format t "~%DEBUG 1.5 ~a ~a ~a ~a~%" tables ref topic (table-dish (aref tables ref)))
+            ;(format t "~%DEBUG 1.5 ~a ~a ~a (~a)~%" tables ref topic (aref tables ref))
             (setf (table-dish (aref tables ref)) topic) 
             (incf (aref ttables topic))))
         ;(format t "~%DEBUG 2~%")

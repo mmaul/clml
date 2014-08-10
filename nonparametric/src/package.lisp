@@ -311,3 +311,26 @@
 	   :lfm-distribution
 	   
 	   ))
+(defpackage :clml.nonparametric.dpm-interface
+  
+  (:use :cl :clml.hjs.read-data :clml.nonparametric.dpm
+        :clml.hjs.meta :clml.hjs.vector :clml.hjs.matrix)
+  (:import-from :clml.nonparametric.dpm
+                #:average-of-average
+                #:std-of-average
+                #:average-of-std
+                )
+  (:export
+   #:dpm-k
+   #:dpm-hyper
+   #:dpm-base
+   #:multivar-gauss-dpm
+   #:multivar-dp-gaussian
+   #:average-of-average
+   #:std-of-average
+   #:average-of-std
+   #:gaussian-dpm
+   #:get-cluster-info
+   #:get-cluster-parameter
+   ;; #:make-workspace-for-validation
+   ))
