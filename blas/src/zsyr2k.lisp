@@ -14,7 +14,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "BLAS")
+(in-package :clml.blas)
 
 
 (let* ((one (f2cl-lib:cmplx 1.0 0.0)) (zero (f2cl-lib:cmplx 0.0 0.0)))

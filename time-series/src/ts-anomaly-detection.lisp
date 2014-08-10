@@ -507,7 +507,7 @@
               (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
               ; dragons be here - errors is not of type (VECTOR DOUBLE-FLOAT)
               #-mkl           
-              (lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info))))
+              (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info))))
     (assert (= info 0))    
     (do-vec (_ pattern :type double-float :setf-var sf :index-var i)
       (declare (ignore _))

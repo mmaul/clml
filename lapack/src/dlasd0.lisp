@@ -14,7 +14,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 
 (defun dlasd0 (n sqre d e u ldu vt ldvt smlsiz iwork work info)

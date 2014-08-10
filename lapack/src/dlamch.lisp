@@ -14,7 +14,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 
 (defun dlamc3 (a b)
@@ -51,7 +51,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 
 (let ((lieee1 nil) (lbeta 0) (lrnd nil) (lt$ 0) (first$ nil))
@@ -160,7 +160,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 
 (defun dlamc4 (emin start base)
@@ -227,7 +227,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 
 (let* ((zero 0.0) (one 1.0))
@@ -313,7 +313,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 
 (let ((lbeta 0)
@@ -566,7 +566,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 
 (let* ((one 1.0) (zero 0.0))

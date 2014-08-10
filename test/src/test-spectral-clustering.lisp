@@ -18,22 +18,26 @@ TOTAL: 507 assertions passed, 0 failed, 0 execution errors.
 
 (define-test test-sample-w
     (let ((*sample-w* spectral-clustering::*sample-w*))
-      (assert-error 'error (spectral-clustering-mcut *sample-w* 0))
-      (assert-equality #'set-equal 
-                       '((0 1 2 3 4))
-                       (spectral-clustering-mcut *sample-w* 1))
-      (assert-equality #'set-equal 
-                       '((2 3 4) (0 1))
-                       (spectral-clustering-mcut *sample-w* 2))
-      (assert-equality #'set-equal 
-                       '((2 3) (0 1) (4))
-                       (spectral-clustering-mcut *sample-w* 3))
-      (assert-equality #'set-equal 
-                       '((0 1) (3) (2) (4))
-                       (spectral-clustering-mcut *sample-w* 4))
-      (assert-equality #'set-equal 
-                       '((1) (0) (3) (2) (4))
-                       (spectral-clustering-mcut *sample-w* 5))
+      (assert-true (handler-case
+                       (progn  (spectral-clustering-mcut *sample-w* 0)
+                               nil)
+                     (error ()  t)
+                     ))
+      (assert-true (mapcar #'set-equal
+                           '((0 1 2 3 4))
+                           (spectral-clustering-mcut *sample-w* 1)))
+      (assert-true (mapcar #'set-equal
+                           '((2 3 4) (0 1))
+                           (spectral-clustering-mcut *sample-w* 2)))
+      (assert-true (mapcar #'set-equal
+                           '((2 3) (0 1) (4))
+                           (spectral-clustering-mcut *sample-w* 3)))
+      (assert-true (mapcar #'set-equal
+                           '((0 1) (3) (2) (4))
+                           (spectral-clustering-mcut *sample-w* 4)))
+      (assert-true (mapcar #'set-equal
+                           '((1) (0) (3) (2) (4))
+                           (spectral-clustering-mcut *sample-w* 5)))
       (assert-false (spectral-clustering-mcut *sample-w* 6))
       ))
 

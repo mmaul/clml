@@ -14,7 +14,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "BLAS")
+(in-package :clml.blas)
 
 
 (defun zrotg (ca cb c s)

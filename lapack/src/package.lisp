@@ -1,7 +1,7 @@
 ( eval-when (:compile-toplevel)
   (setq *read-default-float-format* 'double-float))
-(defpackage "LAPACK"
-  (:use "BLAS" "COMMON-LISP")
+(defpackage :clml.lapack
+  (:use :clml.blas :cl)
   (:shadow :zswap)
   (:export
    :dbdsdc :dbdsqr :ddisna :dgebak :dgebal :dgebd2 :dgebrd :dgeev :dgeevx

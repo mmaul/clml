@@ -14,7 +14,7 @@
 ;;;           (:array-type ':array) (:array-slicing t)
 ;;;           (:declare-common nil) (:float-format double-float))
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 
 (defun dgesv (n nrhs a lda ipiv b ldb$ info)

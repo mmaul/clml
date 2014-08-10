@@ -9,7 +9,7 @@
                 :pathname "src/"
                 :serial t
                 :depends-on (
-                             :hjs
+                             :clml.hjs
                              :clml.pca
                              :clml.nonparametric
                              :clml.nearest-search.package

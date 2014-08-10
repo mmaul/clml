@@ -505,7 +505,7 @@
     (setq info 
       (car (last
             (multiple-value-list
-             (lapack::dgetrf m n Ar lda
+             (clml.lapack::dgetrf m n Ar lda
                              #+ccl (coerce ipiv 'CCL::SIMPLE-FIXNUM-VECTOR)
                              #-ccl ipiv
                              info)))))
@@ -514,7 +514,7 @@
     ;(format t "IPIV: ~a" ipiv)
     (setq info
       (car (last (multiple-value-list
-                  (lapack::dgetri n Ar lda
+                  (clml.lapack::dgetri n Ar lda
                                   #+ccl (coerce ipiv 'CCL::SIMPLE-FIXNUM-VECTOR)
                                   #-ccl ipiv
                                   work lwork info)))))
@@ -568,7 +568,7 @@
     (assert (= m n))
     ;; LU factorization
     (setq info (car (last (multiple-value-list
-                           (lapack::dgetrf m n A lda ipiv info)))))
+                           (clml.lapack::dgetrf m n A lda ipiv info)))))
     (cond ((= info 0)
            ;; multiplication of diagonal elements of matrix U
            (progn (loop for i across ipiv 

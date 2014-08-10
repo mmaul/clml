@@ -1,5 +1,5 @@
 
-(in-package :hc)
+(in-package :clml.clustering.hc)
 
 (defun i-thvector (numeric-dataset i)
   #-sbcl

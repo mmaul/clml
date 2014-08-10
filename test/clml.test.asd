@@ -13,7 +13,7 @@
                              :clml
                              :clml.test-package
                              #|:clml.statistics
-                             :hjs
+                             :clml.hjs
                              :blas
                              :clml.decision-tree
                              :clml.clustering

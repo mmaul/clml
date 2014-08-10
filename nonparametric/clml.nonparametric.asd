@@ -9,7 +9,7 @@
                 :pathname "src/"
                 :serial t
                 :depends-on (
-                             :hjs
+                             :clml.hjs
                              :clml.nonparametric.package
                              )
                 :components (

@@ -1,15 +1,15 @@
 
 
 (setq *read-default-float-format* 'double-float)
-(asdf:defsystem :lapack-package 
+(asdf:defsystem :clml.lapack-package 
                 :pathname "src/"
-                :serial :blas-package
+                :serial :clml.blas-package
                 :components (
                              (:file "package")))
 
-(asdf:defsystem :lapack-real
+(asdf:defsystem :clml.lapack-real
                 :pathname "src/"
-                :serial :lapack-package
+                :serial :clml.lapack-package
                 :components (
                              (:file "dlamch")
                              (:file "dlapy2")
@@ -107,11 +107,11 @@
            
                              )
   )
-(asdf:defsystem :lapack
+(asdf:defsystem :clml.lapack
                   :pathname "src/"
-                  :serial :blas
+                  :serial :clml.blas
                   :depends-on (
                                :f2cl
-                               :blas
-                               :lapack-package
-                               :lapack-real))
+                               :clml.blas
+                               :clml.lapack-package
+                               :clml.lapack-real))

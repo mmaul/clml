@@ -1,6 +1,6 @@
-(asdf:defsystem :blas-package 
+(asdf:defsystem :clml.blas-package 
                 :pathname "src/"
-                :serial :f2cl-lib
+                :depends-on (:f2cl)
                 :components (
                              (:file "package"))
                 )
@@ -14,9 +14,10 @@
            :report "Set double-float to *read-default-float-format*."
            (setq *read-default-float-format* 'double-float)))))
 
-(asdf:defsystem :blas-hompack
+(asdf:defsystem :clml.blas.hompack
   :pathname "src/"
-  :serial :blas-package
+  :depends-on (:clml.blas-package)
+  :serial t
   :components (
                (:file "daxpy")
                (:file "dcopy")
@@ -26,9 +27,10 @@
                (:file "idamax")
            ))
 
-(asdf:defsystem :blas-real
+(asdf:defsystem :clml.blas.real
                 :pathname "src/"
-                :serial :blas-package
+                :serial t
+                :depends-on (:clml.blas-package)
                 :components (
                              (:file "lsame")
                              (:file "xerbla")
@@ -66,9 +68,10 @@
                              (:file "izamax")
            ))
 
-(asdf:defsystem :blas-complex
+(asdf:defsystem :clml.blas.complex
   :pathname "src/"
-  :serial :blas-package
+  :serial t
+  :depends-on (:clml.blas-package)
   :components (
                (:file "zaxpy")
                (:file "zcopy")
@@ -105,11 +108,10 @@
                (:file "ztrsm")
                (:file "ztrsv")))
 
-(asdf:defsystem :blas
+(asdf:defsystem :clml.blas
   :pathname "src/"
-  :serial :f2cl-lib
-  :depends-on (
-           :blas-package
-           :blas-hompack
-           :blas-real
-           :blas-complex))
+  :serial t
+  :depends-on (:clml.blas-package
+               :clml.blas.hompack
+               :clml.blas.real
+               :clml.blas.complex))

@@ -8,7 +8,7 @@
 (asdf:defsystem :clml.numeric
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :clml.numeric-package
                              )
                 :components (

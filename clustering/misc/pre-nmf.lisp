@@ -1,6 +1,6 @@
 (defpackage :pre-nmf
   (:use :cl
-	:hc
+	:clml.clustering.hc
 	:linear-regression
 	:clml.hjs.read-data
 	:clml.hjs.matrix))

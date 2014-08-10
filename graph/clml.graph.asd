@@ -8,7 +8,7 @@
 (asdf:defsystem :clml.graph
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :clml.time-series
                              :clml.graph-package
                              :clml.statistics

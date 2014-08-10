@@ -332,7 +332,7 @@
       (car (last
             (multiple-value-list
              #+mkl (mkl.lapack::dgetrf m n Ar lda ipiv info)
-             #-mkl (lapack::dgetrf m n Ar lda ipiv info)))))
+             #-mkl (clml.lapack::dgetrf m n Ar lda ipiv info)))))
     (assert (= 0 info))
     #+mkl (transpose Ar)
     #-mkl (transpose (clml.hjs.matrix::array2mat Ar m))))

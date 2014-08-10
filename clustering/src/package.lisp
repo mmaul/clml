@@ -37,13 +37,13 @@
 (defpackage :clml.clustering.nmf
   (:nicknames :nmf)
   (:use :cl
-	:hc
-	:blas
-	:lapack
+	:clml.clustering.hc
+	:clml.blas
+	:clml.lapack
 	:clml.hjs.read-data
 	:clml.hjs.matrix
-        :clml.hjs.meta)
-  (:import-from :hc 
+    :clml.hjs.meta)
+  (:import-from :clml.clustering.hc 
 		#:i-thvector
 		#:vector-sum
 		#:vector-mean

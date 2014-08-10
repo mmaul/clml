@@ -8,7 +8,7 @@
 (asdf:defsystem :clml.classifiers
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :clml.svm
                              :clml.clustering
                              :clml.classifiers-package

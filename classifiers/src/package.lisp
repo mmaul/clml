@@ -5,7 +5,7 @@
         :clml.hjs.read-data
         :clml.hjs.matrix
         :clml.hjs.meta)
-  (:import-from :hc 
+  (:import-from :clml.clustering.hc 
                 #:i-thvector
                 #:square-sum
                 #:product-sum

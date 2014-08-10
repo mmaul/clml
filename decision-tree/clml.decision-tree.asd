@@ -8,7 +8,7 @@
 (asdf:defsystem :clml.decision-tree
                 :pathname "src/"
                 :serial t
-                :depends-on ( :hjs
+                :depends-on ( :clml.hjs
                               #+(and unix  (not lispworks))
                               :fork-future
                              :clml.decision-tree-package

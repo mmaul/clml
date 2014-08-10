@@ -8,7 +8,8 @@
 (asdf:defsystem :clml.clustering
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
+                             :clml.blas
                              :iterate
                              :clml.nearest-search
                              :clml.clustering.package

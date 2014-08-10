@@ -8,7 +8,7 @@
 (asdf:defsystem :clml.pca
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :clml.decision-tree
                              :clml.pca.package
                              )
@@ -19,7 +19,7 @@
 (asdf:defsystem :clml.pca.examples
                 :pathname "examples/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :clml.pca
                              )
                 :components (

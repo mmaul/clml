@@ -8,7 +8,7 @@
 (asdf:defsystem :clml.association-rule
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                          
                              :clml.association-rule.package
                              )

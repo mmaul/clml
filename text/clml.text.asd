@@ -6,7 +6,7 @@
 (asdf:defsystem :clml.text
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :split-sequence
                              :clml.text.package
                              )

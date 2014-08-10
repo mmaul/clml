@@ -8,7 +8,7 @@
 (asdf:defsystem :clml.time-series
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :iterate
                              :clml.numeric
                              :uiop

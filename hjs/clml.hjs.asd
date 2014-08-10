@@ -1,5 +1,5 @@
 
-(asdf:defsystem :hjs-package
+(asdf:defsystem :clml.hjs-package
                 :pathname "src/"
                 :serial t
                 :components (
@@ -7,19 +7,19 @@
                 )
 
 
-(asdf:defsystem :hjs
+(asdf:defsystem :clml.hjs
                 :pathname "src/"
                 :serial t
                 :depends-on (
                              :alexandria
                              :iterate
                              :f2cl
-                             :blas
-                             :lapack
+                             :clml.blas
+                             :clml.lapack
                              :future
                              :clml.statistics
                              :clml.utility
-                             :hjs-package)
+                             :clml.hjs-package)
                 :components (
                              (:file "utils")
                              (:file "vars")

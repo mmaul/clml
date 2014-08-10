@@ -4,7 +4,7 @@
 ;;; $Id: lapack-tests.lisp,v 1.11 2006/12/01 04:29:29 rtoy Rel $
 ;;;
 
-(in-package "LAPACK")
+(in-package :clml.lapack)
 
 ;; Convert the eigenvalues returned by DGEEV into an array
 (defun make-eigval (wr wi)

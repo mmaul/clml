@@ -67,7 +67,7 @@
 
 ;; --
 (defpackage :clml.hjs.matrix
-  (:use :cl :clml.hjs.meta :clml.hjs.vector :blas :lapack)
+  (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.blas :clml.lapack)
   (:nicknames :matrix)
   (:export #:sum-mat
 	   #:copy-mat
@@ -196,8 +196,8 @@
         :clml.hjs.meta
         :clml.hjs.vector
         :clml.hjs.matrix
-        :blas
-        :lapack)
+        :clml.blas
+        :clml.lapack)
   (:nicknames :eigensystems)
   (:export
    #:jacobi

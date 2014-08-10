@@ -73,9 +73,9 @@
   :license "LLGPL"
   :depends-on (
                ;:fork-future
-               :hjs
-               :blas
-               :lapack
+               :clml.hjs
+               :clml.blas
+               :clml.lapack
                :clml.statistics
                :clml.pca
                :clml.svm

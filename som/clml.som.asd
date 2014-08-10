@@ -6,7 +6,7 @@
 (asdf:defsystem :clml.som
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :split-sequence
                              :clml.som.package
                              :clml.statistics
@@ -30,7 +30,7 @@
 (asdf:defsystem :clml.som.example
                 :pathname "examples/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :split-sequence
                              :clml.som
                              

@@ -2,7 +2,8 @@
   (setq *read-default-float-format* 'double-float)
   )
 
-(defpackage "BLAS"
+(defpackage :clml.blas
+  (:nicknames :blas)
   (:use "COMMON-LISP")
   (:export "DAXPY" "DCOPY" "DDOT" "DNRM2" "DSCAL" "IDAMAX" "DASUM"
 	   "DCABS1" "DGBMV" "DGEMM" "DGEMV" "DGER" "DROT" "DROTG"

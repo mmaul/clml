@@ -8,7 +8,7 @@
 (asdf:defsystem :clml.svm
                 :pathname "src/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :clml.decision-tree
                              :future
                              :clml.svm-package
@@ -24,7 +24,7 @@
 (asdf:defsystem :clml.svm.examples
                 :pathname "examples/"
                 :serial t
-                :depends-on (:hjs
+                :depends-on (:clml.hjs
                              :clml.svm
                              )
                 :components (
