@@ -48,7 +48,7 @@
   (:shadow :make-polynomial-kernel :make-svm-learner :make-rbf-kernel :make-svm-validation
            :svm-validation :load-svm-learner :make-svm-kernel :make-linear-kernel
            :make-one-class-svm-kernel)
-  
+  (:shadow :centroid)
   
   (:import-from :LISP-UNIT
                :define-test
