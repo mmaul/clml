@@ -9,8 +9,7 @@
                 :pathname "src/"
                 :serial t
                 :depends-on ( :clml.hjs
-                              #+(and unix  (not lispworks))
-                              :fork-future
+                              :future
                              :clml.decision-tree-package
                              )
                 :components (

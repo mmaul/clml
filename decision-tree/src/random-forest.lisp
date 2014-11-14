@@ -281,13 +281,13 @@
   (let ((tree (make-random-regression-tree unspecialized-dataset objective-column-name)))
     (print-regression-tree tree stream)))
 
-#-fork-future
+#-future
 (defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
   (let ((forest (make-array tree-number)))
     (dotimes (i tree-number forest)
       (setf (svref forest i) (make-random-regression-tree unspecialized-dataset objective-column-name)))))
 
-#+fork-future
+#+fork-future-not-in-my-future
 (defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
   (let ((forest (make-array tree-number)))
     (let ((futures
@@ -306,6 +306,26 @@
                 do
                   (setf (svref forest i)
                     (aref (fork-future:touch (elt futures nworker)) i)))))
+    forest))
+#+future
+(defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
+  (let ((forest (make-array tree-number)))
+    (let ((futures
+           (loop for nworker below clml.hjs.vars:*workers*
+               collect
+                 (future:future 
+                  (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
+                      do
+                        (setf (svref forest i)
+                          (make-random-regression-tree unspecialized-dataset objective-column-name)))
+                  forest))))
+      (mapc 'future:touch futures)
+      (loop for nworker below clml.hjs.vars:*workers*
+          do  
+            (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
+                do
+                  (setf (svref forest i)
+                    (aref (future:touch (elt futures nworker)) i)))))
     forest))
 
 (defun predict-regression-forest (query-vector unspecialized-dataset forest)
