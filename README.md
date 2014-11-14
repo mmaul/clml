@@ -221,6 +221,14 @@ be done before loading the systems.
     (setf *read-default-float-format* 'double-float)
 -   Example below is using CLML.EXTRAS
 
+In SBCL the default heap should be expanded to 2000 or greater
+    
+    For the cmd line
+    sbcl --dynamic-space-size 2000
+    
+    In Slime
+    (setq inferior-lisp-program "sbcl --dynamic-space-size 2560")
+    
 Here is a quick demonstration:
 
     CL-USER (ql:quickload :clml)
