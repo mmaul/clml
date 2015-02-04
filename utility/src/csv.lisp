@@ -210,8 +210,10 @@ If start or end is negative, it counts from the end. -1 is the last element.
                      (t (error "~a is not a valid function specifier." fn))))
              map-fns)))
         (header
-         (when header
-           (read-csv-line stream)))) 
+         (etypecase header
+             (cons (coerce header 'vector))
+             (boolean (when header
+                        (read-csv-line stream)))))) 
     (loop for rec = (read-csv-line stream :type-conv-fns type-conv-fns :map-fns map-fns
                                    :start start :end end)
         while rec

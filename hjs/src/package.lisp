@@ -3,29 +3,29 @@
   (:nicknames :util)
   (:export #:with-unique-names
 	   #:once-only
-           #:defun-speedy
-           #:defdoublefunc
-           #:gethash-or-set
-           #:dmat
+       #:defun-speedy
+       #:defdoublefunc
+       #:gethash-or-set
+       #:dmat
 	   #:dvec
 	   #:cvec
 	   #:make-dvec
 	   #:array-index
-           #:dfloat
+       #:dfloat
 	   #:+fl
 	   #:-fl
 	   #:*fl
 	   #:/fl
-           #:safe-/
+       #:safe-/
 	   #:batch-elt
-           #:split-seq-odd-even
-           #:d-expt
-           #:d-exp
-           #:get-underlying-1d-array
-           #:vecs2mat
-           #:vecs2flatmat
-           #:mat2vecs
-           #:flatmat2vecs
+       #:split-seq-odd-even
+       #:d-expt
+       #:d-exp
+       #:get-underlying-1d-array
+       #:vecs2mat
+       #:vecs2flatmat
+       #:mat2vecs
+       #:flatmat2vecs
 	   ))
 (defpackage :clml.hjs.vars
   (:use :cl)
@@ -157,7 +157,20 @@
    #:choice-dimensions
    #:dataset-cleaning
    #:copy-dataset
-   #:make-bootstrap-sample-datasets))
+   #:make-bootstrap-sample-datasets
+   #:dedup-dataset!
+   #:shuffle-dataset!
+   #:concatenate-datasets
+   #:head-points
+   #:tail-points
+   #:map-over-dimension!
+   #:add-dimension!
+   #:get-dimension-index
+   #:dataset-name-index-alist
+   #:select-dimension
+   #:pick-coll-by-name
+   #:add-points!)
+  )
 
 (defpackage :clml.hjs.k-means
   (:use :cl :clml.hjs.vector :clml.hjs.meta :clml.hjs.read-data

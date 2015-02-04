@@ -479,7 +479,8 @@
                                      (csv-header-p t)
                                      (missing-value-check t)
                                      missing-values-list)
-  "Convention: first line is column name."
+  "Reads CSV data from file. The normal convention is first line is column name.
+However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the column names"
   (assert (member type '(:sexp :csv)))
   
   (ecase type
@@ -505,11 +506,11 @@
                                                  #+allegro :932
                                                  #+ccl :Windows-31j
                                                  #+sbcl :sjis
-                                               )) 
+                                                 ))
        (make-unspecialized-dataset (coerce header 'list) data
 
-                                   :missing-value-check missing-value-check
-                                   :missing-values-list missing-values-list)))))
+                                     :missing-value-check missing-value-check
+                                     :missing-values-list missing-values-list)))))
 
 ;;; function-type: unspecialized-dataset -> specialized-dataset
 (defmethod pick-and-specialize-data ((d unspecialized-dataset) &key
@@ -697,10 +698,12 @@
                            (range :all) 
                            except)
   (unless divide-ratio (setq divide-ratio '(1 0)))
+  
   (assert (every (lambda (r) 
                    (and (numberp r) (integerp r) (not (minusp r)))) divide-ratio))
   (let* ((dimensions (dataset-dimensions specialized-d))
          (dim (length dimensions))
+         (x (break (format nil "~a" dimensions)))
          (row-indexes 
           (loop with total-size = 
                                 (length (etypecase specialized-d
@@ -1077,3 +1080,243 @@
                                                                cate-out-vals
                                                                :type :category)
                                                  cate-indices))))))
+
+(defmethod dedup-dataset! ((dataset dataset))
+  (etypecase dataset
+      (numeric-and-category-dataset (error "Unimplemented"))
+      (numeric-matrix-and-category-dataset (error "Unimplemented"))
+      (numeric-dataset (delete-duplicates (dataset-numeric-points dataset)))
+      (numeric-matrix-dataset (error "Unimplemented"))
+      (category-dataset (delete-duplicates (dataset-category-points dataset)))
+      (unspecialized-dataset (delete-duplicates (dataset-points dataset)))
+    )
+  )
+
+(defmethod shuffle-dataset! ((dataset dataset))
+  "Return copy of vector with elements shuffled like a deck of cards."
+  (flet ((shuffle-vector (v)
+           "Shuffle-vector courtsey http://osdir.com/ml/lisp.sources.code/2004-06/msg00009.html"
+            (loop
+               with result = (copy-seq v)
+               finally (return result)
+               for i from (length v) downto 1
+               as j = (random i)
+               do (rotatef (svref result j) (svref result (1- i))))))
+    (etypecase dataset
+      (numeric-and-category-dataset (error "Unimplemented"))
+      (numeric-matrix-and-category-dataset (error "Unimplemented"))
+      (numeric-dataset (shuffle-vector (dataset-numeric-points dataset)))
+      (numeric-matrix-dataset (error "Unimplemented"))
+      (category-dataset (shuffle-vector (dataset-category-points dataset)))
+      (unspecialized-dataset (shuffle-vector (dataset-points dataset))))
+    ))
+
+
+(defmethod add-dimension! ((dataset dataset) name type &key points initial-value metadata)
+  (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d))))
+    (let ((new-dim (make-dimension name type (length (dataset-dimensions dataset)) :metadata metadata))
+          (datapoints (if points points (make-array (list (length (dataset-points dataset))) :initial-element initial-value))))
+      (print (length (dataset-dimensions dataset)))
+      (print (merge 'vector (copy-dims dataset)  (vector new-dim) #'eql))
+      (setf (dataset-dimensions dataset) (merge 'vector (copy-dims dataset)  (vector new-dim) #'eql))
+      
+      (let ((pts
+             (loop for vec across (dataset-points dataset)
+                for val across datapoints
+                collect (concatenate 'vector vec (vector val) ) into result
+                finally (return (coerce result 'vector))
+                  )))
+        
+        (etypecase dataset
+          (category-dataset (setf (dataset-category-points (coerce dataset 'category-dataset)) pts) )
+          (unspecialized-dataset (setf (dataset-points dataset) pts))
+           (error "Unsuported dataset type")
+          )
+        ) ; HERE
+      ))
+  )
+
+(defmethod add-points! ((dataset dataset) name points )
+  (let ((dim (find name (dataset-dimenstions data) :test #'string= :key #'dimension-name)))
+    (when (not (null (car dim)))
+        (let ((pos (dimension-index  dim)))
+          (flet ((copy-pts (pts) (map 'vector #'copy-seq pts))
+                 )
+            (setf (dataset-points dataset) (merge 'vector (dataset-points dataset) (vector points) #'eql))
+            dataset))))
+  )
+(defmethod add-points! ((dataset specialized-dataset) name points )
+  (let ((pos (dimension-index  (find name (dataset-dimensions dataset) :test #'string= :key #'dimension-name))))
+    (flet ((copy-pts (pts) (map 'vector #'copy-seq pts))
+           )
+      (setf (dataset-points dataset) (merge 'vector (dataset-points dataset) (vector points) #'eql))
+      dataset))
+  )
+
+#|
+(length (etypecase specialized-d
+                                          (category-dataset (dataset-category-points specialized-d))
+                                          (numeric-dataset (dataset-numeric-points specialized-d))
+                                          (numeric-and-category-dataset (dataset-category-points specialized-d))))
+|#
+
+(defmethod concatenate-datasets ((left dataset) (right dataset))
+  (labels ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
+           (copy-pts (pts) (map 'vector #'copy-seq pts))
+           (merge-dims (l r) (merge 'vector (copy-dims l) (copy-dims r) #'eql))
+           (merge-pts (l r) (merge 'vector (copy-pts l) (copy-pts r) #'eql)))
+    
+    ;; ensure datasets are same type dimension tpes match
+    (assert (eql (type-of left) (type-of right)))
+    (assert (every #'identity (map 'list (lambda (x y) (eql (dimension-type  x) (dimension-type y))) (dataset-dimensions left) (dataset-dimensions right))))
+    
+    (etypecase left
+      (numeric-and-category-dataset
+       (progn ;(break "numeric-and-category-dataset")
+              (make-instance 'numeric-and-category-dataset
+                             :dimensions (copy-dims left)
+                             :numeric-points (merge-pts (dataset-numeric-points left)
+                                                        (dataset-numeric-points right))
+                             :category-points (merge-pts (dataset-category-points left)
+                                                         (dataset-category-points dataset)))))
+      (numeric-matrix-and-category-dataset
+           ;       (make-instance 'numeric-matrix-and-category-dataset
+           ;          :dimensions (merge-dims left right)
+           ;          :numeric-points (copy-mat (dataset-numeric-points dataset))
+           ;          :category-points
+           ;       (copy-pts
+           ;                (dataset-category-points dataset)))
+       (error "numeric-matrix-and-category-dataset not supported yet")
+       )
+      (numeric-dataset
+       (progn 
+              (make-instance 'numeric-dataset
+                             :dimensions (copy-dims left)
+                             :numeric-points (merge-pts (dataset-numeric-points left)
+                                                        (dataset-numeric-points right)))))
+                                        ;(numeric-matrix-dataset
+                                        ;(make-instance 'numeric-matrix-dataset
+                                        ;               :dimensions (copy-dims left)
+                                        ;               :numeric-points (copy-mat
+                                        ;               (dataset-numeric-points dataset))))
+      (unspecialized-dataset
+       (progn 
+              (make-instance 'unspecialized-dataset
+                                         :dimensions (copy-dims left)
+                                         :points (merge-pts (dataset-points left)
+                                                            (dataset-points right))
+                                         ))
+       
+
+       )
+      (category-dataset
+       (progn 
+         (make-instance 'category-dataset
+                        :dimensions (copy-dims left)
+                        :category-points (merge-pts (dataset-category-points left)
+                                                    (dataset-category-points right)))))
+      (error "Unsupported Type")
+      )))
+
+(defmethod old-concatenate-datasets ((left dataset) (right dataset))
+  (labels ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
+           (copy-pts (pts) (map 'vector #'copy-seq pts))
+           (merge-dims (l r) (merge 'vector (copy-dims l) (copy-dims r) #'eql))
+           (merge-pts (l r) (merge 'vector (copy-pts l) (copy-pts r) #'eql)))
+    
+    ;; ensure datasets are same type dimension tpes match
+    (assert (eql (type-of left) (type-of right)))
+    (assert (every #'identity (map 'list (lambda (x y) (eql (dimension-type  x) (dimension-type y))) (dataset-dimensions left) (dataset-dimensions right))))
+    
+    (etypecase left
+      (numeric-and-category-dataset
+       (progn (break "numeric-and-category-dataset")
+              (make-instance 'numeric-and-category-dataset
+                             :dimensions (copy-dims left)
+                             :numeric-points (merge-pts (dataset-numeric-points left)
+                                                        (dataset-numeric-points right))
+                             :category-points (merge-pts (dataset-category-points left)
+                                                         (dataset-category-points dataset)))))
+      (numeric-matrix-and-category-dataset
+           ;       (make-instance 'numeric-matrix-and-category-dataset
+           ;          :dimensions (merge-dims left right)
+           ;          :numeric-points (copy-mat (dataset-numeric-points dataset))
+           ;          :category-points
+           ;       (copy-pts
+           ;                (dataset-category-points dataset)))
+       (error "numeric-matrix-and-category-dataset not supported yet")
+       )
+      (numeric-dataset
+       (progn 
+              (make-instance 'numeric-dataset
+                             :dimensions (copy-dims left)
+                             :numeric-points (merge-pts (dataset-numeric-points left)
+                                                        (dataset-numeric-points right)))))
+                                        ;(numeric-matrix-dataset
+                                        ;(make-instance 'numeric-matrix-dataset
+                                        ;               :dimensions (copy-dims left)
+                                        ;               :numeric-points (copy-mat
+                                        ;               (dataset-numeric-points dataset))))
+      (unspecialized-dataset
+       (progn 
+              (make-instance 'unspecialized-dataset
+                                         :dimensions (copy-dims left)
+                                         :points (merge-pts (dataset-points left)
+                                                            (dataset-points right))
+                                         ))
+       
+
+       )
+      (category-dataset
+       (progn 
+         (make-instance 'category-dataset
+                        :dimensions (merge-dims left right)
+                        :category-points (merge-pts (dataset-category-points left)
+                                                    (dataset-category-points right)))))
+      (error "Unsupported Type")
+      )))
+
+(defmethod head-points ((dataset dataset) &optional (n 5))
+  "Returns first <n> data points in dataset"
+  (subseq (dataset-points dataset) 0 n)) 
+
+(defmethod tail-points ((dataset dataset) &optional (n 5))
+  "Returns last <n> data points in dataset"
+  (let* ((points (dataset-points dataset))
+         (len (length points)))
+    (subseq points
+            (- len n) len)))
+
+(defmethod map-over-dimension! ((dataset dataset) dimension-name fn)
+  "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
+  (let ((idx (clml.hjs.read-data:dimension-index
+              (find "domain" (dataset-dimensions dataset)
+                    :test #'string=
+                    :key #'dimension-name))))
+    (loop for vec across (dataset-points dataset)
+       do (setf (elt vec idx) (funcall fn (elt vec idx))))))
+
+(defmethod dataset-name-index-alist ((dataset dataset))
+  (map 'list (lambda (d) (list (dimension-name d) (dimension-index d)) ) (dataset-dimensions dataset  )))
+
+(defun get-dimension-index (name alist)
+  (cadr (assoc name alist :test #'string=)))
+
+(defmethod select-dimension (name (data dataset) &key (selector (lambda (x y) t)))
+  (multiple-value-bind (pos type)
+      (loop for pos from 0
+          for dim across (dataset-dimensions data)
+          when (string= (dimension-name dim) name)
+          return (values pos (dimension-type dim)))
+    (when pos 
+      (loop for vec across (dataset-points data)
+           when (funcall selector data vec)
+          collect (aref vec pos) into result
+          finally (return (coerce result 'vector) #|(ecase type 
+                            (:numeric (coerce result 'dvec))
+                            (:category (coerce result 'vector)) ;;
+                            )|#
+                          )))))
+(defmethod pick-coll-by-name ( (dataset dataset) vec name)
+  (elt vec (get-dimension-index name (dataset-name-index-alist dataset)))
+)

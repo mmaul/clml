@@ -35,6 +35,10 @@
     (cons (puri:uri-host pu) (split-file-path (puri:uri-path pu)))
     ))
 
+(defun condition-path (path)
+  "Abuse puri:parse-uri to strip possible get args from path"
+  (let ((p (puri:parse-uri path))) (puri:uri-path p)))
+
 (defun fetch (url-or-path &key (cache t)
                             (dir (namestring (asdf:system-relative-pathname 'clml "sample/")))
                             (flush nil)
@@ -52,9 +56,9 @@ is stored in ~dir~/~uri-host~/~uri-path~.
 
 Note that it is important to ensure that dir and subdir if used end in a /"
   (cond
-    ((probe-file url-or-path) url-or-path)
-    ((probe-file (concatenate 'string  dir url-or-path))
-     (concatenate 'string  dir url-or-path))
+    ((probe-file (condition-path url-or-path)) (condition-path url-or-path))
+    ((probe-file (condition-path (concatenate 'string  dir url-or-path)))
+     (condition-path (concatenate 'string  dir url-or-path)))
     ((puri:parse-uri url-or-path)
      (let* ((tmp-pathname (split-uri-string url-or-path))
             (file-pathstring (format nil "~{~A~^~}" (if dir (cons dir tmp-pathname) tmp-pathname)))
