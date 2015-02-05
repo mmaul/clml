@@ -703,7 +703,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                    (and (numberp r) (integerp r) (not (minusp r)))) divide-ratio))
   (let* ((dimensions (dataset-dimensions specialized-d))
          (dim (length dimensions))
-         (x (break (format nil "~a" dimensions)))
+         
          (row-indexes 
           (loop with total-size = 
                                 (length (etypecase specialized-d
@@ -1105,60 +1105,102 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     (etypecase dataset
       (numeric-and-category-dataset (error "Unimplemented"))
       (numeric-matrix-and-category-dataset (error "Unimplemented"))
-      (numeric-dataset (shuffle-vector (dataset-numeric-points dataset)))
+      (numeric-dataset (setf (dataset-numeric-points) (shuffle-vector (dataset-numeric-points dataset))))
       (numeric-matrix-dataset (error "Unimplemented"))
-      (category-dataset (shuffle-vector (dataset-category-points dataset)))
-      (unspecialized-dataset (shuffle-vector (dataset-points dataset))))
+      (category-dataset (setf (dataset-category-points) (shuffle-vector (dataset-category-points dataset))))
+      (unspecialized-dataset (setf (dataset-points dataset) (shuffle-vector (dataset-points dataset)))))
     ))
 
 
-(defmethod add-dimension! ((dataset dataset) name type &key points initial-value metadata)
-  (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d))))
-    (let ((new-dim (make-dimension name type (length (dataset-dimensions dataset)) :metadata metadata))
-          (datapoints (if points points (make-array (list (length (dataset-points dataset))) :initial-element initial-value))))
-      (print (length (dataset-dimensions dataset)))
-      (print (merge 'vector (copy-dims dataset)  (vector new-dim) #'eql))
-      (setf (dataset-dimensions dataset) (merge 'vector (copy-dims dataset)  (vector new-dim) #'eql))
+(defmethod add-dim ((dataset category-dataset) name type &key points initial-value metadata)
+  (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
+         (copy-pts (pts) (map 'vector #'copy-seq pts))) 
+    (let ((new-points (if points points (make-array (list (length (dataset-points dataset))) :initial-element initial-value))))
       
-      (let ((pts
-             (loop for vec across (dataset-points dataset)
-                for val across datapoints
-                collect (concatenate 'vector vec (vector val) ) into result
-                finally (return (coerce result 'vector))
-                  )))
-        
-        (etypecase dataset
-          (category-dataset (setf (dataset-category-points (coerce dataset 'category-dataset)) pts) )
-          (unspecialized-dataset (setf (dataset-points dataset) pts))
-           (error "Unsuported dataset type")
-          )
-        ) ; HERE
-      ))
-  )
+      (ecase type
+        (:category
+         (let ((new-dim (make-dimension name type (length (dataset-dimensions dataset)) :metadata metadata)))
+           (make-instance 'category-dataset
+                          :category-points (loop for vec across (dataset-points dataset)
+                                              for val across new-points
+                                              collect (concatenate 'vector vec (vector val) ) into result
+                                              finally (return (coerce result 'vector))
+                                                )
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim))
+                          )))
+        (:numeric
+         (let ((new-dim (make-dimension name type 0
+                                        :metadata metadata)))
+           (make-instance 'numeric-and-category-dataset
+                          :category-points (copy-pts (dataset-points dataset))
+                          :numeric-points (map 'vector #'vector new-points)
+                          
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim)) 
+                                                                                                                             
+                                                                                                                             ))))
+      )))
 
-(defmethod add-points! ((dataset dataset) name points )
-  (let ((dim (find name (dataset-dimenstions data) :test #'string= :key #'dimension-name)))
-    (when (not (null (car dim)))
-        (let ((pos (dimension-index  dim)))
-          (flet ((copy-pts (pts) (map 'vector #'copy-seq pts))
-                 )
-            (setf (dataset-points dataset) (merge 'vector (dataset-points dataset) (vector points) #'eql))
-            dataset))))
-  )
-(defmethod add-points! ((dataset specialized-dataset) name points )
-  (let ((pos (dimension-index  (find name (dataset-dimensions dataset) :test #'string= :key #'dimension-name))))
-    (flet ((copy-pts (pts) (map 'vector #'copy-seq pts))
-           )
-      (setf (dataset-points dataset) (merge 'vector (dataset-points dataset) (vector points) #'eql))
-      dataset))
-  )
+(defmethod add-dim ((dataset numeric-dataset) name type &key points initial-value metadata)
+  (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
+         (copy-pts (pts) (map 'vector #'copy-seq pts))) 
+    (let ((new-points (if points points (make-array (list (length (dataset-points dataset))) :initial-element initial-value))))
+      
+      (ecase type
+        (:numeric
+         (let ((new-dim (make-dimension name type (length (dataset-dimensions dataset)) :metadata metadata)))
+           (make-instance 'numeric-dataset
+                          :numeric-points (loop for vec across (dataset-points dataset)
+                                              for val across new-points
+                                              collect (concatenate 'vector vec (vector val) ) into result
+                                              finally (return (coerce result 'vector))
+                                                )
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim))
+                          )))
+        (:category
+         (let ((new-dim (make-dimension name type 0
+                                        :metadata metadata)))
+           (make-instance 'numeric-and-category-dataset
+                          :numeric-points (copy-pts (dataset-points dataset))
+                          :category-points (map 'vector #'vector new-points)
+                          
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim)) 
+                                                                                                                             
+                                                                                                                             ))))
+      )))
 
-#|
-(length (etypecase specialized-d
-                                          (category-dataset (dataset-category-points specialized-d))
-                                          (numeric-dataset (dataset-numeric-points specialized-d))
-                                          (numeric-and-category-dataset (dataset-category-points specialized-d))))
-|#
+(defmethod add-dim ((dataset numeric-and-category-dataset) name type &key points initial-value metadata)
+  (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
+         (copy-pts (pts) (map 'vector #'copy-seq pts))) 
+    (let ((new-points (if points points (make-array (list (length (dataset-points dataset))) :initial-element initial-value))))
+      
+      (ecase type
+        (:numeric
+         (let ((new-dim (make-dimension name type (length (elt (dataset-numeric-points dataset) 0)) :metadata metadata)))
+           (make-instance 'numeric-and-category-dataset
+                          :category-points (copy-pts (dataset-category-points dataset))
+                          :numeric-points (loop for vec across (dataset-numeric-points dataset)
+                                              for val across new-points
+                                              collect (concatenate 'vector vec (vector val) ) into result
+                                              finally (return (coerce result 'vector))
+                                                )
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim))
+                          )))
+        (:category
+         (let ((new-dim (make-dimension name type (length (elt (dataset-category-points dataset) 0))
+                                        :metadata metadata)))
+           (make-instance 'numeric-and-category-dataset
+                          :numeric-points (copy-pts (dataset-numeric-points dataset))
+                          :category-points (loop for vec across (dataset-category-points dataset)
+                                              for val across new-points
+                                              collect (concatenate 'vector vec (vector val) ) into result
+                                              finally (return (coerce result 'vector))
+                                                )
+                          
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim)) 
+                                                                                                                             
+                                                                                                                             ))))
+      )))
+ 
 
 (defmethod concatenate-datasets ((left dataset) (right dataset))
   (labels ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
@@ -1178,7 +1220,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                              :numeric-points (merge-pts (dataset-numeric-points left)
                                                         (dataset-numeric-points right))
                              :category-points (merge-pts (dataset-category-points left)
-                                                         (dataset-category-points dataset)))))
+                                                         (dataset-category-points right)))))
       (numeric-matrix-and-category-dataset
            ;       (make-instance 'numeric-matrix-and-category-dataset
            ;          :dimensions (merge-dims left right)
@@ -1289,12 +1331,16 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 
 (defmethod map-over-dimension! ((dataset dataset) dimension-name fn)
   "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
-  (let ((idx (clml.hjs.read-data:dimension-index
-              (find "domain" (dataset-dimensions dataset)
+  (let* ((dim (find "domain" (dataset-dimensions dataset)
                     :test #'string=
-                    :key #'dimension-name))))
-    (loop for vec across (dataset-points dataset)
+                    :key #'dimension-name))
+         (idx (clml.hjs.read-data:dimension-index dim)))
+    (loop for vec across (ecase (dimension-type dim)
+                           (:unknown (dataset-points dataset))
+                           (:category (dataset-category-points dataset))
+                           (:numeric (dataset-numeric-points dataset)))
        do (setf (elt vec idx) (funcall fn (elt vec idx))))))
+
 
 (defmethod dataset-name-index-alist ((dataset dataset))
   (map 'list (lambda (d) (list (dimension-name d) (dimension-index d)) ) (dataset-dimensions dataset  )))
@@ -1317,6 +1363,3 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                             (:category (coerce result 'vector)) ;;
                             )|#
                           )))))
-(defmethod pick-coll-by-name ( (dataset dataset) vec name)
-  (elt vec (get-dimension-index name (dataset-name-index-alist dataset)))
-)

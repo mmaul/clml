@@ -164,12 +164,11 @@
    #:head-points
    #:tail-points
    #:map-over-dimension!
-   #:add-dimension!
+   #:add-dim
    #:get-dimension-index
    #:dataset-name-index-alist
    #:select-dimension
-   #:pick-coll-by-name
-   #:add-points!)
+   )
   )
 
 (defpackage :clml.hjs.k-means
