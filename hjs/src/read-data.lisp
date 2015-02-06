@@ -892,6 +892,15 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                             (:numeric (coerce result 'dvec))
                             (:category (coerce result 'vector)) ;;
                             ))))))
+(defmacro !! (dataset name)
+  "Alias for choice a dimension
+@Params dataset
+        name - list of names or a single name
+"
+  `(etypecase ,name
+    (string (choice-a-dimension ,name ,dataset))
+    (list (choice-dimensions ,name ,dataset)))
+  )
 
 (defmethod make-bootstrap-sample (dataset)
   (let* ((data-pts (dataset-points dataset))
@@ -1329,9 +1338,9 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     (subseq points
             (- len n) len)))
 
-(defmethod map-over-dimension! ((dataset dataset) dimension-name fn)
+(defmethod map-over-dimension! ((dataset dataset) dim-name fn)
   "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
-  (let* ((dim (find "domain" (dataset-dimensions dataset)
+  (let* ((dim (find dim-name (dataset-dimensions dataset)
                     :test #'string=
                     :key #'dimension-name))
          (idx (clml.hjs.read-data:dimension-index dim)))
@@ -1341,6 +1350,55 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                            (:numeric (dataset-numeric-points dataset)))
        do (setf (elt vec idx) (funcall fn (elt vec idx))))))
 
+(defmethod filter ((dataset-in dataset) dim-name test)
+  "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
+  (let* ((dataset (copy-dataset dataset-in))
+         (dim (find dim-name (dataset-dimensions dataset)
+                    :test #'string=
+                    :key #'dimension-name))
+         (idx (clml.hjs.read-data:dimension-index dim)))
+    (loop for vec across (ecase (dimension-type dim)
+                           (:unknown (dataset-points dataset))
+                           (:category (dataset-category-points dataset))
+                           (:numeric (dataset-numeric-points dataset)))
+       do (when (funcall test (elt vec idx))
+            (ecase (dimension-type dim)
+              (:unknown (delete  (elt vec idx) (dataset-points dataset)
+                                 :count 1 :test #'equalp))
+              (:category (delete  (elt vec idx) (dataset-category-points dataset)
+                                 :count 1 :test #'equalp))
+              (:numeric (dataset-numeric-points dataset)))))
+    dataset))
+
+
+(defmethod filter ((dataset-in numeric-and-category-dataset) dim-name test)
+  (let* ((dataset (copy-dataset dataset-in)))
+    (multiple-value-bind (cpoints npoints) 
+        (loop
+           with dim = (find dim-name (dataset-dimensions dataset)
+                            :test #'string=
+                            :key #'dimension-name)
+           with test-fn = test
+           with dim-type = (dimension-type dim)
+           with dim-idx = (dimension-index dim)
+
+           for np across (dataset-numeric-points dataset)
+           for cp across (dataset-category-points dataset)
+           for do-collect = (ecase dim-type
+                              (:category (funcall test (elt cp dim-idx)))
+                              (:numeric (funcall test (elt np dim-idx))))
+           when do-collect
+             collect cp into cpoints
+           when do-collect
+             collect np into npoints
+           finally (return (values cpoints npoints))
+             
+             )
+      (setf (dataset-category-points dataset) (make-array (list (length cpoints)) :element-type '(simple-array cvec (*)) :initial-contents cpoints ))
+      (setf (dataset-numeric-points dataset) (make-array (list (length npoints)) :element-type '(simple-array cvec (*)) :initial-contents npoints))
+      )
+    dataset)
+  )
 
 (defmethod dataset-name-index-alist ((dataset dataset))
   (map 'list (lambda (d) (list (dimension-name d) (dimension-index d)) ) (dataset-dimensions dataset  )))

@@ -154,6 +154,7 @@
    #:make-numeric-and-category-dataset
    #:make-numeric-matrix-and-category-dataset
    #:choice-a-dimension
+   #:!!
    #:choice-dimensions
    #:dataset-cleaning
    #:copy-dataset
@@ -165,6 +166,7 @@
    #:tail-points
    #:map-over-dimension!
    #:add-dim
+   #:filter
    #:get-dimension-index
    #:dataset-name-index-alist
    #:select-dimension
