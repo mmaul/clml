@@ -6,9 +6,11 @@
          :clml.hjs.matrix
         :clml.hjs.vector
         :clml.hjs.meta
+        
         )
   #+allegro
   (:use :excl)
+
   (:export #:node
            #:link
            #:node-id
@@ -71,7 +73,7 @@
         :clml.hjs.vector
         :clml.hjs.meta
         :clml.statistics
-        
+        :clml.hjs.eigensystems
         :clml.graph.read-graph
         :clml.graph.graph-utils
         :clml.graph.shortest-path)
@@ -96,7 +98,7 @@
         :clml.hjs.matrix
         :clml.hjs.vector
         :clml.hjs.meta
-        
+        :clml.hjs.eigensystems
         :clml.statistics
         :read-data
         :missing-val

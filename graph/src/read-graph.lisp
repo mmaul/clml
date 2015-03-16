@@ -1,6 +1,10 @@
 ;-*- coding: utf-8 -*-
 (in-package :clml.graph.read-graph)
 
+#-allegro
+(defmacro delimited-string-to-list (line delim)
+    `(split-sequence:split-sequence ,delim ,line))
+
 (defstruct (node (:conc-name node-))
   (id -1 :type fixnum)
   (name "" :type string)  

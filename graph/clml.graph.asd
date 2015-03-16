@@ -12,6 +12,7 @@
                              :clml.time-series
                              :clml.graph-package
                              :clml.statistics
+                             :split-sequence
                              )
                 :components (
                              (:file "read-graph")

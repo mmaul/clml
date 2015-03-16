@@ -47,6 +47,8 @@ package for reading time series data
         :clml.hjs.read-data :clml.hjs.meta :clml.hjs.vector
         :clml.hjs.matrix :clml.statistics
         :clml.time-series.read-data)
+  #-lispworks
+  (:import-from :UIOP/RUN-PROGRAM #:RUN-PROGRAM)
   #+allegro
   (:use :excl)
   (:nicknames :ts-util)
@@ -61,11 +63,13 @@ package for reading time series data
            #:predict
            #:statvis
            #:draw-ppm
-           #:*r-stream*
-           #:with-r
            #:open-eps-file
            #:date-time-to-ut
-           #:ut-to-date-time))
+           #:ut-to-date-time)
+  #+lispworks
+  (:export            #:*r-stream*
+                      #:with-r)
+  )
 
 (defpackage :clml.time-series.statistics
   (:use :cl :clml.hjs.read-data :clml.hjs.meta :clml.hjs.vector
@@ -87,6 +91,11 @@ package for reading time series data
    #:ts-covariance
    #:ts-correlation
    #:ma
+   )
+  #+lispworks
+  (:export
+   ;; These functions are dependant on R interface which is currently
+   ;; dependant on lispworks
    #:acf
    #:ccf
    #:periodgram)

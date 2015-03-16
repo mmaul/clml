@@ -225,11 +225,17 @@
                      (fname "temp"))
   (let* ((stafile (format nil "statvis/~A.sta" fname)))
     (ts-to-sta ts stafile :external-format external-format)
-    (let ((stream
-           (run-shell-command
-            (format nil "\"statvis/STATVIS\" -- \"~A\""
-                    stafile) :input :stream :output :stream :wait nil)))
-      (close-cmd-stream stream))))
+    (let ((cmd (format nil "\"statvis/STATVIS\" -- \"~A\"" stafile)))
+      #-lispworks
+      (UIOP/RUN-PROGRAM:RUN-PROGRAM cmd :output nil)
+      #+lispworks
+      (let ((stream
+             (run-shell-command
+              cmd
+              :input :stream :output :stream :wait nil)))
+        (close-cmd-stream stream))
+      )
+    ))
 
 
 ;;;;; for R input/output

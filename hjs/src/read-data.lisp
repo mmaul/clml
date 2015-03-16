@@ -139,6 +139,7 @@
                    (declare (type fixnum n))
                    (lambda (p) (= n (the fixnum (length p))))) data))
   ;; create dimensions
+  
   (let ((dimensions
          (loop
              for n in all-column-names
@@ -146,18 +147,21 @@
              collect (make-dimension n :unknown i) into result
              finally (return (coerce result 'vector)))))
     ;; make dataset
+    
     (make-instance 'unspecialized-dataset
       :dimensions dimensions
       :points (if missing-value-check
-                  (let ((test-fcn 
+                  (let (
+                        (test-fcn 
                          (if missing-values-list
                              #'(lambda (val) (missing-value-p 
                                               val 
                                               :missing-values-list missing-values-list
                                               :test missing-value-test))
-                           #'(lambda (val)
+                             #'(lambda (val)
+                                 
                                (missing-value-p val :test missing-value-test)))))
-                    (do-vec (vec data :setf-var sf :return data)
+                    (do-vec (vec data :setf-var sf :return data) 
                       (setf sf (fill-na vec test-fcn))))
                 data))))
 
@@ -491,6 +495,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
            (let ((*read-eval* nil)
                  (*read-default-float-format* 'double-float))
              (setf tmp (read f)))))
+       
        (make-unspecialized-dataset
         (first tmp)
         (map 'vector
@@ -1329,7 +1334,10 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 
 (defmethod head-points ((dataset dataset) &optional (n 5))
   "Returns first <n> data points in dataset"
-  (subseq (dataset-points dataset) 0 n)) 
+  (let* ((points  (dataset-points dataset))
+        (num-points (length points)))
+    (subseq points
+            0 (if (> n num-points) num-points n)))) 
 
 (defmethod tail-points ((dataset dataset) &optional (n 5))
   "Returns last <n> data points in dataset"

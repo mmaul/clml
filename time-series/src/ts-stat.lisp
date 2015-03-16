@@ -259,6 +259,7 @@
            data :start start :end end :freq freq))))))
 
 ;;; auto-correlation or auto-covariance function
+#+lispworks
 (defgeneric acf (d &key)
   (:documentation "- return: nil | <list>
 - arguments:
@@ -267,6 +268,7 @@
   - max-k : <positive integer>
   - plot  : nil | t, when plot is t, result will be plotted by R.
   - print : nil | t, when print is t, result will be printed."))
+#+lispworks
 (defmethod acf ((d time-series-dataset) &key (type :correlation)
                                              (plot nil)
                                              (print t)
@@ -334,7 +336,7 @@
             (print nil)
             (t results)))))
 
-
+#+lispworks
 (defun ccf (d1 d2 &key (type :correlation) (plot nil) (print t) max-k)
   "- return: nil | <list>
 - arguments:
@@ -400,6 +402,7 @@
               (t results))))))
 
 ;;; calculate periodgram
+#+lispworks
 (defgeneric peroidgram (d &key)
   (:documentation "- return: nil | <list>
 - arguments:
@@ -412,6 +415,7 @@
 - comments:
   Because of the algorithm of FFT,
   only the power of the frequency which has cycle m / 2^n (m,n : natural number) is obtained."))
+#+lispworks
 (defmethod periodgram ((d time-series-dataset) &key step (print t) (plot nil) (log t)
                                                     (smoothing :raw) ; :mean :hanning :hamming
                                                     )
