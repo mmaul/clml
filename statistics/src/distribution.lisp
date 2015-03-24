@@ -8,12 +8,22 @@
   (/ (reduce #'+ sequence) (length sequence)))
 |#
 
+(eval-when (:compile-toplevel :load-toplevel)
+  (defclass distribution ()
+  ((mean)
+   (variance)
+   (skewness)
+   (kurtosis)
+   (mode)))
 
+  
+  (defclass discrete-distribution (distribution) ())
+  (defclass continuous-distribution (distribution) ()))
 
-
-(defdistribution gamma-like-distribution (continuous-distribution)
-  ((scale :initarg :scale :accessor scale)
-   (shape :initarg :shape :accessor shape)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution gamma-like-distribution (continuous-distribution)
+    ((scale :initarg :scale :accessor scale)
+     (shape :initarg :shape :accessor shape))))
 (defmethod update-distribution ((distribution gamma-like-distribution))
   (with-slots (scale shape variance skewness kurtosis mode) distribution
     (assert (and (realp scale) (> scale 0)) (scale)
@@ -189,9 +199,11 @@
    (average :initarg :average :accessor average)
    #+sbcl
    (average :initarg :average :accessor average :initform 0d0)
+   (mode :initform 0d0)
    (std     :initarg :std     :accessor std :initform 0d0)
    (skewness :initform 0d0)
-   (kurtosis :initform 3d0)))
+   (kurtosis :initform 3d0)
+   ))
 
 (defmethod update-distribution ((distribution normal-distribution))
   (with-slots (std variance mode) distribution
@@ -345,7 +357,8 @@
    (width :reader uniform-width)
    (denominator :accessor uniform-denom)
    (skewness :initform 0d0)
-   (kurtosis :initform 1.8d0)))
+   (kurtosis :initform 1.8d0)
+   ))
 
 (defmethod print-object ((obj uniform-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -486,12 +499,12 @@
   (exponential-distribution (mean sequence) nil))
 
 ;;; 6. Gamma Distribution
-
-(defdistribution gamma-distribution (gamma-like-distribution)
-  ((gamma-factor :reader gamma-factor)
-   (shape-inv)
-   (d)
-   (c)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution gamma-distribution (gamma-like-distribution)
+    ((gamma-factor :reader gamma-factor)
+     (shape-inv)
+     (d)
+     (c))))
 
 (defmethod update-distribution ((distribution gamma-distribution))
   (call-next-method)
