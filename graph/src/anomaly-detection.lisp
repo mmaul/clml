@@ -351,7 +351,7 @@
   (let* ((alpha (/ (- 1 confidence-coefficient) 2.0d0))
          (lower-confident-limit (quantile dist alpha))
          (upper-confident-limit 
-          (- (* 2 (clml.statistics::expected-value dist)) lower-confident-limit)
+          (- (* 2 (clml.statistics::average dist)) lower-confident-limit)
           #+ignore (quantile dist (- 1.0d0 alpha))))
     (cons lower-confident-limit upper-confident-limit)))
 (defun degree-of-outrange (gaussian val &key (confidence-coefficient 0.99d0))
@@ -681,7 +681,12 @@
                        :external-format external-format)
         (write (loop for (name . score) in result collect `(:name ,name :score ,score))
                :stream out))
-      (when (and knn-output-dir (probe-directory knn-output-dir))
+      (when (and knn-output-dir
+                 #+lispworks
+                 (probe-directory knn-output-dir)
+                 #-lispworks
+                 (directory-exists-p knn-output-dir)
+                 )
         (output-knn-info knn-output-dir test-model ref-models
                          :external-format external-format))
       (values result test-model ref-models))))
@@ -1527,7 +1532,7 @@
                   (unless 1st-moment (setq 1st-moment 1d0))
                   (unless 2nd-moment (setq 2nd-moment 2d0))
                   (let ((params (gamma-params 1st-moment (var 1st-moment 2nd-moment))))
-                    (gamma-distribution (getf params :scale) (getf params :shape))))))
+                    (clml.statistics::gamma-distribution (getf params :scale) (getf params :shape))))))
           (lower-pc (- 1d0 pc)))
       (values (if (typep pdf 'clml.statistics::gamma-like-distribution)
                   (quantile-ili pdf lower-pc) (quantile pdf lower-pc))

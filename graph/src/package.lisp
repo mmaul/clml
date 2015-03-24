@@ -111,6 +111,8 @@
         :clml.graph.read-graph
         :clml.graph.graph-centrality
         :clml.graph.shortest-path)
+  #-lispworks
+  (:import-from :cl-fad #:pathname-as-directory #:directory-exists-p)
   #+allegro
   (:use :excl)
   (:export ))

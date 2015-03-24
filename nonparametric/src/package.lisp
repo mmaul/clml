@@ -86,7 +86,7 @@
 	   :cluster-class
 	   :average-of-average
 	   :std-of-average
-	   
+	   :average-of-std
 	   :gauss-dpm
 	   
 	   :density-to-cluster
@@ -318,7 +318,7 @@
   (:import-from :clml.nonparametric.dpm
                 #:average-of-average
                 #:std-of-average
-                ;#:average-of-std
+                #:average-of-std
                 )
   (:export
    #:dpm-k

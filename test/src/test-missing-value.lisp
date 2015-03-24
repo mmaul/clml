@@ -51,49 +51,51 @@
                        always (and (numberp val) (not (c-nan-p val)))))))
 
 (define-test test-interp-outlier
-    (let ((numeric-seq
-           (map 'dvec (lambda (v) (dfloat v)) (handling-missing-value::na2nan (fill-na *sample*)))))
-      (assert-true (tree-equal '(10.0d0 194.0d0 8.6d0 69.0d0 5.0d0 10.0d0 3.0d0
-                                 3.0d0 3.0d0 3.0d0 4.5d0 6.0d0 5.0d0 5.0d0 5.0d0)
-                               (coerce
-                                (handling-missing-value::interpolate numeric-seq
-                                                                     :interp :min
-                                                                     :seq-type :numeric)
-                                'list)
-                               :test #'=))
-      (assert-true (tree-equal '(10 194 8.6d0 69 5 10 5 5 5 3 4.5d0 6 5 5 5)
-                               (handling-missing-value::interpolate
-                                (handling-missing-value::na2c-nan (fill-na *sample*))
-                                :interp :mode
-                                :seq-type :category)
-                               :test #'=))
-      (assert-true (loop for val1 in '(10d0 194d0 8.6d0 69d0 5d0 10d0 26.28360779871214d0
-                                       22.92285714285714d0 11.350677915573574d0 3d0 4.5d0
-                                       6d0 5d0 5d0 5d0)
-                       for val2 across (handling-missing-value::interpolate numeric-seq
-                                                                            :interp :spline 
-                                                                            :seq-type :numeric)
-                       always (> *epsilon* (abs (- val1 val2)))))
-      
-      (assert-true (loop for val1 in `(10d0 3d0 ,*nan* 8.6d0 ,*nan* 5d0 10d0 3d0 3d0 3d0
+  (let ((numeric-seq
+         (map 'clml.hjs.meta::dvec (lambda (v) (clml.hjs.meta::dfloat v)) (handling-missing-value::na2nan (fill-na *sample*)))))
+    (assert-true (tree-equal '(10.0d0 194.0d0 8.6d0 69.0d0 5.0d0 10.0d0 3.0d0
+                               3.0d0 3.0d0 3.0d0 4.5d0 6.0d0 5.0d0 5.0d0 5.0d0)
+                             (coerce
+                              (handling-missing-value::interpolate numeric-seq
+                                                                   :interp :min
+                                                                   :seq-type :numeric)
+                              'list)
+                             :test #'eql))
+    (assert-true (tree-equal '(10 194 8.6d0 69 5 10 5 5 5 3 4.5d0 6 5 5 5)
+                             (handling-missing-value::interpolate
+                              (handling-missing-value::na2c-nan (fill-na *sample*))
+                              :interp :mode
+                              :seq-type :category)
+                             :test #'eql))
+    (assert-true (loop for val1 in '(10d0 194d0 8.6d0 69d0 5d0 10d0 26.28360779871214d0
+                                     22.92285714285714d0 11.350677915573574d0 3d0 4.5d0
+                                     6d0 5d0 5d0 5d0)
+                    for val2 across (handling-missing-value::interpolate numeric-seq
+                                                                         :interp :spline 
+                                                                         :seq-type :numeric)
+                    always (> *epsilon* (abs (- val1 val2)))))
+    
+    (assert-true (loop for val1 in `(10d0 3d0 ,*nan* 8.6d0 ,*nan* 5d0 10d0 3d0 3d0 3d0
                                             ,*nan* 3d0 4.5d0 6d0 5d0 5d0 5d0)
-                       for val2 in (outlier-verification *sample-1* :seq-type :numeric)
-                       always (or (= val1 val2) (and (nan-p val1) (nan-p val2)))))
-      (assert-true (loop for val1 in `(10d0 3d0 ,*nan* 8.6d0 ,*nan* 5d0 10d0 3d0 3d0 3d0
-                                            ,*nan* 3d0 4.5d0 6d0 5d0 5d0 5d0)
-                       for val2 in (outlier-verification *sample-1* 
-                                                         :type :std-dev
-                                                         :outlier-value 0.9
-                                                         :seq-type :numeric)
+                    for val2 in (outlier-verification *sample-1* :seq-type :numeric)
+                    always (or (= val1 val2) (and (nan-p val1) (nan-p val2)))))
+    (assert-true (loop for val1 in `(10d0 3d0 ,*nan* 8.6d0 ,*nan* 5d0 10d0 3d0 3d0 3d0
+                                          ,*nan* 3d0 4.5d0 6d0 5d0 5d0 5d0)
+                    for val2 in (outlier-verification *sample-1* 
+                                                      :type :std-dev
+                                                      :outlier-value 0.9
+                                                      :seq-type :numeric)
                        always (or (= val1 val2)
                                   (and (nan-p val1) (nan-p val2)))))
-      (assert-true (loop for val1 in `(10 3 ,*c-nan* ,*c-nan* 5 10 3 3 3 ,*c-nan* 3 ,*c-nan* 5 5 5)
-                       for val2 in (outlier-verification *sample-2* 
-                                                         :type :freq
-                                                         :outlier-value 0.075
-                                                         :seq-type :category)
-                       always (or (= val1 val2)
-                                  (and (nan-p val1) (nan-p val2)))))))
+    (assert-true (loop for val1 in `(10 3 ,*c-nan* ,*c-nan* 5 10 3 3 3 ,*c-nan* 3 ,*c-nan* 5 5 5)
+                    for val2 in (outlier-verification *sample-2* 
+                                                      :type :freq
+                                                      :outlier-value 0.075
+                                                      :seq-type :category)
+                    always (or (= val1 val2)
+                               (and (nan-p val1) (nan-p val2)))))))
+
+
 
 (define-test test-spline
     (prog* ((xa (loop for i below 10 

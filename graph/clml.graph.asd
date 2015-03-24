@@ -13,6 +13,7 @@
                              :clml.graph-package
                              :clml.statistics
                              :split-sequence
+                             :cl-fad
                              )
                 :components (
                              (:file "read-graph")

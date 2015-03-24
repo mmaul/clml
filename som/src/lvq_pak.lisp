@@ -282,7 +282,7 @@
 	(sample-data-entry-mask (data-entry-mask sample))
 	(sample-data-entry-points (data-entry-points sample))
 	(codes-data-entry-points (data-entry-points codes-data-entry)))
-    (declare (type double-float new current)
+    (declare (type double-float current)
 	     (type (simple-array double-float (*)) sample-data-entry-points
 		   codes-data-entry-points)
 	     (type (simple-array (signed-byte 32) (*)) sample-data-entry-mask))

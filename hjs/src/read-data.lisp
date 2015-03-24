@@ -1274,63 +1274,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
       (error "Unsupported Type")
       )))
 
-(defmethod old-concatenate-datasets ((left dataset) (right dataset))
-  (labels ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
-           (copy-pts (pts) (map 'vector #'copy-seq pts))
-           (merge-dims (l r) (merge 'vector (copy-dims l) (copy-dims r) #'eql))
-           (merge-pts (l r) (merge 'vector (copy-pts l) (copy-pts r) #'eql)))
-    
-    ;; ensure datasets are same type dimension tpes match
-    (assert (eql (type-of left) (type-of right)))
-    (assert (every #'identity (map 'list (lambda (x y) (eql (dimension-type  x) (dimension-type y))) (dataset-dimensions left) (dataset-dimensions right))))
-    
-    (etypecase left
-      (numeric-and-category-dataset
-       (progn (break "numeric-and-category-dataset")
-              (make-instance 'numeric-and-category-dataset
-                             :dimensions (copy-dims left)
-                             :numeric-points (merge-pts (dataset-numeric-points left)
-                                                        (dataset-numeric-points right))
-                             :category-points (merge-pts (dataset-category-points left)
-                                                         (dataset-category-points dataset)))))
-      (numeric-matrix-and-category-dataset
-           ;       (make-instance 'numeric-matrix-and-category-dataset
-           ;          :dimensions (merge-dims left right)
-           ;          :numeric-points (copy-mat (dataset-numeric-points dataset))
-           ;          :category-points
-           ;       (copy-pts
-           ;                (dataset-category-points dataset)))
-       (error "numeric-matrix-and-category-dataset not supported yet")
-       )
-      (numeric-dataset
-       (progn 
-              (make-instance 'numeric-dataset
-                             :dimensions (copy-dims left)
-                             :numeric-points (merge-pts (dataset-numeric-points left)
-                                                        (dataset-numeric-points right)))))
-                                        ;(numeric-matrix-dataset
-                                        ;(make-instance 'numeric-matrix-dataset
-                                        ;               :dimensions (copy-dims left)
-                                        ;               :numeric-points (copy-mat
-                                        ;               (dataset-numeric-points dataset))))
-      (unspecialized-dataset
-       (progn 
-              (make-instance 'unspecialized-dataset
-                                         :dimensions (copy-dims left)
-                                         :points (merge-pts (dataset-points left)
-                                                            (dataset-points right))
-                                         ))
-       
 
-       )
-      (category-dataset
-       (progn 
-         (make-instance 'category-dataset
-                        :dimensions (merge-dims left right)
-                        :category-points (merge-pts (dataset-category-points left)
-                                                    (dataset-category-points right)))))
-      (error "Unsupported Type")
-      )))
 
 (defmethod head-points ((dataset dataset) &optional (n 5))
   "Returns first <n> data points in dataset"

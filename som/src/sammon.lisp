@@ -443,7 +443,7 @@
   (let ((eps)
 	(ps t)
 	(out-code-file #+allegro (sys:make-temp-file-name)
-                       #+sbcl (swank-backend::temp-file-name)
+                       #+sbcl "/tmp/salmon-temp"
                        #+lispworks (hcl:make-temp-file))
 	(removed)
 	(spics)

@@ -9,7 +9,8 @@
                 :pathname "src/"
                 :serial t
                 :depends-on ( :clml.hjs
-                              :future
+                              ;:future
+                              :lparallel
                              :clml.decision-tree-package
                              )
                 :components (

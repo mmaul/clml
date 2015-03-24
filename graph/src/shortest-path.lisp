@@ -63,7 +63,11 @@
                        (if (= distance *+inf*)
                            (setq path `(,start nil ,node))
                          (progn (push w path)
-                                (while (setq w (P w)) (push w path))))
+                                #+lispworks
+                                (while (setq w (P w)) (push w path))
+                                #-lispworks
+                                (loop while (setq w (P w)) do (push w path))
+                                ))
                        `(:path ,path :distance ,(dfloat distance)))))
               (cond (dest (get-path-distance dest))
                     ((every #'null Pvec) nil)

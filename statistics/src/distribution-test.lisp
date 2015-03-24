@@ -1,3 +1,4 @@
+;-*- coding: utf-8 -*-
 ;;;;;;;;;;;;;;;;;;;;;
 ; distribution-test ;
 ;;;;;;;;;;;;;;;;;;;;;
@@ -7,16 +8,16 @@
 ;;; refer R-code at http://aoki2.si.gunma-u.ac.jp/R/
       
 #||
-normal-dist-test (³‹K•ª•zŒŸ’è)
+normal-dist-test (æ­£è¦åˆ†å¸ƒæ¤œå®š)
 
 OUTPUT( 3 values of property-list )
  result (:total :mean :variance :SD)
- table (:MID ŠeŠK‹‰‚Ì’†S’l
-        :FREQ Še‹‰‚Ì“x”
-        :Z ‹‰ŒÀŠE‚Ì•W€‰»“¾“_
-        :CDF —İÏŠm—¦
-        :EXPECTATION Šú‘Ò’l)
- result2 (:CHI-SQ ƒJƒC“ñæ“Œv—Ê :D.F. ©—R“x :P-VALUE P-’l)
+ table (:MID å„éšç´šã®ä¸­å¿ƒå€¤
+        :FREQ å„ç´šã®åº¦æ•°
+        :Z ç´šé™ç•Œã®æ¨™æº–åŒ–å¾—ç‚¹
+        :CDF ç´¯ç©ç¢ºç‡
+        :EXPECTATION æœŸå¾…å€¤)
+ result2 (:CHI-SQ ã‚«ã‚¤äºŒä¹—çµ±è¨ˆé‡ :D.F. è‡ªç”±åº¦ :P-VALUE P-å€¤)
 ||#
 (defun normal-dist-test (freq-seq       ; sequence of frequency
                          inf            ; infimum of the first class
@@ -108,18 +109,18 @@ STAT(6): (normal-dist-test '(4 19 86 177 105 33 2) 40 5 0.1)
 
 
 #||
-poisson-dist-test (ƒ|ƒAƒ\ƒ“•ª•zŒŸ’è)
+poisson-dist-test (ãƒã‚¢ã‚½ãƒ³åˆ†å¸ƒæ¤œå®š)
 
 OUTPUT( 3 values of p-list )
-result (:N ‘S“x”
-        :MEAN •½‹Ï)
-table (:C-ID ‰¼‚ÌŠK‹‰’l
-       :FREQ “x”
-       :P Šm—¦
-       :E Šú‘Ò’l)
-result2 (:CHI-SQ ƒJƒC“ñæ“Œv—Ê 
-         :D.F. ©—R“x
-         :P-VALUE P-’l)
+result (:N å…¨åº¦æ•°
+        :MEAN å¹³å‡)
+table (:C-ID ä»®ã®éšç´šå€¤
+       :FREQ åº¦æ•°
+       :P ç¢ºç‡
+       :E æœŸå¾…å€¤)
+result2 (:CHI-SQ ã‚«ã‚¤äºŒä¹—çµ±è¨ˆé‡ 
+         :D.F. è‡ªç”±åº¦
+         :P-VALUE P-å€¤)
 ||#
 (defun poisson-dist-test (d)            ; sequence of frequency
   "- Input: sequence of frequency
@@ -185,17 +186,17 @@ STAT(10): (poisson-dist-test '(27 61 77 71 54 35 20 11 6 2 1))
 ||#
 
 #||
-“ñ€•ª•zŒŸ’è(binom-dist-test)
+äºŒé …åˆ†å¸ƒæ¤œå®š(binom-dist-test)
 
 OUTPUT( 3 values of p-list )
-result (:D-SIZE ƒTƒ“ƒvƒ‹ƒTƒCƒY
-        :PROBABILITY) •ê”ä—¦
-table (:FREQ “x”•ª•z
-       :P Šm—¦
-       :E) Šú‘Ò’l
-result2 (:CHI-SQ ƒJƒC“ñæ“Œv—Ê
-         :D.F. ©—R“x
-         :P-VALUE) P-’l
+result (:D-SIZE ã‚µãƒ³ãƒ—ãƒ«ã‚µã‚¤ã‚º
+        :PROBABILITY) æ¯æ¯”ç‡
+table (:FREQ åº¦æ•°åˆ†å¸ƒ
+       :P ç¢ºç‡
+       :E) æœŸå¾…å€¤
+result2 (:CHI-SQ ã‚«ã‚¤äºŒä¹—çµ±è¨ˆé‡
+         :D.F. è‡ªç”±åº¦
+         :P-VALUE) P-å€¤
 ||#
 (defun binom-dist-test (d               ; sequence of frequency
                         x               ; sequence of class-value

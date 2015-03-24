@@ -155,7 +155,7 @@
 			       :test test)))
     (make-decision-tree-for-rf data-vector variable-index-hash objective-column-index root :test test)))
 
-#-fork-future
+#- (or  fork-future future lparallel) 
 (defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
   "- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
 - arguments:
@@ -169,7 +169,7 @@
     (dotimes (i tree-number forest)
 	     (setf (svref forest i) (make-random-decision-tree unspecialized-dataset objective-column-name :test test)))))
 
-#+ (and fork-future (not sbcl))
+#+ (and fork-future (not sbcl) (not lparallel))
 (defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
   (let ((forest (make-array tree-number)))
     (let ((futures
@@ -189,7 +189,8 @@
             (setf (svref forest i)
                   (aref (fork-future:touch (elt futures nworker)) i)))))
     forest))
-#+ (and future  sbcl)
+
+#+ (and future sbcl (not lparallel))
 (defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
   "- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
 - arguments:
@@ -217,6 +218,20 @@
             (setf (svref forest i)
                   (aref (future:touch (elt futures nworker)) i)))))
     forest))
+
+#+ lparallel
+(defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
+  "- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
+- arguments:
+ - unspecialized-dataset
+ - objective-variable-name
+ - test : delta-gini | delta-entropy , splitting criterion function, default is delta-gini
+ - tree-number : the number of decision trees, default is 500
+- reference : [[http://www-stat.stanford.edu/~tibs/ElemStatLearn/][Trevor Hastie, Robert Tibshirani and Jerome Friedman. The Elements of Statistical Learning:Data Mining, Inference, and Prediction]]
+"
+  (lparallel:pmap 'vector
+                  (lambda (l)  (make-random-decision-tree unspecialized-dataset objective-column-name :test test)) (make-array tree-number))
+  )
 
 (defun predict-forest (query-vector unspecialized-dataset forest)
   "- return: string, prediction
@@ -281,13 +296,13 @@
   (let ((tree (make-random-regression-tree unspecialized-dataset objective-column-name)))
     (print-regression-tree tree stream)))
 
-#-future
+#- (or future fork-future lparallel)
 (defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
   (let ((forest (make-array tree-number)))
     (dotimes (i tree-number forest)
       (setf (svref forest i) (make-random-regression-tree unspecialized-dataset objective-column-name)))))
 
-#+fork-future-not-in-my-future
+#+ (and fork-future (not future) (not lparallel))
 (defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
   (let ((forest (make-array tree-number)))
     (let ((futures
@@ -307,7 +322,7 @@
                   (setf (svref forest i)
                     (aref (fork-future:touch (elt futures nworker)) i)))))
     forest))
-#+future
+#+ (and future (not lparallel))
 (defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
   (let ((forest (make-array tree-number)))
     (let ((futures
@@ -327,6 +342,11 @@
                   (setf (svref forest i)
                     (aref (future:touch (elt futures nworker)) i)))))
     forest))
+
+#+ lparallel
+(defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
+  (lparallel:pmap 'vector
+                  (lambda (l)  (make-random-regression-tree unspecialized-dataset objective-column-name )) (make-array tree-number)))
 
 (defun predict-regression-forest (query-vector unspecialized-dataset forest)
  

@@ -346,7 +346,6 @@
 	 (c (make-array (list m m)))
 	 (u (make-array (list m k))))
 	;(v (make-array (list k n))))
-    
     (dotimes (l repeat average-c)
       (setf u (nmf matrix k :cost-fn cost-fn :iteration iteration))
       (setf c (row-consensus-matrix u))
@@ -419,6 +418,13 @@
       (setf (aref v i)
 	(max-index (pick-up-column feature-matrix i))))))
 
+(defun 2d-array-to-list (array &key (cofn #'identity))
+  (loop for i below (array-dimension array 0)
+        collect (loop for j below (array-dimension array 1)
+                   collect (funcall cofn (aref array i j)))))
+(defun coerce-2d-array (a element-type cofn)
+  (make-array (array-dimensions a) :element-type element-type
+              :initial-contents (2d-array-to-list a :cofn cofn)))
 
 (defun rho-k (matrix k &key (type :row) (cost-fn :euclidean) (iteration 100) (repeat 100))
   "- stability of nmf clustering associated with k. we consider k is more stable closer to 1.0.
@@ -435,10 +441,19 @@
 
 *** sample usage
 #+INCLUDE: \"../sample/rho-k.org\" example lisp"
-  (let* ((avc (average-consensus-matrix matrix k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
-	 (d (sim-mat->dis-mat avc))
-	 (u (cophenetic-matrix d)))
-    (cophenetic-cc d u)))
+  (print  matrix)
+  (flet (( f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))
+                                                                 'fixnum)) v)))
+    (print (coerce-2d-array matrix 'fixnum (lambda (x) (print x) (floor x))
+                            ))
+    (print "0000")
+    (let* ((avc (average-consensus-matrix (coerce-2d-array matrix 'fixnum (lambda (x) (print x) (floor x))
+                                                           ) k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
+           (p (print avc))
+           (d (sim-mat->dis-mat avc))
+           (u (cophenetic-matrix d)))
+      (print avc)
+      (cophenetic-cc d u))))
 
 
 (defun nmf-clustering (matrix k &key (type :row) (cost-fn :euclidean) (iteration 100))

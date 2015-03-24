@@ -1,6 +1,7 @@
 ;-*- coding: utf-8 -*-
 (in-package :clml.test)
 
+
 (define-test test-nmf
     (let (matrix w h sports-corpus politics-corpus)
       (setf matrix (sample-matrix 4 5))
@@ -16,15 +17,20 @@
       (assert-eql 3 (array-dimension w 1))
       (assert-eql 3 (array-dimension h 0))
       (assert-eql 5 (array-dimension h 1))
+      (print "x") 
       (multiple-value-setq (w h) (nmf-sc matrix 3 0.7 :type :left))
       (assert-true (< 0.69 (sparseness (pick-up-column w 0)) 0.71))
       (multiple-value-setq (w h) (nmf-sc matrix 3 0.9 :type :right))
+      (print "y")
       (assert-true (< 0.89 (sparseness (pick-up-row h 0)) 0.91))
       (assert-eql 4 (length (nmf-clustering matrix 3)))
       (assert-eql 5 (length (nmf-clustering matrix 4 :type :column)))
+      (print "----------")
       (assert-true (<= 0.0 (rho-k matrix 2) 1.0))
+      (print "----------")
       (assert-true (<= 0.0 (rho-k matrix 2 :cost-fn :kl) 1.0))
       (setf matrix (sample-matrix 100 200))
+      
       (assert-false (nmf-analysis matrix 5))
       (assert-false (nmf-analysis matrix 3 :type :column :results 5))
       (setf sports-corpus

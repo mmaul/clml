@@ -239,16 +239,20 @@
 
 
 ;;;;; for R input/output
+;; probably should use RCL instead more full featured
+#+lispworks
 (defparameter *r-path* 
   #+unix "R"
   #+mswindows
   "C:/Program Files/R/R-2.4.1/bin/R.exe") ; Pathname to "R.exe"
+#+lispworks
 (defparameter *r-stream* nil)
 
 (defun read-new-value ()
   (format t "Enter a new value: ")
   (multiple-value-list (eval (read))))
 
+#+lispworks
 (defun start-r ()
   (unless (probe-file *r-path*)
     (restart-case
@@ -263,10 +267,13 @@
     (declare (ignore err pid))
     (setf *r-stream* shell-stream)))
 
+#+lispworks
 (defun close-cmd-stream (stream)
   (close stream)
   #+allegro (system:reap-os-subprocess)
   (setf stream nil))
+
+#+lispworks
 (defmacro with-r (&rest body)
   `(unwind-protect
        (progn 
@@ -282,14 +289,17 @@
     (write-char ch *standard-output*)))
 
 (defun open-eps-file (f-name)
-  #+mswindows
+  #+ (and mswindows lispworks)
   (let ((stream (run-shell-command "cmd" :wait nil :input :stream :output :stream
                                    :show-window :hide)))
     (format stream "~A~%" f-name)
     (close-cmd-stream stream))
-  #+unix
-  (run-shell-command (format nil "evince ~S" f-name) :wait nil))
+  #+ (and  unix lispworks)
+  (run-shell-command (format nil "evince ~S" f-name) :wait nil)
+  #-lispworks
+  (UIOP/RUN-PROGRAM:run-program (format nil "evince ~S" f-name)))
 
+#+lispworks
 (defun draw-by-R (&rest ts-datasets)
   (let* ((f-name (loop for i from 1
                      as f-name = (format nil "ts-~A.eps" i)
@@ -320,7 +330,8 @@
           (format *r-stream* "dev.off()~%")
           (format *r-stream* "q()~%")))
     (open-eps-file f-name)))
-  
+
+#+lispworks
 (defmethod draw-exp-smoothing-by-R ((d time-series-dataset)
                                     &key 
                                     (learn-end (tf-incl (ts-end d) -1 :freq (ts-freq d))))

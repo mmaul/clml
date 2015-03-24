@@ -179,7 +179,7 @@ Package for "ChangeFinder"
         :clml.hjs.matrix
         :clml.hjs.vars
         :clml.hjs.missing-value
-        
+        ::clml.hjs.eigensystems
         :clml.utility.csv
         :clml.time-series.util
         :clml.time-series.statistics
