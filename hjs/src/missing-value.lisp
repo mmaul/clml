@@ -45,7 +45,7 @@
    #+sbcl #.(- #.sb-ext:double-float-positive-infinity #.sb-ext:double-float-positive-infinity)
    #+lispworks system::*double-float-nan*)
  
- (defconstant *+inf*
+ (defconstant ++inf+
    #+ccl 1D++0
    #+allegro excl:*infinity-double*
    #+sbcl #.sb-ext:double-float-positive-infinity

@@ -21,7 +21,7 @@
          (dest (when end-id-or-name (retrieve-node gr end-id-or-name)))
          (nodes (nodes gr))
          (nnodes (length nodes))
-         (Dvec (make-array nnodes :initial-element *+inf*))
+         (Dvec (make-array nnodes :initial-element ++inf+))
          (Pvec (make-array nnodes))
          (Bvec (make-array nnodes)))
     (when start
@@ -46,7 +46,7 @@
               (setf (B n) (insert-prique prique n)))
             (loop while (not (prique-empty-p prique)) do 
               (setq v (delete-min-prique prique))
-              (when (= (D v) *+inf*)
+              (when (= (D v) ++inf+)
                 (setq v nil)
                 (return)
                 )
@@ -60,7 +60,7 @@
                      (let ((path nil)
                            (w node)
                            (distance (D node)))
-                       (if (= distance *+inf*)
+                       (if (= distance ++inf+)
                            (setq path `(,start nil ,node))
                          (progn (push w path)
                                 #+lispworks
@@ -77,7 +77,7 @@
 (defmethod graph-distance-matrix ((gr simple-graph) &optional (path-mat-p nil))
   (let* ((nodes (nodes gr))
          (n (length nodes))
-         (mat (make-array `(,n ,n) :element-type 'double-float :initial-element *+inf*))
+         (mat (make-array `(,n ,n) :element-type 'double-float :initial-element ++inf+))
          (path-mat (when path-mat-p (make-array `(,n ,n) :element-type t :initial-element nil))))
     (loop for i below n do (setf (aref mat i i) 0d0))
     (loop for row below n

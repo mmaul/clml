@@ -15,7 +15,7 @@
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (loop for val across value-vector
       for i fixnum from 0
-      with min-val = *+inf*
+      with min-val = ++inf+
       with index = 0
       when key
       do (setq val (funcall key val i))
@@ -73,12 +73,12 @@
                                            (or (cadr time) (car time)))))))
         (loop for gap in gaps
             for time-count from 0
-            with c = (make-array k :initial-element *+inf*)
+            with c = (make-array k :initial-element ++inf+)
             and q = (make-array (list k gap-length))
             initially (setf (aref c 0) 0)
             do ;(format t "===== ~d =====~%" (1+ time-count))
               (loop for j fixnum from 0 below k
-                  with c-prime = (make-array k :initial-element *+inf*)
+                  with c-prime = (make-array k :initial-element ++inf+)
                   as alpha in alpha-list
                   as (ell min-cost)
                   = (multiple-value-list
@@ -247,14 +247,14 @@
                (loop for current-batch-id from 0 below batches-size by 1
                    collect (aref q min-c-index current-batch-id))))
       (loop
-          with c = (make-array states-num :initial-element *+inf*) ; used in [R] R-source under the name of "C" 
+          with c = (make-array states-num :initial-element ++inf+) ; used in [R] R-source under the name of "C" 
           with q = (make-array (list states-num batches-size)) ; used in [R] R-source under the name of "q"
           for current-batch-id from 0 below batches-size by 1
           for (d-on-current-batch r-on-current-batch) in batches
           initially (setf (aref c 0) 0)
           do ;(format t "~%- current-batch-id=~d, d=~d, r=~d" current-batch-id d-on-current-batch r-on-current-batch)
              (loop for state-index-on-current-batch from 0 below states-num
-                 with c-prime = (make-array states-num :initial-element *+inf*) ; used in [R] R-source under the name of "Cprime"
+                 with c-prime = (make-array states-num :initial-element ++inf+) ; used in [R] R-source under the name of "Cprime"
                  as (ell min-cost)
                  = (multiple-value-list
                     (index-of-minimum-value c :key

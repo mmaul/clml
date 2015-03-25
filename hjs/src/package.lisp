@@ -111,7 +111,7 @@
   (:nicknames :missing-val :handling-missing-value)
   (:export
    #:+missing-values+ #:missing-value-p
-   #:+na+ #:+nan+ #:*c-nan* #:*+inf* #:+-inf+
+   #:+na+ #:+nan+ #:*c-nan* #:++inf+ #:+-inf+
    #:fill-na #:na-p #:nan-p #:c-nan-p
    #:outlier-verification #:interpolate))
 

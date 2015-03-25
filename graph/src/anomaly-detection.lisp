@@ -292,8 +292,8 @@
   (let* ((scale (* 2 sigma))
          (shape (/ n-1 2))         
          (1-pc (- 1 pc)))
-    (if (and (< 0 scale *+inf*)
-             (< 0 shape *+inf*))
+    (if (and (< 0 scale ++inf+)
+             (< 0 shape ++inf+))
         (let ((gamma-dist (gamma-distribution scale shape)))
           (if (typep gamma-dist 'clml.statistics::gamma-like-distribution)
               (quantile-ili gamma-dist 1-pc)
@@ -821,7 +821,7 @@
                                                 (find (cons j i) independent-index-pairs
                                                       :test #'equal)))
                                        most-positive-double-float)
-                                      ((almost= aij 0d0) *+inf*)
+                                      ((almost= aij 0d0) ++inf+)
                                       ;; infinite dissimilarity
                                       ((almost= aij 1d0) 0d0)
                                       ((almost= aij -1d0) 0d0)
@@ -1487,7 +1487,7 @@
     (:mnd (let ((density (multivariate-normal-density mu sigma target)))
             (- (log 
                 (cond ((zerop density) least-positive-double-float)
-                      ((= #.*+inf* density) most-positive-double-float)
+                      ((= #.++inf+ density) most-positive-double-float)
                       (t density))))))))
 (defun local-anomaly-score (target mu sigma &key (type :mahalanobis)) ; :mahalanobis | :mnd
   (let* ((dims (array-dimensions sigma))
@@ -1500,7 +1500,7 @@
       (:mnd (let ((density (multivariate-normal-density mu-vec sigma target-vec)))
               (- (log 
                   (cond ((zerop density) least-positive-double-float)
-                        ((= #.*+inf* density) most-positive-double-float)
+                        ((= #.++inf+ density) most-positive-double-float)
                         (t density)))))))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;

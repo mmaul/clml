@@ -287,7 +287,7 @@
   (let ((density (changefinder::multivariate-normal-density mu sigma target)))
     (- (log 
         (cond ((>= 0d0 density) least-positive-double-float)
-              ((= #.*+inf*
+              ((= #.++inf+
                   ;*INFINITY-DOUBLE*
                   density) most-positive-double-float)
               (t density))))))
@@ -300,7 +300,7 @@
     (let ((density (changefinder::multivariate-normal-density mu-vec sigma target-vec)))
       (- (log 
           (cond ((>= 0d0 density) least-positive-double-float)
-                ((= #.*+inf*
+                ((= #.++inf+
                                         ;*INFINITY-DOUBLE*
                     density
                     ) most-positive-double-float)
@@ -564,8 +564,8 @@
   (let* ((scale (* 2 sigma))
          (shape (/ n-1 2))         
          (1-pc (- 1 pc)))
-    (if (and (< 0 scale *+inf*)
-             (< 0 shape *+inf*))
+    (if (and (< 0 scale ++inf+)
+             (< 0 shape ++inf+))
         (let ((gamma-dist (gamma-distribution scale shape)))
           (if (typep gamma-dist 'clml.statistics::gamma-like-distribution)
               (quantile-ili gamma-dist 1-pc)
@@ -644,7 +644,7 @@
                  as aij double-float = (cond ((zerop cij) (kronecker-delta i j))
                                              (t cij))
                  as d double-float = 
-                   (cond ((almost= aij 0d0) *+inf*)
+                   (cond ((almost= aij 0d0) ++inf+)
                          ;; infinite dissimilarity
                          ((almost= aij 1d0) 0d0)
                          ((almost= aij -1d0) 0d0)
