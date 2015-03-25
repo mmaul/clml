@@ -199,7 +199,7 @@ e.g.
 						    (getf b :index-var)
 						    (getf b :setf-var-clause)))
 					   building-blocks)
-		   (declare (ignorable _ __ ___ ____))
+		   #-sbcl (declare (ignorable _ __ ___ ____))
 		   ,@body)))))))
 
 
