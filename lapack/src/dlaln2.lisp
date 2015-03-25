@@ -66,7 +66,8 @@
                 smlnum temp u22abs ui11 ui11r ui12 ui12s ui22 ur11
                 ur11r ur12 ur12s ur22 xi1 xi2 xr1 xr2)
                (type (array double-float (4)) ci civ cr crv)
-               (type (f2cl-lib:integer4) icmax j))
+               (type (f2cl-lib:integer4) icmax j)
+               #+sbcl (ignorable ci cr))
               (setf smlnum (* two (dlamch "Safe minimum")))
               (setf bignum (/ one smlnum))
               (setf smini (max smin smlnum))

@@ -19,7 +19,8 @@
 
 (defun ilaenv (ispec name opts n1 n2 n3 n4)
   (declare (type (simple-array character (*)) opts name)
-   (type (f2cl-lib:integer4) n4 n3 n2 n1 ispec))
+           (type (f2cl-lib:integer4) n4 n3 n2 n1 ispec)
+           #+sbcl (ignorable n3))
   (f2cl-lib:with-multi-array-data ((name character name-%data%
                                     name-%offset%)
                                    (opts character opts-%data%
