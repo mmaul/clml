@@ -44,7 +44,7 @@
 		 ;; of sample vector were masked off -> skip this
 		 ;; sample 
 		 (setq index (winner-info-index win-info))
-		 (when (/= datalabel *label-empty*)
+		 (when (/= datalabel +label-empty+)
 		   (add-hit (elt hits index) datalabel)))
 	       ;; Take the next data entry 
 	       (incf ind)
@@ -82,7 +82,7 @@
   (let ((data (gdata-data g-data)))
     (label-not-needed 1)
     (let ((codes (gdata-codes g-data)))
-      (when (< (entries-topol codes) *topol-hexa*)
+      (when (< (entries-topol codes) +topol-hexa+)
 	(error "codes data is broken.~%"))
       (when (/= (entries-dimension data) (entries-dimension codes))
 	(error "dimension data is broken.~%"))

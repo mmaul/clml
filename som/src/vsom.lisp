@@ -40,7 +40,7 @@
     (setf (entries-num-loaded codes)
       (entries-num-entries codes))
     
-    (when (< (the fixnum (entries-topol codes)) (the fixnum *topol-hexa*))
+    (when (< (the fixnum (entries-topol codes)) (the fixnum +topol-hexa+))
       (error "vsom: topol is wrong. ~d~%" (entries-topol codes)))
     
     (when (/= (the fixnum (entries-dimension data)) (the fixnum (entries-dimension codes)))
@@ -57,11 +57,11 @@
       (setf (slot-value (entries-entries_flags data) 'random-order) t))
     
     (unless alpha-type
-      (setq alpha-type *alpha-linear*))
+      (setq alpha-type +alpha-linear+))
     
     (let ((type-id (get-type-by-str *alpha-list* alpha-type)))
       (declare (type fixnum type-id))
-      (unless (or type-id (= type-id (the fixnum *alpha-unknown*)))
+      (unless (or type-id (= type-id (the fixnum +alpha-unknown+)))
 	(error "Unknown alpha type~a~%" alpha-type))
       (setf (teach-params-alpha-type params) type-id)
       (setf (teach-params-alpha-func params)

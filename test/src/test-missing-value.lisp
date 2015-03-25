@@ -4,7 +4,7 @@
 (defparameter *sample* '(10 194 8.6d0 69 5 10 "" nil "NA" 3 4.5d0 6 5 5 5))
 (defparameter *sample-1* `(10d0 3d0 194d0 8.6d0 69d0 5d0 10d0 3d0 3d0 3d0
                                 ,+nan+ 3d0 4.5d0 6d0 5d0 5d0 5d0))
-(defparameter *sample-2* `(10 3 194 69 5 10 3 3 3 ,*c-nan* 3 6 5 5 5))
+(defparameter *sample-2* `(10 3 194 69 5 10 3 3 3 ,+c-nan+ 3 6 5 5 5))
 
 (define-test test-ps
     (progn
@@ -13,12 +13,12 @@
                        (loop for val in +missing-values+ count (missing-value-p val)))
       (assert-true (na-p +na+))
       (assert-true (na-p +nan+ :type :numeric))
-      (assert-true (na-p *c-nan* :type :category))
+      (assert-true (na-p +c-nan+ :type :category))
       (assert-true (na-p "my-na" :na-string "my-na"))
       (assert-false (na-p "not-my-na" :na-string "my-na"))
       (assert-false (nan-p +na+))
       (assert-false (c-nan-p +na+))
-      (assert-false (nan-p *c-nan*))
+      (assert-false (nan-p +c-nan+))
       (assert-false (c-nan-p +nan+))))
 
 (define-test test-fill-rem
@@ -87,7 +87,7 @@
                                                       :seq-type :numeric)
                        always (or (= val1 val2)
                                   (and (nan-p val1) (nan-p val2)))))
-    (assert-true (loop for val1 in `(10 3 ,*c-nan* ,*c-nan* 5 10 3 3 3 ,*c-nan* 3 ,*c-nan* 5 5 5)
+    (assert-true (loop for val1 in `(10 3 ,+c-nan+ ,+c-nan+ 5 10 3 3 3 ,+c-nan+ 3 ,+c-nan+ 5 5 5)
                     for val2 in (outlier-verification *sample-2* 
                                                       :type :freq
                                                       :outlier-value 0.075

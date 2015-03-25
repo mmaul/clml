@@ -346,7 +346,7 @@
                        (aref (data-entry-points data-entry) 0)
                        (aref (data-entry-points data-entry) 1))
                (when (/= (setq label (get-entry-label data-entry))
-                         *label-empty*)
+                         +label-empty+)
                  (format stream "~f ~f moveto~%"
                          (aref (data-entry-points data-entry) 0)
                          (aref (data-entry-points data-entry) 1))
@@ -468,9 +468,9 @@
       
       ;; Don't draw lines when the file is not a map file 
       (when (and (/= (the fixnum (entries-topol codes))
-		     (the fixnum *topol-rect*))
+		     (the fixnum +topol-rect+))
 		 (/= (the fixnum (entries-topol codes))
-		     (the fixnum *topol-hexa*)))
+		     (the fixnum +topol-hexa+)))
 	(setq removed 1))
       
       (when debug 

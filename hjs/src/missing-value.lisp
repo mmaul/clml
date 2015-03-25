@@ -56,7 +56,7 @@
    #+sbcl #.sb-ext:double-float-negative-infinity
    #+lispworks -1D++0)
  ;; NaN for category, assume that categorical data is serialized by positive integer
- (defconstant *c-nan* 0))
+ (defconstant +c-nan+ 0))
 
 #+ccl
 (eval-when (:execute :compile-toplevel :load-toplevel)
@@ -73,7 +73,7 @@
   #+ccl (and (floatp value) (float-nan-p value))
   #+lispworks (sys::nan-p value))
 
-(defun c-nan-p (value) (and (numberp value) (= value *c-nan*)))
+(defun c-nan-p (value) (and (numberp value) (= value +c-nan+)))
 (defun na-p (value &key na-string (type :numeric)) ; :numeric | :category
   (or (case type (:numeric (nan-p value)) (:category (c-nan-p value)))
       (and na-string (stringp value) (string= value na-string))
@@ -85,11 +85,11 @@
 (defun na2nan (seq &optional na-string)
   (subst-na-to +nan+ seq :na-string na-string :type :numeric))
 (defun na2c-nan (seq &optional na-string)
-  (subst-na-to *c-nan* seq :na-string na-string :type :category))
+  (subst-na-to +c-nan+ seq :na-string na-string :type :category))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; interpolation: +na+ | +nan+ | *c-nan* -> value  ;
+; interpolation: +na+ | +nan+ | +c-nan+ -> value  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun subst-nan-to (value seq)
   (substitute-if value #'(lambda (val) (nan-p val)) seq))
@@ -163,7 +163,7 @@
 
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- ; outlier verification: value -> +nan+ | *c-nan* ;
+ ; outlier verification: value -> +nan+ | +c-nan+ ;
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun outlier-verification 
     (seq &key (type :smirnov-grubbs)
@@ -184,7 +184,7 @@
                      (recursive-smirnov 
                       (substitute-if +nan+ #'(lambda (v) (= v target)) seq) :type type)))))
         (recursive-smirnov (recursive-smirnov seq :type :min) :type :max))
-    (let ((subst-value (ecase seq-type (:numeric +nan+) (:category *c-nan*)))
+    (let ((subst-value (ecase seq-type (:numeric +nan+) (:category +c-nan+)))
           (subst-test (if (eq type :user)
                           #'(lambda (val) (funcall user-test val outlier-value))
                         (let ((seq (remove-na-nan seq :seq-type seq-type)))

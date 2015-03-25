@@ -37,7 +37,7 @@
      (totlen-known :initarg :totlen-known :initform nil
                    :documentation "true when total length of file is known")
      (random-order :initarg :random-order :initform nil
-                   :documentation "use data vectors in random order. only available in *loadmode-all*")
+                   :documentation "use data vectors in random order. only available in +loadmode-all+")
      (skip-empty :initarg :skip-empty :initform t
                  :documentation "Ignore vectors that have all components masked off (default)")
      (labels-needed :initarg :labels-needed :initform t
@@ -46,8 +46,8 @@
   
   (defclass entries ()
     ((dimension :accessor entries-dimension :initarg :dimension :initform 0)
-     (topol :accessor entries-topol :initarg :topol :initform *topol-unknown*)
-     (neigh :accessor entries-neigh :initarg :neigh :initform *neigh-unknown*)
+     (topol :accessor entries-topol :initarg :topol :initform +topol-unknown+)
+     (neigh :accessor entries-neigh :initarg :neigh :initform +neigh-unknown+)
      (xdim :accessor entries-xdim :initarg :xdim :initform 0)
      (ydim :accessor entries-ydim :initarg :ydim :initform 0)
      (current :accessor entries-current :initarg :current :initform 0
@@ -61,7 +61,7 @@
                   :documentation "number of entries in the data set if known")
      (flags :accessor entries-entries_flags :initarg :entries_flags 
             :initform (make-instance 'entries_flags
-                                     :loadmode *loadmode-all*
+                                     :loadmode +loadmode-all+
                                      :totlen-known nil
                                      :random-order nil
                                      :skip-empty t

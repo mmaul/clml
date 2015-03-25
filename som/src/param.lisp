@@ -3,43 +3,43 @@
 
 (in-package :clml.som)
 
-(defconstant *loadmode-all* t)
-(defconstant *loadmode-buffer* nil)
+(defconstant +loadmode-all+ t)
+(defconstant +loadmode-buffer+ nil)
 
 ;; topology types
-(defconstant *topol-unknown* 0)
-(defconstant *topol-data* 1)
-(defconstant *topol-lvq* 2)
-(defconstant *topol-hexa* 3)
-(defconstant *topol-rect* 4)
+(defconstant +topol-unknown+ 0)
+(defconstant +topol-data+ 1)
+(defconstant +topol-lvq+ 2)
+(defconstant +topol-hexa+ 3)
+(defconstant +topol-rect+ 4)
 
 (defparameter *topol-list*
-    (list `(,*topol-data* "data" nil)
-	  `(,*topol-lvq* "lvq" nil)
-	  `(,*topol-hexa* "hexa" nil)
-	  `(,*topol-rect* "rect" nil)
-	  `(,*topol-unknown* "" nil)))
+    (list `(,+topol-data+ "data" nil)
+	  `(,+topol-lvq+ "lvq" nil)
+	  `(,+topol-hexa+ "hexa" nil)
+	  `(,+topol-rect+ "rect" nil)
+	  `(,+topol-unknown+ "" nil)))
 
 ;; neighborhood types
-(defconstant *neigh-unknown* 0)
-(defconstant *neigh-bubble* 1)
-(defconstant *neigh-gaussian* 2)
+(defconstant +neigh-unknown+ 0)
+(defconstant +neigh-bubble+ 1)
+(defconstant +neigh-gaussian+ 2)
 
 (defparameter *neigh-list*
-    (list `(,*neigh-bubble* "bubble" nil)
-	  `(,*neigh-gaussian* "gaussian" nil)
-	  `(,*neigh-unknown* "" nil)))
+    (list `(,+neigh-bubble+ "bubble" nil)
+	  `(,+neigh-gaussian+ "gaussian" nil)
+	  `(,+neigh-unknown+ "" nil)))
 
 ;; alpha function types
-(defconstant *alpha-unknown* 0)
-(defconstant *alpha-linear* 1)
-(defconstant *alpha-inverse-t* 2)
+(defconstant +alpha-unknown+ 0)
+(defconstant +alpha-linear+ 1)
+(defconstant +alpha-inverse-t+ 2)
 
 ;; alpha functions
 (defparameter *alpha-list*
-    (list `(,*alpha-linear* "linear" (function linear-alpha))
-	  `(,*alpha-inverse-t* "inverse_t" (function inverse-t-alpha))
-	  `(,*alpha-unknown* "" nil)))
+    (list `(,+alpha-linear+ "linear" (function linear-alpha))
+	  `(,+alpha-inverse-t+ "inverse_t" (function inverse-t-alpha))
+	  `(,+alpha-unknown+ "" nil)))
 
 ;; initialize
 (defparameter *it-unknown* 0)
@@ -47,7 +47,7 @@
 (defparameter *it-rand* 2)
 
 ;;
-(defconstant *label-empty* 0)
+(defconstant +label-empty+ 0)
 
 (defparameter *flt-min* most-negative-double-float)
 (defparameter *flt-max* most-positive-double-float)

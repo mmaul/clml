@@ -16,7 +16,7 @@
     (declare (type (integer 0 #.most-positive-fixnum) noc dim))
     
     (setf (entries-dimension codes) dim)
-    (setf (slot-value (entries-entries_flags codes) 'loadmode) *loadmode-all*)
+    (setf (slot-value (entries-entries_flags codes) 'loadmode) +loadmode-all+)
     (setf (entries-xdim codes) xdim)
     (setf (entries-ydim codes) ydim)
     (setf (entries-topol codes) topol)
@@ -82,17 +82,17 @@
 
 (defun get-mapdistf (topol)
   (declare (optimize (speed 3)))
-  (cond ((= topol *topol-rect*)
+  (cond ((= topol +topol-rect+)
 	 (function rect-dist))
-	((= topol *topol-hexa*)
+	((= topol +topol-hexa+)
 	 (function hexa-dist))
 	(t nil)))
 
 (defun get-nadaptf (neigh)
   (declare (optimize (speed 3)))
-  (cond ((= neigh *neigh-gaussian*)
+  (cond ((= neigh +neigh-gaussian+)
 	 (function gaussian-adapt))
-	((= neigh *neigh-bubble*)
+	((= neigh +neigh-bubble+)
 	 (function bubble-adapt))
 	(t nil)))
 

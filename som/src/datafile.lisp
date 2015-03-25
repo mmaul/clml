@@ -15,18 +15,18 @@
 (defun topol-type (s)
   (assert (stringp s))
   (handler-case (get-type-by-str *topol-list* s)
-    (error () *topol-unknown*)))
+    (error () +topol-unknown+)))
 
 (defun unknown-topol-p (topol)
-  (= topol *topol-unknown*))
+  (= topol +topol-unknown+))
 
 (defun neigh-type (s)
   (assert (stringp s))
   (handler-case (get-type-by-str *neigh-list* s)
-    (error () *neigh-unknown*)))
+    (error () +neigh-unknown+)))
 
 (defun unknown-neigh-p (neigh)
-  (= neigh *neigh-unknown*))
+  (= neigh +neigh-unknown+))
 
 (defun get-elements-list-elim-space (str)
   (let ((list
@@ -41,13 +41,13 @@
   (let ((s (second (get-elements-list-elim-space str))))
     (if (stringp s)
 	(topol-type s)
-      *topol-unknown*)))
+      +topol-unknown+)))
 
 (defun get-neigh (str)
   (let ((s (fifth (get-elements-list-elim-space str))))
     (if (stringp s)
 	(neigh-type s)
-      *neigh-unknown*)))
+      +neigh-unknown+)))
 
 (defun get-xdim (str)
   (let ((s (third (get-elements-list-elim-space str))))
@@ -297,7 +297,7 @@
 		(return (reverse lst)))))
     (setf (entries-num-loaded entries) noc)
     (when (eq (slot-value (entries-entries_flags entries) 'loadmode)
-	      *loadmode-all*)
+	      +loadmode-all+)
       (setf (entries-num-entries entries) noc)
       (setf (slot-value (entries-entries_flags entries) 'totlen-known) t)
       (close-file (entries-file-info entries))
@@ -376,9 +376,9 @@
   (let ((fp (file-info-fp file-info)))
     (when codes
       (format fp "~d" (entries-dimension codes))
-      (when (> (entries-topol codes) *topol-data*)
+      (when (> (entries-topol codes) +topol-data+)
 	(format fp " ~a" (topol-str (entries-topol codes)))
-	(when (> (entries-topol codes) *topol-lvq*)
+	(when (> (entries-topol codes) +topol-lvq+)
 	  (format fp " ~d" (entries-xdim codes))
 	  (format fp " ~d" (entries-ydim codes))
 	  (format fp " ~a" (neigh-str (entries-neigh codes)))))
@@ -397,7 +397,7 @@
     ;; Write labels. The last label is empty 
     (loop for i from 0
 	do (let ((label (get-entry-labels data-entry i)))
-	     (if (/= label *label-empty*)
+	     (if (/= label +label-empty+)
 		 (format fp "~a " (find-conv-to-lab label (entries-parent-gdata entries)))
 	       (return nil))))
     (format fp "~%")

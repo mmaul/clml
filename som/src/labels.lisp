@@ -20,7 +20,7 @@
 (defun set-entry-label (data-entry label)
   ;; remove previous labels if any 
   (clear-entry-labels data-entry)
-  (when (/= label *label-empty*)
+  (when (/= label +label-empty+)
     ;; empty label == no label 
     (setf (slot-value (data-entry-lab data-entry) 'label)
       label)
@@ -50,7 +50,7 @@
 	      (= i 0))
 	 (slot-value (data-entry-lab data-entry) 'label))
 	((>= i (data-entry-num-labs data-entry))
-	 *label-empty*)
+	 +label-empty+)
 	(t
 	 (elt (slot-value (data-entry-lab data-entry) 'label-array) i))))
 	
@@ -63,11 +63,11 @@
   (setf (slot-value (data-entry-lab data-entry) 'label-array) nil)
   (setf (data-entry-num-labs data-entry) 0)
   (setf (slot-value (data-entry-lab data-entry) 'label)
-    *label-empty*))
+    +label-empty+))
 
 (defun add-entry-label (data-entry label)
   ;; adding an empty label does nothing 
-  (unless (= label *label-empty*)
+  (unless (= label +label-empty+)
     (if (= (data-entry-num-labs data-entry) 0)
 	;; add first label to entry 
 	(progn
@@ -99,7 +99,7 @@
 (defun find-conv-to-ind (lab gdata)
   (if (stringp lab)
       (if (string= lab "") ; empty string -> empty label 
-	  *label-empty* 
+	  +label-empty+ 
 	(let ((label (loop for item across (gdata-labels-array gdata)
 			 for i from 1
 			 when (and (stringp item) (string= lab item))
@@ -112,7 +112,7 @@
 	    (setf (elt (gdata-labels-array gdata) (gdata-num-labs gdata)) lab)
 	    (incf (gdata-num-labs gdata)))
 	  (1+ label)))
-    *label-empty*			; no string -> empty label
+    +label-empty+			; no string -> empty label
     ))
       
 
@@ -176,7 +176,7 @@
 ;; find_conv_to_lab - Give the corresponding label; if the index is
 ;; not yet there, return NULL 
 (defun find-conv-to-lab (ind gdata)
-  (cond ((= ind *label-empty*)
+  (cond ((= ind +label-empty+)
 	 nil)
 	((or (> ind (gdata-num-labs gdata))
 	     (< ind 0))

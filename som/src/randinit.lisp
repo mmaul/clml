@@ -34,7 +34,7 @@
     (setq data (gdata-data g-data))
     
     (setf (slot-value (entries-entries_flags data) 'loadmode)
-      *loadmode-all*)
+      +loadmode-all+)
     
     (init-random randomize)
     

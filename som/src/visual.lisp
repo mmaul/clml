@@ -10,7 +10,7 @@
   (let ((data (teach-params-data teach-params))
 	(codes (teach-params-codes teach-params))
 	(winner (teach-params-winner teach-params))
-	(emptylab *label-empty*)
+	(emptylab +label-empty+)
 	(win-info (make-instance 'winner-info))
 	(file-info)
 	(nod))
@@ -80,7 +80,7 @@
 	(params (make-instance 'teach-params))
 	(noskip))
     
-    (when (< (entries-topol codes) *topol-hexa*)
+    (when (< (entries-topol codes) +topol-hexa+)
       (error "codes->topol is breken~%"))
     (when (/= (entries-dimension data) (entries-dimension codes))
       (error "dimension data is broken~%"))
