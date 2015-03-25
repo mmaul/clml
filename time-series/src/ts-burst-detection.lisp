@@ -60,10 +60,10 @@
                (calc-cost (gap alpha)
                  (handler-case
                      (let ((val (func-f gap alpha)))
-                       (if (zerop val) *-inf* (log val)))
+                       (if (zerop val) +-inf+ (log val)))
                    (arithmetic-error (cond)
                      (declare (ignore cond))
-                     *-inf*)))
+                     +-inf+)))
                (make-result-index-list (q min-c-index)
                  (append (list (list 0   ; initial-i0 value
                                      (or (cadar offsets) (caar offsets))))

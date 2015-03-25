@@ -72,7 +72,7 @@ The dataset for time-series data. Values are specialized in numeric"))
                     for j from 0
                     as p-val = (svref p i)
                     do (setf (aref sp j) 
-                         (if (na-p p-val) *nan* (coerce p-val 'double-float)))
+                         (if (na-p p-val) +nan+ (coerce p-val 'double-float)))
                     finally (return sp))))
             pts)))
     (case ts-type 

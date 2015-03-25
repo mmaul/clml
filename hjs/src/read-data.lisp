@@ -574,7 +574,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                             for i of-type array-index from 0
                             as val = (aref p index)
                             do (setf (aref sp i)
-                                     (if (na-p val) *nan* (coerce val 'double-float)))
+                                     (if (na-p val) +nan+ (coerce val 'double-float)))
                             finally (return sp))))
                       (dataset-points d)))
                 (make-func (if store-numeric-data-as-matrix
@@ -615,7 +615,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                             for i of-type array-index from 0
                             as val = (aref p index)
                             do (setf (aref sp i)
-                                     (if (na-p val) *nan* (coerce (aref p index) 'double-float)))
+                                     (if (na-p val) +nan+ (coerce (aref p index) 'double-float)))
                             finally (return sp))))
                       (dataset-points d)))
                 (category-data
@@ -780,7 +780,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                         for i of-type array-index from 0
                                         as val = (aref p index)
                                         do (setf (aref sp i)
-                                                 (if (na-p val) *nan* (coerce val 'double-float)))
+                                                 (if (na-p val) +nan+ (coerce val 'double-float)))
                                         finally (return sp))))
                                   points)))
                        (make-numeric-dataset all-column-names data)))
@@ -814,7 +814,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                         for i of-type array-index from 0
                                         as val = (aref p index)
                                         do (setf (aref sp i)
-                                                 (if (na-p val) *nan* (coerce (aref p index) 'double-float)))
+                                                 (if (na-p val) +nan+ (coerce (aref p index) 'double-float)))
                                         finally (return sp))))
                                   points))
                             (category-data

@@ -1759,7 +1759,7 @@
 ;; 外れ値除去 -> 平滑化
 ;; どちらか片方だけやることもできる。
 ;; 両方やる場合で、トレンド平滑化のときは、外れ値は補間される。
-;; 外れ値は *nan* になる
+;; 外れ値は +nan+ になる
 ;; 返り値は窓の転置
 (defun window-cleaning (window &key (smoothing nil) ;; nil | t
                                     (smoothing-args '(:trend-k 2 :trend-t^2 0.1d0))
@@ -1812,7 +1812,7 @@
   (multiple-value-bind (res poss)
       (d-smirnov-grubbs vec alpha :type :max :recursive t :sig-p-hash sig-p-hash)
     (declare (ignore res))
-    (when poss (mapcar (lambda (pos) (setf (aref vec pos) *nan*)) poss))
+    (when poss (mapcar (lambda (pos) (setf (aref vec pos) +nan+)) poss))
     vec))
 (defun smoothing (vec ;; destructive on vec
                   &key (trend-k 2) (trend-t^2 0.1d0))

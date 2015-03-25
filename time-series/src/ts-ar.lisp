@@ -97,7 +97,7 @@
 
 (defun calc-aic (cov num-of-coef num-of-data)
   (if (>= 0d0 cov)
-      handling-missing-value:*-inf*
+      handling-missing-value:+-inf+
       (+ (* num-of-data (1+ (log (* 2 (coerce pi 'double-float) cov))))
          (* 2 (1+ num-of-coef)))))
 
@@ -646,7 +646,7 @@
            (format nil "~a-~a" i m))
          (calc-aic (cov d m)
            (let ((d-cov (det cov)))
-             (cond ((>= 0 d-cov) handling-missing-value:*nan*)
+             (cond ((>= 0 d-cov) handling-missing-value:+nan+)
                    ((and (minusp d-cov) (> (abs d-cov) *epsilon*))
                     (error "Covariance must be positive-definite matrix ~A" cov))
                    

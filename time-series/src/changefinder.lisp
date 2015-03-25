@@ -185,7 +185,7 @@
                            ((minusp val) (error "~A is not positive definite." mat))
                            (t val))))
          (safe-log (val) (declare (type double-float val))
-                   (if (zerop val) *-inf* (log val))))
+                   (if (zerop val) +-inf+ (log val))))
     (with-accessors ((m mean) (%%s sigma)) pt-1
       (with-accessors ((mm mean) (%%ss sigma)) pt
         (let* ((dim (length m))

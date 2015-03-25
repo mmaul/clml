@@ -116,8 +116,8 @@ N), where M is the number of ponits and N is the dimension size.
                                   (dimension-name (svref dims ir))))
                          (sqrt (the (double-float 0d0) val)))))))
               (ecase type
-                (:matrix (fill-vec (make-dvec dim) handling-missing-value:*nan*))
-                (:closure (lambda (ir) (declare (ignore ir)) handling-missing-value:*nan*)))))
+                (:matrix (fill-vec (make-dvec dim) handling-missing-value:+nan+))
+                (:closure (lambda (ir) (declare (ignore ir)) handling-missing-value:+nan+)))))
          ;; computing the correlation matrix
          (correlation
           (when (eq method :correlation)

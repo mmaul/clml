@@ -325,7 +325,7 @@
  (defclass trend-model (gaussian-stsp-model)
    ((diff-k :initarg :diff-k :initform nil :type integer :accessor diff-k)
     (tau^2 :initarg :tau^2 :initform nil :type number :accessor tau^2)
-    (aic :initarg :aic :initform *nan* :type number))
+    (aic :initarg :aic :initform +nan+ :type number))
    (:documentation "- parent: gaussian-stsp-model
 - accessors:
   - diff-k : Degree for trend model

@@ -39,7 +39,7 @@
  (ccl::set-fpu-mode :invalid nil))
 
 (eval-when (:execute :compile-toplevel :load-toplevel)
- (defconstant *nan* 
+ (defconstant +nan+ 
    #+ccl ccl::double-float-nan ;1d+-0 ;double-float
    #+allegro excl:*nan-double*
    #+sbcl #.(- #.sb-ext:double-float-positive-infinity #.sb-ext:double-float-positive-infinity)
@@ -50,7 +50,7 @@
    #+allegro excl:*infinity-double*
    #+sbcl #.sb-ext:double-float-positive-infinity
    #+lispworks 1D++0)
- (defconstant *-inf*
+ (defconstant +-inf+
    #+ccl -1d++0
    #+allegro excl:*negative-infinity-double*
    #+sbcl #.sb-ext:double-float-negative-infinity
@@ -83,13 +83,13 @@
   (substitute-if value #'(lambda (val) (na-p val :na-string na-string :type type)) seq))
 
 (defun na2nan (seq &optional na-string)
-  (subst-na-to *nan* seq :na-string na-string :type :numeric))
+  (subst-na-to +nan+ seq :na-string na-string :type :numeric))
 (defun na2c-nan (seq &optional na-string)
   (subst-na-to *c-nan* seq :na-string na-string :type :category))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; interpolation: +na+ | *nan* | *c-nan* -> value  ;
+; interpolation: +na+ | +nan+ | *c-nan* -> value  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun subst-nan-to (value seq)
   (substitute-if value #'(lambda (val) (nan-p val)) seq))
@@ -163,7 +163,7 @@
 
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
- ; outlier verification: value -> *nan* | *c-nan* ;
+ ; outlier verification: value -> +nan+ | *c-nan* ;
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun outlier-verification 
     (seq &key (type :smirnov-grubbs)
@@ -182,9 +182,9 @@
                    (if (smirnov-grubbs-p no-nan-seq target-pos outlier-value)
                        seq
                      (recursive-smirnov 
-                      (substitute-if *nan* #'(lambda (v) (= v target)) seq) :type type)))))
+                      (substitute-if +nan+ #'(lambda (v) (= v target)) seq) :type type)))))
         (recursive-smirnov (recursive-smirnov seq :type :min) :type :max))
-    (let ((subst-value (ecase seq-type (:numeric *nan*) (:category *c-nan*)))
+    (let ((subst-value (ecase seq-type (:numeric +nan+) (:category *c-nan*)))
           (subst-test (if (eq type :user)
                           #'(lambda (val) (funcall user-test val outlier-value))
                         (let ((seq (remove-na-nan seq :seq-type seq-type)))
