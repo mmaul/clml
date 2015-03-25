@@ -315,7 +315,7 @@ TODO:Optimize in SBCL"
 		     (setf max (max max ans))))
 		  (t (setf (aref topic-p i) 0d0))))
       ;; max -> jack
-      (setf max (- #.(/ *most-positive-exp-able-float* 2) max))
+      (setf max (- #.(/ +most-positive-exp-able-float+ 2) max))
       ;; k_new with slice too
       (when (>= gamma slice)
 	;; jack-up!

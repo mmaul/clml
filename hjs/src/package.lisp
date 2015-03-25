@@ -33,8 +33,8 @@
   (:import-from :alexandria #:define-constant)
   (:export #:*epsilon*
            #:*workers*
-           #:*most-negative-exp-able-float*
-           #:*most-positive-exp-able-float*
+           #:+most-negative-exp-able-float+
+           #:+most-positive-exp-able-float+
            ))
 
 

@@ -9,5 +9,5 @@
 
 (defparameter *workers* 4)
 
-(define-constant *most-negative-exp-able-float* #.(log least-positive-double-float) :test #'equal)
-(define-constant *most-positive-exp-able-float* #.(log most-positive-double-float) :test #'equal)
+(define-constant +most-negative-exp-able-float+ #.(log least-positive-double-float) :test #'equal)
+(define-constant +most-positive-exp-able-float+ #.(log most-positive-double-float) :test #'equal)

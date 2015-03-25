@@ -5,20 +5,20 @@
 (defmacro make-adarray (dim &rest args)
   `(make-array ,dim :fill-pointer t :adjustable t ,@args))
 
-(defconstant *most-negative-exp-able-float* #.(log least-positive-double-float))
-(defconstant *most-positive-exp-able-float* #.(log most-positive-double-float))
+(defconstant +most-negative-exp-able-float+ #.(log least-positive-double-float))
+(defconstant +most-positive-exp-able-float+ #.(log most-positive-double-float))
 
 (defmacro safe-exp (x)
   (let ((y (gensym)))
     `(let ((,y ,x))
-       (exp (cond ((< ,y *most-negative-exp-able-float*)
+       (exp (cond ((< ,y +most-negative-exp-able-float+)
 		   #+ignore
 		   (format t "underflow ~S~%" ,y)
-		   *most-negative-exp-able-float*)
-		  ((> ,y *most-positive-exp-able-float*)
+		   +most-negative-exp-able-float+)
+		  ((> ,y +most-positive-exp-able-float+)
 		   #+ignore
 		   (format t "overflow ~S~%" ,y)
-		   *most-positive-exp-able-float*)
+		   +most-positive-exp-able-float+)
 		  (t ,y))))))
 
 (defmacro safe-expt (base power)

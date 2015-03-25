@@ -45,8 +45,8 @@
 	   :crossproduct
 	   :cholesky-decomp
 	   
-	   :*most-negative-exp-able-float*
-	   :*most-positive-exp-able-float*
+	   :+most-negative-exp-able-float+
+	   :+most-positive-exp-able-float+
 	   
 	   :*randomize-trace*))
 

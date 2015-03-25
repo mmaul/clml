@@ -268,7 +268,7 @@
 		    ;; no effective transition (over the slice) to this cluster
 		    (setf (aref ans j) most-negative-double-float)
 		  (loop
-		      with jack double-float = (- #.(/ *most-positive-exp-able-float* 2) max)
+		      with jack double-float = (- #.(/ +most-positive-exp-able-float+ 2) max)
 		      for i fixnum from 0 below L
 		      summing (the double-float (safe-exp (+ (aref p i) jack))) into tmp double-float
 		      finally (setf (aref ans j)
@@ -315,7 +315,7 @@
 	  ;; no effective transition (over the slice) to this cluster
 	  (return-from density-to-cluster most-negative-double-float))
 	(loop
-	    with jack double-float = (- #.(/ *most-positive-exp-able-float* 2) max)
+	    with jack double-float = (- #.(/ +most-positive-exp-able-float+ 2) max)
 	    for i fixnum from 0 below L
 	    summing (the double-float (safe-exp (+ (aref p i) jack))) into tmp double-float
 	    finally (return (- (the double-float
