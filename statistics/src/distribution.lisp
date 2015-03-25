@@ -8,49 +8,6 @@
   (/ (reduce #'+ sequence) (length sequence)))
 |#
 
-(eval-when (:compile-toplevel :load-toplevel)
-  (defclass distribution ()
-  ((mean)
-   (variance)
-   (skewness)
-   (kurtosis)
-   (mode)))
-
-  
-  (defclass discrete-distribution (distribution) ())
-  (defclass continuous-distribution (distribution) ()))
-
-(eval-when (:compile-toplevel :load-toplevel)
-  (defdistribution gamma-like-distribution (continuous-distribution)
-    ((scale :initarg :scale :accessor scale)
-     (shape :initarg :shape :accessor shape))))
-(defmethod update-distribution ((distribution gamma-like-distribution))
-  (with-slots (scale shape variance skewness kurtosis mode) distribution
-    (assert (and (realp scale) (> scale 0)) (scale)
-      "SCALE should be a positive real number.")
-    (assert (and (realp shape) (> shape 0)) (shape)
-      "SHAPE should be a positive real number.")
-    (setf (slot-value distribution 'mean) (* shape scale))
-    (setf variance (* (slot-value distribution 'mean) scale))
-    (setf skewness (/ 2d0 (sqrt shape)))
-    (setf kurtosis (/ (* 3d0 (+ shape 2d0)) shape))
-    (if (> shape 1d0)
-        (setf (slot-value distribution 'mode) (* (- shape 1d0) scale))
-      (slot-makunbound distribution 'mode)))
-  distribution)
-
-(defgeneric cdf (distribution x)
-  (:documentation "Cumulative distribution function of DISTRIBUTION at X."))
-(defgeneric density (continuous-distribution x)
-  (:documentation "Density function of DISTRIBUTION at X."))
-(defgeneric mass (discrete-distribution k)
-  (:documentation "Probability mass function of DISTRIBUTION at X.")
-  (:method (distribution k)
-	   (- (cdf distribution k) (cdf distribution (1- k)))))
-(defgeneric quantile (distribution p)
-  (:documentation "Quantile of P according to DISTRIBUTION."))
-(defgeneric rand (distribution)
-  (:documentation "Gives a random number according to DISTRIBUTION."))
 
 ;;; statistics measures
 
@@ -118,20 +75,7 @@
 	     (count (incf (gethash val hash 0))))
 	(when (> count max)
 	  (setf max count value val))))))
-(defmethod mode ((distribution distribution) &optional test)
-  (declare (ignore test))
-  (if (slot-boundp distribution 'mode)
-      (slot-value distribution 'mode)
-    (error "Mode is undefined for distribution ~S" distribution)))
 
-;;; Note also the generic functions MEAN and VARIANCE defined above.
-
-(defmethod cdf :around ((distribution discrete-distribution) x)
-  "The CDF of a discrete distribution is \(CDF \(FLOOR X\)\)."
-  (call-next-method distribution (floor x)))
-(defun rand-n (distribution n)
-  "N random numbers according to DISTRIBUTION."
-  (loop repeat n collect (rand distribution)))
 
 ;;; Quantile guess/search functions (using moments)
 
@@ -192,18 +136,18 @@
 	      (search-around #'1- min #'>))))))
 
 ;;; 1. Normal Distribution
-
-(defdistribution normal-distribution (continuous-distribution)
-  (
-   #-sbcl
-   (average :initarg :average :accessor average)
-   #+sbcl
-   (average :initarg :average :accessor average :initform 0d0)
-   (mode :initform 0d0)
-   (std     :initarg :std     :accessor std :initform 0d0)
-   (skewness :initform 0d0)
-   (kurtosis :initform 3d0)
-   ))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution normal-distribution (continuous-distribution)
+    (
+     #-sbcl
+     (average :initarg :average :accessor average)
+     #+sbcl
+     (average :initarg :average :accessor average :initform 0d0)
+     (mode :initform 0d0)
+     (std     :initarg :std     :accessor std :initform 0d0)
+     (skewness :initform 0d0)
+     (kurtosis :initform 3d0)
+     )))
 
 (defmethod update-distribution ((distribution normal-distribution))
   (with-slots (std variance mode) distribution
@@ -416,9 +360,9 @@
   (uniform-distribution (reduce #'min sequence) (reduce #'max sequence)))
 
 ;;; 4. Erlang Distribution
-
-(defdistribution erlang-distribution (gamma-like-distribution)
-  ((include-zero :initarg :include-zero :initform nil :accessor include-zero)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution erlang-distribution (gamma-like-distribution)
+    ((include-zero :initarg :include-zero :initform nil :accessor include-zero))))
 
 (defmethod print-object ((obj erlang-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -449,14 +393,14 @@
     (erlang-distribution scale (round shape))))
 
 ;;; 5. Exponential Distribution
-
-(defdistribution exponential-distribution (continuous-distribution)
-  ((hazard :initarg :hazard :accessor hazard)
-   (scale  :reader scale)
-   (include-zero :initarg :include-zero :initform nil :accessor include-zero)
-   (skewness :initform 2d0)
-   (kurtosis :initform 9d0)
-   (mode :initform 0d0)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution exponential-distribution (continuous-distribution)
+    ((hazard :initarg :hazard :accessor hazard)
+     (scale  :reader scale)
+     (include-zero :initarg :include-zero :initform nil :accessor include-zero)
+     (skewness :initform 2d0)
+     (kurtosis :initform 9d0)
+     (mode :initform 0d0))))
 
 (defmethod update-distribution ((distribution exponential-distribution))
   (with-slots (hazard scale variance) distribution
@@ -610,10 +554,10 @@ this method would be solve it. However this is slower than Newton-Raphson."
   (apply #'gamma-distribution (gamma-like-distribution-estimate sequence)))
 
 ;;; 7. Chi-squared Distribution
-
-(defdistribution chi-square-distribution (continuous-distribution)
-  ((freedom :initarg :freedom :accessor freedom)
-   (eq-gamma :initform (make-instance 'gamma-distribution :shape 2d0 :scale 2d0) :reader eq-gamma)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution chi-square-distribution (continuous-distribution)
+    ((freedom :initarg :freedom :accessor freedom)
+     (eq-gamma :initform (make-instance 'gamma-distribution :shape 2d0 :scale 2d0) :reader eq-gamma))))
 
 (defmethod print-object ((obj chi-square-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -822,12 +766,12 @@ uses it."
     (/ freedom (- freedom 2))))
 
 ;;; 9. Beta Distribution
-
-(defdistribution beta-distribution (continuous-distribution)
-  ((shape1 :initarg :shape1 :accessor shape1)
-   (shape2 :initarg :shape2 :accessor shape2)
-   (alpha-gamma :initform (make-instance 'gamma-distribution :shape 1d0 :scale 1d0))
-   (beta-gamma :initform (make-instance 'gamma-distribution :shape 1d0 :scale 1d0))))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution beta-distribution (continuous-distribution)
+    ((shape1 :initarg :shape1 :accessor shape1)
+     (shape2 :initarg :shape2 :accessor shape2)
+     (alpha-gamma :initform (make-instance 'gamma-distribution :shape 1d0 :scale 1d0))
+     (beta-gamma :initform (make-instance 'gamma-distribution :shape 1d0 :scale 1d0)))))
 
 (defmethod print-object ((obj beta-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -926,13 +870,13 @@ uses it."
 		       (* (- 1.0d0 mu) (- (/ (* mu (- 1.0d0 mu)) s2) 1.0d0)))))
 
 ;;; 10. F Distribution
-
-(defdistribution f-distribution (continuous-distribution)
-  ((freedom1 :initarg :freedom1 :accessor freedom1)
-   (freedom2 :initarg :freedom2 :accessor freedom2)
-   (chi1 :initform (make-instance 'chi-square-distribution :freedom 1))
-   (chi2 :initform (make-instance 'chi-square-distribution :freedom 1))
-   (f)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution f-distribution (continuous-distribution)
+    ((freedom1 :initarg :freedom1 :accessor freedom1)
+     (freedom2 :initarg :freedom2 :accessor freedom2)
+     (chi1 :initform (make-instance 'chi-square-distribution :freedom 1))
+     (chi2 :initform (make-instance 'chi-square-distribution :freedom 1))
+     (f))))
 
 (defmethod print-object ((obj f-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1042,8 +986,9 @@ otherwise it uses the beta distribution quantile."
        (* d1 (sqr (- d2 2)) (- d2 4)))))
 
 ;;; bernoulli related distribution
-(defdistribution bernoulli-related-distribution (discrete-distribution)
-  ((probability :initarg :probability :accessor probability)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution bernoulli-related-distribution (discrete-distribution)
+    ((probability :initarg :probability :accessor probability))))
 
 (defmethod update-distribution ((distribution bernoulli-related-distribution))
   (let ((probability (probability distribution)))
@@ -1051,16 +996,16 @@ otherwise it uses the beta distribution quantile."
       "PROBABILITY should be a real number between 0 and 1.")))
 
 ;;; 11. Binomial Distribution
-
-(defdistribution binomial-distribution (bernoulli-related-distribution)
-  ((size :initarg :size :accessor size)
-   (table)
-   (ki)
-   (vi)
-   (b)
-   (k)
-   (w)
-   (nsq)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution binomial-distribution (bernoulli-related-distribution)
+    ((size :initarg :size :accessor size)
+     (table)
+     (ki)
+     (vi)
+     (b)
+     (k)
+     (w)
+     (nsq))))
 
 (defmethod print-object ((obj binomial-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1153,19 +1098,19 @@ otherwise it uses the beta distribution quantile."
 
 ;;; This is a Pascal distribution with SUCCESSES = 1.
 ;;; TODO: Maybe it should be merged?
-
-(defdistribution geometric-distribution (bernoulli-related-distribution)
-  ((table)
-   (ki)
-   (vi)
-   (b)
-   (k)
-   (w)
-   (nsq)
-   (psq)
-   (q)
-   (r)
-   (c)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution geometric-distribution (bernoulli-related-distribution)
+    ((table)
+     (ki)
+     (vi)
+     (b)
+     (k)
+     (w)
+     (nsq)
+     (psq)
+     (q)
+     (r)
+     (c))))
 
 (defmethod print-object ((obj geometric-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1218,19 +1163,19 @@ otherwise it uses the beta distribution quantile."
   (geometric-distribution (/ trials)))
 
 ;;; 13. Hypergeometric Distribution
-
-(defdistribution hypergeometric-distribution (discrete-distribution)
-  ((elements :initarg :elements :accessor elements)
-   (successes :initarg :successes :accessor successes)
-   (samples :initarg :samples :accessor samples)
-   (table)
-   (ki)
-   (vi)
-   (b)
-   (k)
-   (w)
-   (nsq)
-   (a1)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution hypergeometric-distribution (discrete-distribution)
+    ((elements :initarg :elements :accessor elements)
+     (successes :initarg :successes :accessor successes)
+     (samples :initarg :samples :accessor samples)
+     (table)
+     (ki)
+     (vi)
+     (b)
+     (k)
+     (w)
+     (nsq)
+     (a1))))
 
 (defmethod print-object ((obj hypergeometric-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1336,10 +1281,10 @@ otherwise it uses the beta distribution quantile."
 			       successes samples))
 
 ;;; 14. Cauchy Distribution
-
-(defdistribution cauchy-distribution (continuous-distribution)
-  ((location :initarg :location :accessor location)
-   (scale :initarg :scale :accessor scale)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution cauchy-distribution (continuous-distribution)
+    ((location :initarg :location :accessor location)
+     (scale :initarg :scale :accessor scale))))
 
 (defmethod print-object ((obj cauchy-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1393,12 +1338,12 @@ otherwise it uses the beta distribution quantile."
      finally (return (cauchy-distribution c s))))
 
 ;;; 15. Logistic Distribution
-
-(defdistribution logistic-distribution (continuous-distribution)
-  ((location :initarg :location :accessor location)
-   (scale :initarg :scale :accessor scale)
-   (skewness :initform 0d0)
-   (kurtosis :initform #.(dfloat (/ 21 5)))))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution logistic-distribution (continuous-distribution)
+    ((location :initarg :location :accessor location)
+     (scale :initarg :scale :accessor scale)
+     (skewness :initform 0d0)
+     (kurtosis :initform #.(dfloat (/ 21 5))))))
 
 (defmethod print-object ((obj logistic-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1460,26 +1405,26 @@ otherwise it uses the beta distribution quantile."
        finally (return (logistic-distribution mu s)))))
 
 ;;; 17. Negative Binomial Distribution
-
-(defdistribution negative-binomial-distribution (bernoulli-related-distribution)
-  ((success-r :initarg :success-r :accessor success-r)
-   (table)
-   (ki)
-   (vi)
-   (b)
-   (k)
-   (w)
-   (nsq)
-   (psq)
-   (q)
-   (r)
-   (xl)
-   (xu)
-   (pl)
-   (pu)
-   (que)
-   (s)
-   (tee)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution negative-binomial-distribution (bernoulli-related-distribution)
+    ((success-r :initarg :success-r :accessor success-r)
+     (table)
+     (ki)
+     (vi)
+     (b)
+     (k)
+     (w)
+     (nsq)
+     (psq)
+     (q)
+     (r)
+     (xl)
+     (xu)
+     (pl)
+     (pu)
+     (que)
+     (s)
+     (tee))))
 
 (defmethod print-object ((obj negative-binomial-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1633,25 +1578,25 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
    successes (/ (1- successes) (1- trials))))
 
 ;;; 18. Poisson Distribution
-
-(defdistribution poisson-distribution (discrete-distribution)
-  ((rate :initarg :rate :accessor rate)
-   (table)
-   (ki)
-   (vi)
-   (b)
-   (k)
-   (w)
-   (nsq)
-   (psq)
-   (q)
-   (r)
-   (xl)
-   (xu)
-   (pl)
-   (pu)
-   (c)
-   ))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution poisson-distribution (discrete-distribution)
+    ((rate :initarg :rate :accessor rate)
+     (table)
+     (ki)
+     (vi)
+     (b)
+     (k)
+     (w)
+     (nsq)
+     (psq)
+     (q)
+     (r)
+     (xl)
+     (xu)
+     (pl)
+     (pu)
+     (c)
+     )))
 
 (defmethod print-object ((obj poisson-distribution) stream)
   (print-unreadable-object (obj stream :type t)
@@ -1723,9 +1668,10 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
 ;;; 19. Weibull Distribution
 
 ;;; todo -- weibull dist is not gamma distribution; bad definition
-(defdistribution weibull-distribution (gamma-like-distribution)
-  ((include-zero :initarg :include-zero :initform nil :accessor include-zero)
-   (r-inv)))
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution weibull-distribution (gamma-like-distribution)
+    ((include-zero :initarg :include-zero :initform nil :accessor include-zero)
+     (r-inv))))
 
 (defmethod print-object ((obj weibull-distribution) stream)
   (print-unreadable-object (obj stream :type t)

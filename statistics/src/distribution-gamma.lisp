@@ -1,0 +1,22 @@
+(in-package :clml.statistics)
+
+(eval-when (:compile-toplevel :load-toplevel)
+  (defdistribution gamma-like-distribution (continuous-distribution)
+    ((scale :initarg :scale :accessor scale)
+     (shape :initarg :shape :accessor shape)))
+  )
+(defmethod update-distribution ((distribution gamma-like-distribution))
+  (with-slots (scale shape variance skewness kurtosis mode) distribution
+    (assert (and (realp scale) (> scale 0)) (scale)
+      "SCALE should be a positive real number.")
+    (assert (and (realp shape) (> shape 0)) (shape)
+      "SHAPE should be a positive real number.")
+    (setf (slot-value distribution 'mean) (* shape scale))
+    (setf variance (* (slot-value distribution 'mean) scale))
+    (setf skewness (/ 2d0 (sqrt shape)))
+    (setf kurtosis (/ (* 3d0 (+ shape 2d0)) shape))
+    (if (> shape 1d0)
+        (setf (slot-value distribution 'mode) (* (- shape 1d0) scale))
+      (slot-makunbound distribution 'mode)))
+  distribution)
+
