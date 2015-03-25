@@ -10,8 +10,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;
 ;; list of missing values.
 ;; Symbols without nil are tested by value of symbol-name.
-(define-constant *missing-values* '(nil "" "NA") :test #'equal)
-(defun missing-value-p (value &key (missing-values-list *missing-values*)
+(define-constant +missing-values+ '(nil "" "NA") :test #'equal)
+(defun missing-value-p (value &key (missing-values-list +missing-values+)
                                    (test #'equalp))
   (member (typecase value
             (null nil)
@@ -22,9 +22,9 @@
  ;;;;;;;;;;;;;;;;;;;;;;;
  ; missing value -> NA ;
  ;;;;;;;;;;;;;;;;;;;;;;;
-(defconstant *na* :NA)
+(defconstant +na+ :NA)
 (defun fill-na (seq &optional (predicate #'missing-value-p))
-  (substitute-if *na* predicate seq))
+  (substitute-if +na+ predicate seq))
 
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
  ; NA -> NaN | Categorical NaN ;
@@ -77,7 +77,7 @@
 (defun na-p (value &key na-string (type :numeric)) ; :numeric | :category
   (or (case type (:numeric (nan-p value)) (:category (c-nan-p value)))
       (and na-string (stringp value) (string= value na-string))
-      (eq value *na*)))
+      (eq value +na+)))
 
 (defun subst-na-to (value seq &key na-string (type :numeric))
   (substitute-if value #'(lambda (val) (na-p val :na-string na-string :type type)) seq))
@@ -89,7 +89,7 @@
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-; interpolation: *na* | *nan* | *c-nan* -> value  ;
+; interpolation: +na+ | *nan* | *c-nan* -> value  ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun subst-nan-to (value seq)
   (substitute-if value #'(lambda (val) (nan-p val)) seq))

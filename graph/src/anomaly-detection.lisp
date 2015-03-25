@@ -195,7 +195,7 @@
           (moments detector) moments)
     (values `(:score ,zt :threshold ,thld
                      :activity-vector ,act-vec :typical-pattern ,typ-vec
-                     :local-scores ,(if local-scores local-scores *na*)
+                     :local-scores ,(if local-scores local-scores +na+)
                      :moments ,moments)
             detector)))
             
@@ -542,7 +542,7 @@
         (values `(:score ,d 
                          :activity-vector ,act-vec 
                          :predicted-vector ,pre-mu
-                         :local-scores ,(if local-scores local-scores *na*))
+                         :local-scores ,(if local-scores local-scores +na+))
                 detector)))))
 
 (defmethod update-sdar-as-detector ((sdar ts-autoregression::sdar) new-xt

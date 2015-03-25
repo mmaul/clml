@@ -9,15 +9,15 @@
 (define-test test-ps
     (progn
       (assert-equality #'=
-                       (length *missing-values*)
-                       (loop for val in *missing-values* count (missing-value-p val)))
-      (assert-true (na-p *na*))
+                       (length +missing-values+)
+                       (loop for val in +missing-values+ count (missing-value-p val)))
+      (assert-true (na-p +na+))
       (assert-true (na-p *nan* :type :numeric))
       (assert-true (na-p *c-nan* :type :category))
       (assert-true (na-p "my-na" :na-string "my-na"))
       (assert-false (na-p "not-my-na" :na-string "my-na"))
-      (assert-false (nan-p *na*))
-      (assert-false (c-nan-p *na*))
+      (assert-false (nan-p +na+))
+      (assert-false (c-nan-p +na+))
       (assert-false (nan-p *c-nan*))
       (assert-false (c-nan-p *nan*))))
 
@@ -25,20 +25,20 @@
   (progn
 
     ;(handling-missing-value::na2nan (fill-na *sample*))
-      (assert-true (tree-equal `(10 194 8.6d0 69 5 10 ,*na* ,*na* ,*na* 3 4.5d0 6 5 5 5)
+      (assert-true (tree-equal `(10 194 8.6d0 69 5 10 ,+na+ ,+na+ ,+na+ 3 4.5d0 6 5 5 5)
                                (fill-na *sample*) :test #'equalp))
 
           
-      (assert-equalp (length *missing-values*)
+      (assert-equalp (length +missing-values+)
                      (loop for val in (handling-missing-value::na2nan (fill-na *sample*))
                          count (nan-p val)))
-      (assert-equalp (length *missing-values*)
+      (assert-equalp (length +missing-values+)
                      (loop for val in (handling-missing-value::na2c-nan (fill-na *sample*))
                         count (c-nan-p val)))
       (assert-true (tree-equal `(10 194 8.6d0 69 5 10 3 4.5d0 6 5 5 5)
                                (handling-missing-value::remove-na-nan (fill-na *sample*))
                                :test #'equalp))
-      (assert-true (tree-equal `(10 194 8.6d0 69 5 10 ,*na* ,*na* ,*na* 3 4.5d0 6 5 5 5)
+      (assert-true (tree-equal `(10 194 8.6d0 69 5 10 ,+na+ ,+na+ ,+na+ 3 4.5d0 6 5 5 5)
                                (handling-missing-value::remove-na-nan (fill-na *sample*) :remove-na nil)
                                :test #'equalp))
       (assert-true (loop for val in (handling-missing-value::remove-na-nan 

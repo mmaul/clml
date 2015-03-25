@@ -282,7 +282,7 @@
                 (base-projection bases face-v s-dvec)
                 ;; forest prediction
                 (random-forest:predict-forest (concatenate 'simple-vector 
-                                                `(,handling-missing-value:*na*) s-dvec)
+                                                `(,handling-missing-value:+na+) s-dvec)
                                               train-dataset forest)))))
       (values face-estimator forest (length bases) train-dataset))))
 (defgeneric make-face-estimator (face-dataset &key)
