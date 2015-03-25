@@ -46,7 +46,7 @@
   #+allegro (mp:process-unlock mutex))
 
 (defun get-mutex (mutex)
-  #+sbcl (sb-thread:get-mutex mutex)
+  #+sbcl (sb-thread:grab-mutex mutex)
   #+allegro (mp:process-lock mutex))
 
 (defun holding-mutex-p (mutex)
