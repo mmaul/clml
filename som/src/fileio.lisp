@@ -16,6 +16,7 @@
 
 
 ;; som-getline - get a line from file. Returns the string of line 
+(defgeneric som-getline (file-info))
 (defmethod som-getline (file-info)
   (handler-case 
       (let ((line (read-line (file-info-fp file-info))))

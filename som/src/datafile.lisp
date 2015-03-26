@@ -92,7 +92,7 @@
 
 ;; read-headers - reads the header information from file and sets the 
 ;; entries variables accordingly. 
-
+(defgeneric read-headers (entries))
 (defmethod read-headers ((entries entries))
   (let ((file-info (entries-file-info entries))
 	line)
@@ -113,6 +113,7 @@
       )))
 
 ;; close-entries - closes the file associated with entries if there is one.
+(defgeneric close-entries (entries))
 (defmethod close-entries ((entries entries))
   (close-file (entries-file-info entries)))
 

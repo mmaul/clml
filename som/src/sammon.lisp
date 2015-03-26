@@ -58,7 +58,8 @@
 (defun sammon-iterate (g-data codes length &key (debug nil))
   (declare (optimize (speed 3))
 	   (type entries codes)
-	   (type fixnum length))
+	   (type fixnum length)
+       #+sbcl (ignorable debug))
   (let ((distance-func (function vector-dist-euc))
 	(dim (entries-dimension codes))
 	(noc (entries-num-entries codes)))
@@ -268,6 +269,7 @@
 ;; rem - the number of removed data-entry
 ;; return sammon file path(ps) and gif label positions
 (defun save-entries-in-eps (gdata spics filename ps rem &key (gif-link-width 60) (gif-link-height 20))
+  #+sbcl (declare (ignorable gif-link-width gif-link-height))
   (let ((*read-default-float-format* 'double-float))
     (let ((xmi *flt-max*)
           (xma *flt-min*)

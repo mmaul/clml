@@ -147,6 +147,7 @@
 			     (return he)))))
     hit-entry))
 
+(defgeneric sort-hit-entries (hitlist))
 (defmethod sort-hit-entries ((hitlist hitlist))
   ;; sort by freq of hit-entry in hitlist
   (let ((lst (hitlist-lst hitlist)))
