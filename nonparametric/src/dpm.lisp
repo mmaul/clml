@@ -269,6 +269,7 @@
   (:documentation "remove data from model"))
 
 (defmethod remove-customer ((dpm dpm) customer &rest args)
+  #+sbcl (declare (ignorable args))
   (let* ((clusters (dpm-clusters dpm))
 	 (layers (dpm-cluster-layers dpm))
 	 (c (point-cluster customer))
@@ -289,7 +290,7 @@
 (defgeneric sampling (dpm)
   (:documentation "samlpling seatings and other parameters"))
 
-(defgeneric seatings-samling (dpm)
+(defgeneric seatings-sampling (dpm)
   (:documentation "sampling all customers seatings"))
 
 (defgeneric parameters-sampling (dpm)
@@ -297,6 +298,7 @@
 
 (defgeneric hypers-sampling (dpm)
   (:documentation "hyperparameter sampling"))
+(defgeneric make-cluster-result (dpm))
 
 (defmethod initialize ((dpm dpm))
   (loop for point across (shuffle-vector (dpm-data dpm)) do

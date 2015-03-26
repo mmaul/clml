@@ -19,7 +19,8 @@
 
 (defmethod sample-latent-table ((cluster sticky-hidden-state) &rest args &key franchise alpha kappa)
   (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float alpha kappa))
+           (type double-float alpha kappa)
+           #+sbcl (ignorable args))
   (let ((n (gethash franchise (cluster-tmp-table cluster) 0))
 	(ab (* alpha (the double-float (cluster-beta cluster)))))
     (declare (type fixnum n)

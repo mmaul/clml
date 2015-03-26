@@ -209,13 +209,17 @@
     seq
     ))
 
+(defgeneric remove-customer (dpm seq &rest args))
 (defmethod remove-customer ((dpm blocked-hdp-hmm) (seq point-sequence) &rest args)
-  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (declare (optimize (speed 3) (safety 0) (debug 0))
+           #+sbcl (ignorable args))
   ;; return slice vector
   (let ((slice (sequence-slice seq))
+        #+sbcl args
 	(data  (sequence-data  seq)))
     (declare (type (simple-array double-float (*)) slice)
-	     (type vector data))
+             (type vector data)
+             )
     (loop for i fixnum from 0 below (the fixnum (length data))
 	for before = (hdp-hmm-eos dpm) then (point-cluster (aref data (1- i))) do
 	  (setf (aref slice i)
@@ -223,7 +227,8 @@
     slice))
 
 (defmethod remove-customer ((dpm blocked-hdp-hmm) (customer seq-point) &rest args &key franchise)
-  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (declare (optimize (speed 3) (safety 0) (debug 0))
+           #+sbcl (ignorable args))
   (call-next-method) ;; remove and rotation
   ;; return slice limit
   (let ((s (point-cluster customer)))
@@ -238,7 +243,8 @@
 	   (type double-float slice)
 	   (type vector before-sorted)
 	   (type (vector double-float) ans)
-	   (type (or null (vector double-float)) before))
+	   (type (or null (vector double-float)) before)
+       #+sbcl (ignorable args))
   (if before
       (loop
 	  for j fixnum from 0 below (length states)

@@ -19,16 +19,19 @@
 
 ;; specific methods for distribution
 (defmethod add-to-cluster ((cluster hidden-state) data &rest args &key franchise)
+  #+sbcl (declare (ignorable args))
   (incf (gethash data (emission cluster) 0))
   (incf (the fixnum (gethash franchise (cluster-dist-table cluster) 0)))
   (call-next-method))
 
 (defmethod remove-from-cluster ((cluster hidden-state) data &rest args &key franchise)
+  #+sbcl (declare (ignorable args))
   (decf (gethash data (emission cluster)))
   (decf (gethash franchise (cluster-dist-table cluster)))
   (call-next-method))
 
 (defmethod density-to-cluster ((dpm hdp-hmm) (cluster hidden-state) data &rest args &key franchise)
+  #+sbcl (declare (ignorable args))
   (let ((v (vocabulary dpm))
 	(k (dpm-k dpm)))
     (* (trans-prob franchise cluster :k k)
@@ -39,7 +42,8 @@
 
 (defmethod trans-prob ((before hidden-state) (after hidden-state) &rest args &key k)
   (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum k))
+           (type fixnum k)
+           #+sbcl (ignorable args))
   (let ((table (cluster-dist-table after)))
     (/ (the double-float (+ (the fixnum (gethash before table 0)) (the double-float *smooth-beta*)))
        (the double-float (+ (the fixnum (cluster-size after)) (* (the double-float *smooth-beta*) k))))))
@@ -49,7 +53,8 @@
 
 (defmethod emission-prob ((state hidden-state) data &rest args &key v)
   (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum v))
+           (type fixnum v)
+           #+sbcl (ignorable args))
   (let ((table (emission state)))
     (/ (the double-float (+ (the fixnum (gethash data table 0)) (the double-float *smooth-beta*)))
        (the double-float (+ (the fixnum (cluster-size state))  (* (the double-float *smooth-beta*) v))))))
@@ -104,6 +109,7 @@
   (map 'vector #'(lambda (x) (make-instance 'point :data (intern (string-upcase (make-string 1 :initial-element x)) :keyword)))
        (make-repeat-pattern pattern times)))
 
+(defgeneric show-hidden-states (hdp-hmm))
 (defmethod show-hidden-states ((hdp-hmm hdp-hmm))
   (map 'vector #'(lambda (x) (position (point-cluster x) (dpm-clusters hdp-hmm)))
        (dpm-data hdp-hmm)))

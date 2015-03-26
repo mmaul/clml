@@ -32,7 +32,8 @@
 
 (defmethod sample-latent-table ((cluster hdp-cluster) &rest args &key alpha franchise)
   (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type double-float alpha))
+           (type double-float alpha)
+           #+sbcl (ignorable args))
   (let ((n (gethash franchise (cluster-tmp-table cluster) 0))
 	(ab (* alpha (the double-float (cluster-beta cluster)))))
     (declare (type fixnum n)

@@ -54,7 +54,7 @@
   - hdp-lda-alpha: value of hyperparameter alpha
   - hdp-lda-beta: value of hyperparameter beta
   - hdp-lda-gamma: value of hyperparameter gamma"))
-
+(defgeneric ensure-word (hdp-lda string))
 (defmethod ensure-word ((hdp-lda hdp-lda) string)
   (let ((memo (word-table hdp-lda)))
     (multiple-value-bind (oldid found) (gethash string memo)
@@ -62,11 +62,11 @@
 	(setf oldid (incf (vocabulary hdp-lda)))
 	(setf (gethash string memo) oldid))
       (make-word :id oldid))))
-
+(defgeneric add-customer (hdp-lda word doc &optional old))
 (defmethod add-customer ((hdp-lda hdp-lda) word doc &optional (old 1))
-  #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (type fixnum old))
+           (type fixnum old)
+           #+sbcl (ignorable old))
   "add new customer word belong to doc randomly
 
 TODO: Optimize in SBCL
@@ -174,6 +174,7 @@ Find out why tables is not an array of table"
             (vector-push-extend 0 layers)))
         ref))))
 
+(defgeneric sample-new-topic (hdp-lda topic-p k-new))
 (defmethod sample-new-topic ((hdp-lda hdp-lda) topic-p k-new)
   #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -212,7 +213,7 @@ Find out why tables is not an array of table"
 	  (vector-push-extend 0 ttables)))
       ref)))
 
-
+(defgeneric remove-customer (hdp-lda word doc))
 (defmethod remove-customer ((hdp-lda hdp-lda) word doc)
   #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0)))
@@ -245,11 +246,12 @@ TODO: Fix in SBCL"
           )
     (decf (the fixnum (aref (the (array fixnum (*)) (hdp-lda-topic-occurs hdp-lda)) topic)))
     old))
-
+(defgeneric add-table (hdp-lda table &optional old))
 (defmethod add-table ((hdp-lda hdp-lda) table &optional (old 1))
-  #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0))
-           (type fixnum old))
+           (type fixnum old)
+           #+sbcl (ignorable old)
+           )
   "
 TODO:Optimize in SBCL"
   (let ((customers (table-customers table))
@@ -362,7 +364,8 @@ TODO:Optimize in SBCL"
 	;; no longer required customer list
 	(setf (fill-pointer customers) 0)
 	ref))))
-  
+
+(defgeneric remove-table (hdp-lda table))
 (defmethod remove-table ((hdp-lda hdp-lda) table)
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   "remove table include occupied customers"
@@ -383,11 +386,13 @@ TODO:Optimize in SBCL"
 	  (decf (aref (hdp-lda-topic-occurs hdp-lda) topic)))
     old))
 
+(defgeneric hypers-sampling (hdp-lda)
+  (:documentation "hyperparameter sampling"))
+  
 (defmethod hypers-sampling ((hdp-lda hdp-lda))
-  #-sbcl
-  (declare (optimize (speed 3) (safety 0) (debug 0)))
-  "hyperparameter sampling
-TODO: Optimize in SBCL"
+  (declare (optimize (speed 3) (safety 0) (debug 0))
+           #+sbcl (ignorable hdp-lda))
+  
   (let ((ntables (dfloat (hdp-lda-ntables hdp-lda)))
 	(old-alpha (hdp-lda-alpha hdp-lda))
 	(old-gamma (hdp-lda-gamma hdp-lda)))
@@ -408,6 +413,7 @@ TODO: Optimize in SBCL"
     (values (hdp-lda-alpha hdp-lda)
 	    (hdp-lda-gamma hdp-lda))))
 
+(defgeneric initialize (hdp-lda))
 (defmethod initialize ((hdp-lda hdp-lda))
   (let ((predict-k (topic-count hdp-lda)))
     (setf (hdp-lda-topic-tables hdp-lda) (make-adarray predict-k :element-type 'fixnum :initial-element 0))
@@ -447,6 +453,7 @@ TODO: Optimize in SBCL"
 	      (add-table hdp-lda table (remove-table hdp-lda table))))
   (hypers-sampling hdp-lda))
 
+(defgeneric sampling (hdp-lda))
 (defmethod sampling ((hdp-lda hdp-lda))
   (loop for doc across (shuffle-vector (hdp-lda-data hdp-lda)) do
 	(loop for w across (document-words doc) do
@@ -458,6 +465,7 @@ TODO: Optimize in SBCL"
   (hypers-sampling hdp-lda)
   )
 
+(defgeneric assign-theta (hdp-lda))
 (defmethod assign-theta ((model hdp-lda))
   (let* ((k (topic-count model))
 	 (flags (hdp-lda-topic-occurs model))
@@ -482,6 +490,7 @@ TODO: Optimize in SBCL"
 		  (incf (aref new (aref resolv a)) s))
 	    (setf (document-thetas doc) (normalize! new))))))
 
+(defgeneric get-phi (model))
 (defmethod get-phi ((model hdp-lda))
   (let ((flags (hdp-lda-topic-occurs model))
 	(phi (make-array (topic-count model)))
@@ -509,6 +518,7 @@ TODO: Optimize in SBCL"
       (setf (revert-table hdp-lda) rt)))
   (aref (revert-table hdp-lda) word-id))
 
+(defgeneric get-top-n-words (model n))
 (defmethod get-top-n-words ((model hdp-lda) n)
   (let ((phi (get-phi model)))
     (loop for topic across phi

@@ -12,7 +12,8 @@
 
 (defmethod emission-prob ((state gaussian-state) data &rest args &key v)
   (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (ignore v))
+           (ignore v)
+           #+sbcl (ignorable args))
   (normal-density (cluster-center state) (cluster-std state) data))
 
 (defmethod initialize ((dpm gauss-hdp-hmm))

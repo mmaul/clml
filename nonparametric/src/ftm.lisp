@@ -34,19 +34,22 @@
   ((cluster-class :initform 'ftm-topic)))
 
 (defmethod add-to-cluster ((cluster ftm-topic) data &rest args &key franchise)
+  #+sbcl (declare (ignorable args))
   (incf (gethash data (topic-emission cluster) 0))
   (incf (the fixnum (gethash franchise (cluster-dist-table cluster) 0)))
   (setf (gethash franchise (topic-ibp-table cluster)) 1d0) ;; safety
   (call-next-method))
 
 (defmethod remove-from-cluster ((cluster ftm-topic) data &rest args &key franchise)
+  #+sbcl (declare (ignorable args))
   (assert (>= (decf (gethash data (topic-emission cluster))) 0))
   (decf (gethash franchise (cluster-dist-table cluster)))
   (call-next-method))
 
 ;; following 2 methods referenced to paper's appendix
 (defmethod density-to-cluster ((dpm ftm) (cluster ftm-topic) data &rest args &key franchise X EY VY)
-  #+ignore  (declare (optimize (speed 3) (safety 0) (debug 0)))
+  (declare (optimize (speed 3) (safety 0) (debug 0))
+           #+sbcl (ignorable args))
   (let* ((doc-topic-count (gethash franchise (cluster-dist-table cluster) 0))
 	 (word-topic-count (gethash data (topic-emission cluster) 0))
 	 (emit-prob (/ (+ word-topic-count *smooth-beta*)
@@ -84,7 +87,8 @@
 										X
 										EYstar EYdagger
 										VYstar VYdagger)
-  (declare (ignore data))
+  (declare (ignore data)
+           #+sbcl (ignorable args))
   (let* ((doc-words (length (document-words franchise)))
 	 (ey (+ EYstar EYdagger))
 	 (coef (+ doc-words -1 x ey))
@@ -187,6 +191,7 @@
     (clrhash (topic-ibp-table new))
     new))
 
+(defgeneric ensure-word (ftm string))
 (defmethod ensure-word ((ftm ftm) string)
   (let ((memo (word-table ftm)))
     (multiple-value-bind (oldid found) (gethash string memo)
@@ -407,6 +412,7 @@
 
 ;; result utilities
 ;; copied from hdp-lda
+(defgeneric assign-theta (ftm))
 (defmethod assign-theta ((dpm ftm))
   (loop with k = (dpm-k dpm)
       for doc across (dpm-data dpm) do
@@ -416,6 +422,7 @@
 	      (incf (aref new i) (gethash doc (cluster-dist-table topic) 0))
 	    finally (setf (document-thetas doc) (normalize! new)))))
 
+(defgeneric get-phi (ftm))
 (defmethod get-phi ((dpm ftm))
   (let* ((k (dpm-k dpm))
 	 (phi (make-array k))
@@ -438,6 +445,7 @@
       (setf (revert-table hdp-lda) rt)))
   (aref (revert-table hdp-lda) word-id))
 
+(defgeneric get-top-n-words (ftm n))
 (defmethod get-top-n-words ((model ftm) n)
   (let ((phi (get-phi model)))
     (loop for topic across phi

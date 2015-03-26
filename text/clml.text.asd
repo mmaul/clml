@@ -8,6 +8,7 @@
                 :serial t
                 :depends-on (:clml.hjs
                              :split-sequence
+                             :clml.nonparametric
                              :clml.text.package
                              )
                 :components (

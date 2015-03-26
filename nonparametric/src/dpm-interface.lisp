@@ -1,5 +1,11 @@
 ;; package of interfaces for :nonparametric.dpm
 (in-package :clml.nonparametric.dpm-interface)
+(defgeneric gaussian-dpm (dataset
+                         &key sampling
+                           estimate-base
+                           average-of-average
+                           std-of-average
+                           average-of-std))
 (defmethod gaussian-dpm ((dataset numeric-dataset)
                          &key (sampling 100)
                            (estimate-base nil)
@@ -24,6 +30,8 @@
     (values (make-dpm-result model pts
                              (map 'list #'dimension-name (dataset-dimensions dataset)))
             model)))
+
+(defgeneric make-dpm-result (model org-order-pts column-names))
 (defmethod make-dpm-result ((model dpm) org-order-pts column-names)
     (let* ((dim (length column-names))
            (cluster-id-alist (cluster-id-alist model))
@@ -36,6 +44,8 @@
            (cat-index `(,dim))
            (num-indices (loop for i below dim collect i)))
       (make-numeric-and-category-dataset column-names num-data num-indices cid-data cat-index)))
+
+(defgeneric get-cluster-info (model))
 (defmethod get-cluster-info ((model multivar-gauss-dpm))
   (let ((cluster-id-alist (cluster-id-alist model))
         (hash (make-cluster-points-hash model)))
@@ -44,18 +54,24 @@
                              :size ,(cluster-size cluster)
                              :center ,(mean-points (coerce (gethash id hash) 'vector))
                              :std ,(covariance-matrix (coerce (gethash id hash) 'vector))))))
+
+(defgeneric get-cluster-parameter (model))
 (defmethod get-cluster-parameter ((model multivar-gauss-dpm))
   (let ((cluster-id-alist (cluster-id-alist model)))
     (loop for (cluster . id) in cluster-id-alist
        collect `(:cluster-id ,(format nil "~D" id)
                              :center ,(cluster-center cluster)
                              :std ,(cluster-std cluster)))))
+
+(defgeneric cluster-id-alist (model))
 (defmethod cluster-id-alist ((model dpm))
     (loop with id = 0
        for cluster across (dpm-clusters model)
        as size = (cluster-size cluster)
        unless (zerop size)
        collect (cons cluster (incf id))))
+
+(defgeneric make-cluster-points-hash (model))
 (defmethod make-cluster-points-hash ((model dpm))
     (loop with cluster-id-alist = (cluster-id-alist model)
        with hash = (make-hash-table :test #'eql)

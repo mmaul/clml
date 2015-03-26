@@ -1,6 +1,9 @@
 
 (in-package :clml.text.hdp-lda)
 
+(defgeneric hdp-lda (dataset &key sampling
+                                                   initial-k
+                                                   hyper-parameters))
 (defmethod hdp-lda ((dataset numeric-dataset) &key (sampling 100)
                                                    (initial-k 0)
                                                    hyper-parameters ;; (alpha gamma beta)
@@ -26,11 +29,14 @@
             (make-topic-beta-result model)
             model)))
 
+(defgeneric make-document-theta-result (model))
 (defmethod make-document-theta-result ((model hdp-lda))
   (let* ((docs (sort (copy-seq (hdp-lda-data model)) #'< :key #'document-id))
          (doc-thetas (map 'vector (lambda (doc) (specialize-vec (document-thetas doc))) docs))
          (column-names (topic-names model)))
     (make-numeric-dataset column-names doc-thetas)))
+
+(defgeneric make-topic-beta-result (model))
 (defmethod make-topic-beta-result ((model hdp-lda))
   (let* ((column-names (cons "Topic ID" (loop for i upto (vocabulary model) collect (revert-word model i))))
          (phi (map 'vector #'specialize-vec (get-phi model)))
@@ -41,15 +47,20 @@
     (make-numeric-and-category-dataset column-names phi numeric-indices
                                        topic-ids category-index)))
 
+(defgeneric topic-names (model))
 (defmethod topic-names ((model hdp-lda))
   (loop repeat (topic-count model) for i from 1
       collect (format nil "Topic ~D" i)))
+
+(defgeneric make-bow-hash (dataset))
 (defmethod make-bow-hash ((dataset numeric-dataset))
   (loop with hash = (make-hash-table :test #'eql)
       for name across (map 'vector #'dimension-name (dataset-dimensions dataset))
       for i from 0
       do (setf (gethash i hash) name)
       finally (return hash)))
+
+(defgeneric make-docs (dataset bow-hash))
 (defmethod make-docs ((dataset numeric-dataset) bow-hash)
   (let ((id -1))
     (coerce
@@ -69,6 +80,7 @@
 
 ;; ref: Finding scientific topics, Thomas L.Griffiths, Mark Steyvers
 ;; http://www.ncbi.nlm.nih.gov/pmc/articles/PMC387300/
+(defgeneric get-trend-topics (model &key trend ntopics nwords))
 (defmethod get-trend-topics ((model hdp-lda) &key (trend :hot) ;; :hot | :cold
                                                   (ntopics 10)
                                                   (nwords 10))
@@ -83,7 +95,9 @@
         for (id . mean-theta) in (sort id-mean-alist (ecase trend (:hot #'>) (:cold #'<)) :key #'cdr)
         as words = (aref n-words id)
         as name = (nth id names)
-        collect (cons name (cons words mean-theta)))))
+       collect (cons name (cons words mean-theta)))))
+
+(defgeneric mean-theta (hdp-lda))
 (defmethod mean-theta ((hdp-lda hdp-lda))
   (let ((mean-vec (make-dvec (topic-count hdp-lda) 0d0)))
     (loop for doc across (hdp-lda-data hdp-lda)
