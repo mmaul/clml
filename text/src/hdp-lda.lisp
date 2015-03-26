@@ -91,7 +91,7 @@
         as theta = (specialize-vec (document-thetas doc))
         do (do-vecs ((_ mean-vec :type double-float :setf-var sf)
                      (val theta :type double-float))
-             (declare (ignore _))
+             #-sbcl (declare (ignore _))
              (incf sf val))
         finally (return
                   (map 'vector

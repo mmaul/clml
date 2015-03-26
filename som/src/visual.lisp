@@ -72,7 +72,7 @@
       
     
 	 
-(defun visual (g-data &key (debug nil) directory)
+(defun visual (g-data &key  directory)
   (label-not-needed 1)
   
   (let ((data (gdata-data g-data))

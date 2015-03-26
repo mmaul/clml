@@ -181,6 +181,7 @@ Package for "ChangeFinder"
         :clml.hjs.missing-value
         ::clml.hjs.eigensystems
         :clml.utility.csv
+        :clml.statistics
         :clml.time-series.util
         :clml.time-series.statistics
         :clml.time-series.read-data

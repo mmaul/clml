@@ -1119,9 +1119,9 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     (etypecase dataset
       (numeric-and-category-dataset (error "Unimplemented"))
       (numeric-matrix-and-category-dataset (error "Unimplemented"))
-      (numeric-dataset (setf (dataset-numeric-points) (shuffle-vector (dataset-numeric-points dataset))))
+      (numeric-dataset (setf (dataset-numeric-points dataset) (shuffle-vector (dataset-numeric-points dataset))))
       (numeric-matrix-dataset (error "Unimplemented"))
-      (category-dataset (setf (dataset-category-points) (shuffle-vector (dataset-category-points dataset))))
+      (category-dataset (setf (dataset-category-points dataset) (shuffle-vector (dataset-category-points dataset))))
       (unspecialized-dataset (setf (dataset-points dataset) (shuffle-vector (dataset-points dataset)))))
     ))
 
@@ -1315,11 +1315,15 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                            (:numeric (dataset-numeric-points dataset)))
        do (when (funcall test (elt vec idx))
             (ecase (dimension-type dim)
-              (:unknown (delete  (elt vec idx) (dataset-points dataset)
-                                 :count 1 :test #'equalp))
-              (:category (delete  (elt vec idx) (dataset-category-points dataset)
-                                 :count 1 :test #'equalp))
-              (:numeric (dataset-numeric-points dataset)))))
+              (:unknown (setf (dataset-points dataset)
+                              (delete  (elt vec idx) (dataset-points dataset)
+                                       :count 1 :test #'equalp)))
+              (:category (setf (dataset-category-points dataset)
+                               (delete  (elt vec idx) (dataset-category-points dataset)
+                                        :count 1 :test #'equalp)))
+              (:numeric (setf (dataset-numeric-points dataset)
+                              (delete  (elt vec idx) (dataset-numeric-points dataset)
+                                        :count 1 :test #'equalp))))))
     dataset))
 
 
@@ -1330,7 +1334,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
            with dim = (find dim-name (dataset-dimensions dataset)
                             :test #'string=
                             :key #'dimension-name)
-           with test-fn = test
+           
            with dim-type = (dimension-type dim)
            with dim-idx = (dimension-index dim)
 
@@ -1358,12 +1362,12 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 (defun get-dimension-index (name alist)
   (cadr (assoc name alist :test #'string=)))
 
-(defmethod select-dimension (name (data dataset) &key (selector (lambda (x y) t)))
-  (multiple-value-bind (pos type)
-      (loop for pos from 0
-          for dim across (dataset-dimensions data)
-          when (string= (dimension-name dim) name)
-          return (values pos (dimension-type dim)))
+(defmethod select-dimension (name (data dataset) &key (selector (lambda (x y) (or x y t))))
+  (let ((pos
+         (loop for pos from 0
+            for dim across (dataset-dimensions data)
+            when (string= (dimension-name dim) name)
+            return (values pos (dimension-type dim)))))
     (when pos 
       (loop for vec across (dataset-points data)
            when (funcall selector data vec)

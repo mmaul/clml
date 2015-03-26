@@ -285,7 +285,7 @@
          (vecs (or vecs
                    (let ((result (make-array nrow)))
                      (do-vec (_ result :setf-var v :return result)
-                       (declare (ignorable _))
+                       #-sbcl (declare (ignorable _))
                        (setf v (make-dvec ncol)))))))
     (declare (type array-index nrow ncol)
              (type simple-vector vecs))
@@ -306,7 +306,7 @@
          (vecs (or vecs
                    (let ((result (make-array nrow)))
                      (do-vec (_ result :setf-var v :return result)
-                       (declare (ignorable _))
+                       #-sbcl (declare (ignorable _))
                        (setf v (make-dvec ncol)))))))
     (declare (type array-index nrow ncol)
              (type simple-vector vecs))
@@ -314,7 +314,7 @@
       (declare (type array-index i))
       (do-vec (v vecs :type dvec)
         (do-vec (_ v :type double-float :setf-var e)
-          (declare (ignorable _))
+          #-sbcl (declare (ignorable _))
           (setf e (aref flatmat i))
           (incf i)))) 
     vecs))
@@ -324,7 +324,7 @@
            (type dmat mat))
   (let ((row-vec (or row-vec (make-dvec (array-dimension mat 1)))))
     (do-vec (_ row-vec :type double-float :setf-var sv :index-var iv)
-      (declare (ignorable _))
+      #-sbcl (declare (ignorable _))
       (setf sv (aref mat nrow iv)))
     row-vec))
 
@@ -400,7 +400,7 @@
     (declare (type dvec rv) (type double-float s))
     (assert (eql (length rv) (array-dimension m 0)))
     (do-vec (_ rv :type double-float :setf-var sf :index-var row :return rv)
-      (declare (ignore _))
+      #-sbcl (declare (ignore _))
       (setf s 0d0 
             sf (do-vec (val v :type double-float :index-var col :return s)
                  (incf s (* (the double-float (aref m row col)) 
@@ -779,7 +779,7 @@
 	 (result (or result (make-dvec dim))))
     (declare(type dvec result))
     (do-vec (_ result :type double-float :setf-var sr :index-var ir)
-      (declare (ignorable _))
+      #-sbcl (declare (ignorable _))
       (setf sr (sqrt (the (double-float 0.0) (aref covariance ir ir)))))
     result))
 

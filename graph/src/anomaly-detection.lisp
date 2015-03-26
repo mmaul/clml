@@ -238,7 +238,7 @@
               (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info))))
     (assert (= info 0))    
     (do-vec (_ pattern :type double-float :setf-var sf :index-var i)
-      (declare (ignore _))
+      #-sbcl (declare (ignore _))
       (let ((val (abs (aref result 0 i)))) (setf sf (if (> *epsilon* val) 0d0 val))))
     pattern))
 ;; 平均
@@ -250,7 +250,7 @@
     (loop for act-vec in act-vecs
         do (do-vecs ((_ pattern :type double-float :setf-var sf)
                      (val act-vec :type double-float))
-             (declare (ignore _))
+             #-sbcl (declare (ignore _))
              (incf sf val)))
     (do-vec (val pattern :type double-float :setf-var sf :return pattern)
       (setf sf (/ val size)))))
@@ -1368,7 +1368,7 @@
     (if principal
         (let ((principal (make-dvec (array-dimension cor-mat 0))))
           (do-vec (_ principal :type double-float :index-var i :setf-var sf)
-            (declare (ignore _))
+            #-sbcl (declare (ignore _))
             (setf sf (aref eigen-mat 0 i))) ;; section 3.3
           (values (round-vec eigen-vals) (round-vec principal)))
       (round-vec eigen-vals))))
@@ -1822,7 +1822,7 @@
          (model (trend ts :k trend-k :t^2 trend-t^2))
          (smthd (predict model :n-ahead 0)))
     (do-vec (_ vec :type double-float :index-var i :setf-var sf :return vec)
-      (declare (ignore _))
+      #-sbcl (declare (ignore _))
       (setf sf (aref (ts-p-pos (aref (ts-points smthd) i)) 0)))))
 
 
@@ -1885,7 +1885,7 @@
   (check-type mat dmat)
   (let ((row (make-dvec (array-dimension mat 0))))
     (do-vec (val row :type double-float :return row :index-var i :setf-var sf)
-      (declare (ignore val))
+      #-sbcl (declare (ignore val))
       (setf sf (aref mat i nrow)))))
 ;; 対称行列の要素がゼロである行／列の index
 (defun get-symat-zero-indices (symat)

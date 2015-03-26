@@ -96,7 +96,7 @@
   (flet ((row-aref (mat i) (declare (type dmat mat) (type fixnum i))
                    (let ((vec (make-dvec (array-dimension mat 0))))
                      (do-vec (_ vec :type double-float :index-var j :setf-var sf :return vec)
-                       (declare (ignore _))
+                       #-sbcl (declare (ignore _))
                        (setf sf (aref mat j i))))))
     (let* ((start-vec (row-aref d-mat start-i))
            (min-d (aref d-mat dest-i start-i)))
