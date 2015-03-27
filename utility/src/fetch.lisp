@@ -20,6 +20,7 @@
                   )
                 nil)))
        (when must-close (close stream))
+       (or content-or-stream tk header)
        val
        )
      status
@@ -69,7 +70,7 @@ Note that it is important to ensure that dir and subdir if used end in a /"
            (if (and cache (probe-file file-pathname))
                file-pathname
                (handler-case  (download url-or-path file-pathname)
-                 (drakma:parameter-error (c)
+                 (drakma:parameter-error ()
                    nil
                    ))))
        

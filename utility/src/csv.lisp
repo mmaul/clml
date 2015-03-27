@@ -247,6 +247,7 @@ OS is a set to eol-convention of the file stream.
 start and end specifies how many elements per record will be included.
 If start or end is negative, it counts from the end. -1 is the last element.
 "
+  #+sbcl (declare (ignorable os))
   (with-open-file (f filename :external-format external-format)
     #+allegro (setf (excl:eol-convention f) os)
     (read-csv-stream f :type-spec type-spec :map-fns map-fns
