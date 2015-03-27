@@ -53,6 +53,9 @@ N), where M is the number of ponits and N is the dimension size.
 		 :centroid centroid
 		 :orig-data-standard-deviations orig-data-standard-deviations))
 
+(defgeneric make-cov-or-cor (dataset
+                            &key method
+                            type))
 (defmethod make-cov-or-cor ((dataset numeric-dataset) 
                             &key (method :covariance)
                             (type :matrix)) ; :matrix | :closure
@@ -96,7 +99,7 @@ N), where M is the number of ponits and N is the dimension size.
                    (let ((result (make-dvec dim)))
                      (declare (type dvec result))
                      (do-vec (_ result :type double-float :setf-var sr :index-var ir)
-                       (declare (ignore _))
+                       #-sbcl (declare (ignore _))
                        (let ((val (aref covariance ir ir)))
                          (declare (type double-float val))
                          (when (zerop val)
@@ -198,7 +201,7 @@ N), where M is the number of ponits and N is the dimension size.
                (loop for i of-type array-index below dim
                      for vec of-type dvec = (make-dvec dim)
                      do (do-vec (_ vec :type double-float :index-var iv :setf-var sv)
-                          (declare (ignore _))
+                          #-sbcl (declare (ignore _))
                           (setf sv 
                                 #-mkl (aref eigen-vectors iv i)
                                 #+mkl (aref eigen-vectors i iv)))
@@ -209,7 +212,7 @@ N), where M is the number of ponits and N is the dimension size.
         (let ((indices (make-array dim :element-type 'fixnum)))
           (declare (type (simple-array fixnum (*)) indices))
           (do-vec (_ indices :type fixnum :setf-var si :index-var i)
-            (declare (ignore _))
+            #-sbcl (declare (ignore _))
             (setf si i))
           (sort indices #'> :key (lambda (i) (declare (type fixnum i)) (aref eigen-values i)))
           ;; reorder eigenvectors and eigenvalues
@@ -327,7 +330,7 @@ N), where M is the number of ponits and N is the dimension size.
                     (loop for i of-type array-index below dim
                         for vec of-type dvec = (make-dvec (array-dimension eigen-vectors 1))
                         do (do-vec (_ vec :type double-float :index-var iv :setf-var sv)
-                             (declare (ignore _))
+                             #-sbcl (declare (ignore _))
                              (setf sv (aref eigen-vectors i iv)))
                         collect vec)
                     'vector)))))
@@ -423,6 +426,7 @@ N), where M is the number of ponits and N is the dimension size.
     :loading-factors eigen-vecs :kernel-fcn kernel-fcn
     :centroid e-mean :demean-org-pts demean-pts))
 
+(defgeneric make-kernel-mat (d kernel-fcn))
 (defmethod make-kernel-mat ((d numeric-dataset) kernel-fcn)
   (let* ((points (map 'vector
                    #'copy-seq
@@ -471,7 +475,7 @@ N), where M is the number of ponits and N is the dimension size.
               (pts target-pts :type dvec))
       (do-vecs ((vec eigen-vecs :type dvec)
                 (_ r :type double-float :setf-var sr))
-        (declare (ignore _))
+        #-sbcl (declare (ignore _))
         (let ((s 0d0)) (declare (type double-float s))
              (do-vecs ((alpha vec :type double-float)
                        (pts-n demean-pts :type dvec))
@@ -479,6 +483,9 @@ N), where M is the number of ponits and N is the dimension size.
              (setf sr s))))
     score))
 
+(defgeneric kernel-princomp (dataset
+                            &key dimension-thld
+                                 kernel-fcn))
 (defmethod kernel-princomp ((dataset numeric-dataset) 
                             &key dimension-thld
                                  (kernel-fcn +linear+))
@@ -512,7 +519,7 @@ N), where M is the number of ponits and N is the dimension size.
                          (loop for i of-type array-index below dim
                              for vec of-type dvec = (make-dvec (array-dimension eigen-vecs 1))
                              do (do-vec (_ vec :type double-float :index-var iv :setf-var sv)
-                                  (declare (ignore _))
+                                  #-sbcl (declare (ignore _))
                                   (setf sv (aref eigen-vecs i iv)))
                              collect vec)
                          'vector))))
