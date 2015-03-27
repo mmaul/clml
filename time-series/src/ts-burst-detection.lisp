@@ -94,7 +94,9 @@
                         finally (setf (aref q j time-count) j))
                   finally (setq c c-prime))
             finally (return (make-result-index-list q (index-of-minimum-value c))))))))
-      
+
+(defgeneric continuous-kleinberg (offsets ; list of (utime) or (utime "label")
+                                 &key s gamma if-overlap))
 (defmethod continuous-kleinberg ((offsets list) ; list of (utime) or (utime "label")
                                  &key (s 2)
                                       (gamma 1)

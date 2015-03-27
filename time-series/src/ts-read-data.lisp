@@ -137,16 +137,18 @@ The dataset for time-series data. Values are specialized in numeric"))
   (check-type data simple-vector)
   (check-type (aref data 0) dvec)
   (unless time-labels
-    (setq time-labels (make-array (length data) :initial-element "" 
+    (setq time-labels (make-array (list (length data)) :initial-element "" 
                                   :element-type 'string)))
   (assert (= (length data) (length time-labels)))
   (let ((dimensions
-         (make-array (length all-column-names) :element-type 'dimension))
+         (make-array (list (length all-column-names)) :element-type 'dimension
+                     :initial-element (make-dimension 0 :numeric 0))
+          )
         (ts-len (length data)))
     (loop
         for n in all-column-names
         for i from 0
-        for d = (make-dimension n :numeric i)
+       for d = (make-dimension n :numeric i)
         do (setf (aref dimensions i) d))
     (when (null end)
       (setq end (tf-incl start (1- ts-len) :freq freq)))
@@ -164,6 +166,8 @@ The dataset for time-series data. Values are specialized in numeric"))
         :dimensions dimensions :ts-points ts-points :frequency freq
         :start start :end end :time-label-name time-label-name
         :ts-type :constant))))
+
+(defgeneric copy-ts (d))
 (defmethod copy-ts ((d time-series-dataset))
   (make-instance 'time-series-dataset
     :dimensions (map 'vector (lambda (dim) (copy-dimension dim)) (dataset-dimensions d))
@@ -200,5 +204,3 @@ The dataset for time-series data. Values are specialized in numeric"))
         (when pts
           (do-vec (vec pts :type dvec :index-var i :return d)
             (setf (ts-p-pos (svref points i)) vec)))))))
-    
-                  

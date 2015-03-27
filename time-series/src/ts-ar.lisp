@@ -53,6 +53,8 @@
 (defmethod ts-stsp::v-00 ((model ar-model))
   (let ((var (aref (ts-covariance (ts-stsp::observed-ts model)) 0 0)))
     (diag (car (ar-coefficients model)) var)))
+
+(defgeneric aic (model))
 (defmethod aic ((model ar-model))
   (with-slots ((aic aic)) model
     (let ((min 0))
@@ -140,6 +142,7 @@
        (ar-burg d :order-max order-max :aic aic))
       (t)))))
 
+(defgeneric ar-burg (d &key order-max aic))
 (defmethod ar-burg ((d time-series-dataset) &key order-max aic)
   (let ((d-demean (ts-demean d)))
     (with-accessors ((dims dataset-dimensions)
@@ -220,6 +223,7 @@
       finally
         (return (values coef-list sigma^2-list aic-list))))
 
+(defgeneric ar-yw (d &key order-max demean aic))
 (defmethod ar-yw ((d time-series-dataset) &key order-max demean aic)
   (let ((d-demean (if demean (ts-demean d) d)))
     (with-accessors ((dims dataset-dimensions)
@@ -328,6 +332,7 @@
         (predict model :n-ahead n-ahead)
       (values pred model se))))
 
+(defgeneric parcor (ts &key order method ppm-file))
 (defmethod parcor ((ts time-series-dataset) &key (order 1) (method :burg)
                                                  ppm-file)
   (assert (integerp order))
@@ -761,6 +766,16 @@
 ;; r スカラー(忘却parameter)
 ;; n スカラー(データ数)
 (defun 1step-sdar (meu cj-array sigma old-xt-array new-xt r n)
+  "Assume K following AR model ;; data x is a d-dimensional
+ Meu (d -dimensional vectors )
+ Cj-array # (C_0 C_1 C_2 C_3 ... C_k) array consisting of k + 1 pieces of element
+ (C_0 C_1, C_2, C-3, ..., C_k matrix of dxd)
+ Sigma ( matrix of dxd)
+ Old-xt-array # (x_ {tk} x_ {t-k + 1} x_ {t-k + 2} ... x_ {t-1}) k consists of number of elements array
+ (X_ {tk}, x_ {t-k + 1}, x_ {t-k + 2}, ..., x_ {t-1} vector of d dimension )
+ Of new-xt d -dimensional vector
+ R scalar ( forgetting parameter)
+ N scalar (number of data )"
   (update-meu meu new-xt r)
   (let* ((k (length old-xt-array))
          (new-cj-array
@@ -809,11 +824,17 @@
    (sigma :initarg :sigma :initform nil :accessor sigma)
    (cj-array :initarg :cj-array :initform nil :accessor cj-array)
    (xt-array :initarg :xt-array :initform nil :accessor xt-array)
-   (n :initarg :n :initform nil :accessor n)))
+   (n :initarg :n :initform nil :accessor n))
+  (:documentation
+   "class for SDAR (Sequential Discounting Auto Regression) ;
+; ref. The book of Yamanishi"))
+
 (defmethod print-object ((sdar sdar) stream)
   (print-unreadable-object (sdar stream :type t :identity nil)
     (format stream "(~A)" (length (coef-vec sdar)))))
 
+(defgeneric init-sdar (ts
+                      &key ar-k))
 (defmethod init-sdar ((ts time-series-dataset) 
                       &key (ar-k nil)) ;; AR次数、nilならAICによる自動選択
   (with-accessors ((dims dataset-dimensions)
@@ -862,6 +883,7 @@
                                         :n len))))
           ))))
 
+(defgeneric update-sdar (sdar new-xt &key discount))
 (defmethod update-sdar ((sdar sdar) new-xt &key (discount 0.01d0))
   (destructuring-bind (xhatt meu new-cj-array new-sigma xt-array w-vec)
       (1step-sdar (mu sdar) (cj-array sdar) (sigma sdar) (xt-array sdar) new-xt discount (n sdar))
@@ -872,6 +894,7 @@
           (coef-vec sdar) w-vec)
     (values xhatt new-sigma)))
 
+(defgeneric update-xt-array ( sdar new-xt))
 (defmethod update-xt-array ((sdar sdar) new-xt)
   (with-accessors ((old-xt-array xt-array)) sdar
     (let ((k (length (coef-vec sdar))))
@@ -879,6 +902,8 @@
           do (setf (aref old-xt-array i)
                (aref old-xt-array (1+ i)))
           finally (setf (aref old-xt-array (1- k)) new-xt)))))
+
+(defgeneric predict-sdar (sdar))
 (defmethod predict-sdar ((sdar sdar))
   (values (calculate-xhat (coef-vec sdar) (xt-array sdar) (mu sdar))
           (sigma sdar)))

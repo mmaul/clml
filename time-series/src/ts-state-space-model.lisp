@@ -20,30 +20,39 @@
 - accessors:
   - ts-data : observed time series data"))
 
+(defgeneric F (stsp n))
 (defmethod F ((stsp state-space-model) n)
   (let ((val (slot-value stsp 'F-matrices)))
     (cond ((functionp val) (funcall val n))
           ((arrayp val) val)
           ((listp val) (nth n val))
           (t (error "illegal F-matrices | ~A" val)))))
+
+(defgeneric G (stsp n))
 (defmethod G ((stsp state-space-model) n)
   (let ((val (slot-value stsp 'G-matrices)))
     (cond ((functionp val) (funcall val n))
           ((arrayp val) val)
           ((listp val) (nth n val))
           (t (error "illegal G-matrices | ~A" val)))))
+
+(defgeneric H (stsp  n))
 (defmethod H ((stsp state-space-model) n)
   (let ((val (slot-value stsp 'H-matrices)))
     (cond ((functionp val) (funcall val n))
           ((arrayp val) val)
           ((listp val) (nth n val))
           (t (error "illegal H-matrices | ~A" val)))))
+
+(defgeneric Q (stsp n))
 (defmethod Q ((stsp state-space-model) n)
   (let ((val (slot-value stsp 'Q-matrices)))
     (cond ((functionp val) (funcall val n))
           ((arrayp val) val)
           ((listp val) (nth n val))
           (t (error "illegal Q-matrices | ~A" val)))))
+
+(defgeneric R (stsp n))
 (defmethod R ((stsp state-space-model) n)
   (let ((val (slot-value stsp 'R-matrices)))
     (cond ((functionp val) (funcall val n))
@@ -65,6 +74,7 @@
 (defgeneric aic (gaussian-stsp-model)
   (:documentation "Akaike Information Criterion for gaussian-stsp-model"))
 
+(defgeneric kalman-filter (stsp &key x-00 v-00))
 (defmethod kalman-filter ((stsp gaussian-stsp-model) &key x-00 v-00)
   (let ((x-00 (if x-00 x-00 (x-00 stsp)))
         (v-00 (if v-00 v-00 (v-00 stsp))))
@@ -91,11 +101,14 @@
                      (nth n v) %v-nn
                      x-00 %x-nn
                      v-00 %v-nn))))))
+
+(defgeneric one-step-kalman-filter (stsp x v observed-pt n))
 (defmethod one-step-kalman-filter ((stsp gaussian-stsp-model) x v observed-pt n)
   (multiple-value-bind (frcst-x frcst-v) (one-step-forecast stsp x v n)
     (apply #'values `(,@(multiple-value-list (filtering stsp frcst-x frcst-v observed-pt n))
                         ,frcst-x ,frcst-v))))
-    
+
+(defgeneric one-step-forecast (stsp x v n))
 (defmethod one-step-forecast ((stsp gaussian-stsp-model) x v n)
   (declare (type dvec x))
   (declare (type dmat v))
@@ -104,6 +117,7 @@
    (mcm (m*m (m*m (F stsp n) v) (transpose (F stsp n)))
         (m*m (m*m (G stsp n) (Q stsp n)) (transpose (G stsp n))))))
 
+(defgeneric filtering (stsp x v observed-pt n))
 (defmethod filtering ((stsp gaussian-stsp-model) x v observed-pt n)
   (declare (type dvec x))
   (declare (type dmat v))  
@@ -117,7 +131,8 @@
          (vcv x (m*v kalman-gain (vcv observed-pt (m*v (H stsp n) x) :c #'-)) :c #'+)
          (mcm v (m*m (m*m kalman-gain (H stsp n)) v) :c #'-))))))
 
-  
+
+(defgeneric long-step-forecast (stsp x v n n-ahead))
 (defmethod long-step-forecast ((stsp gaussian-stsp-model) x v n n-ahead)
   (assert (>= n-ahead 1))
   (loop for i from 1 to n-ahead
@@ -129,9 +144,12 @@
                (nth (1- i) v-nn) v)
       finally (return (values x-nn v-nn))))
 
+(defgeneric forecast (stsp n-ahead
+                      &key smoothing)
+  (:documentation "Forecast observation value"))
 (defmethod forecast ((stsp gaussian-stsp-model) n-ahead
                      &key (smoothing nil))
-  "Forecast observation value"
+  
   (assert (>= n-ahead 0))
   (flet ((map-mat (mat fcn)
            (loop for i below (array-dimension mat 0)
@@ -170,8 +188,9 @@
                                                                 (dfloat (sqrt (/ v len))))))
                                      ret-v)))))))))
 
+(defgeneric smoothing (stsp)
+  (:documentation "Do smoothing under the condition N which is a number of observed data"))
 (defmethod smoothing ((stsp gaussian-stsp-model))
-  "Do smoothing under the condition N which is a number of observed data"
   (let ((N (length (ts-points (observed-ts stsp)))))
     (unless (and (x-nn stsp) (v-nn stsp))
       (kalman-filter stsp))
@@ -191,12 +210,16 @@
              (push %smthed-v smthed-v)
              (push An An-list)
           finally (return (values smthed-x smthed-v An-list))))))
+
+(defgeneric one-step-smoothing (stsp smthed-x smthed-v pred-x pred-v x v n))
 (defmethod one-step-smoothing ((stsp gaussian-stsp-model) smthed-x smthed-v pred-x pred-v x v n)
   (let ((An (m*m (m*m v (transpose (F stsp (1+ n)))) (m^-1 pred-v))))
     (values (vcv x (m*v An (vcv smthed-x pred-x :c #'-)))
             (mcm v (m*m (m*m An (mcm smthed-v pred-v :c #'-)) (transpose An)))
             An)))
 
+(defgeneric log-likelihood (stsp 
+                           &key with-s^2 smoothing))
 (defmethod log-likelihood ((stsp gaussian-stsp-model) 
                            &key (with-s^2 t) (smoothing nil))
   (let ((org-r (if with-s^2 (kalman-filter stsp)
@@ -274,14 +297,14 @@
       :start start :end end :freq (ts-freq org-ts))
      )))
 
-(defgeneric predict (m &key)
-  (:documentation "- return: (values <time-series-dataset> <time-series-dataset>)
+
+(defmethod predict ((model gaussian-stsp-model) &key (n-ahead 0))
+  "- return: (values <time-series-dataset> <time-series-dataset>)
   - first value is a prediction by model, second is a standard error of the model.
 - arguments:
   - n-ahead : <non-negative-integer>
 - comments:
-  - In the case of trend model, the trend of last point of observed data continue to future."))
-(defmethod predict ((model gaussian-stsp-model) &key (n-ahead 0))
+  - In the case of trend model, the trend of last point of observed data continue to future."
   (kalman-filter model)
   (multiple-value-bind (pos-list se-list)
       (forecast model n-ahead :smoothing t)
@@ -334,6 +357,7 @@
    )
  )
 
+
 (defmethod print-object ((model trend-model) stream)
   (with-accessors ((k diff-k) (t^2 tau^2) (ts observed-ts)) model
     (print-unreadable-object (model stream :type t :identity nil))
@@ -341,6 +365,7 @@
     (format stream "~&T^2: ~F~%" t^2)
     (format stream "~&AIC: ~F~%" (slot-value model 'aic))))
 
+(defgeneric aic (model))
 (defmethod aic ((model trend-model))
   (+ (* -2 (log-likelihood model :smoothing t))
      (* 2 (+ (diff-k model) 2))))
@@ -427,6 +452,7 @@
       (setf (slot-value model 'aic) (aic model))
       model)))
 
+(defgeneric x-00 (model))
 (defmethod x-00 ((model trend-model))
   (let* ((seq-without-nan (remove-if #'nan-p (map 'dvec (lambda (pt) (aref (ts-p-pos pt) 0)) 
                                                   (ts-points (observed-ts model)))))
@@ -436,6 +462,7 @@
     (when (>= 2 (length seq-without-nan)) (error "Too many missing-values"))
     (make-dvec (diff-k model) mean)))
 
+(defgeneric v-00 (model))
 (defmethod v-00 ((model trend-model))
   (let* ((seq-without-nan (remove-if #'nan-p (map 'dvec (lambda (pt) (aref (ts-p-pos pt) 0)) 
                                                   (ts-points (observed-ts model)))))
@@ -448,6 +475,10 @@
       (incf 1st-mom val)
       (incf 2nd-mom (d-expt val 2d0)))
     (diag (diff-k model) (- (/ 2nd-mom n) (d-expt (/ 1st-mom n) 2d0)))))
+
+(defgeneric trend-prediction (d 
+                             &key k t^2 n-ahead
+                                  delta search-width))
 (defmethod trend-prediction ((d time-series-dataset) 
                              &key (k 1) (t^2 0.1) (n-ahead 0)
                                   (delta 0.1d0) (search-width 10))
@@ -522,7 +553,9 @@
 (defun make-seasonal-R (v)
   (make-array `(1 1) :initial-element (coerce v 'double-float)
               :element-type 'double-float))
-  
+
+(defgeneric seasonal (d
+                     &key degree freq t^2 s^2))
 (defmethod seasonal ((d time-series-dataset)
                      &key (degree 1) freq (t^2 0d0) (s^2 1d0))
   (unless freq (setq freq (ts-freq d)))
@@ -536,13 +569,16 @@
     :G-matrices (make-seasonal-G degree freq)
     :H-matrices (make-seasonal-H degree freq)))
 
+(defgeneric x-00 (model))
 (defmethod x-00 ((model seasonal-model))
   (make-dvec (seasonal-mat-size (s-deg model) (s-freq model))
              (dfloat (aref (ts-mean (observed-ts model)) 0))))
 
+(defgeneric v-00 (model))
 (defmethod v-00 ((model seasonal-model))
   (diag (seasonal-mat-size (s-deg model) (s-freq model))
         (dfloat (aref (ts-covariance (observed-ts model)) 0 0))))
+
 
 (defmethod predict ((model seasonal-model) &key (n-ahead 0))
   (kalman-filter model)
@@ -564,7 +600,7 @@
   - trend-model
   - seasonal-model"))
 
-(defgeneric seasonal-dj (d &key)
+(defgeneric seasonal-adj (d &key)
   (:documentation "- return: <seasonal-adjustment-model>
 - arguments:
   - d            : <time-series-dataset>, one dimensional time-series-dataset
@@ -598,11 +634,13 @@
                               (slot-value seasonal 'H-matrices)
                               :direction :horizontal))))
 
+(defgeneric x-00 (model))
 (defmethod x-00 ((model seasonal-adjustment-model))
   (with-accessors ((tr trend-model)
                    (sea seasonal-model)) model
     (concatenate 'dvec (x-00 tr) (x-00 sea))))
 
+(defgeneric v-00 (model))
 (defmethod v-00 ((model seasonal-adjustment-model))
   (with-accessors ((tr trend-model)
                    (sea seasonal-model)) model
@@ -615,6 +653,11 @@
    (trend2 :initarg :trend2 :initform nil :accessor trend2-model)
    (seasonal :initarg :seasonal :initform nil :type seasonal-model :accessor seasonal-model)))
 
+(defgeneric double-trend-adj (d
+                             &key tr1-k tr1-t^2
+                                  tr2-k tr2-t^2
+                                  s-deg s-freq s-t^2
+                                  s^2))
 (defmethod double-trend-adj ((d time-series-dataset)
                              &key (tr1-k 1) (tr1-t^2 0d0)
                                   (tr2-k 1) (tr2-t^2 0d0)
@@ -642,12 +685,13 @@
                                           :direction :horizontal)
                               :direction :horizontal))))
 
-(defmethod x-00 ((model double-trend))
+(defmethod x-00 (model)
   (with-accessors ((tr1 trend1-model)
                    (tr2 trend2-model)
                    (sea seasonal-model)) model
     (concatenate 'dvec (x-00 tr1) (x-00 tr2) (x-00 sea))))
 
+(defgeneric v-00 (model))
 (defmethod v-00 ((model double-trend))
   (with-accessors ((tr1 trend1-model)
                    (tr2 trend2-model)

@@ -375,12 +375,12 @@ CL-USER> (best-double-exp-parameters
         :err-info `(,err-measure ,err) :observed-ts d
         :seasonal seasonal))))
 
-(defgeneric predict(m &key)
-    (:documentation "- return: <time-series-dataset>
+
+(defmethod predict ((model holtwinters-model) &key (n-ahead 0))
+  "- return: <time-series-dataset>
 - arguments:
   - model : <holtwinters-model>
-  - n-ahead : <non-negative integer>"))
-(defmethod predict ((model holtwinters-model) &key (n-ahead 0))
+  - n-ahead : <non-negative integer>"
   (with-accessors ((ts observed-ts)
                    (best-score 3-params)
                    (exp-type exp-type)

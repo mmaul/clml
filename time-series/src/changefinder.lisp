@@ -120,9 +120,12 @@
                                         (multiple-value-bind (new-mu new-sigma) (ts-ar::predict-sdar (,model cf))
                                           (setf (getf (,stats cf) :pt-1) (multi-gaussian new-mu new-sigma)))
                                         score)))))
+  (defgeneric update-ts-score (cf new-dvec))
   (defmethod update-ts-score ((cf changefinder) new-dvec)
     (declare (type dvec new-dvec))
     (update-score ts-model last-pt-stats pre-score-list))
+
+  (defgeneric update-score (cf new-dvec))
   (defmethod update-score ((cf changefinder) new-dvec)
     (declare (type (simple-array double-float (1)) new-dvec))
     (check-type new-dvec (simple-array double-float (1)))
@@ -135,9 +138,13 @@
    (sigma :initarg :sigma :reader sigma)))
 (defun multi-gaussian (mean sigma)
   (make-instance 'multi-gaussian :mean mean :sigma sigma))
+
+
 (defmethod density ((d multi-gaussian) x)
   (multivariate-normal-density (mean d) (sigma d) x))
+
 (defparameter *stabilizer* 1d-2)
+
 (defun multivariate-normal-density (mu sigma vec &optional m)
   (declare (type dvec mu vec) (type dmat sigma))
   (setf mu (round-vec mu) vec (round-vec vec)
@@ -156,6 +163,7 @@
                 (warn "MND underflow: in-exp:~A" in-exp) least-positive-double-float)
               (floating-point-overflow (c) (declare (ignore c)) 
                 (warn "MND overflow: in-exp:~A" in-exp) most-positive-double-float)))))
+
 (defun calc-in-exp (inv-sigma mu vec)
   (let* ((dim (length mu))
          (x-m (vcv vec mu :c #'-))
@@ -174,7 +182,9 @@
     (blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
     (tr res)
     ))
+
 ;; hellinger score
+(defgeneric hellinger-distance (pt-1 pt))
 (defmethod hellinger-distance ((pt-1 multi-gaussian) (pt multi-gaussian))
   (flet ((safe-exp (d) (declare (type double-float d))
                    (handler-case (exp d) 

@@ -200,7 +200,7 @@
       #-mkl (eigen-by-power (copy-mat cor-mat) :eigen-thld global-m :precision abstol)
       (let ((principal (make-dvec (array-dimension cor-mat 0))))
         (do-vec (_ principal :type double-float :index-var i :setf-var sf)
-          (declare (ignore _))
+          #-sbcl (declare (ignore _))
           (setf sf (aref eigen-mat 0 i))) ;; section 3.3
         (values eigen-vals principal))))
 (defun calc-local-features (dim psi-vec cor-strength-mat xi &key clusters-list)
@@ -333,6 +333,8 @@
         do (setf xy-mat (mcm xy-mat (xy-mat x-vec y-vec) :c #'+))
         finally (setf xy-mat (c*mat (dfloat (/ n)) xy-mat)))
     (make-instance 'calc-covariance :xy-mat-expec xy-mat :x-mean-vec x-mu :y-mean-vec y-mu :n n)))
+
+(defgeneric update-covariance (cov x-vec y-vec))
 (defmethod update-covariance ((cov calc-covariance) x-vec y-vec)
   (let ((new-xy-mat (xy-mat x-vec y-vec)))
     (setf (xy-mat-expec cov) (update-mat-expec (xy-mat-expec cov) (n cov) new-xy-mat)
@@ -340,6 +342,8 @@
           (y-mean-vec cov) (update-vec-expec (y-mean-vec cov) (n cov) y-vec)
           (n cov) (1+ (n cov)))
     cov))
+
+(defgeneric get-covariance (cov))
 (defmethod get-covariance ((cov calc-covariance))
   (let* ((dims (array-dimensions (xy-mat-expec cov)))
          (cov-mat (make-array dims :element-type 'double-float))
@@ -415,9 +419,10 @@
   (check-type mat dmat)
   (let ((row (make-dvec (array-dimension mat 0))))
     (do-vec (val row :type double-float :return row :index-var i :setf-var sf)
-      (declare (ignore val))
+      #-sbcl (declare (ignore val))
       (setf sf (aref mat i nrow)))))
 (defun get-row-series (n hash) (coerce (reverse (gethash n hash)) 'vector))
+(defgeneric update-matrix-covariance (model new-mat))
 (defmethod update-matrix-covariance ((model matrix-covariance) new-mat)
   (with-accessors ((x-col x-col)
                    (x-row x-row)
@@ -432,6 +437,7 @@
         do (loop for row below x-row
                as row-x-row = (nth row rows)
                do (update-covariance (aref covs col row) row-x-row col-x-row)))))
+(defgeneric get-matrix-covariance (model))
 (defmethod get-matrix-covariance ((model matrix-covariance))
   (with-accessors ((x-col x-col) (x-row x-row) (covs covs)) model
     (let* ((dim (* x-col x-row))
@@ -510,7 +516,7 @@
               (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info))))
     (assert (= info 0))    
     (do-vec (_ pattern :type double-float :setf-var sf :index-var i)
-      (declare (ignore _))
+      #-sbcl (declare (ignore _))
       (let ((val (abs (aref result 0 i)))) (setf sf (if (> *epsilon* val) 0d0 val))))
     pattern))
 ;; 平均
@@ -522,7 +528,7 @@
     (loop for act-vec in act-vecs
         do (do-vecs ((_ pattern :type double-float :setf-var sf)
                      (val act-vec :type double-float))
-             (declare (ignore _))
+             #-sbcl (declare (ignore _))
              (incf sf val)))
     (do-vec (val pattern :type double-float :setf-var sf :return pattern)
       (setf sf (/ val size)))))
@@ -607,9 +613,13 @@
                as vij = (aref cov i j)
                as val = (+fl (*fl 1-r vij) (*fl r bi-mi bj-mj))
                do (setf (aref cov i j) val (aref cov j i) val)))))
+
 (defun score-by-mahalanobis (dvec pwindow  &key (beta 1d-2))
-  (destructuring-bind (&key mu cov &allow-other-keys) (first pwindow)
-    (declare (type dvec dvec mu) (type dmat cov))
+  (destructuring-bind (&key mu cov &allow-other-keys) (first pwindow)              
+      
+    (declare #-sbcl (type dvec dvec mu)
+             #-sbcl (type dmat cov)
+             )
     (let* ((dim (length mu))
            (prec (m^-1 (mcm cov (diag dim beta)))))
       (flet ((conditional-gauss (i)
@@ -713,6 +723,8 @@
                  (coupling-tightness target-nbrs ref-cp-alist)))
          (abs (- (coupling-tightness ref-nbrs target-cp-alist)
                  (coupling-tightness ref-nbrs ref-cp-alist))))))
+
+(defgeneric %e-scores (target-model ref-model))
 (defmethod %e-scores ((target-model snn) (ref-model snn))
   (let* ((target-names (names target-model))
          (ref-names (names ref-model))

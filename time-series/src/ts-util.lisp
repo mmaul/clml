@@ -20,6 +20,7 @@
   (:documentation 
    "Calculate the value based on the timeseries-model for the observed timeseries data."))
 
+(defgeneric ts-to-sta (d f-name &key external-format fit))
 (defmethod ts-to-sta ((d time-series-dataset) f-name 
                       &key (external-format :default) (fit t))
   (with-accessors ((dims dataset-dimensions)
@@ -52,6 +53,7 @@
              (write (coerce (ts-p-pos p) 'list) :stream out)
            )))))
 
+(defgeneric sub-ts (d &key start end range except))
 (defmethod sub-ts ((d time-series-dataset) 
                    &key start end (range :all) except)
   (assert (notevery #'null (list start end range except)))
@@ -148,6 +150,7 @@
        dims pts :time-label-name time-label-name :time-labels time-labels
        :start start :end end :freq (ts-freq d1)))))
 
+(defgeneric compose-ts (d &key range except composer column-name))
 (defmethod compose-ts ((d time-series-dataset) &key (range :all) except
                                                     (composer #'+)
                                                     (column-name "composed value"))

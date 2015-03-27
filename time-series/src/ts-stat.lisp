@@ -1,6 +1,7 @@
 
 (in-package :clml.time-series.statistics)
 
+(defgeneric lag (d &key k))
 (defmethod lag ((d time-series-dataset) &key (k 1))
   (assert (integerp k))
   (let* ((data (copy-ts d))
@@ -37,7 +38,7 @@
     (diff (ts- d (lag d :k (- lag))) :lag lag :differences (1- differences))
     ))
 
-(defgeneric ts-tatio (d &key)
+(defgeneric ts-ratio (d &key)
   (:documentation "- return: <time-series-dataset>
 - arguments:
   - d : <time-series-dataset>
@@ -502,6 +503,7 @@
             (t periodgram)))))
 
 ;;; calculate periodgram by fft
+(defgeneric periodgram-fft (d))
 (defmethod periodgram-fft ((d time-series-dataset))
   (with-accessors ((dims dataset-dimensions)
                    (pts ts-points)) d
