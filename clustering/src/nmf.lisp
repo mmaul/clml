@@ -441,18 +441,14 @@
 
 *** sample usage
 #+INCLUDE: \"../sample/rho-k.org\" example lisp"
-  (print  matrix)
+  
   (flet (( f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))
                                                                  'fixnum)) v)))
-    (print (coerce-2d-array matrix 'fixnum (lambda (x) (print x) (floor x))
-                            ))
-    (print "0000")
-    (let* ((avc (average-consensus-matrix (coerce-2d-array matrix 'fixnum (lambda (x) (print x) (floor x))
-                                                           ) k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
-           (p (print avc))
+    (let* ((avc (average-consensus-matrix
+                 (coerce-2d-array matrix 'fixnum (lambda (x) (print x) (floor x)))
+                 k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
            (d (sim-mat->dis-mat avc))
            (u (cophenetic-matrix d)))
-      (print avc)
       (cophenetic-cc d u))))
 
 

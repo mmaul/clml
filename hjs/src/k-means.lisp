@@ -100,9 +100,11 @@ Otherwise, you must use :auto for random-seed."))
               (length (pw-clusters object))
               (loop for clstr across (pw-clusters object) collect `(,(c-id clstr) ,(c-size clstr)))))))
 
+(defgeneric get-cluster-centroids (object))
 (defmethod get-cluster-centroids ((object problem-workspace))
   (loop for cl across (pw-clusters object) collect (cons (c-id cl) (c-center cl))))
 
+(defgeneric get-cluster-points (object cid))
 (defmethod get-cluster-points ((object problem-workspace) cid)
   (let ((cluster (find cid (pw-clusters object) :test #'eql :key #'c-id)))
     (when cluster
@@ -311,6 +313,9 @@ Otherwise, you must use :auto for random-seed."))
 
 ;;; find the cluster once
 ;;@ function-type: #(cluster) -> #(point) -> #(cluster)
+(defgeneric trial (problem-workspace &key
+		  max-iteration
+		  debug))
 (defmethod trial ((problem-workspace problem-workspace) &key
 		  (max-iteration *max-iteration*)
 		  debug)

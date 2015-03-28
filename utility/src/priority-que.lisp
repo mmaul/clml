@@ -1265,6 +1265,7 @@
     (:fibonacci
      (make-fheap :lessp lessp :key key))))
 
+(defgeneric prique-empty-p (q))
 (defmethod prique-empty-p ((q lheap))
   (lheap-empty-p q))
 (defmethod prique-empty-p ((q biheap))
@@ -1274,6 +1275,7 @@
 (defmethod prique-empty-p ((q fheap))
   (fheap-empty-p q))
 
+(defgeneric prique-box-item (q))
 (defmethod prique-box-item ((q lheap-box))
   (lheap-box-item q))
 (defmethod prique-box-item ((q biheap-box))
@@ -1286,6 +1288,7 @@
 (defsetf prique-box-item (ib) (k)
   `(setf (slot-value ,ib 'item) ,k))
 
+(defgeneric insert-prique (q item))
 (defmethod insert-prique ((q lheap) item)
   (insert-lheap q item))
 (defmethod insert-prique ((q biheap) item)
@@ -1295,6 +1298,7 @@
 (defmethod insert-prique ((q fheap) item)
   (insert-fheap q item))
 
+(defgeneric find-min-prique (q))
 (defmethod find-min-prique ((q lheap))
   (find-min-lheap q))
 (defmethod find-min-prique ((q biheap))
@@ -1304,6 +1308,7 @@
 (defmethod find-min-prique ((q fheap))
   (find-min-fheap q))
 
+(defgeneric delete-min-prique (q))
 (defmethod delete-min-prique ((q lheap))
   (delete-min-lheap q))
 (defmethod delete-min-prique ((q biheap))
@@ -1313,6 +1318,7 @@
 (defmethod delete-min-prique ((q fheap))
   (delete-min-fheap q))
 
+(defgeneric union-prique (q1 q1))
 (defmethod union-prique ((q1 lheap) (q2 lheap))
   (union-lheap q1 q2))
 (defmethod union-prique ((q1 biheap) (q2 biheap))
@@ -1322,6 +1328,7 @@
 (defmethod union-prique ((q1 fheap) (q2 biheap))
   (union-fheap q1 q2))
 
+(defgeneric after-decrease-key-prique (q ib))
 (defmethod after-decrease-key-prique ((q lheap) (ib lheap-box))
   (after-decrease-key-lheap q ib))
 (defmethod after-decrease-key-prique ((q biheap) (ib biheap-box))

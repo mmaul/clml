@@ -807,6 +807,7 @@
 	  (setf array new)))
       array)))
 
+(defgeneric add-hashed-data (lsh point bit))
 (defmethod add-hashed-data ((lsh lsh) point bit)
   (let ((lh (local-hash lsh)))
     (multiple-value-bind (array found) (gethash bit lh)
@@ -816,6 +817,7 @@
 	  (setf array new)))
       (vector-push-extend point array))))
 
+(defgeneric find-candidates (search data))
 (defmethod find-candidates ((search locality-sensitive-hashing) data)
   (with-slots (hash-fns candidates hash-length) search
     (setf (fill-pointer candidates) 0)
@@ -1110,6 +1112,7 @@
     (gethash (data-to-bit data hash-fns v) (local-hash lsh) #())))
 
 ;; stochastic validation utility
+(defgeneric stochastic-validation (search test-dataset &optional k epsilon))
 (defmethod stochastic-validation ((search nearest-search) test-dataset &optional (k 5) (epsilon 1d-2))
   (let ((naive
 	 (with-slots (input-data input-key distance) search

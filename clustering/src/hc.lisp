@@ -46,28 +46,28 @@
   (setf (get 'vector-sum 'sys::immed-args-call)
     '((:lisp) double-float)))
 
-(declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
+#-sbcl (declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
                 max-vector))
-(declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
+#-sbcl (declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
                 min-vector))
-(declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
+#-sbcl (declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
                 vector-sum))
-(declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
+#-sbcl (declaim (ftype (function ((simple-array fixnum)) (double-float)) ;
                 vector-mean))
 
 (defun max-vector (v)
   (declare (optimize (speed 3) (debug 0) (safety 0))
-           (type dvec v))
+           #-sbcl (type dvec v))
   (loop for var of-type double-float across v maximize var of-type double-float))
 
 (defun min-vector (v)
   (declare (optimize (speed 3) (debug 0) (safety 0))
-           (type dvec v))
+           #-sbcl (type dvec v))
   (loop for var of-type double-float across v minimize var of-type double-float))
 
 (defun vector-sum (vector)
   (declare (optimize (speed 3) (debug 0) (safety 0))
-           (type dvec vector))
+           #-sbcl (type dvec vector))
   (loop for var of-type double-float across vector summing var of-type double-float))
 
 (defun vector-mean (vector)

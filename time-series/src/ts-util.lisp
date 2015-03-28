@@ -18,7 +18,14 @@
     :initform (error "Must specify the observed timeseries data"))))
 (defgeneric predict (timeseries-model &key n-ahead)
   (:documentation 
-   "Calculate the value based on the timeseries-model for the observed timeseries data."))
+   "Calculate the value based on the timeseries-model for the observed timeseries data.
+- return: (values <time-series-dataset> <time-series-dataset>)
+  - first value is a prediction by model, second is a standard error of the model.
+- arguments:
+  - n-ahead : <non-negative-integer>
+- comments:
+  - In the case of trend model, the trend of last point of observed data continue to future.
+"))
 
 (defgeneric ts-to-sta (d f-name &key external-format fit))
 (defmethod ts-to-sta ((d time-series-dataset) f-name 

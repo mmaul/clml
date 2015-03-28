@@ -11,6 +11,9 @@
 
 (in-package :optics)
 
+
+
+   
 (defclass optics-input ()
   ((input-data :initform nil :initarg :input-data :accessor input-data)
    (distance :initform nil :initarg :distance :accessor distance)
@@ -112,6 +115,8 @@
     (%optics dataset epsilon min-pts r-epsilon
              :distance distance :normalize normalize)))
 
+(defgeneric %optics (numeric-dataset epsilon min-pts r-epsilon
+                    &key distance normalize))
 (defmethod %optics ((numeric-dataset numeric-dataset) epsilon min-pts r-epsilon
                     &key (distance :manhattan) normalize)
   (when normalize
@@ -168,9 +173,11 @@
     (setf (point-objs optics-input) point-objs)
     optics-input))
 
+(defgeneric point ( optics-point-object))
 (defmethod point ((obj optics-point-object))
   (svref (input-data (optics-input obj)) (id obj)))
 
+(defgeneric get-neighbors (input object))
 (defmethod get-neighbors ((input optics-input) object)
   (let* ((d (distance input))
          (e (epsilon input))
@@ -186,6 +193,8 @@
          collect point-obj)
      'vector)))
 
+(defgeneric set-core-d (object
+                       neighbors))
 (defmethod set-core-d ((object optics-point-object) 
                        neighbors)
   (let* ((input (optics-input object))
@@ -204,6 +213,7 @@
       (setf (core-d object) nil))
     (core-d object)))
 
+(defgeneric update (o-seeds neighbors center-obj))
 (defmethod update ((o-seeds order-seeds) neighbors center-obj)
   (let* ((d (distance (optics-input center-obj)))
          (c-d (core-d center-obj)))
@@ -220,6 +230,7 @@
                     (setf (reachability-d obj) r-dist)
                     (decrease o-seeds obj)))))))
 
+(defgeneric insert (o-seeds obj))
 (defmethod insert ((o-seeds order-seeds) obj)
   (if (seeds o-seeds)
       (setf (seeds o-seeds)
@@ -229,11 +240,13 @@
                #'< :key #'reachability-d))
     (setf (seeds o-seeds) `(,obj))))
 
+(defgeneric decrease (o-seeds obj))
 (defmethod decrease ((o-seeds order-seeds) obj)
   (declare (ignore obj))
   (setf (seeds o-seeds)
     (sort (seeds o-seeds) #'< :key #'reachability-d)))
 
+(defgeneric next (o-seeds))
 (defmethod next ((o-seeds order-seeds))
   (let* ((seeds (seeds o-seeds))
          (obj (car seeds))
@@ -241,10 +254,13 @@
     (setf (seeds o-seeds) next-sds)
     obj))
 
+(defgeneric add (output obj))
 (defmethod add ((output optics-output) obj)
   (setf (ordered-data output)
     (append (ordered-data output) `(,obj))))
 
+(defgeneric cluster-numbering (output
+                              input &key a))
 (defmethod cluster-numbering ((output optics-output) 
                               input &key (a 1.01))
   (let* ((r-e (r-epsilon input))
@@ -282,3 +298,4 @@
               (setf (cluster-info output)
                 (sort cluster-info #'< :key #'car))))
        'vector))))
+

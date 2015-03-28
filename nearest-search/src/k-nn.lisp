@@ -18,6 +18,7 @@
    (k :initarg :k :accessor k)
    (distance :initarg :distance :accessor distance)))
 
+(defgeneric estimator-properties (est &key verbose))
 (defmethod estimator-properties ((est k-nn-estimator) &key verbose)
   (with-accessors ((vecs vecs)
                    (explanatories vec-labels)

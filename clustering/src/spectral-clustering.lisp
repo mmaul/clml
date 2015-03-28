@@ -524,7 +524,7 @@
 (defun eigen-hq (a)
   (eigen-by-householder-ql (copy-matrix a)))
 
-
+#|
 (defun eigen-by-jacobi (a)
   (declare (type dmat a))
   (jacobi (copy-matrix a)))
@@ -538,4 +538,4 @@
   (multiple-value-bind (a d e)
       (tred2 (copy-matrix a))
     (tqli d e a)))
-
+|#

@@ -230,7 +230,7 @@
 - reference : [[http://www-stat.stanford.edu/~tibs/ElemStatLearn/][Trevor Hastie, Robert Tibshirani and Jerome Friedman. The Elements of Statistical Learning:Data Mining, Inference, and Prediction]]
 "
   (lparallel:pmap 'vector
-                  (lambda (l)  (make-random-decision-tree unspecialized-dataset objective-column-name :test test)) (make-array tree-number))
+                  (lambda (l)  (declare (ignore l)) (make-random-decision-tree unspecialized-dataset objective-column-name :test test)) (make-array tree-number))
   )
 
 (defun predict-forest (query-vector unspecialized-dataset forest)
@@ -346,7 +346,7 @@
 #+ lparallel
 (defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
   (lparallel:pmap 'vector
-                  (lambda (l)  (make-random-regression-tree unspecialized-dataset objective-column-name )) (make-array tree-number)))
+                  (lambda (l) (declare (ignore l)) (make-random-regression-tree unspecialized-dataset objective-column-name )) (make-array tree-number)))
 
 (defun predict-regression-forest (query-vector unspecialized-dataset forest)
  

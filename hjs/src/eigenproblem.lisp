@@ -920,7 +920,7 @@
                  (setf index (second (multiple-value-list (lu-decomposition clone-a)))
                        flag t))
                (lu-backsbst clone-a index vec))))))
-    (declare (type dvec init-v) (type function lin-eq-solver))
+    (declare (type dvec init-v) #-sbcl (type function lin-eq-solver))
     (labels ((dvmax (v)
                (declare (type dvec v))
                (let ((m most-negative-double-float))

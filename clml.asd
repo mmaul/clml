@@ -1,6 +1,7 @@
 ;;;; clml.asd
-;(in-package "CL-USER")
+(in-package "CL-USER")
 (setq *read-default-float-format* 'double-float)
+#+sbcl (declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
 (eval-when (:compile-toplevel :load-toplevel :execute)
   #+ignore                              ; don't use asdf in this project
   (require :asdf)

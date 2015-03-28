@@ -57,6 +57,7 @@
 (define-condition dimension-unknown-type-error (simple-error)
   ((dimension :initarg :dimension)))
 
+
 (defmethod initialize-instance :after ((d dimension) &key &allow-other-keys)
   (when (not (find (dimension-type d) +known-data-type+))
     (error 'dimension-unknown-type-error
@@ -74,6 +75,8 @@
 		 :type type
 		 :index index
 		 :metadata metadata))
+
+(defgeneric copy-dimension (dimension))
 (defmethod copy-dimension ((dimension dimension))
   (make-dimension (dimension-name dimension)
                   (dimension-type dimension)
@@ -177,6 +180,8 @@
     (dolist (p poses ans)
       (setf (svref ans i) (svref data p))
       (incf i))))
+
+
 (defmethod choice-dimensions (names (unsp-data unspecialized-dataset))
   (let* ((dims (dataset-dimensions unsp-data))
          (poses (mapcar 
@@ -190,6 +195,8 @@
     (loop for vec across (dataset-points unsp-data)
         collect (choice-poses vec poses l) into result
         finally (return (coerce result 'vector)))))
+
+
 (defmethod choice-a-dimension (name (unsp-data unspecialized-dataset))
   (let ((pos (dimension-index
               (find name
@@ -448,6 +455,7 @@
                    :category-points category-data)))
 
 
+;(defgeneric dataset-points (dataset))
 (defmethod dataset-points ((dataset specialized-dataset))
   (ecase (type-of dataset)
     (numeric-and-category-dataset
@@ -518,6 +526,14 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                      :missing-values-list missing-values-list)))))
 
 ;;; function-type: unspecialized-dataset -> specialized-dataset
+
+(defgeneric pick-and-specialize-data (d  &key
+                                     range
+                                     except
+                                     data-types ; :numeric | :category
+                                     store-numeric-data-as-matrix
+                                     )
+ )
 (defmethod pick-and-specialize-data ((d unspecialized-dataset) &key
                                      (range :all)
                                      except
@@ -835,6 +851,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                         numeric-data numeric-indices-new
                         category-data category-indices-new)))))))))
 
+(defgeneric copy-dataset (data))
 (defmethod copy-dataset ((dataset dataset))
   (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
          (copy-pts (pts) (map 'vector #'copy-seq pts))) 
@@ -907,6 +924,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     (list (choice-dimensions ,name ,dataset)))
   )
 
+(defgeneric make-bootstrap-sample (dataset))
 (defmethod make-bootstrap-sample (dataset)
   (let* ((data-pts (dataset-points dataset))
          (n (length data-pts))
@@ -917,6 +935,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
              (copy-seq (svref data-pts (the fixnum (random n))))))
     new-data-pts))
 
+(defgeneric make-bootstrap-sample-datasets (dataset &key number-of-datasets))
 (defmethod make-bootstrap-sample-datasets ((dataset dataset) &key (number-of-datasets 10))
   (assert (and (integerp number-of-datasets) (> number-of-datasets 0)))
   (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
@@ -1095,6 +1114,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                                                :type :category)
                                                  cate-indices))))))
 
+(defgeneric dedup-dataset! (dataset))
 (defmethod dedup-dataset! ((dataset dataset))
   (etypecase dataset
       (numeric-and-category-dataset (error "Unimplemented"))
@@ -1106,6 +1126,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     )
   )
 
+(defgeneric shuffle-dataset! (dataset))
 (defmethod shuffle-dataset! ((dataset dataset))
   "Return copy of vector with elements shuffled like a deck of cards."
   (flet ((shuffle-vector (v)
@@ -1125,7 +1146,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
       (unspecialized-dataset (setf (dataset-points dataset) (shuffle-vector (dataset-points dataset)))))
     ))
 
-
+(defgeneric add-dim (d name type &key points initial-value metadata))
 (defmethod add-dim ((dataset category-dataset) name type &key points initial-value metadata)
   (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
          (copy-pts (pts) (map 'vector #'copy-seq pts))) 
@@ -1216,6 +1237,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
       )))
  
 
+(defgeneric concatenate-datasets (left right))
 (defmethod concatenate-datasets ((left dataset) (right dataset))
   (labels ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
            (copy-pts (pts) (map 'vector #'copy-seq pts))
@@ -1275,7 +1297,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
       )))
 
 
-
+(defgeneric head-points (dataset &optional n))
 (defmethod head-points ((dataset dataset) &optional (n 5))
   "Returns first <n> data points in dataset"
   (let* ((points  (dataset-points dataset))
@@ -1283,6 +1305,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     (subseq points
             0 (if (> n num-points) num-points n)))) 
 
+(defgeneric tail-points (dataset &optional n))
 (defmethod tail-points ((dataset dataset) &optional (n 5))
   "Returns last <n> data points in dataset"
   (let* ((points (dataset-points dataset))
@@ -1290,6 +1313,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     (subseq points
             (- len n) len)))
 
+(defgeneric map-over-dimension! (dataset dim-name fn))
 (defmethod map-over-dimension! ((dataset dataset) dim-name fn)
   "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
   (let* ((dim (find dim-name (dataset-dimensions dataset)
@@ -1302,6 +1326,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                            (:numeric (dataset-numeric-points dataset)))
        do (setf (elt vec idx) (funcall fn (elt vec idx))))))
 
+(defgeneric filter (dataset-in dim-name test))
 (defmethod filter ((dataset-in dataset) dim-name test)
   "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
   (let* ((dataset (copy-dataset dataset-in))
@@ -1356,12 +1381,14 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     dataset)
   )
 
+(defgeneric dataset-name-index-alist (dataset))
 (defmethod dataset-name-index-alist ((dataset dataset))
   (map 'list (lambda (d) (list (dimension-name d) (dimension-index d)) ) (dataset-dimensions dataset  )))
 
 (defun get-dimension-index (name alist)
   (cadr (assoc name alist :test #'string=)))
 
+(defgeneric select-dimension (name data &key selector))
 (defmethod select-dimension (name (data dataset) &key (selector (lambda (x y) (or x y t))))
   (let ((pos
          (loop for pos from 0
@@ -1372,8 +1399,5 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
       (loop for vec across (dataset-points data)
            when (funcall selector data vec)
           collect (aref vec pos) into result
-          finally (return (coerce result 'vector) #|(ecase type 
-                            (:numeric (coerce result 'dvec))
-                            (:category (coerce result 'vector)) ;;
-                            )|#
+          finally (return (coerce result 'vector)  
                           )))))

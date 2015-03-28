@@ -209,7 +209,7 @@
     seq
     ))
 
-(defgeneric remove-customer (dpm seq &rest args))
+
 (defmethod remove-customer ((dpm blocked-hdp-hmm) (seq point-sequence) &rest args)
   (declare (optimize (speed 3) (safety 0) (debug 0))
            #+sbcl (ignorable args))
@@ -418,6 +418,7 @@
 	  (sampling-pi s dpm))
     l))
 
+(defgeneric sampling-pi (state dpm))
 (defmethod sampling-pi ((state blocked-hidden-state) (dpm blocked-hdp-hmm))
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (let ((spi (state-pi state))
