@@ -129,14 +129,19 @@
                                 (directed nil)
                                 (id-name-alist nil)
                                 (labelp nil)
-                                (target-nodes nil))
+                                (target-nodes nil)
+                             )
+  (declare (ignore target-nodes))
   (ecase format
     (:sexp (read-graph-sexp stream :directed directed :id-name-alist id-name-alist :labelp labelp
-                            :target-nodes target-nodes))
+                            ; :target-nodes target-nodes
+                            ))
     (:edgelist (read-graph-edgelist stream :directed directed :id-name-alist id-name-alist 
-                                    :labelp labelp :target-nodes target-nodes))
+                                    :labelp labelp ;:target-nodes target-nodes
+                                    ))
     (:csv (read-graph-csv stream :directed directed :id-name-alist id-name-alist :labelp labelp
-                          :target-nodes target-nodes))))
+                          ;:target-nodes target-nodes
+                          ))))
 ;; :sexp
 (defun read-graph-sexp (stream &key (directed nil) (id-name-alist nil) (labelp nil))
   (let ((id-name-alist (if id-name-alist id-name-alist (read-name-part-sexp stream))))

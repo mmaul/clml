@@ -23,8 +23,6 @@
              (:file "math")
              (:file "statistics")
              (:file "distribution-initial")
-             (:file "distribution-base")
-             (:file "distribution-gamma")
              (:file "distribution" :depends-on ("utilities" "math"))
              (:file "distribution-test")
              (:file "histogram")

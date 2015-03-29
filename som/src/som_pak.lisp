@@ -45,15 +45,15 @@
   
   
   (let ((alpha (/ ialpha 100.0d0))
-	(radius (/ iradius 100.0d0))
-	(data)
-	(g-data)
+        (radius (/ iradius 100.0d0))
+        (data)
+        (g-data)
         (out-pathname)
         (sammon-pathname)
 		(gif-label-pos-list))
     (format t "in-data-file [~a]~%" in-data-file)
     (format t "s-topol[~a] s-neigh[~a] xdim[~d] ydim[~d] nrand[~d]~%"
-	    s-topol s-neigh xdim ydim randomize)
+            s-topol s-neigh xdim ydim randomize)
     (format t "num-label[~d]~%" num-labels)
     
     (format t "step 1 : initialization ~%")
@@ -80,10 +80,10 @@
     
     (format t "step 4 : labeling ~%")
     (setq out-pathname
-      (visual g-data :debug debug :directory directory))
-
+          (visual g-data :directory directory))
+    
     (format t "step 5 : making sammon map~%")
-
+    
     (multiple-value-setq (sammon-pathname gif-label-pos-list)
       (sammon g-data *sammon-length* randomize directory :debug debug))
     
