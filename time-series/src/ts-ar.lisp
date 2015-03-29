@@ -242,13 +242,16 @@
                               (/ num-of-data (- num-of-data (1+ (length (nth pos coef-list))))))
           ;;; consideration for freedom
                            aic-list (when demean (ts-mean d)) :yule-walker)))))))
-
-(defgeneric predict (m &key)
-  (:documentation "- return: (values <time-series-dataset> <time-series-dataset>)
+(defgeneric predict (timeseries-model &key n-ahead)
+  (:documentation 
+   "Calculate the value based on the timeseries-model for the observed timeseries data.
+- return: (values <time-series-dataset> <time-series-dataset>)
   - first value is a prediction by model, second is a standard error of the model.
 - arguments:
-  - model : <ar-model>
-  - n-ahead : <non-negative integer>"))
+  - n-ahead : <non-negative-integer>
+- comments:
+  - In the case of trend model, the trend of last point of observed data continue to future.
+"))
 (defmethod predict ((model ar-model) &key (n-ahead 0))
   (assert (not (minusp n-ahead)))
   (with-accessors ((ts ts-stsp::observed-ts) (demean demean) 

@@ -57,7 +57,7 @@
           (setf sf (/ val n-1)))
       vec)))
 
-(defgeneric eingen-centrality (g &key)
+(defgeneric eigen-centrality (g &key)
   (:documentation "- return: (SIMPLE-ARRAY DOUBLE-FLOAT (* )), vector of centraliry
           DOUBLE-FLOAT, eigenvalue
 - argument:

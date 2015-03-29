@@ -118,6 +118,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.statistics :ts-util :ts-stat :ts-read-data
         :handling-missing-value)
   (:nicknames :ts-stsp)
+  (:shadow :predict)
   (:export 
    #:trend #:trend-prediction
    #:seasonal #:seasonal-adj))
@@ -134,6 +135,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.time-series.statistics
         :clml.time-series.read-data
         :clml.time-series.state-space)
+  (:shadow :predict)
   (:nicknames :ts-ar :ts-autoregression)
   (:export
    #:ar #:ar-prediction
@@ -154,6 +156,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.time-series.read-data
         :clml.hjs.missing-value
         )
+  (:shadow :predict)
   (:nicknames :changefinder)
   (:export :init-changefinder
            :update-changefinder)
@@ -193,6 +196,7 @@ Package for "ChangeFinder"
            :make-eec-detector
            :make-snn
            :e-scores)
+  (:shadow :predict)
   #+allegro
   (:use :excl)
   (:documentation "Direction-based anomaly detector

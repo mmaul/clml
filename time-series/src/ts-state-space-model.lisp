@@ -297,7 +297,16 @@
       :start start :end end :freq (ts-freq org-ts))
      )))
 
-
+(defgeneric predict (timeseries-model &key n-ahead)
+  (:documentation 
+   "Calculate the value based on the timeseries-model for the observed timeseries data.
+- return: (values <time-series-dataset> <time-series-dataset>)
+  - first value is a prediction by model, second is a standard error of the model.
+- arguments:
+  - n-ahead : <non-negative-integer>
+- comments:
+  - In the case of trend model, the trend of last point of observed data continue to future.
+"))
 (defmethod predict ((model gaussian-stsp-model) &key (n-ahead 0))
   "- return: (values <time-series-dataset> <time-series-dataset>)
   - first value is a prediction by model, second is a standard error of the model.
@@ -578,7 +587,6 @@
 (defmethod v-00 ((model seasonal-model))
   (diag (seasonal-mat-size (s-deg model) (s-freq model))
         (dfloat (aref (ts-covariance (observed-ts model)) 0 0))))
-
 
 (defmethod predict ((model seasonal-model) &key (n-ahead 0))
   (kalman-filter model)

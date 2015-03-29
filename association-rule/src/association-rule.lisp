@@ -38,6 +38,9 @@
   (make-instance 'assoc-result-dataset
     :rules rules :thresholds `(,support ,confidence ,lift ,conviction)
     :rule-length rule-length))
+
+(defgeneric assoc-data-out (d stream
+                           &optional control-string))
 (defmethod assoc-data-out ((d assoc-result-dataset) stream
                            &optional (control-string "~S"))
   (let ((*print-level* nil)

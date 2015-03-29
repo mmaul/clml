@@ -139,7 +139,16 @@
 ;;;ANOMALY-DETECTION(253): (anomaly-detection-eb "~/machine-learning/sample/linkdown35-graph-series"
 ;;;                                              "foo.sexp" 12)
 ;;;#<ANOMALY-DETECTOR-EB @ #x100d8ebaf2>
-           
+(defgeneric init-anomaly-detector-eb (gr-series
+                                     &key beta
+                                          pc
+                                          alpha-order
+                                          activity-method
+                                          typical-method
+                                          pagerank-c
+                                          localizep
+                                          ar-conf-coef
+                                          ar-default-var))           
 (defmethod init-anomaly-detector-eb ((gr-series simple-graph-series)
                                      &key (beta nil)
                                           (pc 0.05d0)
@@ -177,6 +186,7 @@
       (setf (window detector) act-vecs (moments detector) moments)
       detector)))
 
+(defgeneric update-detector-eb (detector gr))
 (defmethod update-detector-eb ((detector anomaly-detector-eb) (gr simple-graph))
   (assert (window detector))
   (let* ((act-vec (extract-activity-vector gr :alpha (alpha-order detector)
@@ -198,7 +208,10 @@
                      :local-scores ,(if local-scores local-scores +na+)
                      :moments ,moments)
             detector)))
-            
+
+(defgeneric extract-activity-vector (gr &key method
+                                                           alpha
+                                                           pagerank-c))
 (defmethod extract-activity-vector ((gr simple-graph) &key (method :eigen)
                                                            (alpha 0.01d0)
                                                            (pagerank-c 0.85d0))
@@ -304,6 +317,10 @@
 ;; trial to localize anomaly by using AutoRegressive time-series-model
 ;;
 ;; 局所異常スコア
+(defgeneric calc-local-scores (detector target 
+                              &key ar-default-var)
+  (:documentation "AR on activity-vector:
+ trial to localize anomaly by using AutoRegressive time-series-model"))
 (defmethod calc-local-scores ((detector anomaly-detector-eb) target 
                               &key (ar-default-var *epsilon*))
   (declare (type dvec target))
@@ -346,7 +363,9 @@
       as gaussian = (predict-gaussian-by-ar ts :default-var default-var :order-max ar-order-max)
       as d = (degree-of-outrange gaussian val 
                                  :confidence-coefficient confidence-coefficient)
-      collect d))
+     collect d))
+
+(defgeneric range-by-confidence (dist confidence-coefficient))
 (defmethod range-by-confidence ((dist normal-distribution) confidence-coefficient)
   (let* ((alpha (/ (- 1 confidence-coefficient) 2.0d0))
          (lower-confident-limit (quantile dist alpha))
@@ -378,9 +397,13 @@
   (check-type vec dvec)
   (let ((data (map 'vector (lambda (val) (make-dvec 1 val)) vec)))
     (make-constant-time-series-data '("activity") data)))
-;; ARモデルを生成し、その予測値のガウス分布を求める。
+;; ARモデルを生成し、その予測値のガウス分布を求める。 
+(defgeneric predict-gaussian-by-ar (ts &key default-var
+                                        order-max)
+  (:documentation "Seek a Gaussian distribution of the predicted value"))
 (defmethod predict-gaussian-by-ar ((ts time-series-dataset) &key (default-var *epsilon*)
-                                                                 (order-max nil))
+                                                              (order-max nil))
+  #+sbcl (declare (ignorable order-max default-var))
   (let* ((s^2 (aref (ts-covariance ts) 0 0)))
     (if (> *epsilon* s^2)
         (let* ((val (aref (ts-mean ts) 0))
@@ -477,6 +500,16 @@
           (format out ")"))))
     detector))
 
+(defgeneric init-anomaly-detector-eb-predict (gr-series
+                                             &key ar-k
+                                                  discount
+                                                  threshold
+                                                  activity-method
+                                                  alpha-order
+                                                  pagerank-c
+                                                  localizep
+                                                  ar-conf-coef
+                                                  ar-default-var))
 (defmethod init-anomaly-detector-eb-predict ((gr-series simple-graph-series)
                                              &key (ar-k 1)
                                                   (discount 1d-2)
@@ -515,6 +548,8 @@
       :ar-default-var ar-default-var
       :param-names param-names)))
 
+(defgeneric update-detector-eb-predict (detector
+                                       gr))
 (defmethod update-detector-eb-predict ((detector anomaly-detector-eb-predict)
                                        (gr simple-graph))
   (assert (sdar detector))
@@ -545,6 +580,9 @@
                          :local-scores ,(if local-scores local-scores +na+))
                 detector)))))
 
+(defgeneric update-sdar-as-detector (sdar new-xt
+                                    &key discount
+                                         threshold))
 (defmethod update-sdar-as-detector ((sdar ts-autoregression::sdar) new-xt
                                     &key (discount 0.01d0)
                                          (threshold 5d0))
@@ -583,6 +621,29 @@
 ;;                         nilなら全て*default-sigma-i*の値となる
 ;; independent-pairs : 独立なパラメータ名のペア(cons) のリスト -> 相関を強制的に 0 にする
 (defparameter *default-sigma-i* 1d0)
+(defgeneric e-scores (target-run
+                     reference-runs
+                     &key k
+                          sigma-list
+                          independent-pairs
+                          benchmarkp
+                          smoothing
+                          smoothing-args
+                          cor-alpha
+                          cor-hash
+                       print-status)
+  (:documentation ";; SNN
+;; T.Ide, S.Papadimitriou, M.Vlachos
+;; 'Computing Correlation Anomaly Scores using Stochastic Nearest Neighbors'
+;; 論文中の E score を target run multiple および 複数の reference run から算出する。calculated from
+;; target-run            : target runである時系列データによる numeric-dataset
+;; reference-runs        : reference runである時系列データ達による numeric-dataset のリスト
+;; k                     : 近傍数
+;; sigma-list            : 各パラメータに対応するsigma_iの値のリスト、
+;;                         並びはtarget-runやreference-runsのカラムの並びに対応
+;;                         nilなら全て*default-sigma-i*の値となる
+;; independent-pairs : 独立なパラメータ名のペア(cons) のリスト -> 相関を強制的に 0 にする
+"))
 (defmethod e-scores ((target-run numeric-dataset)
                      reference-runs
                      &key (k 3)
@@ -749,6 +810,7 @@
   ((dataset :initarg :dataset :accessor dataset)
    (snns    :initarg :snns    :accessor snns)))
 
+(defgeneric print-neighbors (model name))
 (defmethod print-neighbors ((model snn-model) name)
   (let* ((names (map 'vector #'dimension-name (dataset-dimensions (dataset model))))
          (id (position name names :test #'equal)))
@@ -764,6 +826,14 @@
               (princ (format nil "No neighbor~%")))))
       (error "There is no ~A" name))))
 
+(defgeneric make-snn-model (d &key k
+                               independent-pairs
+                               sigma-list
+                               bench
+                               smoothing
+                               smoothing-args
+                               cor-alpha
+                               cor-hash))
 (defmethod make-snn-model ((d numeric-dataset) &key (k nil) 
                                                     (independent-pairs nil)
                                                     (sigma-list nil)
@@ -788,6 +858,12 @@
     (assert (equal `(,size ,size) (array-dimensions wmat)))
     (make-instance 'snn-model :dataset d :snns snns)))
 
+
+(defgeneric dissimilarity-matrix (d &key independent-pairs
+                                                          smoothing
+                                                          smoothing-args
+                                                          cor-alpha
+                                                          cor-hash))
 (defmethod dissimilarity-matrix ((d numeric-dataset) &key (independent-pairs nil)
                                                           (smoothing nil)
                                                           (smoothing-args nil)
@@ -879,6 +955,7 @@
          (abs (- (coupling-tightness ref-nbrs test-cp-alist)
                  (coupling-tightness ref-nbrs ref-cp-alist))))))                                     
 
+(defgeneric %e-scores (test-model ref-model))
 (defmethod %e-scores ((test-model snn-model) (ref-model snn-model))
   (let ((test-d (dataset test-model))
         (ref-d (dataset ref-model)))
@@ -1119,6 +1196,12 @@
                                    (local-moments-list detector) initial-local-moments-list)))
                 (return (if benchmarkp (values detector bench) detector)))))
 
+(defgeneric update-anomaly-detector-eec (detector point
+                                        &key new-param-pos-alist
+                                             removed-params
+                                             new-param-graph
+                                             local-params
+                                             bench))
 (defmethod update-anomaly-detector-eec ((detector anomaly-detector-eec) point
                                         &key (new-param-pos-alist nil)
                                              (removed-params nil)
@@ -1173,6 +1256,7 @@
                          for cov-obj in local-covs
                          do (update-matrix-covariance cov-obj local))))))))
 
+(defgeneric update-window (detector point))
 (defmethod update-window ((detector anomaly-detector-eec) point)
   (declare (type dvec point))
   (let* ((n (length (params detector)))
@@ -1189,6 +1273,7 @@
                 finally (return new-point)))))
     (setf (window detector) (concatenate 'vector
                               (subseq (window detector) 1) `(,new-point)))))
+(defgeneric update-params (detector point new-param-pos-alist removed-params))
 (defmethod update-params ((detector anomaly-detector-eec) point new-param-pos-alist removed-params)
   (assert (eql (length point) (+ (length (params detector))
                                  (length (new-params detector))
@@ -1197,6 +1282,8 @@
   (when removed-params (remove-params detector removed-params new-param-pos-alist))  
   (new-params-to-params detector)
   (add-new-params detector point new-param-pos-alist))
+
+(defgeneric remove-params (detector target-params new-param-pos-alist))
 (defmethod remove-params ((detector anomaly-detector-eec) target-params new-param-pos-alist)
   (setf (new-params detector) 
     (loop with new-poss = (mapcar #'cdr new-param-pos-alist)
@@ -1226,6 +1313,8 @@
                     (window detector) (transposev (coerce vecs 'vector))
                     (local-covs detector) local-covs
                     (local-moments-list detector) local-moments-list)))
+
+(defgeneric add-new-params (detector point new-param-pos-alist))
 (defmethod add-new-params ((detector anomaly-detector-eec) point new-param-pos-alist)
   (declare (type dvec point))  
   (loop for plis in (new-params detector)
@@ -1237,6 +1326,7 @@
       as plis = `(:name ,new-param :pos ,pos :vals (,val))
       do (push plis (new-params detector))))
 (let ((last-window))
+  (defgeneric new-params-to-params (detector))
   (defmethod new-params-to-params ((detector anomaly-detector-eec))
     (with-accessors ((w window-size)
                      (new-params new-params)
@@ -1268,6 +1358,8 @@
             as n = (length vals)
             when (= n w)
             return (map 'vector #'copy-seq (window detector)))))))
+
+(defgeneric update-local-covs (detector new-vecs new-poss last-window))
 (defmethod update-local-covs ((detector anomaly-detector-eec) new-vecs new-poss last-window)
   (let ((new-local-mats-list)
         (new-local-covs))
@@ -1298,6 +1390,7 @@
                      new-local-covs
                      new-poss))))
 
+(defgeneric update-global-moments (detector g-score))
 (defmethod update-global-moments ((detector anomaly-detector-eec) g-score)
   (with-accessors ((moms global-moments)) detector
     (multiple-value-bind (thld new-mom) (score-threshold g-score
@@ -1307,6 +1400,8 @@
                                                          :pc (pc detector))
       (setf (global-moments detector) new-mom)
       thld)))
+
+(defgeneric update-local-moments (detector l-scores))
 (defmethod update-local-moments ((detector anomaly-detector-eec) l-scores)
   (with-accessors ((moms-list local-moments-list)) detector
     (loop for i from 0
@@ -1329,6 +1424,14 @@
 ;; output: global 特徴量(vector)
 ;;         local 特徴量(3x3matrix) のリスト ( 順番は入力 d のカラム名に対応 )
 ;;         clustering 結果
+(defgeneric calc-eec-features (detector &key bench)
+  (:documentation "
+Feature quantity calculation 
+
+ Output: global feature value (vector)
+   List of local feature value (3x3matrix) ( order corresponding to the column name of the input d)
+   Clustering result
+"))
 (defmethod calc-eec-features ((detector anomaly-detector-eec) &key (bench nil))
   (with-accessors ((pts window)
                    (params params)
@@ -1448,12 +1551,14 @@
           (t (do-vec (val pck*psi :type double-float :setf-var sf :return pck*psi)
                (setf sf (/ val denom)))))))
 (defun proj-by-ck (vec ck dim)
-  "クラスタリング ck による射影"
+  "The projection by clustering ck"
   (loop with projed = (make-dvec (length vec) 0d0)
       for i in ck
       do (assert (< i dim))
          (setf (aref projed i) (aref vec i))
       finally (return projed)))
+
+(defgeneric get-weight-mat (detector))
 (defmethod get-weight-mat ((detector anomaly-detector-eec))
   (with-accessors ((params params)
                    (gr param-graph)) detector
@@ -1569,6 +1674,8 @@
         do (setf xy-mat (mcm xy-mat (xy-mat x-vec y-vec) :c #'+))
         finally (setf xy-mat (c*mat (dfloat (/ n)) xy-mat)))
     (make-instance 'covariance :xy-mat-expec xy-mat :x-mean-vec x-mu :y-mean-vec y-mu :n n)))
+
+(defgeneric update-covariance (cov x-vec y-vec))
 (defmethod update-covariance ((cov covariance) x-vec y-vec)
   (let ((new-xy-mat (xy-mat x-vec y-vec)))
     (setf (xy-mat-expec cov) (update-mat-expec (xy-mat-expec cov) (n cov) new-xy-mat)
@@ -1576,6 +1683,8 @@
           (y-mean-vec cov) (update-vec-expec (y-mean-vec cov) (n cov) y-vec)
           (n cov) (1+ (n cov)))
     cov))
+
+(defgeneric get-covariance (cov))
 (defmethod get-covariance ((cov covariance))
   (let* ((dims (array-dimensions (xy-mat-expec cov)))
          (cov-mat (make-array dims :element-type 'double-float))
@@ -1614,7 +1723,15 @@
    (mean-mat :initarg :mean-mat :accessor mean-mat)
    (x-col :initarg :x-col :accessor x-col)
    (x-row :initarg :x-row :accessor x-row)
-   (n :initarg :n :accessor n)))
+   (n :initarg :n :accessor n))
+  (:documentation "
+Variance-covariance matrix calculation class of  matrix value data
+ - Initialization : init-matrix-covariance
+ - Update : update-matrix-covariance
+ - Covariance value : get-matrix-covariance
+ - Average value : mean-mat
+ Ref. Gupta, Nagar 'MATRIX VARIATE DISTRIBUTIONS'
+"))
 (defun init-matrix-covariance (mats)
   (declare (type (vector dmat) mats))
   (check-type mats (vector dmat))
@@ -1642,6 +1759,8 @@
         finally (return hash))))
 (defun get-row-series (n hash)
   (coerce (reverse (gethash n hash)) 'vector))
+
+(defgeneric update-matrix-covariance (model new-mat))
 (defmethod update-matrix-covariance ((model matrix-covariance) new-mat)
   (with-accessors ((x-col x-col)
                    (x-row x-row)
@@ -1656,6 +1775,8 @@
         do (loop for row below x-row
                as row-x-row = (nth row rows)
                do (update-covariance (aref covs col row) row-x-row col-x-row)))))
+
+(defgeneric get-matrix-covariance (model))
 (defmethod get-matrix-covariance ((model matrix-covariance))
   (with-accessors ((x-col x-col) (x-row x-row) (covs covs)) model
     (let* ((dim (* x-col x-row))

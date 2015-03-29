@@ -61,7 +61,7 @@
   ;; ...
   )
 ||#
-
+(defgeneric get-node (gr id &optional name))
 (defmethod get-node ((gr simple-graph) id &optional (name ""))
   (assert (integerp id))
   (let ((htab (node-hashtab gr)))
@@ -69,7 +69,10 @@
         (let ((node (make-node :id id :name name)))
           (push node (nodes gr))
           (setf (gethash id htab) node)))))
+
+(defgeneric get-link (gr nid1 nid2 &key weight))
 (defmethod get-link ((gr simple-graph) nid1 nid2 &key (weight 1d0))
+  #+sbcl (declare (ignorable weight))
   (assert (and (integerp nid1) (integerp nid2)))
   (let ((htab (link-hashtab gr))
         (directed (directed-p gr)))

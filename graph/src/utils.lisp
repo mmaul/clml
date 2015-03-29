@@ -1,6 +1,7 @@
 ;-*- coding: utf-8 -*-
 (in-package :clml.graph.graph-utils)
 
+(defgeneric retrieve-node (gr id-or-name))
 (defmethod retrieve-node ((gr simple-graph) id-or-name)
   (etypecase id-or-name
     (fixnum (gethash id-or-name (read-graph::node-hashtab gr)))
@@ -8,7 +9,8 @@
                 as name = (node-name node)
                 when (equal name id-or-name)
                 return node))))
-     
+
+(defgeneric retrieve-link (gr nid1-or-name nid2-or-name))
 (defmethod retrieve-link ((gr simple-graph) nid1-or-name nid2-or-name)
   (let ((node1 (retrieve-node gr nid1-or-name))
         (node2 (retrieve-node gr nid2-or-name))
@@ -25,6 +27,13 @@
 ;; 隣接ノードを取り出す。
 ;; output: alist: key: <node> val: weight
 ;; 無い場合は nil
+(defgeneric adjacency (nd gr)
+  (:documentation "
+ I take out the adjacent node .
+Output:
+- alist: key: <node> val: weight
+  If not nil
+"))
 (defmethod adjacency ((nd node) (gr simple-graph))
   (loop with nid = (node-id nd)
       for link in (if (directed-p gr)
@@ -38,6 +47,9 @@
       collect (cons adj w)))
 
 ;; <simple-graph> から隣接行列を取り出す。
+(defgeneric adjacency-matrix (gr)
+  (:documentation "Take adjacency matrix from simple graph"))
+
 (defmethod adjacency-matrix ((gr simple-graph))
   (let* ((size (length (nodes gr)))
          (mat (make-array `(,size ,size) :element-type 'double-float
@@ -52,6 +64,10 @@
         finally (return mat))))
 
 ;; 連結なノードの集合を集める
+(defgeneric get-connected-components (gr)
+  (:documentation "
+ Collect a set of connected nodes
+"))
 (defmethod get-connected-components ((gr simple-graph))
   (let ((node-buffs (mapcar (lambda (node) (prog1 (node-buff node) (setf (node-buff node) nil)))
                             (nodes gr))))

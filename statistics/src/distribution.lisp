@@ -183,10 +183,7 @@
 		   (if populationp (length sequence) (1- (length sequence))))
 		'double-float)))
 
-(defun sum-on-deviation (function sequence)
-  (let ((mean (mean sequence)))
-    (reduce (lambda (sum x) (+ sum (funcall function (- x mean)))) sequence
-	    :initial-value 0)))
+
 
 (defgeneric skewness (obj))
 (defmethod skewness ((sequence sequence))
@@ -1335,9 +1332,9 @@ otherwise it uses the beta distribution quantile."
   "Maximum likelihood estimate."
   (geometric-distribution (/ trials)))
 
-(defgeneric elements (obj))
+#|(defgeneric elements (obj))
 (defgeneric successes (obj))
-(defgeneric samples (obj))
+(defgeneric samples (obj))|#
 ;;; 13. Hypergeometric Distribution
 (eval-when (:compile-toplevel :load-toplevel)
   #|

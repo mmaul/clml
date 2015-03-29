@@ -12,6 +12,26 @@
 ;;        data-structure, :list | :binary | :binomial | :fibonacci, どのデータ構造を用いるか
 ;; output: 最短経路
 ;;         最短距離
+
+(defgeneric find-shortest-path-dijkstra (gr start-id-or-name
+                                        &key end-id-or-name 
+                                             data-structure
+                                          )
+  (:documentation "
+Seek the shortest path and the shortest distance to each node by the Dijkstra 's algorithm .
+If you specify the  end node ID, the calculation returns immediately.  Otherwise the shortest
+route and the shortest distance from the start point to the end point.  Nil is returned if there is no path
+Input:
+ - gr, <simple-graph>
+ - Start-id-or-name, ID or name of the start node
+ - End-id-or-name, ID or the name of the destination node
+ - Data-structure,: list |: binary |: binomial |: fibonacci, or use any data structure
+
+Output:
+ -shortest path
+Shortest distance
+")
+  )
 (defmethod find-shortest-path-dijkstra ((gr simple-graph) start-id-or-name
                                         &key (end-id-or-name nil)
                                              (data-structure :binary)
@@ -74,6 +94,8 @@
                     (t (loop for node in (remove start nodes :test #'eq)
                            collect (get-path-distance node)))))))))))
 ;; (最短)距離行列を求める
+(defgeneric graph-distance-matrix (gr &optional path-mat-p)
+  (:documentation "Shortest path - distance matrix"))
 (defmethod graph-distance-matrix ((gr simple-graph) &optional (path-mat-p nil))
   (let* ((nodes (nodes gr))
          (n (length nodes))
