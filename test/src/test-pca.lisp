@@ -30,7 +30,7 @@
                              #(0.7071067811865478d0 0.7071067811865472d0))
                            (clml.pca:loading-factors pca-model)
                            :test (lambda (v1 v2) (epsilon> (abs v1) (abs v2))))
-      (print (clml.pca:centroid pca-result))
+      
       (assert-a-point-equal #(1.2262030207235688d0 185.75242109488684d0)
                             (clml.pca:centroid pca-result)
                             )

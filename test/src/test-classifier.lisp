@@ -51,7 +51,7 @@
       (assert-true (> per 0.90))
       )
     (multiple-value-bind (true false per) (classify-decision-tree test train "type" :double-manhattan)
-      (print per)
+      
       (assert-equalp true 1901)
       (assert-equalp false 200)
       (assert-true (> per 0.90))

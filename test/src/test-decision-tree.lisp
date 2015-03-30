@@ -3,7 +3,6 @@
 (define-test test-decision-tree
     (let (syobu bc-train bc-test cars tree query)
       
-      ;(setf syobu (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv") :type :csv :csv-type-spec '(string integer integer integer integer)))
       (setf syobu (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv") :type :csv 
                                                      :csv-type-spec
 						    '(string integer integer integer integer)))

@@ -1,15 +1,15 @@
 (in-package :clml.test)
 
-(defparameter *statistics-group* '(
+(defparameter *statistics-tests* '(
                                    test-sample-stat
                                    ))
 
-(defparameter *decision-tree-group* '(
+(defparameter *decision-tree-tests* '(
                                       test-decision-tree
                                       test-random-forest
                                       ))
 
-(defparameter *clustering-test-group* '(
+(defparameter *clustering-tests* '(
                                         test-sample-cluster-validation
                                         test-sample-spectral-clustering
                                         test-sample-w
@@ -21,7 +21,7 @@
                                         ))
 
 
-(defparameter *time-series-test-group* '(
+(defparameter *time-series-tests* '(
                                          test-sample-ts-ar
                                          test-ts-burst-detection
                                          test-sample-ts-read-data
@@ -30,11 +30,11 @@
                                          test-sample-expl-smthing
                                          ; disabled tests due to blass:dgemm not handling multi-dimensional arrays
                                          ;test-ts-anomaly-detection
-                                         ;test-changefinder
+                                         test-changefinder
                                          ))
 
 
-(defparameter *svm-test-group* '(test-sample-svm
+(defparameter *svm-tests* '(test-sample-svm
                                  svm.smo.kernels
                                  smo.svm
                                  test-pwss3-kernels
@@ -45,27 +45,31 @@
                                  test-svr
                                  ))
 
-(defparameter *classifiers-test-group* '(test-sample-linear-regression
+(defparameter *classifiers-tests* '(test-sample-linear-regression
                                          simple-linear-regression-case
                                          multi-linear-regression-case
                                          test-nbayes))
 
-(defparameter *association-rule-test-group* '(test-sample-assoc))
+(defparameter *association-rule-tests* '(test-sample-assoc))
 
-(defparameter *nonparametric-test-group* '(
+(defparameter *nonparametric-tests* '(
                                         ;test-sample-dpm ; gaussian-dpm does not exist
                                         ;test-sample-hdp-lda
                                            ))
-(defparameter *som-test-group* '(test-sample-som))
+(defparameter *som-tests* '(test-sample-som))
 
-(defparameter *text-test-group* '(test-sample-text-utils))
+(defparameter *text-tests* '(test-sample-text-utils))
 
-(defparameter *pca-group* '(test-sample-pca))
+(defparameter *pca-tests* '(test-sample-pca))
 
-(defparameter *hjs-group* '(matrix-vecs-conversion-test
+(defparameter *hjs-tests* '(matrix-vecs-conversion-test
                             matrix-transpose-test
                             matrix-m*m-test
                             test-sample-read-data
                             test-ps
                             test-fill-rem
                             test-spline))
+(defparameter *all-tests* (append *statistics-tests* *decision-tree-tests* *clustering-tests*
+                                  *time-series-tests* *svm-tests* *classifiers-tests*
+                                  *association-rule-tests* *nonparametric-tests*
+                                  *som-tests* *text-tests* *pca-tests* *hjs-tests*))

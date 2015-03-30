@@ -72,5 +72,19 @@
   ;(:import-from "SPECTRAL-CLUSTERING" "*SAMPLE-W*")
   ;(:import-from "K-MEANS" "MANHATTAN-DISTANCE")
   ;(:import-from "HC" "NUMERIC-MATRIX" "PICK-UP-COLUMN" "PICK-UP-ROW")
+  (:export :run-test
+           :run-all-tests
+           *statistics-tests*
+           *decision-tree-tests*
+           *clustering-tests*
+           *time-series-tests*
+           *svm-tests*
+           *classifiers-tests*
+           *association-rule-tests*
+           *nonparametric-tests*
+           *som-tests*
+           *text-tests*
+           *pca-tests*
+           *hjs-tests*)
   )
 
