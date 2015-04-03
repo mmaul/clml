@@ -192,7 +192,7 @@
                     (a*b-i-j x h^t i j))
 		 (a*b-i-j wh h^t i j)))))))
     
-    ;;(print (norm (m- x (m-times-n w h))))
+    
     (values w h)))
 
 #+ignore
@@ -445,7 +445,7 @@
   (flet (( f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))
                                                                  'fixnum)) v)))
     (let* ((avc (average-consensus-matrix
-                 (coerce-2d-array matrix 'fixnum (lambda (x) (print x) (floor x)))
+                 (coerce-2d-array matrix 'fixnum (lambda (x)  (floor x)))
                  k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
            (d (sim-mat->dis-mat avc))
            (u (cophenetic-matrix d)))
@@ -563,12 +563,14 @@
 
 *** sample usage
 #+INCLUDE: \"../sample/nmf-analysis.org\" example lisp"
-  (multiple-value-bind (weight feature) (nmf matrix k :cost-fn cost-fn :iteration iteration)
-    (cond ((eq type :row)
-	   (result-row-data weight :results results))
-	  ((eq type :column)
-	   (result-column-data feature :results results))
-	  (t (error "illegal keyword parameter.")))))
+  (let ((v
+         (multiple-value-bind (weight feature) (nmf matrix k :cost-fn cost-fn :iteration iteration)
+             (cond ((eq type :row)
+                    (result-row-data weight :results results))
+                   ((eq type :column) 
+                    (result-column-data feature :results results))
+                   (t (error "illegal keyword parameter."))))))
+    v))
 
 
 (defun make-term-index (unspecialized-dataset)
@@ -793,7 +795,10 @@
 (defun column-adjusting-factor (matrix column-number)
   "TODO: enable in SBCL"
   (let* ((column-power-vector-v (column-power-vector matrix))
-         (max-column-power (max-vector (coerce  column-power-vector-v '(simple-array fixnum))))
+         (max-column-power (max-vector
+                            #+sbcl column-power-vector-v
+                            #-sbcl (coerce  column-power-vector-v '(simple-array fixnum))
+                            ))
          (semantic-weight 1.7))
     (/ (* semantic-weight max-column-power)
        (aref column-power-vector-v column-number))))
@@ -802,7 +807,9 @@
 (defun row-adjusting-factor (matrix row-number)
   "TODO: enable in SBCL"
   (let* ((row-power-vector (row-power-vector matrix))
-         (max-row-power (max-vector (coerce  row-power-vector '(simple-array fixnum))))
+         (max-row-power (max-vector
+                         #+sbcl row-power-vector
+                         #-sbcl (coerce  row-power-vector '(simple-array fixnum))))
 	 (semantic-weight 1.7))
     (/ (* semantic-weight max-row-power)
        (aref row-power-vector row-number))))
@@ -824,24 +831,24 @@
 #+INCLUDE: \"../sample/nmf-search.org\" example lisp
 "
   (cond ((eq type :row)
-	 (assert (< -1 row-or-column-number (array-dimension matrix 0)))
-	 (nmf-analysis (row-theme-weighting matrix row-or-column-number) 1 
-		       :type type :iteration iteration :results results))
-	((eq type :column)
-	 (assert (< -1 row-or-column-number (array-dimension matrix 1)))
-	 (nmf-analysis (column-theme-weighting matrix row-or-column-number) 1 
-		       :type type :iteration iteration :results results))
-	(t (error "illegal keyword parameter."))))
+                (assert (< -1 row-or-column-number (array-dimension matrix 0)))
+                (nmf-analysis (row-theme-weighting matrix row-or-column-number) 1 
+                              :type type :iteration iteration :results results))
+               ((eq type :column) 
+                (assert (< -1 row-or-column-number (array-dimension matrix 1)))
+                (nmf-analysis (column-theme-weighting matrix row-or-column-number) 1 
+                              :type type :iteration iteration :results results))
+               (t (error "illegal keyword parameter.")))
+  )
 
 
 (defun column-theme-weighting (matrix column-number)
-  (let ((adjusting-factor (column-adjusting-factor matrix column-number))
-	(new-matrix (copy-matrix matrix)))
-    
-    (dotimes (i (array-dimension matrix 0) new-matrix)
-      (dotimes (j (array-dimension matrix 1))
-	(when (= j column-number)
-	  (setf (aref new-matrix i j) (* adjusting-factor (aref new-matrix i j))))))))
+    (let ((adjusting-factor (column-adjusting-factor matrix column-number))
+          (new-matrix (copy-matrix matrix)))
+      (dotimes (i (array-dimension matrix 0) new-matrix)
+        (dotimes (j (array-dimension matrix 1))
+          (when (= j column-number)
+            (setf (aref new-matrix i j) (* adjusting-factor (aref new-matrix i j))))))))
 
 
 (defun row-theme-weighting (matrix row-number)
