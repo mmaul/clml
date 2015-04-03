@@ -37,30 +37,37 @@ The dataset for time-series data. Values are specialized in numeric"))
                                   (ts-type :constant)
                                   (range :all) except
                                   time-label)
+  
   (with-accessors ((dims dataset-dimensions)
                    (pts dataset-points)) d
   (assert (or (integerp start) (integerp (car start))))
   (assert (or (null end) (integerp end) (integerp (car end))))
+  
   (when (integerp start)
     (setq start (list start 1)))
   (when (integerp end)
     (setq end (list end 1)))
   (assert (every #'(lambda (num) (>= num 1))
                  `(,(first start) ,(second start) ,frequency)))
+
   (let* ((total-size (length dims))
          (range1 (if (eq range :all)
                      (loop for i below total-size collect i)
                    range))
          (range (sort (set-difference range1 except) #'<))
+         
          (column-names
           (loop for index in range
               collect (dimension-name (aref dims index))))
+         
          (size (length column-names))
          (time-labels (when time-label
            (map 'vector (lambda (p) (declare (simple-vector p))
                                 (format nil "~A" (svref p time-label))) pts)))
+         
          (time-label-name (when time-label
                             (dimension-name (svref dims time-label))))
+         
          (data
           (map 'vector
             (lambda (p)
@@ -75,6 +82,7 @@ The dataset for time-series data. Values are specialized in numeric"))
                          (if (na-p p-val) +nan+ (coerce p-val 'double-float)))
                     finally (return sp))))
             pts)))
+    
     (case ts-type 
       (:constant
        (make-constant-time-series-data
@@ -142,9 +150,10 @@ The dataset for time-series data. Values are specialized in numeric"))
   (assert (= (length data) (length time-labels)))
   (let ((dimensions
          (make-array (list (length all-column-names)) :element-type 'dimension
-                     :initial-element (make-dimension 0 :numeric 0))
+                     :initial-element (make-dimension "" :numeric 0))
           )
         (ts-len (length data)))
+    
     (loop
         for n in all-column-names
         for i from 0
