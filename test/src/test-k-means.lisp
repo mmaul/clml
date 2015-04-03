@@ -2,7 +2,7 @@
 (in-package :clml.test)
 
 (define-test test-sample-k-means
-    (let (dataset)
+    (let (dataset centroids result)
       (assert-true
        (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #-allegro :sjis)))
       (assert-true
