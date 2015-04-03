@@ -66,7 +66,7 @@
   (loop for var of-type double-float across v minimize var of-type double-float))
 
 (defun vector-sum (vector)
-  (declare (optimize (speed 3) (debug 0) (safety 0))
+  #-sbcl (declare (optimize (speed 3) (debug 0) (safety 0))
            #-sbcl (type dvec vector))
   (loop for var of-type double-float across vector summing var of-type double-float))
 
