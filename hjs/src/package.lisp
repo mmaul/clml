@@ -75,34 +75,36 @@
 	   #:ncol
 	   #:transpose
 	   #:transposeV
-           #:trans
+       #:trans
 	   #:dmat
 	   #:specialize-mat
-           #:diag
-           #:vcv
-           #:mcm
-           #:vdotv
-           #:m*v
-           #:m*m
-           #+mkl #:symat-ev
-           #:m^-1
-           #:tr
-           #:det
-           #+mkl #:solve-linear-eq
-           #:make-dmat
-           #:append-mat
-           #:standard-deviations-from-covariance
-           #:standard-deviations
-           #:covariance-matrix
-           #:correlation-matrix
-           #:standardize
-           #:regularize-covariance
-           #:vecs2mat
-           #:vecs2flatmat
-           #:mat2vecs
-           #:flatmat2vecs
-           #:row-aref
-           #:c*mat
+       #:diag
+       #:vcv
+       #:mcm
+       #:vdotv
+       #:m*v
+       #:m*m
+       #+mkl #:symat-ev
+       #:m^-1
+       #:tr
+       #:det
+       #+mkl #:solve-linear-eq
+       #:make-dmat
+       #:append-mat
+       #:standard-deviations-from-covariance
+       #:standard-deviations
+       #:covariance-matrix
+       #:correlation-matrix
+       #:standardize
+       #:regularize-covariance
+       #:vecs2mat
+       #:vecs2flatmat
+       #:mat2vecs
+       #:flatmat2vecs
+       #:row-aref
+       #:c*mat
+       #:array2mat
+       #:mat2array
 	   ))
 
 (defpackage :clml.hjs.missing-value

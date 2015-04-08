@@ -115,6 +115,7 @@
   (:import-from :cl-fad #:pathname-as-directory #:directory-exists-p)
   #+allegro
   (:use :excl)
+  ;(:shadow #:predict)
   (:export ))
 
 
