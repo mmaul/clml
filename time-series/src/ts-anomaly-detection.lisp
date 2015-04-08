@@ -22,22 +22,27 @@
 (defmethod make-db-detector ((ts time-series-dataset)
                              &key beta (typical :svd) (pc 0.005d0) (normalize t))
   (assert (< 0d0 pc 1d0) (pc))
+  
   (let* ((dim (length (dataset-dimensions ts)))
          
          (vecs (map 'list
                  (lambda (p) (let ((vec (ts-p-pos p)))
                                (if normalize (normalize-vec vec (copy-seq vec)) vec)))
                  (ts-points ts)))
+         
          (moments (get-initial-moments vecs :typical-method typical)))
     
     (unless beta (setf beta (dfloat (/ (length vecs)))))
+    
     (lambda (new-dvec)
       (assert (eql (length new-dvec) dim))
       (let* ((vec (if normalize (normalize-vec new-dvec (copy-seq new-dvec)) new-dvec))
              (typ (calc-typical-pattern vecs :method typical))
              (score (dissimilarity typ vec)))
+        
         (setf moments (next-moments score moments beta)
               vecs (append (cdr vecs) (list vec)))
+        
         (values score (multiple-value-bind (n-1 sigma)
                           (estimate-vmf-parameters moments)
                         (vmf-threshold n-1 sigma pc))
@@ -492,6 +497,7 @@
 ;;;;;;;;;;;;;;;;;;;
 ;; SVD による典型的パターン抽出
 (defun typical-pattern-svd (act-vecs)
+  
   (let* ((n (length act-vecs))
          (m (length (car act-vecs)))
          (cmat (make-array `(,n ,m) :element-type 'double-float
@@ -511,20 +517,27 @@
       (third (multiple-value-list
               #+mkl
               (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
-              ; dragons be here - errors is not of type (VECTOR DOUBLE-FLOAT)
               #-mkl           
-              (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info))))
+              (let ((a-cmat (clml.hjs.matrix:mat2array cmat))
+                    (a-u (clml.hjs.matrix:mat2array u))
+                    (a-vt (clml.hjs.matrix:mat2array vt)))
+                ;; TODO problem reutns nil
+                (clml.lapack::dgesvd "S" "N" m n a-cmat lda s a-u ldu a-vt ldvt work lwork info)
+                ))))
+    
     (assert (= info 0))    
     (do-vec (_ pattern :type double-float :setf-var sf :index-var i)
       #-sbcl (declare (ignore _))
-      (let ((val (abs (aref result 0 i)))) (setf sf (if (> *epsilon* val) 0d0 val))))
+      (let ((val (abs (aref result 0 i))))  (setf sf (if (> *epsilon* val) 0d0 val))))
     pattern))
 ;; 平均
 (defun typical-pattern-mean (act-vecs)
+  
   (let* ((dim (length (car act-vecs)))
          (size (length act-vecs))
          (pattern (make-dvec dim 0d0)))
     (declare (type integer dim size))
+    
     (loop for act-vec in act-vecs
         do (do-vecs ((_ pattern :type double-float :setf-var sf)
                      (val act-vec :type double-float))
@@ -551,8 +564,10 @@
 ;; moment の初期値を求める
 (defun get-initial-moments (act-vecs &key (typical-method :svd))
   (let* ((window-size (length act-vecs))
+         
          (typ-vec (calc-typical-pattern (subseq act-vecs 0 (1- window-size))
                                         :method typical-method))
+         
          (act-vec (nth (1- window-size) act-vecs))
          (dissim (dissimilarity typ-vec act-vec)))
     (cons dissim (expt dissim 2))))

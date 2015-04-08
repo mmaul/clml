@@ -67,7 +67,7 @@
       
       (let* ((train-for-score-model
               (smoothing (map 'list (lambda (p) 
-                                       (update-ts-score cf (ts-p-pos p)) )
+                                      (update-ts-score cf (coerce (ts-p-pos p) '(simple-array double-float (*)))) )
                               (subseq (ts-points ts) sdar-k))
                          score-wsize))
              (ts (make-constant-time-series-data '("smthed-score")
@@ -80,10 +80,11 @@
                   do (ts-ar::update-xt-array score-sdar dvec)
                   finally (return (multiple-value-bind (mu s) (ts-ar::predict-sdar score-sdar)
                                     `(:pt-1 ,(multi-gaussian mu s) :pt nil))))))
+        
         (setf (score-model cf) score-sdar
               (last-qt-stats cf) last-qt-stats)
         (loop for p across (subseq (ts-points ts) sdar-k) do 
-              (update-score cf (ts-p-pos p)))
+             (update-score cf (ts-p-pos p)))
         cf))))
 
 ;; online update changefinder
@@ -102,7 +103,6 @@
 
 (defun score-calculation (pt-stats dvec score-type)
   (declare (type dvec dvec))
-  
   (destructuring-bind (&key pt-1 pt &allow-other-keys) pt-stats
     
     (ecase score-type
@@ -111,15 +111,19 @@
 
 (macrolet ((update-score (model stats score-list)
              `(progn 
-                     (multiple-value-bind (new-mu new-sigma)
-                                        (ts-ar::update-sdar (,model cf) new-dvec :discount (discount cf)) 
-                                      (when (eq (score-type cf) :hellinger)
-                                        (setf (getf (,stats cf) :pt) (multi-gaussian new-mu new-sigma)))
-                                      (let ((score (score-calculation (,stats cf) new-dvec (score-type cf))))
-                                        (setf (,score-list cf) (append (cdr (,score-list cf)) (list score)))
-                                        (multiple-value-bind (new-mu new-sigma) (ts-ar::predict-sdar (,model cf))
-                                          (setf (getf (,stats cf) :pt-1) (multi-gaussian new-mu new-sigma)))
-                                        score)))))
+                (multiple-value-bind (new-mu new-sigma)
+                    (ts-ar::update-sdar (,model cf) new-dvec :discount (discount cf)) 
+                  (when (eq (score-type cf) :hellinger)
+                    (setf (getf (,stats cf) :pt) (multi-gaussian new-mu new-sigma)))
+                  
+                  (let ((score (score-calculation (,stats cf) new-dvec (score-type cf))))
+                    
+                    (setf (,score-list cf) (append (cdr (,score-list cf)) (list score)))
+                    
+                    (multiple-value-bind (new-mu new-sigma) (ts-ar::predict-sdar (,model cf))
+                      (setf (getf (,stats cf) :pt-1) (multi-gaussian new-mu new-sigma)))
+                    score)))))
+
   (defgeneric update-ts-score (cf new-dvec))
   (defmethod update-ts-score ((cf changefinder) new-dvec)
     (declare (type dvec new-dvec))
@@ -141,7 +145,7 @@
 
 
 (defmethod density ((d multi-gaussian) x)
-  (multivariate-normal-density (mean d) (sigma d) x))
+  (multivariate-normal-density (mean d) (sigma d) (coerce x 'dvec)))
 
 (defparameter *stabilizer* 1d-2)
 
@@ -154,9 +158,12 @@
          (det (det sigma))
          (inv (if (>= 0d0 det) 
                   (error "sigma must be positive definite: det = ~A" det) ;; positive definite check
-                (m^-1 sigma)))
+                  (m^-1 sigma)))
+         
          (coef (/ (* (expt (* 2d0 pi) (/ (if (numberp m) m dim) 2)) (sqrt det))))
-         (in-exp (calc-in-exp inv mu vec)))
+         
+         (in-exp (calc-in-exp inv mu vec))
+         )
     (declare (type double-float coef in-exp))
     (* coef (handler-case (exp in-exp)
               (floating-point-underflow (c) (declare (ignore c))
@@ -164,22 +171,28 @@
               (floating-point-overflow (c) (declare (ignore c)) 
                 (warn "MND overflow: in-exp:~A" in-exp) most-positive-double-float)))))
 
+
+
 (defun calc-in-exp (inv-sigma mu vec)
   (let* ((dim (length mu))
          (x-m (vcv vec mu :c #'-))
          (x-mx-m (make-array `(,dim ,dim) :element-type 'double-float))
          (res (make-array `(,dim ,dim) :element-type 'double-float)))
+    
     (loop for col below dim
-        as val1 = (aref x-m col)
-        do (loop for row below dim
-               as val = (* val1 (aref x-m row))
+       as val1 = (aref x-m col)
+       do (loop for row below dim
+              as val = (* val1 (aref x-m row))
               do (setf (aref x-mx-m col row) val)))
-    ; Here be dragons - blass:dgemm aparently does not work with
-    ; multiple dimensional arrays - hmmm
     #+mkl
     (mkl.blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
     #-mkl
-    (blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
+    (let ((a-inv-sigma (mat2array inv-sigma))
+          (a-x-mx-m (mat2array x-mx-m ))
+          (a-res (mat2array res))
+          )
+      (blas:dgemm "N" "N" dim dim dim -0.5d0 a-inv-sigma dim a-x-mx-m dim 0d0 a-res dim)
+      `(array2mat a-res ,dim res))
     (tr res)
     ))
 

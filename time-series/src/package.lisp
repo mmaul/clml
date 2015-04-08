@@ -53,19 +53,18 @@ package for reading time series data
   (:use :excl)
   (:nicknames :ts-util)
   (:export #:ts-to-sta
-           #:ts-
+           #:timeseries-model
            #:sub-ts
            #:compose-ts
            #:merge-ts
-           
-           #:timeseries-model
            #:observed-ts
            #:predict
            #:statvis
            #:draw-ppm
            #:open-eps-file
            #:date-time-to-ut
-           #:ut-to-date-time)
+           #:ut-to-date-time
+           #:ts-)
   #+lispworks
   (:export            #:*r-stream*
                       #:with-r)
@@ -118,10 +117,13 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.statistics :ts-util :ts-stat :ts-read-data
         :handling-missing-value)
   (:nicknames :ts-stsp)
-  (:shadow :predict)
+  
   (:export 
    #:trend #:trend-prediction
-   #:seasonal #:seasonal-adj))
+   #:seasonal #:seasonal-adj
+   #:state-space-model
+   #:trend
+   ))
 
 (defpackage :clml.time-series.autoregression
   (:use :cl
@@ -135,11 +137,13 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.time-series.statistics
         :clml.time-series.read-data
         :clml.time-series.state-space)
-  (:shadow :predict)
+  ;(:shadow :predict)
   (:nicknames :ts-ar :ts-autoregression)
   (:export
    #:ar #:ar-prediction
-   #:parcor #:parcor-filtering)
+   #:parcor #:parcor-filtering
+   ;#:predict
+   #:ar-model)
   (:documentation "Package for AutoRegression model
 *** sample usage
 #+INCLUDE: \"../sample/time-series-autoregression.org\"  example lisp"))

@@ -10,12 +10,7 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (require :datetime))
 
-(defclass timeseries-model ()
-  ((observed-ts
-    :initarg :observed-ts
-    :accessor observed-ts
-    :type time-series-dataset
-    :initform (error "Must specify the observed timeseries data"))))
+
 
 (defgeneric predict (timeseries-model &key n-ahead)
   (:documentation 

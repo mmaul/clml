@@ -5,31 +5,6 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; ar-model (1-dimensional) ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-(defclass ar-model (ts-stsp::gaussian-stsp-model)
-  ((ar-coefficients :initarg :ar-coefficients 
-                    :accessor ar-coefficients
-                    :type list 
-                    :initform '())
-   (sigma^2 :initarg :sigma^2
-            :accessor sigma^2
-            :type number
-            :initform 0.0d0)
-   (aic :initarg :aic
-        :type list
-        :initform '())
-   (demean :initarg :demean
-           :accessor demean
-           :initform nil)
-   (ar-method :initarg :ar-method
-           :accessor ar-method
-           :type symbol
-           :initform nil))
-  (:documentation "- parent: gaussian-stsp-model
-- accessors:
-  - ar-coefficients : AR parameters
-  - sigma^2 : Variance for AR model
-  - aic : AIC for AR model
-  - ar-method : Method of constructing AR model"))
 
 (defmethod print-object ((model ar-model) stream)
   (with-accessors ((coefs ar-coefficients)
@@ -242,7 +217,7 @@
                               (/ num-of-data (- num-of-data (1+ (length (nth pos coef-list))))))
           ;;; consideration for freedom
                            aic-list (when demean (ts-mean d)) :yule-walker)))))))
-(defgeneric predict (timeseries-model &key n-ahead)
+#|(defgeneric predict (timeseries-model &key n-ahead)
   (:documentation 
    "Calculate the value based on the timeseries-model for the observed timeseries data.
 - return: (values <time-series-dataset> <time-series-dataset>)
@@ -252,6 +227,7 @@
 - comments:
   - In the case of trend model, the trend of last point of observed data continue to future.
 "))
+|#
 (defmethod predict ((model ar-model) &key (n-ahead 0))
   (assert (not (minusp n-ahead)))
   (with-accessors ((ts ts-stsp::observed-ts) (demean demean) 
@@ -888,6 +864,7 @@
 
 (defgeneric update-sdar (sdar new-xt &key discount))
 (defmethod update-sdar ((sdar sdar) new-xt &key (discount 0.01d0))
+  
   (destructuring-bind (xhatt meu new-cj-array new-sigma xt-array w-vec)
       (1step-sdar (mu sdar) (cj-array sdar) (sigma sdar) (xt-array sdar) new-xt discount (n sdar))
     (setf (mu sdar) meu

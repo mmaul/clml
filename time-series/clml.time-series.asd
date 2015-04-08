@@ -12,9 +12,13 @@
                              :iterate
                              :clml.numeric
                              :uiop
+                             :array-operations
                              :clml.time-series-package
                              )
                 :components (
+                             (:file "ts-util-classes")
+                             (:file "ts-state-space-model-classes")
+                             (:file "ts-ar-classes")
                              (:file "ts-read-data")
                              (:file "ts-util")
                              (:file "ts-stat")
