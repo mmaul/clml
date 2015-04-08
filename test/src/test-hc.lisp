@@ -32,6 +32,8 @@
       ;;median
       (multiple-value-setq (cophenetic-matrix merge-matrix) (cophenetic-matrix d-matrix #'hc-median))
       (assert-eql 45.42216730738696d0 (aref cophenetic-matrix 0 1))
+      
       (assert-equalp #2A((-5 -1) (-4 -2) (2 0) (-6 1) (-3 3) (4 5)) merge-matrix)
+      
       (assert-equalp #(1 2 1 3 1 2 2) (cutree 3 merge-matrix))
       ))

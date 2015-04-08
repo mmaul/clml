@@ -16,6 +16,7 @@
                                                :score-type :log
                                                :ts-wsize 5 :score-wsize 5 :sdar-k 4
                                                :discount 0.005d0)))
+      (print "oink")
       (mapcar (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
               (loop for p across (ts-points (sub-ts ts :start 600 :end 700))
                   as new-dvec = (ts-p-pos p)

@@ -122,3 +122,4 @@
   ;; Since Lisp Machines have a built-in /dev/null which handles
   ;; additional, non-standard operations, we'll use that instead.
   #+lispm #'system:null-stream)
+(defun ntest (n) (let ((x (nth n *all-tests*))) (print x) (let ((y (run-tests (list x))))(print x)y)))

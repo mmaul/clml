@@ -29,6 +29,7 @@
                               |#
                              )
                 :components (
+                             (:file "test-groups")
                              (:file "test-utils")
                              (:file "test-stat")
                              (:file "test-decision-tree")
@@ -66,6 +67,6 @@
                              (:file "test-svr")
                              (:file "test-text-utils")
                              (:file "test-read-data")
-                             (:file "test-groups")
+                             
                              )
                 )

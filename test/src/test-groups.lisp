@@ -17,7 +17,7 @@
                                         test-sample-optics
                                         test-nmf
                                         test-hc
-                                        test-sample-kmeans
+                                        test-sample-k-means
                                         ))
 
 
@@ -28,8 +28,7 @@
                                          test-sample-ts-stat
                                          test-sample-ts-stsp
                                          test-sample-expl-smthing
-                                         ; disabled tests due to blass:dgemm not handling multi-dimensional arrays
-                                         ;test-ts-anomaly-detection
+                                         test-ts-anomaly-detection
                                          test-changefinder
                                          ))
 
@@ -73,3 +72,23 @@
                                   *time-series-tests* *svm-tests* *classifiers-tests*
                                   *association-rule-tests* *nonparametric-tests*
                                   *som-tests* *text-tests* *pca-tests* *hjs-tests*))
+#| #'test-sample-assoc #'test-sample-cluster-validation
+             #'test-decision-tree #'test-sample-expl-smthing
+             #'test-hc #'test-sample-k-means
+             #'test-sample-k-nn #'test-sample-linear-regression
+             #'test-nmf #'test-sample-optics
+             #'test-sample-pca #'test-random-forest
+             #'test-sample-read-data #'test-sample-som
+             #'test-sample-spectral-clustering #'test-sample-stat
+             #'test-sample-svm
+             #'test-wss3.kernels
+             #'test-wss3.svm test-svr
+             #'test-test-one-class-svm
+             #'test-sample-ts-ar test-sample-ts-read-data test-sample-ts-stat
+             #'test-sample-ts-stsp
+             #'test-changefinder
+             #'test-ts-anomaly-detection
+             #'test-sample-hdp-lda
+             #'test-sample-dpm
+#'test-sample-text-utils
+|#

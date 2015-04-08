@@ -9,6 +9,6 @@
                            :range '(1) :time-label 0)
          useco
          (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/USeconomic.sexp")))))
-      (assert-false (acf useco))
-      (assert-false (ccf (sub-ts useco :range '(0)) (sub-ts useco :range '(1))))
-      (assert-false (periodgram ukgas))))
+      #+lispworks (assert-false (acf useco))
+      #+lispworks (assert-false (ccf (sub-ts useco :range '(0)) (sub-ts useco :range '(1))))
+      #+lispworks (assert-false (periodgram ukgas))))

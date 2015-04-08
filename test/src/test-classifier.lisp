@@ -96,6 +96,7 @@
                ))
 
 (defun classify-decision-tree (test train objective-param-name manhattan)
+  (declare (ignorable manhattan))
   (let ((dc-result (decision-tree-validation test
                                              objective-param-name
                                              (make-decision-tree train
@@ -109,8 +110,6 @@
        finally (return (values true false (/ true (+ true false)))))))
 
 #|
-
-
     (format rstream "Executing decision tree...~%")
     (let ((dc-result (decision-tree-validation test
                                                objective-param-name
@@ -164,7 +163,7 @@
               (progn
                 (setq results (append  (pairlist '(:k :k-nn-true :k-nn-false :k-nn-precision) (list k true false (/ true (+ true false))))))
                 (format t "[svm ~a result]  true ~d | false ~d | precision :: ~f ~%"
-                             kernel-name true false (/ true (+ true false))))))
+                             kernel-name true false (/ true (+ true false)))))))
 
 CL-USER(3): (classifier-test 'bc)
 classifier test [type : BC]

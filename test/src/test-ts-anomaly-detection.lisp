@@ -20,6 +20,7 @@
           :except '(0) :time-label 0)))
       (assert-equality #'= 1015 (length (ts-points sample-ts)))
       (assert-equality #'= 753 (length (ts-points exchange)))
+      
       (mapc (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
             (loop with detector = (make-db-detector 
                                    (sub-ts sample-ts :start '(1 1) :end '(2 12)))
@@ -29,6 +30,7 @@
               9.645504419952822d-4 0.002189430044882701d0 0.0022804402419548397d0
               8.653971028227403d-4 0.0021245846566718685d0 0.0021297890535286745d0
               0.003035579690776613d0 0.0010429131136164838d0 0.0017684154782838801d0))
+      
       (mapc (lambda (p1 p2) 
               (assert-equality #'epsilon> (getf p2 :score) (getf p1 :score))
               (mapc (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
