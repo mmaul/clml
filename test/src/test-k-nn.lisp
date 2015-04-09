@@ -41,13 +41,14 @@
         (loop for i from 1
             for teacher across teachers
             do (assert-equality #'string= (format nil "~D" i) teacher))
+        
         (assert-points-equal
-         (map 'vector (lambda (pts) (map 'dvec 
+         (map 'vector (lambda (pts) (map 'util:dvec 
                                       (lambda (val m)
                                         #+sbcl ; sbcl bug
                                         (if (zerop m)
                                             0d0
-                                          (/ val m))
+                                            (/ val m))
                                         #-sbcl
                                         (handler-case (/ val m)
                                           (division-by-zero (c) (declare (ignore c)) 0d0)))
@@ -55,6 +56,7 @@
                                       maxs))
               (dataset-points data-for-learn))
          vecs)
+        
         (assert-eq :manhattan distance)
         (assert-eql 2 k)        
         (assert-eq esttype :classify)

@@ -2,7 +2,8 @@
 (in-package :clml.test)
 
 (define-test test-svr
-    (let (svm-bc-train svm-bc-test training-vector test-vector linear-svr rbf-kernel rbf-svr poly-svr)
+  (let (svm-bc-train svm-bc-test training-vector test-vector linear-svr
+        rbf-kernel rbf-svr)
        (setf svm-bc-train
 	(pick-and-specialize-data
 	 (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")

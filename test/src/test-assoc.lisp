@@ -45,6 +45,7 @@
                7.695690413368514d0 14.332514332514332d0 1.2439747f0 1.0328125f0)
              #(("商品名=菓子") ("商品名=野菜" "商品名=乳製品")
                7.695690413368514d0 27.04791344667697d0 1.28407f0 1.0820224f0))))
+      (declare (ignorable expected-header))
       (assert-true
        (setf result (association-analyze (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/result.sexp")
                                          '("商品名") "ID番号" 3 
