@@ -1,6 +1,6 @@
 
 ** Requirements
-  + Language: SBCL, Clozure Common Lisp, Allegro or Lispworks
+  + Language: SBCL, Allegro or Lispworks
   + Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
   + Optionally Intel Math Kernel Library
   + ASDF3 and optionally Quicklisp (This document assumes [[http://quicklisp.org][Quicklisp]])

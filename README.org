@@ -4,7 +4,7 @@
 
 CL Machine-Learning is high performance and large scale statistical
 machine learning package written in Common Lisp developed at 
-[[http://cl-www.msi.co.jp][MSI]]. 
+[[http://cl-www.msi.co.jp][MSI]].
 
 ** Author(s):   
 *** Original 
@@ -24,7 +24,7 @@ This repository contains is a modified version of CLML with the following goals 
   + Remove dependent libraries available from the Quicklisp repository
   + Re-factor code to support Quicklisp packaging 
   + Organize code into independent systems based on functional category
-  + Support for Clozure Common Lisp short term and CLisp and ECL long term
+  + Support for SBCL
   + Improve documentation
 
 ** [#B] Installation
@@ -37,4 +37,4 @@ and also in the project directories docs/clml-manual.html
 Notes and Algorithmic Details and Background    
     files in memo, notes and docs
 
-#+INCLUDE: "./docs/USING.org" :minlevel 2
+    #+INCLUDE: "./docs/USING.org" :minlevel 2

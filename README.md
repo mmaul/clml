@@ -25,6 +25,8 @@
 </li>
 <li><a href="#sec-1-6">1.6. Sample Data</a></li>
 <li><a href="#sec-1-7">1.7. Usage</a></li>
+<li><a href="#sec-1-8">1.8. Tests</a></li>
+<li><a href="#sec-1-9">1.9. Building Documentation</a></li>
 </ul>
 </li>
 </ul>
@@ -36,7 +38,7 @@
 
 CL Machine-Learning is high performance and large scale statistical
 machine learning package written in Common Lisp developed at 
-[MSI](http://cl-www.msi.co.jp). 
+[MSI](http://cl-www.msi.co.jp).
 
 ## Author(s):
 
@@ -60,17 +62,21 @@ This repository contains is a modified version of CLML with the following goals 
 -   Remove dependent libraries available from the Quicklisp repository
 -   Re-factor code to support Quicklisp packaging
 -   Organize code into independent systems based on functional category
--   Support for Clozure Common Lisp short term and CLisp and ECL long term
+-   Support for SBCL
 -   Improve documentation
 
 ## Installation
 
 ## Requirements
 
--   Language: SBCL, Clozure Common Lisp, Allegro or Lispworks
+-   Language: SBCL, Allegro or Lispworks
 -   Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
 -   Optionally Intel Math Kernel Library
 -   ASDF3 and optionally Quicklisp (This document assumes [Quicklisp](http://quicklisp.org))
+
+  Note: Default heapsize should be around 2560K for SBCL this can be
+done by set with the switch
+  sbcl &#x2013;dynamic-space-size 2560
 
 Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
 
@@ -155,6 +161,15 @@ This library is organized as a hierarchical tree of systems.
     -   clml.graph.graph-utils
     -   clml.graph.read-graph
     -   clml.graph.shortest-path
+-   clml.hjs 
+    -   clml.hjs.k-means
+    -   clml.hjs.read-data
+    -   clml.hjs.vars
+    -   clml.hjs.eigensystems
+    -   clml.hjs.matrix
+    -   clml.hjs.meta
+    -   clml.hjs.missing-value
+    -   clml.hjs.vector
 -   clml.nearest-search
     -   clml.nearest-search.k-nn
     -   clml.nearest-search.k-nn-new
@@ -201,15 +216,6 @@ This library is organized as a hierarchical tree of systems.
     -   clml.utility.priority-que
 -   fork-future
 -   future
--   hjs
-    -   hjs.learn.k-means
-    -   hjs.learn.read-data
-    -   hjs.learn.vars
-    -   hjs.util.eigensystems
-    -   hjs.util.matrix
-    -   hjs.util.meta
-    -   hjs.util.missing-value
-    -   hjs.util.vector
 -   lapack
 
 Each system can be loaded independantly or the the clml system can be loaded which contains
@@ -221,14 +227,6 @@ be done before loading the systems.
     (setf *read-default-float-format* 'double-float)
 -   Example below is using CLML.EXTRAS
 
-In SBCL the default heap should be expanded to 2000 or greater
-    
-    For the cmd line
-    sbcl --dynamic-space-size 2000
-    
-    In Slime
-    (setq inferior-lisp-program "sbcl --dynamic-space-size 2560")
-    
 Here is a quick demonstration:
 
     CL-USER (ql:quickload :clml)
@@ -236,7 +234,7 @@ Here is a quick demonstration:
     CL-USER (clml.text.utilities:calculate-levenshtein-similarity "Howdy" "doody")
     0.6
     CL-USER 
-    CL-USER (setf *syobu* (hjs.learn.read-data:read-data-from-file 
+    CL-USER (setf *syobu* (clml.hjs.read-data:read-data-from-file 
                (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv")
                :type :csv :csv-type-spec '(string integer integer integer integer)))
     
@@ -284,3 +282,68 @@ Here is a quick demonstration:
                     Yes->((Virginica . 1))
                       No->((Versicolor . 47))
            No->((Setosa . 50))
+
+## Tests
+
+CLML uses the
+[[<https://github.com/OdonataResearchLLC/lisp-unit][lispunit>] testing
+framwork. Tests are located in the tests directory. The tests
+provide useful examples of usage of the CLML API.
+
+Compiling and running all unit tests can be ran as shown below.
+
+    (ql:quickload clml.test :verbose t)
+    (in-package :clml.test)
+    (run-all-tests)
+
+More information can gained on the useage of lispunit by visiting
+the project website. However some basic hints. The run- forms return
+a TEST-RESULTS-DB object. The test results database can be queried for information
+about the tests previously ran.
+
+    (defparameter myrun (run-all-tests))
+    (print-errors myrun) ; prints details of test errors
+    (print-failures myrun) ; prints details of test failures
+
+Individual tests can be ran by the run-tests form. Individual test
+being dests defined with the form define-test. 
+
+    (run-tests '(matrix-vecs-conversion-test  matrix-transpose-test)
+
+Tests for CLML systes have been grouped in  tests/test-groups.lisp
+for convience.
+
+    (run-tests *clustering-tests*)
+
+## Building Documentation
+
+CLML uses the a modified version of the CLOD package for it's
+dcumentation system. Specific details of using clod can be found
+most easily in the [clod](http://quickdocs.org/clod/api) api documentation] at [quickdocs](http://)
+
+    (ql:quickload clml.docs :verbose t)
+    (clml-docs:generate-clml-api-docs)
+
+The generate-clml-api-docs form enerates Org API documentation in the **clml/docs/api** directory from loaded packages for
+CLML for packages matching the following prefix patterns:
+  +<sup>clml[</sup>.]
+  +<sup>lapack</sup>
+  +<sup>hjs</sup>
+  +blas
+  +<sup>future</sup>
+  +<sup>fork</sup>-future
+
+Documentation is in the form of Org files where one Org file per package is placed in
+**clml/docs/api**.  A package index file containing Org INCLUDE directives that include Org
+placed generated in **clml/docs/api/index.org**.
+
+The CLML users manual includes the generated API documentation file index.org,
+HTML documentation can then be generated by opening the clml-manual.org file in Emacs
+and entering the Org mode export mode with `C-c C-e` and selecting file export with `h h` 
+
+The README.md file is generated by the org-mode export function.
+Which can be done by opening the README.org file in emacs and
+entering org-mode and using the export function `C-c C-e` and
+selecting the markdown export option.
+
+    M-x org-md-export-as-markdown
