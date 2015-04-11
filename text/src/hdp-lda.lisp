@@ -8,7 +8,6 @@
                                                    (initial-k 0)
                                                    hyper-parameters ;; (alpha gamma beta)
                                                    )
-  (print sampling)
   (assert (and (integerp sampling) (plusp sampling)))
   (let* ((bow-hash (make-bow-hash dataset))
          (docs (make-docs dataset bow-hash))
@@ -21,10 +20,14 @@
                                           :beta (second hyper-parameters)
                                           :gamma (third hyper-parameters)))
                     (make-instance 'hdp-lda :data docs :k initial-k))))
+    
     (loop repeat sampling
         initially (initialize model) ; problem
-       do (progn (sampling model) )
+       do (progn 
+                 (sampling model)
+                 )
        finally (assign-theta model))
+    
     (values (make-document-theta-result model)
             (make-topic-beta-result model)
             model)))

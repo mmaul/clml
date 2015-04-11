@@ -24,9 +24,10 @@
 (defmethod initialize-instance ((instance document) &rest initargs)
   (declare (ignore initargs))
   (call-next-method)
+  
   (let ((l (length (document-words instance))))
     (with-slots (restaurant table-topic p) instance
-      (setf restaurant (make-array l))
+      (setf restaurant (make-array l :initial-element (make-table) :element-type 'table))
       (setf p (make-array l :initial-element 0d0 :element-type 'double-float))))
   instance)
 
@@ -62,14 +63,17 @@
 	(setf oldid (incf (vocabulary hdp-lda)))
 	(setf (gethash string memo) oldid))
       (make-word :id oldid))))
+
 (defgeneric add-customer (hdp-lda word doc &optional old))
 (defmethod add-customer ((hdp-lda hdp-lda) word doc &optional (old 1))
-  (declare (optimize (speed 3) (safety 0) (debug 0))
+  (declare #-sbcl (optimize (speed 3)
+                     (safety 0)
+                     (debug 0))
            (type fixnum old)
            #+sbcl (ignorable old))
   "add new customer word belong to doc randomly
 
-TODO: Optimize in SBCL
+
 Find out why tables is not an array of table"
   (let ((tables (document-restaurant doc))
         (p      (document-p doc))
@@ -126,9 +130,7 @@ Find out why tables is not an array of table"
       (loop for i fixnum from 0 upto limit
          for table across tables
          while table do
-           (let* ((assign (table-dish table)) ; TODO DEBUG table should be an
-                                        ; arrray of table but it is
-                                        ; array for numbers instead why
+           (let* ((assign (table-dish table)) 
                   (subp (aref topic-p assign)))
              (declare (type fixnum assign)
                       (type double-float subp))
@@ -153,7 +155,9 @@ Find out why tables is not an array of table"
           (let ((topic (sample-new-topic hdp-lda topic-p (dfloat (/ v)))))
             (declare (type fixnum topic))
             ;(format t "~%DEBUG 1.5 ~a ~a ~a (~a)~%" tables ref topic (aref tables ref))
+            
             (setf (table-dish (aref tables ref)) topic) 
+            
             (incf (aref ttables topic))))
         ;(format t "~%DEBUG 2~%")
         (let* ((table (aref tables ref))
@@ -180,7 +184,7 @@ Find out why tables is not an array of table"
   (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type (array double-float (*)) topic-p)
 	   (type double-float k-new))
-  "TODO: Optimize in SBCL"
+  "TODO: Optimize in SBCL causes memory fault"
   ;; trick! topic-p must calculated at above and never used again -- so we can use side effect
   (let* ((ttables (hdp-lda-topic-tables hdp-lda))
 	 (gamma  (hdp-lda-gamma hdp-lda))
@@ -217,8 +221,7 @@ Find out why tables is not an array of table"
 (defmethod remove-customer ((hdp-lda hdp-lda) word doc)
   #-sbcl
   (declare (optimize (speed 3) (safety 0) (debug 0)))
-  "remove customer
-TODO: Fix in SBCL"
+  "remove customer"
   (let* ((tables (document-restaurant doc))
 	 (table (word-assign word))
 	 (topic (table-dish table))
@@ -247,123 +250,134 @@ TODO: Fix in SBCL"
     (decf (the fixnum (aref (the (array fixnum (*)) (hdp-lda-topic-occurs hdp-lda)) topic)))
     old))
 (defgeneric add-table (hdp-lda table &optional old))
+
 (defmethod add-table ((hdp-lda hdp-lda) table &optional (old 1))
-  (declare (optimize (speed 3) (safety 0) (debug 0))
+  #-sbcl (declare (optimize (speed 3) (safety 0) (debug 0))
            (type fixnum old)
            #+sbcl (ignorable old)
            )
   "
 TODO:Optimize in SBCL"
   (let ((customers (table-customers table))
-	(topic-p (hdp-lda-p hdp-lda))
-	(beta (hdp-lda-beta hdp-lda))
-	(gamma  (hdp-lda-gamma hdp-lda))
-	(occurs  (hdp-lda-topic-occurs hdp-lda))
-	(v      (1+ (vocabulary hdp-lda)))
-	(f-k    (hdp-lda-f-k hdp-lda))
-	(ttables (hdp-lda-topic-tables hdp-lda))
-	(sims   (hdp-lda-topics hdp-lda))
-	(max 0d0))
+        (topic-p (hdp-lda-p hdp-lda))
+        (beta (hdp-lda-beta hdp-lda))
+        (gamma  (hdp-lda-gamma hdp-lda))
+        (occurs  (hdp-lda-topic-occurs hdp-lda))
+        (v      (1+ (vocabulary hdp-lda)))
+        (f-k    (hdp-lda-f-k hdp-lda))
+        (ttables (hdp-lda-topic-tables hdp-lda))
+        (sims   (hdp-lda-topics hdp-lda))
+        (max 0d0))
     (declare (type double-float gamma max)
-	     (type (array fixnum (*)) occurs ttables)
-	     (type (array t (*)) customers sims)
-	     (type (array double-float (*)) topic-p)
-	     (type fixnum v))
+             (type (array fixnum (*)) occurs ttables)
+             (type (array t (*)) customers sims)
+             (type (array double-float (*)) topic-p)
+             (type fixnum v))
     ;;; slice sampling
     (let ((memo (make-hash-table))
-	  (slice (random old))
-	  (sum 0d0)
-	  (base (* v beta))
-	  (zero-position (length topic-p)))
+          (slice (random old))
+          (sum 0d0)
+          (base (* v beta))
+          (zero-position (length topic-p)))
       (declare (type fixnum slice zero-position)
-	       (type double-float sum base))
+               (type double-float sum base))
       (fill topic-p 0d0)
       ;; calculate f_k(x_ij) into memoized arrays
+      
       (loop for c across customers
-	  for id fixnum = (word-id c)
-	  for f-k-row = (aref f-k id)
-	  for encounts = (gethash id memo 0) do
-	    (when (zerop encounts)
+         for id fixnum = (word-id c)
+         for f-k-row = (aref f-k id)
+         for encounts = (gethash id memo 0) do
+           (when (zerop encounts)
 	      ;;; calculate f_k(x_ij) using flag!!
-	      (loop for occur fixnum across occurs
-		  for j fixnum from 0
-		  for s fixnum = (aref (aref sims (word-id c)) j) do
-		    (if (zerop occur)
-			(setf (aref f-k-row j) 0d0)
-		      (setf (aref f-k-row j)
-			(the double-float
-			  (/ (the double-float (+ s beta))
-			     (the double-float (+ occur base))))))))
-	    ;; incf occurence in this table
-	    (incf (gethash id memo 0)))
+             (loop for occur fixnum across occurs
+                for j fixnum from 0
+                for s fixnum = (aref (aref sims (word-id c)) j) do
+                  (if (zerop occur)
+                      (setf (aref f-k-row j) 0d0)
+                      (setf (aref f-k-row j)
+                            (the double-float
+                                 (/ (the double-float (+ s beta))
+                                    (the double-float (+ occur base))))))))
+         ;; incf occurence in this table
+           (incf (gethash id memo 0)))
       ;; push f_k(x_ij) values into topic-p with slice!!
+      
       (loop
-	  for count across ttables
-	  for occur fixnum across occurs
-	  for i fixnum from 0 do
-	    (cond ((zerop count)
-		   (setf zero-position i))
-		  ((>= count slice)
+         for count across ttables
+         for occur fixnum across occurs
+         for i fixnum from 0 do
+           
+           (cond ((zerop count)
+                  (setf zero-position i))
+                 ((>= count slice)
 		   ;;; push
-		   (let ((ans 0d0))
-		     (declare (type double-float ans))
-		     (maphash #'(lambda (k v)
-				  (declare (type fixnum k v))
-				  (let ((mul (* (log (the double-float (aref (aref f-k k) i))) v)))
-				    (declare (type double-float mul))
-				    (incf ans mul)))
-			      memo)
-		     (setf (aref topic-p i) ans)
-		     (setf max (max max ans))))
-		  (t (setf (aref topic-p i) 0d0))))
+                  (let ((ans 0d0))
+                    (declare (type double-float ans))
+                    
+                    (maphash #'(lambda (k v)
+                                 (declare (type fixnum k v))
+                                 ; TODO find out why n is 0 and negative
+                                 (let* ((n (the double-float (aref (aref f-k k) i)))
+                                        (mul (* (log n) v)))
+                                   (declare (type double-float mul))
+                                   (incf ans mul)))
+                             memo)
+                    (setf (aref topic-p i) ans)
+                    (setf max (max max ans))))
+                 (t (setf (aref topic-p i) 0d0))))
+      
       ;; max -> jack
       (setf max (- #.(/ +most-positive-exp-able-float+ 2) max))
       ;; k_new with slice too
       (when (>= gamma slice)
-	;; jack-up!
-	(setf sum
-	  (safe-exp (+ (* (log (dfloat (/ v))) (length customers)) max))))
+        ;; jack-up!
+        (setf sum
+              (safe-exp (+ (* (log (dfloat (/ v))) (length customers)) max))))
       (loop for i fixnum from 0 below (length topic-p)
-	  for x = (aref topic-p i)
-	  unless (zerop x) do
-	    (let ((new (safe-exp (+ x max))))
-	      (declare (type double-float new))
-	      (setf (aref topic-p i) new)
-	      (incf sum new)))
+         for x = (aref topic-p i)
+         unless (zerop x) do
+           (let ((new (safe-exp (+ x max))))
+             (declare (type double-float new))
+             
+             (setf (aref topic-p i) new)
+             (incf sum new)))
       #+ignore	    
       (map-into topic-p #'(lambda (x) (if (not (zerop x))
-					  (safe-exp (+ x max))
-					0d0))
-		topic-p)
+                                     (safe-exp (+ x max))
+                                     0d0))
+                topic-p)
       #+ignore
       (incf sum (reduce #'+ topic-p))
+      
       (let ((ref (randomize-choice topic-p sum))) ;; now sample new dish
-	;; topic extention check
-	(declare (type fixnum ref))
-	(when (= ref -1)
-	  (incf (topic-count hdp-lda))
-	  (setf ref zero-position)
-	  (when (= ref (the fixnum (length topic-p)))
-	    ;; extend required
-	    (vector-push-extend 0d0 topic-p)
-	    (vector-push-extend 0 (hdp-lda-topic-occurs hdp-lda))
-	    (loop for s across (hdp-lda-topics hdp-lda) do
-		  (vector-push-extend 0 s))
-	    (loop for s across (hdp-lda-f-k hdp-lda) do
-		  (vector-push-extend 0d0 s))
-	    (vector-push-extend 0 ttables)))
-	;; add table itself
-	(setf (table-dish table) ref)
-	(incf (aref ttables ref))
-	(incf (hdp-lda-ntables hdp-lda))
-	;; add customers in this table
-	(maphash #'(lambda (k v)
-		     (incf (aref occurs ref) v)
-		     (incf (aref (aref sims k) ref) v))
-		 memo)
-	;; no longer required customer list
-	(setf (fill-pointer customers) 0)
-	ref))))
+        ;; topic extention check
+        (declare (type fixnum ref))
+        
+        (when (= ref -1)
+          (incf (topic-count hdp-lda))
+          (setf ref zero-position)
+          (when (= ref (the fixnum (length topic-p)))
+            ;; extend required
+            (vector-push-extend 0d0 topic-p)
+            (vector-push-extend 0 (hdp-lda-topic-occurs hdp-lda))
+            (loop for s across (hdp-lda-topics hdp-lda) do
+                 (vector-push-extend 0 s))
+            (loop for s across (hdp-lda-f-k hdp-lda) do
+                 (vector-push-extend 0d0 s))
+            (vector-push-extend 0 ttables)))
+        ;; add table itself
+        (setf (table-dish table) ref)
+        (incf (aref ttables ref))
+        (incf (hdp-lda-ntables hdp-lda))
+        ;; add customers in this table
+        (maphash #'(lambda (k v)
+                     (incf (aref occurs ref) v)
+                     (incf (aref (aref sims k) ref) v))
+                 memo)
+        ;; no longer required customer list
+        (setf (fill-pointer customers) 0)
+        ref))))
 
 (defgeneric remove-table (hdp-lda table))
 (defmethod remove-table ((hdp-lda hdp-lda) table)
@@ -390,9 +404,8 @@ TODO:Optimize in SBCL"
   (:documentation "hyperparameter sampling"))
   
 (defmethod hypers-sampling ((hdp-lda hdp-lda))
-  (declare (optimize (speed 3) (safety 0) (debug 0))
+  #-sbcl (declare (optimize (speed 3) (safety 0) (debug 0))
            #+sbcl (ignorable hdp-lda))
-  
   (let ((ntables (dfloat (hdp-lda-ntables hdp-lda)))
 	(old-alpha (hdp-lda-alpha hdp-lda))
 	(old-gamma (hdp-lda-gamma hdp-lda)))
@@ -410,8 +423,9 @@ TODO:Optimize in SBCL"
 		       (the double-float (bernoulli (/ ntables (+ old-gamma ntables)))))
 		    (- (the double-float *gamma-base-b*)
 		       (the double-float (log (beta-random (1+ old-gamma) ntables))))))
+    
     (values (hdp-lda-alpha hdp-lda)
-	    (hdp-lda-gamma hdp-lda))))
+            (hdp-lda-gamma hdp-lda))))
 
 (defgeneric initialize (hdp-lda))
 (defmethod initialize ((hdp-lda hdp-lda))
@@ -419,6 +433,7 @@ TODO:Optimize in SBCL"
     (setf (hdp-lda-topic-tables hdp-lda) (make-adarray predict-k :element-type 'fixnum :initial-element 0))
     (setf (hdp-lda-topic-occurs hdp-lda) (make-adarray predict-k :element-type 'fixnum :initial-element 0))
     (setf (hdp-lda-p hdp-lda) (make-adarray predict-k :element-type 'double-float :initial-element 0d0))
+    
     (setf (hdp-lda-f-k hdp-lda) (make-adarray 0))
     (unless (slot-boundp hdp-lda 'alpha)
     (setf (hdp-lda-alpha hdp-lda) (gamma-random *alpha-base-a* *alpha-base-b*)))
@@ -443,25 +458,35 @@ TODO:Optimize in SBCL"
 	  (setf (aref a i) (make-adarray 0 :initial-element 0d0 :element-type 'double-float))))
   ;; reset predict-k
   (setf (topic-count hdp-lda) 0)
+  
   ;; initial sampling
   (loop for doc across (hdp-lda-data hdp-lda) do
-	(loop for w across (document-words doc) do
-	      (add-customer hdp-lda w doc)))
+       (loop for w across (document-words doc) do
+            
+            (add-customer hdp-lda w doc)))
+  
   (loop for doc across (hdp-lda-data hdp-lda) do
 	(loop for table across (document-restaurant doc)
 	    for i from 0 below (aref (document-layer-points doc) 0) do
 	      (add-table hdp-lda table (remove-table hdp-lda table))))
+  
   (hypers-sampling hdp-lda))
 
 (defgeneric sampling (hdp-lda))
 (defmethod sampling ((hdp-lda hdp-lda))
+  
   (loop for doc across (shuffle-vector (hdp-lda-data hdp-lda)) do
 	(loop for w across (document-words doc) do
 	      (add-customer hdp-lda w doc (remove-customer hdp-lda w doc))))
+  
   (loop for doc across (hdp-lda-data hdp-lda) do
 	(loop for table across (document-restaurant doc)
 	    for i from 0 below (aref (document-layer-points doc) 0) do
-	      (add-table hdp-lda table (remove-table hdp-lda table))))
+         
+         (add-table hdp-lda table (remove-table hdp-lda table))
+         
+         ))
+  
   (hypers-sampling hdp-lda)
   )
 
