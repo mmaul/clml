@@ -63,8 +63,8 @@
   -stream: <string> <key> <optional> specify output stream for documentation 
 "))
 
-(defmethod dataset-documentations ((dataset-directory dataset-directory) package name &key (stream t))
-  (let ((package-matches (filter (slot-value dataset-directory 'dataset) "Package"
+(defmethod dataset-documentation ((dataset-directory dataset-directory) package name &key (stream t))
+  (let ((package-matches (filter (slot-value dataset-directory 'data) "Package"
                                  (lambda (s) (string= s package)))))
     (if package-matches
         (let ((dataset (filter
@@ -88,8 +88,8 @@
   (format stream "~{~25A ~}~%"
           (coerce
            (subseq (map 'vector #'dimension-name
-                        (dataset-dimensions (slot-value ds 'data))) 0 3) 'list))
-  ( format stream "~{~25A ~}~%" (list "-------------------------"))
+                        (dataset-dimensions (slot-value dataset-directory 'data))) 0 3) 'list))
+  ( format stream "~{~25A ~}~%" (list "-------------------------" "-------------------------" "-------------------------"))
   (loop
      for row across (dataset-points (slot-value dataset-directory 'data))
      do(format stream "~{~25A ~}~%" (coerce (subseq row 0 3) 'list)

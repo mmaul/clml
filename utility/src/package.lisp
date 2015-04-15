@@ -51,9 +51,39 @@ for the columns in the csv file.
 
 * Example
 #+BEGIN_SRC lisp
-(ql:quickload :clml.utility)
+CL-USER> (ql:quickload :clml.utility)
+R-DATASETS> (defparameter dd (get-dataset-directory))
+R-DATASETS> (inventory dd)
+R-DATASETS> (inventory dd)
+Package                   Item                      Title                     
+------------------------- ------------------------- ------------------------- 
+datasets                  AirPassengers             Monthly Airline Passenger Numbers 1949-1960 
+datasets                  BJsales                   Sales Data with Leading Indicator 
+datasets                  BOD                       Biochemical Oxygen Demand 
+...
+
+R-DATASETS>(dataset-documentation dd "datasets" "BOD")
+  R: Biochemical Oxygen Demand
+
+  BODR Documentation
+
+   Biochemical Oxygen Demand 
+
+  Description
+    The BOD data frame has 6 rows and 2 columns giving the
+  biochemical oxygen demand versus time in an evaluation of water
+  quality.
+  ...
+
+R-DATASETS> (get-dataset dd "datasets" "BOD")
+#<UNSPECIALIZED-DATASET >
+DIMENSIONS:  | Time | demand
+TYPES:      UNKNOWN | UNKNOWN | UNKNOWN
+NUMBER OF DIMENSIONS: 3
+DATA POINTS: 6 POINTS
 
 #+END_SRC
+
 * Other uses
 This package can also be used as a tool for sharing or distributing bundles of datasets.
 To do this a csv file which provides the directory of data sets must be made availabe
