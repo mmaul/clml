@@ -1,6 +1,8 @@
 (in-package :clml.utility.data)
 (eval-when (:load-toplevel :compile-toplevel :execute)
 
+(define-condition invalid-path-error (error)
+  ((text :initarg :text :reader text)))
 
 (defun download (url output)
   ( multiple-value-bind (content-or-stream status header tk stream must-close status-string)
@@ -40,6 +42,12 @@
   "Abuse puri:parse-uri to strip possible get args from path"
   (let ((p (puri:parse-uri path))) (puri:uri-path p)))
 
+(defun is-file (path)
+  (handler-case (probe-file path)
+    (type-error (e) (error 'invalid-path-error
+                 :text (format nil "Invalid path: ~A" path)))))
+
+
 (defun fetch (url-or-path &key (cache t)
                             (dir (namestring (asdf:system-relative-pathname 'clml "sample/")))
                             (flush nil)
@@ -57,8 +65,8 @@ is stored in ~dir~/~uri-host~/~uri-path~.
 
 Note that it is important to ensure that dir and subdir if used end in a /"
   (cond
-    ((probe-file (condition-path url-or-path)) (condition-path url-or-path))
-    ((probe-file (condition-path (concatenate 'string  dir url-or-path)))
+    ((is-file (condition-path url-or-path)) (condition-path url-or-path))
+    ((is-file (condition-path (concatenate 'string  dir url-or-path)))
      (condition-path (concatenate 'string  dir url-or-path)))
     ((puri:parse-uri url-or-path)
      (let* ((tmp-pathname (split-uri-string url-or-path))
@@ -66,16 +74,16 @@ Note that it is important to ensure that dir and subdir if used end in a /"
             (file-pathname (ensure-directories-exist
                             file-pathstring)))
        (if flush
-           (when (probe-file file-pathname) (delete-file file-pathname))
+           (when (is-file file-pathname) (delete-file file-pathname))
            (if (and cache (probe-file file-pathname))
-               file-pathname
+               (values file-pathname 200 "OK")
                (handler-case  (download url-or-path file-pathname)
                  (drakma:parameter-error ()
-                   nil
+                   (values nil 404 "Parameter Error")
                    ))))
        
        ))
-    (t nil)
+    (t (values nil 404 "Not file of url"))
     )))
 
 

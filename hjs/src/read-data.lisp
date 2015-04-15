@@ -1333,6 +1333,25 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
          (dim (find dim-name (dataset-dimensions dataset)
                     :test #'string=
                     :key #'dimension-name))
+         (idx (clml.hjs.read-data:dimension-index dim))
+         (results '()))
+    (loop for vec across (ecase (dimension-type dim)
+                           (:unknown (dataset-points dataset))
+                           (:category (dataset-category-points dataset))
+                           (:numeric (dataset-numeric-points dataset)))
+       when (funcall test (elt vec idx))
+       do
+         (setf results (cons vec results))
+       )
+    (make-unspecialized-dataset (coerce (map 'vector #'dimension-name (dataset-dimensions dataset-in))'list  ) (coerce results 'vector))))
+
+(defgeneric filter! (dataset-in dim-name test))
+(defmethod filter! ((dataset-in dataset) dim-name test)
+  "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
+  (let* ((dataset (copy-dataset dataset-in))
+         (dim (find dim-name (dataset-dimensions dataset)
+                    :test #'string=
+                    :key #'dimension-name))
          (idx (clml.hjs.read-data:dimension-index dim)))
     (loop for vec across (ecase (dimension-type dim)
                            (:unknown (dataset-points dataset))
@@ -1352,7 +1371,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
     dataset))
 
 
-(defmethod filter ((dataset-in numeric-and-category-dataset) dim-name test)
+(defmethod filter! ((dataset-in numeric-and-category-dataset) dim-name test)
   (let* ((dataset (copy-dataset dataset-in)))
     (multiple-value-bind (cpoints npoints) 
         (loop

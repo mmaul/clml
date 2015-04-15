@@ -168,6 +168,7 @@
    #:tail-points
    #:map-over-dimension!
    #:add-dim
+   #:filter!
    #:filter
    #:get-dimension-index
    #:dataset-name-index-alist
