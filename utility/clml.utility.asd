@@ -23,6 +23,5 @@
                              (:file "csv")
                              (:file "priority-que")
                              (:file "fetch")
-                             (:file "r-datasets")
                              )
                 )
