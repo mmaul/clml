@@ -107,7 +107,7 @@
           (types (map 'list #'dimension-type dim)))
       (print-unreadable-object (d stream :type t :identity nil))
       (if (> (length names) *print-length*)
-          (format stream "~&DIMENSIONS: ~{~A~^~T| ~} ...~%" (subseq names 0 *print-length*))
+          (format stream "~&DIMENSIONS: ~{~A~^~T| ~}~{~A~^, ~} ...~%" (subseq names 0 *print-length*))
         (format stream "~&DIMENSIONS: ~{~A~^~T| ~}~%" names))
       (if (> (length names) *print-length*)
           (format stream "~&TYPES:      ~{~A~^~T| ~} ...~%" (subseq types 0 *print-length*))
@@ -1343,7 +1343,13 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
        do
          (setf results (cons vec results))
        )
-    (make-unspecialized-dataset (coerce (map 'vector #'dimension-name (dataset-dimensions dataset-in))'list  ) (coerce results 'vector))))
+    (if (and results (> (length results) 0))
+        (make-unspecialized-dataset (coerce
+                                     (map 'vector #'dimension-name
+                                          (dataset-dimensions dataset-in))'list  )
+                                    (coerce results 'vector))
+        nil)
+    ))
 
 (defgeneric filter! (dataset-in dim-name test))
 (defmethod filter! ((dataset-in dataset) dim-name test)
