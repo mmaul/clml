@@ -8,7 +8,9 @@
    :clod
    )
   (:export
-   :generate-clml-api-docs)
+   :generate-api-docs
+   :find-packages
+   :make-docs)
   (:documentation
    "API Documentation Generation System for CLML"
    )

@@ -20,15 +20,15 @@
                                )))
    (lambda (x y) (string-lessp (package-name x) (package-name y)))))
 
-(defun make-docs (packages)
+(defun make-docs (packages &key (base-package-name 'clml))
   "
 -arguments:
   -packages: list of packages"
-  (with-open-file (s (asdf:system-relative-pathname 'clml "docs/api/index.org")
+  (with-open-file (s (asdf:system-relative-pathname base-package-name "docs/api/index.org")
                      :direction :output :if-exists :overwrite :if-does-not-exist :create)
     (iterate  (for package in packages)
              (for package-name = (namestring (asdf:system-relative-pathname
-                                                           'clml (concatenate 'string "docs/api/"
+                                                           base-package-name (concatenate 'string "docs/api/"
                                                                               (package-name package) ".org"))))
              
              
@@ -48,7 +48,7 @@
                )))
   )
 
-(defun generate-clml-api-docs ()
+(defun generate-api-docs ()
   "Generates Org API documentation in the *clml/docs/api* directory from loaded packages for
 CLML for packages matching the following prefix patterns:
   +^clml[.]
