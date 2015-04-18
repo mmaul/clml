@@ -107,7 +107,7 @@
           (types (map 'list #'dimension-type dim)))
       (print-unreadable-object (d stream :type t :identity nil))
       (if (> (length names) *print-length*)
-          (format stream "~&DIMENSIONS: ~{~A~^~T| ~}~{~A~^, ~} ...~%" (subseq names 0 *print-length*))
+          (format stream "~&DIMENSIONS: ~{~A~^~T| ~} ...~%" (subseq names 0 *print-length*))
         (format stream "~&DIMENSIONS: ~{~A~^~T| ~}~%" names))
       (if (> (length names) *print-length*)
           (format stream "~&TYPES:      ~{~A~^~T| ~} ...~%" (subseq types 0 *print-length*))

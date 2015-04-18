@@ -1348,7 +1348,7 @@
   #-sbcl
   (setq *random-state* (make-random-state t #xABE))
   #+sbcl
-  (setq *random-state* (make-random-state #xABE))
+  (setq *random-state* (sb-ext:seed-random-state #xABE))
   (format t "size = ~d ... " size)
   (trivial-garbage:gc :verbose t)
   (time
