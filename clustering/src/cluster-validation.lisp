@@ -25,7 +25,7 @@
   (declare (type dvec x y))
 
   (let ((result 0.0d0))
-    (declare (type (double-float 0.0) result))
+    #-ccl (declare (type (double-float 0.0) result))
     (do-vecs ((ex x :type double-float)
 	      (ey y :type double-float))
       (let ((diff (- ex ey)))

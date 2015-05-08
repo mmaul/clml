@@ -201,7 +201,6 @@
    #:p-pos
    #:p-owner
    #:point
-     
    #:get-cluster-centroids
    #:get-cluster-points
    )

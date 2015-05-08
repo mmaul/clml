@@ -950,12 +950,12 @@
              #+lispworks
              (type double-float shape)
              #+sbcl (double-float shape)
-             #+sbcl (ignorable shape)
+             #+ (or ccl sbcl) (ignorable shape)
              )
     (
      (d (- shape #.(dfloat 1/3)))
      (c (/ (sqrt (* 9d0 d)))))
-    (declare #-sbcl (ignoreable shape)
+    (declare #- (or ccl sbcl) (ignoreable shape)
              (type double-float d c))
     (loop
        (let ((z 0d0)
@@ -977,13 +977,13 @@
              #+lispworks
              (type double-float shape)
              #+sbcl (double-float shape)
-             #+sbcl (ignorable shape)
+             #+ (or ccl sbcl) (ignorable shape)
              )
     
     ((shape-inv (/ shape))
      (d (- (+ shape 1d0) #.(dfloat 1/3)))
      (c (/ (sqrt (* 9d0 d)))))
-    (declare #-sbcl (ignoreable shape) (type double-float shape-inv d c))
+    (declare #- (or ccl sbcl) (ignoreable shape) (type double-float shape-inv d c))
     (loop
        (let ((z 0d0)
              (v 0d0))
@@ -1692,9 +1692,9 @@
     (declare (optimize (speed 3) (safety 0) (debug 0))
              #-lispworks (type fixnum freedom)
              #+sbcl (fixnum freedom)
-             #+sbcl (ignorable freedom))
+             #+ (or ccl sbcl) (ignorable freedom))
     ((r (dfloat freedom))
-   (b (case freedom       
+     (b (case freedom       
 	(3 3.142d0)
 	(4 2.968d0)
 	(5 2.868d0)
@@ -1728,13 +1728,13 @@
    (t2 (* d (+ t1 1d0)))
    (v1 (+ r (* b b)))
    (v2 (/ 2d0 (- r 1d0))))
-    #-sbcl (declare (type double-float r b c a d s q t1 t2 v1 v2)
+    #- (or ccl sbcl) (declare (type double-float r b c a d s q t1 t2 v1 v2)
 	   (type rational q)
-	   #-sbcl (ignorable freedom))
+	   #- (or ccl sbcl) (ignorable freedom))
   (let ((u1 (* 2d0 (unit-random :[])))
 	(sign 1d0)
 	(ux 0d0))
-    #-sbcl (declare (type double-float u1 sign ux))
+    #-  sbcl (declare (type double-float u1 sign ux) #+ccl (ignorable sign))
     (if (> u1 1d0)
 	(setf sign -1d0 ux (* b (- u1 1d0)))
       (setf ux (* b u1)))
@@ -1765,7 +1765,7 @@
     (declare (optimize (speed 3) (safety 0) (debug 0))
              #+lispworks (type fixnum freedom)
              #+sbcl (fixnum freedom)
-             #+sbcl (ignorable freedom))
+             #+ (or ccl sbcl) (ignorable freedom))
     ((r (dfloat freedom))
      (b (case freedom       
           (3 3.142d0)
@@ -1809,6 +1809,7 @@
      #+sbcl (double-float r b a c d s t1 t2 v1 v2)
      #+sbcl (rational q)
      #+sbcl (ignorable r b a c d k w p s q t1 t2 v1 v2)
+     #+ccl (ignorable r b a c d k w p s q t1 t2 v1 v2)
      #+lispworks (ignorable freedom))
     
     )
@@ -1821,7 +1822,7 @@
 
 
 
-#-sbcl
+#- (or ccl sbcl)
   (let ((u-mbit (random most-positive-fixnum))
 	(sign -1d0)
 	(ux 0d0))
@@ -1939,7 +1940,7 @@
 										     (* (- r 1d0) x2)))))
    (a (reduce #'+ aarray)))
   (declare (type double-float r p xf fxf x2 fx2 x1 fx1 d1 d2 r4 d3 s3 d4 s4 d5 r5 t5 c6 d6
-                 #-sbcl aarray
+                 #- (or ccl sbcl) aarray
                  a)
 	   (type (vector double-float 6) aarray)
 	   (type rational q)

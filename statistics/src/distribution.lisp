@@ -125,7 +125,7 @@
 (DEFMETHOD (SETF RATE) (NEW-VALUE (OBJ POISSON-DISTRIBUTION))
     (SETF (SLOT-VALUE OBJ 'RATE) NEW-VALUE)
     (UPDATE-DISTRIBUTION OBJ))
-(DEFGENERIC (SETF INCLUDE-ZERO) (NEW-VALUE DISTRIBUTION))
+;(DEFGENERIC (SETF INCLUDE-ZERO) (NEW-VALUE DISTRIBUTION))
 (DEFMETHOD (SETF INCLUDE-ZERO) (NEW-VALUE (OBJ WEIBULL-DISTRIBUTION))
     (SETF (SLOT-VALUE OBJ 'INCLUDE-ZERO) NEW-VALUE)
     (UPDATE-DISTRIBUTION OBJ))
@@ -209,7 +209,7 @@
       (slot-value distribution 'kurtosis)
     (error "Kurtosis is undefined for distribution ~S" distribution)))
 
-(defgeneric mode (obj &optional test))
+;(defgeneric mode (obj &optional test))
 (defmethod mode ((seq sequence) &optional (test #'eql))
   (let ((hash (make-hash-table :test test))
 	(max 0)
@@ -298,10 +298,10 @@
 |#
 (defmethod update-distribution ((distribution normal-distribution))
   (with-slots (std variance mode) distribution
-    #-sbcl
+    #- (or ccl sbcl)
     (assert (realp (slot-value distribution 'average)) 
       "AVERAGE should be a real number.")
-    #-sbcl
+    #- (or ccl sbcl)
     (assert (and (realp std) (> std 0)) (std)
       "STD should be a positive real number.")
     (setf (slot-value distribution 'mean) (slot-value distribution 'average))
@@ -351,7 +351,7 @@
 - Estimators: normal-distribution-estimate-unbiased,
     normal-distribution-estimate-maximum-likelihood
 - (Variant: standard-normal-distribution)"
-  (assert (realp average) (average)
+  #-ccl (assert (realp average) (average)
     "AVERAGE should be a real number.")
   (assert (and (realp std) (> std 0)) (std)
 	  "STD should be a positive real number.")

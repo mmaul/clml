@@ -55,6 +55,7 @@
                :run-tests
                :assert-true
                :assert-equalp
+               :assert-equal
                :assert-false
                :assert-eql
                :assert-eq

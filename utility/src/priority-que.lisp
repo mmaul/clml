@@ -1318,7 +1318,7 @@
 (defmethod delete-min-prique ((q fheap))
   (delete-min-fheap q))
 
-(defgeneric union-prique (q1 q1))
+(defgeneric union-prique (q1 q2))
 (defmethod union-prique ((q1 lheap) (q2 lheap))
   (union-lheap q1 q2))
 (defmethod union-prique ((q1 biheap) (q2 biheap))

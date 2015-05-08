@@ -1,3 +1,4 @@
+#+sbcl
 (declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
 (asdf:defsystem :clml.clustering.package
                 :pathname "src/"

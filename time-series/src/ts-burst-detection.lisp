@@ -76,7 +76,7 @@
             with c = (make-array k :initial-element ++inf+)
             and q = (make-array (list k gap-length))
             initially (setf (aref c 0) 0)
-            do ;(format t "===== ~d =====~%" (1+ time-count))
+            do 
               (loop for j fixnum from 0 below k
                   with c-prime = (make-array k :initial-element ++inf+)
                   as alpha in alpha-list

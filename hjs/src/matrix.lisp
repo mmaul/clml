@@ -771,16 +771,17 @@
 
 ;;@ function-type: dmat -> dvec
 (defun standard-deviations-from-covariance (covariance &optional result)
-  (declare (type dmat covariance))
+  #-ccl (declare (type dmat covariance))
   (assert (and (= (array-rank covariance) 2)
 	       (= (array-dimension covariance 0)
 		  (array-dimension covariance 1))))
   (let* ((dim (array-dimension covariance 0))
 	 (result (or result (make-dvec dim))))
-    (declare(type dvec result))
+    #-ccl (declare(type dvec result))
     (do-vec (_ result :type double-float :setf-var sr :index-var ir)
-      #-sbcl (declare (ignorable _))
-      (setf sr (sqrt (the (double-float 0.0) (aref covariance ir ir)))))
+      #- (or ccl sbcl) (declare (ignorable _))
+      (setf sr (sqrt #-ccl (the (double-float 0.0) (aref covariance ir ir))
+                     #+ccl (aref covariance ir ir))))
     result))
 
 ;;@ function-type: (simple-array dvec) -> dvec

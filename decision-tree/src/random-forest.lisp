@@ -155,73 +155,15 @@
 			       :test test)))
     (make-decision-tree-for-rf data-vector variable-index-hash objective-column-index root :test test)))
 
-#- (or  fork-future future lparallel) 
 (defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
-  "- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
-- arguments:
- - unspecialized-dataset
- - objective-variable-name
- - test : delta-gini | delta-entropy , splitting criterion function, default is delta-gini
- - tree-number : the number of decision trees, default is 500
-- reference : [[http://www-stat.stanford.edu/~tibs/ElemStatLearn/][Trevor Hastie, Robert Tibshirani and Jerome Friedman. The Elements of Statistical Learning:Data Mining, Inference, and Prediction]]
-"
-  (let ((forest (make-array tree-number)))
-    (dotimes (i tree-number forest)
-	     (setf (svref forest i) (make-random-decision-tree unspecialized-dataset objective-column-name :test test)))))
+  "This implementation requires lparallel:*kernel* be set with a kernel boject. This can be done
+by:
+#+BEGIN_SRC lisp
+(setf lparallel:*kernel* (lparallel:make-kernel N))
+#+END_SRC
+Where N is the number of worker threads which should generally be the number of CPU cores.
 
-#+ (and fork-future (not sbcl) (not lparallel))
-(defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
-  (let ((forest (make-array tree-number)))
-    (let ((futures
-           (loop for nworker below clml.hjs.vars:*workers*
-                 collect
-              (fork-future:future 
-                (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
-                      do
-                   (setf (svref forest i)
-                         (make-random-decision-tree unspecialized-dataset objective-column-name :test test)))
-                forest))))
-      (mapc 'fork-future:touch futures)
-      (loop for nworker below clml.hjs.vars:*workers*
-            do  
-         (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
-               do
-            (setf (svref forest i)
-                  (aref (fork-future:touch (elt futures nworker)) i)))))
-    forest))
-
-#+ (and future sbcl (not lparallel))
-(defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
-  "- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
-- arguments:
- - unspecialized-dataset
- - objective-variable-name
- - test : delta-gini | delta-entropy , splitting criterion function, default is delta-gini
- - tree-number : the number of decision trees, default is 500
-- reference : [[http://www-stat.stanford.edu/~tibs/ElemStatLearn/][Trevor Hastie, Robert Tibshirani and Jerome Friedman. The Elements of Statistical Learning:Data Mining, Inference, and Prediction]]
-"
-  (let ((forest (make-array tree-number)))
-    (let ((futures
-           (loop for nworker below clml.hjs.vars:*workers*
-                 collect
-              (future:future 
-                (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
-                      do
-                   (setf (svref forest i)
-                         (make-random-decision-tree unspecialized-dataset objective-column-name :test test)))
-                forest))))
-      (mapc 'future:touch futures)
-      (loop for nworker below clml.hjs.vars:*workers*
-            do  
-         (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
-               do
-            (setf (svref forest i)
-                  (aref (future:touch (elt futures nworker)) i)))))
-    forest))
-
-#+ lparallel
-(defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
-  "- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
+- return: (SIMPLE-ARRAY T (* )), random forest consisting of unpruned decision trees
 - arguments:
  - unspecialized-dataset
  - objective-variable-name
@@ -296,55 +238,20 @@
   (let ((tree (make-random-regression-tree unspecialized-dataset objective-column-name)))
     (print-regression-tree tree stream)))
 
-#- (or future fork-future lparallel)
 (defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
-  (let ((forest (make-array tree-number)))
-    (dotimes (i tree-number forest)
-      (setf (svref forest i) (make-random-regression-tree unspecialized-dataset objective-column-name)))))
+  "This implementation requires lparallel:*kernel* be set with a kernel boject. This can be done
+by:
+#+BEGIN_SRC lisp
+(setf lparallel:*kernel* (lparallel:make-kernel N))
+#+END_SRC
+Where N is the number of worker threads which should generally be the number of CPU cores.
 
-#+ (and fork-future (not future) (not lparallel))
-(defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
-  (let ((forest (make-array tree-number)))
-    (let ((futures
-           (loop for nworker below clml.hjs.vars:*workers*
-               collect
-                 (fork-future:future 
-                  (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
-                      do
-                        (setf (svref forest i)
-                          (make-random-regression-tree unspecialized-dataset objective-column-name)))
-                  forest))))
-      (mapc 'fork-future:touch futures)
-      (loop for nworker below clml.hjs.vars:*workers*
-          do  
-            (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
-                do
-                  (setf (svref forest i)
-                    (aref (fork-future:touch (elt futures nworker)) i)))))
-    forest))
-#+ (and future (not lparallel))
-(defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
-  (let ((forest (make-array tree-number)))
-    (let ((futures
-           (loop for nworker below clml.hjs.vars:*workers*
-               collect
-                 (future:future 
-                  (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
-                      do
-                        (setf (svref forest i)
-                          (make-random-regression-tree unspecialized-dataset objective-column-name)))
-                  forest))))
-      (mapc 'future:touch futures)
-      (loop for nworker below clml.hjs.vars:*workers*
-          do  
-            (loop for i from nworker below tree-number by clml.hjs.vars:*workers*
-                do
-                  (setf (svref forest i)
-                    (aref (future:touch (elt futures nworker)) i)))))
-    forest))
-
-#+ lparallel
-(defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
+- return: (SIMPLE-ARRAY T (* )), regression forest consisting of unpruned decision trees
+- arguments:
+ - unspecialized-dataset
+ - objective-variable-name
+ - tree-number : the number of decision trees, default is 500
+"
   (lparallel:pmap 'vector
                   (lambda (l) (declare (ignore l)) (make-random-regression-tree unspecialized-dataset objective-column-name )) (make-array tree-number)))
 

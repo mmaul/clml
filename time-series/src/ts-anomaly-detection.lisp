@@ -22,18 +22,16 @@
 (defmethod make-db-detector ((ts time-series-dataset)
                              &key beta (typical :svd) (pc 0.005d0) (normalize t))
   (assert (< 0d0 pc 1d0) (pc))
-  
   (let* ((dim (length (dataset-dimensions ts)))
          
          (vecs (map 'list
-                 (lambda (p) (let ((vec (ts-p-pos p)))
+                 (lambda (p) (let ((vec (ts-p-pos p))) 
                                (if normalize (normalize-vec vec (copy-seq vec)) vec)))
                  (ts-points ts)))
          
          (moments (get-initial-moments vecs :typical-method typical)))
     
     (unless beta (setf beta (dfloat (/ (length vecs)))))
-    
     (lambda (new-dvec)
       (assert (eql (length new-dvec) dim))
       (let* ((vec (if normalize (normalize-vec new-dvec (copy-seq new-dvec)) new-dvec))
@@ -497,7 +495,6 @@
 ;;;;;;;;;;;;;;;;;;;
 ;; SVD による典型的パターン抽出
 (defun typical-pattern-svd (act-vecs)
-  
   (let* ((n (length act-vecs))
          (m (length (car act-vecs)))
          (cmat (make-array `(,n ,m) :element-type 'double-float
@@ -513,18 +510,20 @@
          (info 0)
          (pattern (make-dvec m))
          result)
+
     (setq result 
-      (third (multiple-value-list
-              #+mkl
-              (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
-              #-mkl           
-              (let ((a-cmat (clml.hjs.matrix:mat2array cmat))
-                    (a-u (clml.hjs.matrix:mat2array u))
-                    (a-vt (clml.hjs.matrix:mat2array vt)))
-                ;; TODO problem reutns nil
-                (clml.lapack::dgesvd "S" "N" m n a-cmat lda s a-u ldu a-vt ldvt work lwork info)
-                ))))
-    
+          (third (multiple-value-list
+                         #+mkl
+                         (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
+                         #+allegro
+                         (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
+                         #-mkl           
+                         (let ((a-cmat (clml.hjs.matrix:mat2array cmat))
+                               (a-u (clml.hjs.matrix:mat2array u))
+                               (a-vt (clml.hjs.matrix:mat2array vt)))
+                           ;; TODO problem returns nil
+                           (clml.lapack::dgesvd "S" "N" m n a-cmat lda s a-u ldu a-vt ldvt work lwork info)
+                           ))))
     (assert (= info 0))    
     (do-vec (_ pattern :type double-float :setf-var sf :index-var i)
       #-sbcl (declare (ignore _))
@@ -532,7 +531,6 @@
     pattern))
 ;; 平均
 (defun typical-pattern-mean (act-vecs)
-  
   (let* ((dim (length (car act-vecs)))
          (size (length act-vecs))
          (pattern (make-dvec dim 0d0)))

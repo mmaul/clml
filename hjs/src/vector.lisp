@@ -231,7 +231,8 @@ e.g.
   (assert (= (length x) (length y) (length result)))
   (do-vecs ((ex x :type double-float)
 	    (ey y :type double-float)
-	    (_ result :type double-float :setf-var sr))
+            (_ result :type double-float :setf-var sr))
+    #+ccl (declare (ignorable _))
     (setf sr (+ ex ey)))
   result)
 
@@ -263,6 +264,21 @@ e.g.
 	    (_ result :type double-float :setf-var sr))
     (setf sr (* n ev)))
   result)
+
+;;@ function-type: dvec -> double-float -> dvec -> dvec
+;;@ precondition: vec and result are of same length
+;;@ postcondition:
+;;@ side-effect: result will be destructively updated
+(declaim (ftype (function (dvec double-float dvec) dvec) v-scale))
+(defun v-scale-fn (vec fn result)
+  (declare ((function (double-float) double-float))
+	   (type dvec vec result))
+  (assert (= (length vec) (length result)))
+  (do-vecs ((ev vec :type double-float)
+	    (_ result :type double-float :setf-var sr))
+    (setf sr (funcall fn ev)))
+  result)
+
 
 ;;@ function-type: dvec -> dvec -> double-float
 ;;@ precondition: x and y are of same length
@@ -323,7 +339,7 @@ e.g.
   (declare (type dvec x)
            #+allegro (:faslmode :immediate))
   (let ((result 0.0))
-    #-sbcl(declare (type (double-float 0.0) result))
+    #- (or ccl sbcl)(declare (type (double-float 0.0) result))
     (do-vec (ex x :type double-float)
       (incf result (* ex ex)))
     (sqrt result)))
@@ -354,14 +370,14 @@ e.g.
   (setf (get 'euclid-distance 'sys::immed-args-call)
 	'((:lisp :lisp) double-float)))
 
-#-sbcl
+#- (or ccl sbcl)
 (declaim (ftype (function (dvec dvec) (double-float 0.0)) euclid-distance))
 (defun euclid-distance (x y)
-  (declare (type dvec x y)
+  #- (or sbcl ccl) (declare (type dvec x y)
 	   #+allegro (:faslmode :immediate))
   (assert (= (length x) (length y)))
   (let ((result 0.0))
-    (declare (type double-float result))
+    #-ccl (declare (type double-float result))
     ;(declare (type (double-float 0.0) result))
     (do-vecs ((ex x :type double-float)
 	      (ey y :type double-float))
@@ -379,7 +395,7 @@ e.g.
   (setf (get 'manhattan-distance 'sys::immed-args-call)
 	'((:lisp :lisp) double-float)))
 
-#-sbcl
+#- (or ccl sbcl)
 (declaim (ftype (function (dvec dvec) (double-float 0.0)) manhattan-distance))
 (defun manhattan-distance (x y)
   (declare (optimize speed (safety 0) (debug 0))
@@ -403,7 +419,7 @@ e.g.
   (setf (get 'cosine-distance 'sys::immed-args-call)
 	'((:lisp :lisp) double-float)))
 
-#-sbcl
+#- (or ccl sbcl)
 (declaim (ftype (function (dvec dvec) (double-float 0.0)) cosine-distance))
 (defun cosine-distance (x y)
   (declare (optimize speed (safety 0) (debug 0))

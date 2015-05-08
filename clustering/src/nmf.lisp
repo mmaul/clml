@@ -516,38 +516,38 @@
   (loop for i below n collect ':numeric))
 
 
-(defun pick-up-column-data (feature-matrix n &key results)
+(defun pick-up-column-data (feature-matrix n &key results (stream t))
   (assert (< -1 n (array-dimension feature-matrix 0)))
   (let ((v (numbering (coerce (pick-up-row feature-matrix n) 'list))))
    
     (setf v (sort v #'> :key  #'car))
     (dotimes (j results)
-      (format t "~A   ~A~%" (car (cdr (nth j v))) (car (nth j v))))))
+      (format stream "~A   ~A~%" (car (cdr (nth j v))) (car (nth j v))))))
 
 
-(defun result-column-data (feature-matrix &key results)
+(defun result-column-data (feature-matrix &key results (stream t))
   (assert (< results (array-dimension feature-matrix 1)))
   (let ((n (array-dimension feature-matrix 0)))
     (dotimes (i n)
-      (format t "~%Feature ~A~%" i)
-      (pick-up-column-data feature-matrix i :results results))))
+      (format stream "~%Feature ~A~%" i)
+      (pick-up-column-data feature-matrix i :results results :stream stream))))
 
 
-(defun pick-up-row-data (weight-matrix n &key results)
+(defun pick-up-row-data (weight-matrix n &key results (stream t))
   (assert (< -1 n (array-dimension weight-matrix 1)))
   (let ((v (numbering (coerce (pick-up-column weight-matrix n) 'list))))
     
     (setf v (sort v #'> :key  #'car))
     (dotimes (j results)
-      (format t "~A   ~A~%" (car (cdr (nth j v))) (car (nth j v))))))
+      (format stream "~A   ~A~%" (car (cdr (nth j v))) (car (nth j v))))))
 
 
-(defun result-row-data (weight-matrix &key results)
+(defun result-row-data (weight-matrix &key results (stream t))
   (assert (< results (array-dimension weight-matrix 0)))
   (let ((n (array-dimension weight-matrix 1)))
     (dotimes (i n)
       (format t "~%Feature ~A~%" i)
-      (pick-up-row-data weight-matrix i :results results))))
+      (pick-up-row-data weight-matrix i :results results :stream stream))))
 
 
 (defun nmf-analysis (matrix k &key (cost-fn :euclidean) (iteration 100) (type :row) (results 10))
@@ -619,38 +619,38 @@
       (result-documents weight document-index-vector :results results))))
 
 
-(defun result-documents (weight-matrix document-index-vector &key results)
+(defun result-documents (weight-matrix document-index-vector &key results (stream t))
   (assert (< results (array-dimension weight-matrix 0)))
   (let ((n (array-dimension weight-matrix 1)))
     (dotimes (i n)
-      (format t "~%Feature ~A~%" i)
-      (pick-up-documents weight-matrix document-index-vector i :results results))))
+      (format stream "~%Feature ~A~%" i)
+      (pick-up-documents weight-matrix document-index-vector i :results results :stream stream))))
 
 
-(defun pick-up-documents (weight-matrix document-index-vector n &key results)
+(defun pick-up-documents (weight-matrix document-index-vector n &key results (stream t))
   (assert (< -1 n (array-dimension weight-matrix 1)))
   (let ((v (numbering (coerce (pick-up-column weight-matrix n) 'list))))
     
     (setf v (sort v #'> :key  #'car))
     (dotimes (j results)
-      (format t "~A     ~A~%" (aref document-index-vector (car (cdr (nth j v)))) (car (nth j v))))))
+      (format stream "~A     ~A~%" (aref document-index-vector (car (cdr (nth j v)))) (car (nth j v))))))
 
 
-(defun result-terms (feature-matrix term-index-vector &key results)
+(defun result-terms (feature-matrix term-index-vector &key results (stream t))
   (assert (< results (array-dimension feature-matrix 1)))
   (let ((n (array-dimension feature-matrix 0)))
     (dotimes (i n)
-      (format t "~%Feature ~A~%" i)
-      (pick-up-terms feature-matrix term-index-vector i :results results))))
+      (format stream "~%Feature ~A~%" i)
+      (pick-up-terms feature-matrix term-index-vector i :results results :stream stream))))
 
 
-(defun pick-up-terms (feature-matrix term-index-vector n &key results)
+(defun pick-up-terms (feature-matrix term-index-vector n &key results (stream t))
   (assert (< -1 n (array-dimension feature-matrix 0)))
   (let ((v (numbering (coerce (pick-up-row feature-matrix n) 'list))))
    
     (setf v (sort v #'> :key  #'car))
     (dotimes (j results)
-      (format t "~A     ~A~%" (aref term-index-vector (car (cdr (nth j v)))) (car (nth j v))))))
+      (format stream "~A     ~A~%" (aref term-index-vector (car (cdr (nth j v)))) (car (nth j v))))))
 
 
 (defun make-document-term-matrix (corpus-dataset)
@@ -988,11 +988,15 @@
            (ftype (function (simple-array) double-float) l2))
   ;; (declare (:explain :inlining))
   (/ (+ (- (dot m (v- s m)))
-	(sqrt (the (double-float 0.0)
+	(sqrt #-ccl (the (double-float 0.0)
                 (- (the double-float
                      (expt (dot m (v- s m)) 2))
                    (* (l2 (v- s m))
-                      (- (l2 m) (l2 x)))))))
+                      (- (l2 m) (l2 x)))))
+          #+ccl (- (the double-float
+                     (expt (dot m (v- s m)) 2))
+                   (* (l2 (v- s m))
+                      (- (l2 m) (l2 x))))))
      (l2 (v- s m))))
 
 (defun set-l1 (x sparseness)

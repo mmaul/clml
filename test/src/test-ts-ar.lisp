@@ -33,11 +33,8 @@
             1099.8811865464495d0)
           (slot-value model 'ts-autoregression::aic)
           :test #'epsilon>)))
-      (print "-----")
-      (print (list (type-of model) model))
       (assert-true 
        (multiple-value-setq (pred std-err) (predict model :n-ahead 12)))
-      (print "=====")
       (assert-true
        (set-equal
         '(1158.968335237735d0 674.0825414839333d0 366.47039894800133d0 824.7744606535753d0

@@ -105,7 +105,8 @@ N), where M is the number of ponits and N is the dimension size.
                          (when (zerop val)
                            (error "Dimension ~A is constant, please except the dimension."
                                   (dimension-name (svref (dataset-dimensions dataset) ir))))
-                         (setf sr (sqrt (the (double-float 0.0) val)))))
+                         (setf sr (sqrt #-ccl (the (double-float 0.0) val)
+                                        #+ccl val))))
                      result))
                 (:closure
                    (let ((dims (dataset-dimensions dataset)))
@@ -116,7 +117,8 @@ N), where M is the number of ponits and N is the dimension size.
                          (when (zerop val)
                            (error "Dimension ~A is constant, please except the dimension."
                                   (dimension-name (svref dims ir))))
-                         (sqrt (the (double-float 0.0) val)))))))
+                         (sqrt #-ccl (the (double-float 0.0) val)
+                               #+ccl val))))))
               (ecase type
                 (:matrix (fill-vec (make-dvec dim) handling-missing-value:+nan+))
                 (:closure (lambda (ir) (declare (ignore ir)) handling-missing-value:+nan+)))))
@@ -159,8 +161,9 @@ N), where M is the number of ponits and N is the dimension size.
                (setf sv (/ v s))))
           (:closure
              (do-vec (v p :type double-float :index-var i :setf-var sv)
-               (setf sv (/ v (the (double-float 0.0) 
-                               (funcall standard-deviations i)))))))))
+               (setf sv (/ v #-ccl (the (double-float 0.0) 
+                                        (funcall standard-deviations i))
+                           #+ccl (funcall standard-deviations i))))))))
     (values cov-or-cor e-mean z-scores standard-deviations)))
 
 ;;@ function-type: 2d-double-array -> fn -> (values pcomps eigenvalues rotated-matrix)
@@ -179,7 +182,7 @@ N), where M is the number of ponits and N is the dimension size.
   (assert (find method '(:covariance :correlation)))
   (multiple-value-bind (cov-or-cor e-mean z-scores standard-deviations)
       (make-cov-or-cor dataset :method method)
-    (declare (type dmat cov-or-cor)
+    #-ccl (declare (type dmat cov-or-cor)
              (type dvec e-mean standard-deviations)
              (type (simple-array dvec (*)) z-scores))
     ;; find the eigenvectors and eigenvalues
@@ -210,7 +213,7 @@ N), where M is the number of ponits and N is the dimension size.
         ;; sort by eigenvalues
         (declare (type (simple-array dvec (*)) eigen-vectors))
         (let ((indices (make-array dim :element-type 'fixnum)))
-          (declare (type (simple-array fixnum (*)) indices))
+          #-ccl (declare (type (simple-array fixnum (*)) indices))
           (do-vec (_ indices :type fixnum :setf-var si :index-var i)
             #-sbcl (declare (ignore _))
             (setf si i))
@@ -219,7 +222,7 @@ N), where M is the number of ponits and N is the dimension size.
           (let* ((eigen-values (reorder-dvec eigen-values indices))
                  (eigen-vectors (reorder-vec eigen-vectors indices)))
             ;; (sdev (specialize-vec (map 'vector #'sqrt eigen-values)))
-            (declare (type (simple-array (double-float 0.0) (*)) eigen-values)
+            #-ccl (declare (type (simple-array (double-float 0.0) (*)) eigen-values)
                      (type (simple-array dvec (*)) eigen-vectors z-scores))
             ;; basis transformation
             ;; finding score

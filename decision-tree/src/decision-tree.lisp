@@ -279,10 +279,10 @@
 	(format stream "~A~%" (car decision-tree))
       (progn
 	(print-decision-tree-node (first decision-tree) stream)
-	(dotimes (i indent) (princ " "))
+	(dotimes (i indent) (format stream " "))
 	(format stream "Yes->")
 	(print-decision-tree (second decision-tree) stream indent)
-	(dotimes (i indent) (princ " "))
+	(dotimes (i indent) (format stream " "))
 	(format stream "No->")
 	(print-decision-tree (third decision-tree) stream indent)))))
 
@@ -325,10 +325,10 @@
 	(format stream "(mean = ~,2F, n = ~A)~%" (mean (first regression-tree)) (total (first regression-tree)))
       (progn
 	(print-regression-tree-node (first regression-tree) stream)
-	(dotimes (i indent) (princ " "))
+	(dotimes (i indent) (format stream " "))
 	(format stream "Yes->")
 	(print-regression-tree (second regression-tree) stream indent)
-	(dotimes (i indent) (princ " "))
+	(dotimes (i indent) (format stream " "))
 	(format stream "No->")
 	(print-regression-tree (third regression-tree) stream indent)))))
 
