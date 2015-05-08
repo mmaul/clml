@@ -1326,6 +1326,21 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                            (:numeric (dataset-numeric-points dataset)))
        do (setf (elt vec idx) (funcall fn (elt vec idx))))))
 
+(defgeneric map-over-dimensions! (dataset dim-names-fns-alist))
+(defmethod map-over-dimensions! ((dataset dataset) dim-names-fn-alist)
+  "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
+  (loop for (dim-name fn) in dim-names-fn-alist
+       do
+       (let* ((dim (find dim-name (dataset-dimensions dataset)
+                         :test #'string=
+                         :key #'dimension-name))
+              (idx (clml.hjs.read-data:dimension-index dim)))
+         (loop for vec across (ecase (dimension-type dim)
+                                (:unknown (dataset-points dataset))
+                                (:category (dataset-category-points dataset))
+                                (:numeric (dataset-numeric-points dataset)))
+            do (setf (elt vec idx) (funcall fn (elt vec idx)))))))
+
 (defgeneric filter (dataset-in dim-name test))
 (defmethod filter ((dataset-in dataset) dim-name test)
   "Destructivly update data points of <dimension-name> with output of fn applied to <dimension>"
