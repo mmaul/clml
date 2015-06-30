@@ -156,7 +156,7 @@
     (make-decision-tree-for-rf data-vector variable-index-hash objective-column-index root :test test)))
 
 (defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
-  "This implementation requires lparallel:*kernel* be set with a kernel boject. This can be done
+  "This implementation requires lparallel:*kernel* be set with a kernel object. This can be done
 by:
 #+BEGIN_SRC lisp
 (setf lparallel:*kernel* (lparallel:make-kernel N))
@@ -252,8 +252,10 @@ Where N is the number of worker threads which should generally be the number of 
  - objective-variable-name
  - tree-number : the number of decision trees, default is 500
 "
-  (lparallel:pmap 'vector
-                  (lambda (l) (declare (ignore l)) (make-random-regression-tree unspecialized-dataset objective-column-name )) (make-array tree-number)))
+(let ((lparallel:*kernel* (if (null lparallel:*kernel*)
+                               (lparallel:make-kernel 4) lparallel:*kernel*))
+      )(lparallel:pmap 'vector
+        (lambda (l) (declare (ignore l)) (make-random-regression-tree unspecialized-dataset objective-column-name )) (make-array tree-number))))
 
 (defun predict-regression-forest (query-vector unspecialized-dataset forest)
  
