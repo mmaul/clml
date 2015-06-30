@@ -173,6 +173,7 @@
    #:get-dimension-index
    #:dataset-name-index-alist
    #:select-dimension
+   #:write-dataset
    )
   )
 
