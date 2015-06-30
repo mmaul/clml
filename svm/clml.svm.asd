@@ -10,6 +10,7 @@
                 :serial t
                 :depends-on (:clml.hjs
                              :clml.decision-tree
+                             :lparallel
                              :future
                              :clml.svm-package
                              )
