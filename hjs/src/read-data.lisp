@@ -1441,3 +1441,12 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
           collect (aref vec pos) into result
           finally (return (coerce result 'vector)  
                           )))))
+                          
+(defmethod write-dataset ((dataset clml.hjs.read-data::dataset) filename &key (external-format clml.utility.csv::*csv-default-external-format*))
+  " Write dataset to csv formated file"
+  (with-open-file (f filename :direction :output
+		     :if-does-not-exist :create
+		     :if-exists :supersede
+		     :external-format external-format)
+    (clml.utility.csv:write-csv-stream f (vector (map '(vector string) #'dimension-name (dataset-dimensions dataset))))
+    (clml.utility.csv:write-csv-stream f (dataset-points dataset))))
