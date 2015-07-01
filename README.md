@@ -27,6 +27,8 @@
 <li><a href="#sec-1-7">1.7. Usage</a></li>
 <li><a href="#sec-1-8">1.8. Tests</a></li>
 <li><a href="#sec-1-9">1.9. Building Documentation</a></li>
+<li><a href="#sec-1-10">1.10. Related Repositories</a></li>
+<li><a href="#sec-1-11">1.11. Contributing</a></li>
 </ul>
 </li>
 </ul>
@@ -39,6 +41,14 @@
 CL Machine-Learning is high performance and large scale statistical
 machine learning package written in Common Lisp developed at 
 [MSI](http://cl-www.msi.co.jp).
+
+This repository contains is a authorized fork of the original CLML with the following goals in mind:
+
+-   Remove dependent libraries available from the Quicklisp repository
+-   Re-factor code to support Quicklisp packaging
+-   Organize code into independent systems based on functional category
+-   Support for SBCL, CCL, LispWorks and Allegro Common Lisp
+-   Improve documentation
 
 ## Author(s):
 
@@ -56,14 +66,6 @@ machine learning package written in Common Lisp developed at
 ### Current Branch Maintainer(s)/Authors(s):
 
 -   Mike Maul
-
-This repository contains is a modified version of CLML with the following goals in mind:
-
--   Remove dependent libraries available from the Quicklisp repository
--   Re-factor code to support Quicklisp packaging
--   Organize code into independent systems based on functional category
--   Support for SBCL
--   Improve documentation
 
 ## Installation
 
@@ -356,3 +358,27 @@ selecting the markdown export option as shown below.
 The CMLM manual and API documentation can be exported to the desired 
 format by opening the docs/clml-manual.org and using the org-mode
 export `C-c C-e` cord.
+
+## Related Repositories
+
+-   clml.extras - Extended features for clml
+    -   cl-plplot integration
+    -   cl-ana integration
+    -   r-datasets - Library for seamless access to R datasets
+
+## Contributing
+
+All contributions are welcome. If the contribution is to resolve and
+problem with CLML, please open an issue in the github repository 
+accompanied by a pull request. 
+
+If you would like to contribute new functionality, again open an issue
+at the clml github repository, describe the proposed functionality and
+we will go from there. There is a separate repository clml.extras
+(<https://github.com/mmaul/clml.extras>) which is used for functionality
+that is not core to CLML but adds features and capabilities, such as
+integration layers with other libraries. If this describes your
+contribution please open an issue on clml.extras github repository.
+
+If you are interesting in helping to maintain CLML, please contact me
+via email.
