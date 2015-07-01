@@ -1,3 +1,11 @@
+(defpackage :clml.test-system (:use :common-lisp :asdf))
+(in-package :clml.test-system)
+
+(defun call-with-clml.test-environment (fun)
+  (let ((*read-default-float-format* 'double-float))
+    (funcall fun)))
+
+
 (asdf:defsystem :clml.test-package
                 :pathname "src/"
                 :serial t
@@ -9,6 +17,7 @@
 (asdf:defsystem :clml.test
                 :pathname "src/"
                 :serial t
+                :around-compile call-with-clml.test-environment
                 :depends-on (:lisp-unit
                              :clml
                              :clml.test-package

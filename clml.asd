@@ -1,30 +1,25 @@
 ;;;; clml.asd
-(in-package "CL-USER")
-(setq *read-default-float-format* 'double-float)
+(defpackage :clml-system (:use :common-lisp :asdf))
+(in-package :clml-system)
+
+(defun call-with-clml-environment (fun)
+  (let ((*read-default-float-format* 'double-float))
+    (funcall fun)))
+
 #+sbcl (declaim (sb-ext:muffle-conditions sb-ext:compiler-note))
 #+sbcl (declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
-(eval-when (:compile-toplevel :load-toplevel :execute)
-  #+ignore                              ; don't use asdf in this project
-  (require :asdf)
-  #+sbcl (progn
+#+sbcl (eval-when (:compile-toplevel :load-toplevel :execute)
+         (progn
            ;; Modules won't load if sb-fasl:*fasl-file-type* is not "fasl"
            ;; So load them first
            (loop for module in '(:sb-posix :sb-aclrepl :sb-bsd-sockets :sb-cltl2 :sb-cover
                                  :sb-introspect :sb-md5 :sb-rotate-byte :sb-sprof)
-                 do (require module))))
+              do (require module))))
 
 
-;#+ (or sbcl allegro) 
-;(eval-when (:compile-toplevel :load-toplevel :execute)
-;  (pushnew :future *features*))
-
-;#+(and unix (not future) (not lispworks))
-;(eval-when (:compile-toplevel :load-toplevel :execute)
-; (pushnew :fork-future *features*))
-
-;#+(or mswindows linux)
-;(eval-when (:compile-toplevel :load-toplevel :execute)
-;  (pushnew :mkl *features*))
+#+ (and has-mkl (or mswindows linux))
+(eval-when (:compile-toplevel :load-toplevel :execute)
+  (pushnew :mkl *features*))
 
 #+(and allegro (version= 8 2))
 (setq excl:*fasl-default-type* "fasl82")
@@ -34,20 +29,10 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
 #+lispworks
-  (progn
-    (shadow 'concatenate-system)
-    (shadowing-import'(defsys:defsystem defsys:load-system defsys:compile-system)))
-  #+lispworks
-  (use-package :defsys)
-  
-  (loop while (not (eq *read-default-float-format* 'double-float))
-        do
-     (restart-case
-         (error "Please set *read-default-float-format* to 'double-float before loading/compiling the system.")
-       (use-double-float ()
-         :report "Set double-float to *read-default-float-format*."
-         (setq *read-default-float-format* 'double-float)))))
-
+(progn
+  (shadow 'concatenate-system)
+  (shadowing-import'(defsys:defsystem defsys:load-system defsys:compile-system)))
+#+lispworks (use-package :defsys)
 
 #+lispworks
 (defmacro concatenate-system (name destination)
@@ -73,8 +58,8 @@
        Mike Maul  <maul.mike@gmail.com>"
   :maintainer "Mike Maul  <maul.mike@gmail.com>"
   :license "LLGPL"
+  :around-compile call-with-clml-environment
   :depends-on (
-               ;:fork-future
                :clml.hjs
                :clml.blas
                :clml.lapack
@@ -93,9 +78,7 @@
                :clml.text
                :clml.time-series
                :clml.utility
-               
                )
   :components ((:file "package")
-               ))
-
+               )))
 
