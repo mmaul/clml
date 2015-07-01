@@ -361,7 +361,7 @@ export `C-c C-e` cord.
 
 ## Related Repositories
 
--   clml.extras - Extended features for clml
+-   clml.extras - <https://github.com/mmaul/clml.extras> Extended features for clml
     -   cl-plplot integration
     -   cl-ana integration
     -   r-datasets - Library for seamless access to R datasets
