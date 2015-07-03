@@ -210,7 +210,7 @@
           (if labelp (values gr label) gr))))))
 (flet ((parse-csv-line (stream)
          (let ((line (read-line stream nil nil nil)))
-           (when (stringp line) (csv::parse-csv-string line)))))
+           (when (stringp line) (clml.utility.csv::parse-csv-string line)))))
   (defun read-name-part-csv (stream)
     (loop with names = (parse-csv-line stream)
         for name across names

@@ -2,7 +2,6 @@
 
 (defpackage :clml.utility.csv
   (:use :common-lisp :iterate :parse-number)
-  (:nicknames :csv)
   (:export #:read-csv-file
 	   #:read-csv-stream
 	   #:write-csv-file

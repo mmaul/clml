@@ -544,7 +544,7 @@ Otherwise, you must use :auto for random-seed."))
               (assert (every (lambda (l) (= (length l) (length (first csv-records)))) csv-records)
                   nil
                 "The csv record is malformed.")
-              (csv:write-csv-file outclusterfile
+              (clml.utility.csv:write-csv-file outclusterfile
                                   csv-records
                                   :external-format external-format)))
           ;; points
@@ -568,7 +568,7 @@ Otherwise, you must use :auto for random-seed."))
               (assert (every (lambda (l) (= (length l) (length (first csv-records)))) csv-records)
                   nil
                 "The csv record is malformed.")
-              (csv:write-csv-file outdatafile
+              (clml.utility.csv:write-csv-file outdatafile
                                   csv-records
                                   :external-format external-format))))
         (values best-result table)))))
