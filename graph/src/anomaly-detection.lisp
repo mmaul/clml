@@ -758,7 +758,7 @@
   (with-open-file (in fname :direction :input :external-format external-format)
     (let* ((params (ecase format
                      (:sexp (read in nil nil nil))
-                     (:csv (csv::parse-csv-string (read-line in nil nil nil)))))
+                     (:csv (clml.utility.csv::parse-csv-string (read-line in nil nil nil)))))
            (n (length params))
            (csv-type-spec (make-list n :initial-element 'double-float))
            (data 
@@ -1107,7 +1107,7 @@
       (:sexp (let ((sexp (read stream nil nil nil)))
                (setq parsed-names sexp)))
       (:csv (let ((line (read-line stream nil nil nil)))
-              (when line (let ((strs (csv::parse-csv-string line)))
+              (when line (let ((strs (clml.utility.csv::parse-csv-string line)))
                            (setq parsed-names strs))))))
     (when parsed-names
       (values (remove time-label-name parsed-names :test #'string=)
@@ -1126,7 +1126,7 @@
                          time-label (nth time-pos sexp))))))
       (:csv (let ((line (read-line stream nil nil nil)))
               (when line
-                (let* ((strs (csv::parse-csv-string line))
+                (let* ((strs (clml.utility.csv::parse-csv-string line))
                        (vals (loop for i from 0
                                  for str across strs
                                  unless (= i time-pos)
