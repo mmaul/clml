@@ -1,4 +1,4 @@
-
+#+no-quicklisp-controller
 (asdf:defsystem :clml.hjs-package
                 :pathname "src/"
                 :serial t
@@ -6,7 +6,7 @@
                              (:file "package"))
                 )
 
-
+ 
 (asdf:defsystem :clml.hjs
                 :pathname "src/"
                 :serial t
@@ -20,7 +20,7 @@
                              :clml.statistics
                              :clml.utility
                              :clml.hjs-package)
-                :components (
+                :components ((:file "package")
                              (:file "utils")
                              (:file "vars")
                              (:file "vector")
