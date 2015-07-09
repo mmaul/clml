@@ -13,7 +13,7 @@
                 :pathname "src/"
                 :serial t
                 :around-compile call-with-environment  
-                :depends-on (:clml-blas :f2cl-lib)
+                :depends-on (:f2cl-lib)
                 :components (
                              (:file "package")
                              (:file "dlamch")
