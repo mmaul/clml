@@ -7,6 +7,13 @@
 (defun call-with-environment (fun)
   (let ((*read-default-float-format* 'double-float))
     (funcall fun)))
+#+sbcl (eval-when (:compile-toplevel :load-toplevel :execute)
+         (progn
+           ;; Modules won't load if sb-fasl:*fasl-file-type* is not "fasl"
+           ;; So load them first
+           (loop for module in '(:sb-posix :sb-aclrepl :sb-bsd-sockets :sb-cltl2 :sb-cover
+                                 :sb-introspect :sb-md5 :sb-rotate-byte :sb-sprof)
+              do (require module))))
 
 (asdf:defsystem :clml.hjs
   :pathname "src/"
