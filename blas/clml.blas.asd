@@ -78,6 +78,7 @@
   :pathname "src/"
   :serial t
   :around-compile call-with-environment  
+  :depends-on (:f2cl-lib)
   :components (
                (:file "blas-package")
                (:file "zaxpy")
