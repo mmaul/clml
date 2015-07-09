@@ -15,7 +15,6 @@
   :depends-on (
                :alexandria
                :iterate
-               :f2cl
                :clml.blas
                :clml.lapack
                :future
