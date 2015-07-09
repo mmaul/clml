@@ -5,10 +5,10 @@
 (define-test test-sample-cluster-validation 
   (let (*workspace*)
     (assert-true (setf *workspace*
-                       (k-means:k-means
+                       (clml.hjs.k-means:k-means
                         5
-                        (read-data:pick-and-specialize-data
-                         (read-data:read-data-from-file
+                        (clml.hjs.read-data:pick-and-specialize-data
+                         (clml.hjs.read-data:read-data-from-file
                           (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv") :type :csv
                           :csv-type-spec '(string integer integer integer integer)
                           :external-format #+allegro :932 #+sbcl :sjis #+ccl :Windows-31j)

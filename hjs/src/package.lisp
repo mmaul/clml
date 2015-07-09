@@ -1,6 +1,6 @@
 (defpackage :clml.hjs.meta
   (:use :cl)
-  (:nicknames :util)
+  
   (:export #:with-unique-names
 	   #:once-only
        #:defun-speedy
@@ -29,7 +29,7 @@
 	   ))
 (defpackage :clml.hjs.vars
   (:use :cl)
-  (:nicknames :vars)
+  
   (:import-from :alexandria #:define-constant)
   (:export #:*epsilon*
            #:*workers*
@@ -41,7 +41,7 @@
 (defpackage :clml.hjs.vector
   (:use :cl
 	:clml.hjs.meta)
-  (:nicknames :vector)
+  
   (:export #:make-dvec
            #:fill-vec
            #:do-vec
@@ -68,7 +68,7 @@
 ;; --
 (defpackage :clml.hjs.matrix
   (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.blas :clml.lapack)
-  (:nicknames :matrix)
+  
   (:export #:sum-mat
 	   #:copy-mat
 	   #:nrow
@@ -108,9 +108,9 @@
 	   ))
 
 (defpackage :clml.hjs.missing-value
-  (:use :cl :util :vector :clml.statistics :clml.hjs.meta)
+  (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.statistics :clml.hjs.meta)
   (:import-from :alexandria #:define-constant)
-  (:nicknames :missing-val :handling-missing-value)
+  
   (:export
    #:+missing-values+ #:missing-value-p
    #:+na+ #:+nan+ #:+c-nan+ #:++inf+ #:+-inf+
@@ -124,7 +124,7 @@
         :clml.hjs.missing-value
         ;handling-missing-value
         )
-  (:nicknames :read-data)
+  
   (:import-from #:clml.hjs.missing-value
                 ;:handling-missing-value
                 #:interpolate
@@ -181,7 +181,7 @@
   (:use :cl :clml.hjs.vector :clml.hjs.meta :clml.hjs.read-data
 	:clml.statistics :clml.hjs.matrix :iterate
 	:clml.hjs.vars)
-  (:nicknames :k-means)
+  
   (:export
    #:k-means
    #:make-cluster
@@ -215,7 +215,7 @@
         :clml.hjs.matrix
         :clml.blas
         :clml.lapack)
-  (:nicknames :eigensystems)
+  
   (:export
    #:jacobi
    #:eigsrt

@@ -284,7 +284,7 @@
      (make-constant-time-series-data
       '("standard error")
       (map 'vector
-        #'(lambda (se) (matrix::mat2array se)) se-list)
+        #'(lambda (se) (clml.hjs.matrix::mat2array se)) se-list)
       :time-label-name (time-label-name org-ts)
       :time-labels time-labels
       :start start :end end :freq (ts-freq org-ts))

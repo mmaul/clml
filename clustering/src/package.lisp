@@ -1,7 +1,7 @@
 ;;;
 
 (defpackage :clml.clustering.hc
-  (:nicknames :hc)
+  
   (:use :cl
 	:clml.hjs.read-data
 	:clml.hjs.vector
@@ -35,7 +35,7 @@
   )
 
 (defpackage :clml.clustering.nmf
-  (:nicknames :nmf)
+  
   (:use :cl
 	:clml.clustering.hc
 	:clml.blas
@@ -69,7 +69,7 @@
 	   #:sample-matrix))
 
 (defpackage :clml.clustering.optics
-  (:nicknames :optics)
+  
   (:use :cl
         :clml.hjs.read-data
         :clml.hjs.matrix
@@ -82,10 +82,10 @@
   )
 
 (defpackage :clml.clustering.optics-speed
-  (:nicknames :optics-speed)
+  
   (:use
    :clml.nearest-search.nearest
-   :optics
+   :clml.clustering.optics
    )
   (:export
    :optics-input-speed
@@ -95,7 +95,7 @@
    :make-optics-input-speed))
 
 (defpackage :clml.clustering.spectral-clustering
-  (:nicknames :spectral-clustering)
+  
     (:use :cl :clml.hjs.matrix :clml.hjs.meta :clml.hjs.eigensystems)
     (:export #:spectral-clustering-mcut
              #:*sample-w*)
@@ -104,7 +104,7 @@
     (:documentation "   Package for undirected graph clustering"))
 
 (defpackage :clml.clustering.cluster-validation
-  (:nicknames :cluster-validation)
+  
   (:use :cl
         :clml.hjs.k-means
         :clml.hjs.vector
@@ -129,11 +129,11 @@
 - [[http://www.msi.co.jp/vmstudio/materials/tech/index.html][VMS Technical Reference]]
 - [[http://www.cs.tcd.ie/publications/tech-reports/reports.02/TCD-CS-2002-33.pdf][Cluster validation techniques for genome expression data]]"))
 
-#+ignore   ;; Package apparently a work in progress
+
 (defpackage :clml.clustering.k-means2
     (:use :cl :clml.hjs.vector :clml.hjs.meta
           :clml.statistics :clml.hjs.matrix)
-  (:nicknames :k-means2)
+  
   (:export #:k-means
            #:make-cluster
            #:c-center

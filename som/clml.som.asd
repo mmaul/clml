@@ -1,17 +1,23 @@
-(asdf:defsystem :clml.som.package
-                :pathname "src/"
-                :serial t
-                :components (
-                             (:file "package")))
+#+sbcl
+(declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
+
+(defpackage :clml.som-environment (:use :common-lisp :asdf))
+(in-package :clml.som-environment)
+
+(defun call-with-environment (fun)
+  (let ((*read-default-float-format* 'double-float))
+    (funcall fun)))
+
+
 (asdf:defsystem :clml.som
                 :pathname "src/"
                 :serial t
+                :around-compile call-with-environment
                 :depends-on (:clml.hjs
                              :split-sequence
-                             :clml.som.package
                              :clml.statistics
                              )
-                :components (
+                :components ((:file "package")
                              (:file "param")
                              (:file "som_utils")
                              (:file "lvq_pak")
@@ -30,10 +36,10 @@
 (asdf:defsystem :clml.som.example
                 :pathname "examples/"
                 :serial t
+                :around-compile call-with-clml.test-environment
                 :depends-on (:clml.hjs
                              :split-sequence
                              :clml.som
-                             
                              )
                 
                 :components (

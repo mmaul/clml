@@ -1,5 +1,5 @@
 ;; gamma functions
-(in-package :clml.nonparameteric.statistics)
+(in-package :clml.nonparametric.statistics)
 
 (defparameter +gamma-iter+ 9.5d0)
 (defparameter +digamma-small+ 1d-6)

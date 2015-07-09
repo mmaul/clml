@@ -8,7 +8,7 @@
 ( eval-when (:compile-toplevel :load-toplevel)
 
 
-  (defclass ar-model (ts-stsp::gaussian-stsp-model)
+  (defclass ar-model (clml.time-series.state-space::gaussian-stsp-model)
     ((ar-coefficients :initarg :ar-coefficients 
                       :accessor ar-coefficients
                       :type list 

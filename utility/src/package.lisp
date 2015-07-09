@@ -2,7 +2,7 @@
 
 (defpackage :clml.utility.csv
   (:use :common-lisp :iterate :parse-number)
-  (:nicknames :csv)
+  
   (:export #:read-csv-file
 	   #:read-csv-stream
 	   #:write-csv-file
@@ -10,7 +10,7 @@
 	   #:read-csv-file-and-sort))
 
  (defpackage :clml.utility.priority-que
-   (:nicknames :priority-que)
+   
    (:use :cl :iterate)
    (:import-from :alexandria #:define-constant)
    

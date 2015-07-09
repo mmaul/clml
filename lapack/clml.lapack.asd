@@ -1,16 +1,21 @@
+#+sbcl
+(declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
 
+(defpackage :clml.lapack-environment (:use :cl :asdf))
+(in-package :clml.lapack-environment)
 
-(setq *read-default-float-format* 'double-float)
-(asdf:defsystem :clml.lapack-package 
-                :pathname "src/"
-                :serial :clml.blas-package
-                :components (
-                             (:file "package")))
+(defun call-with-environment (fun)
+  (let ((*read-default-float-format* 'double-float))
+    (funcall fun)))
+
 
 (asdf:defsystem :clml.lapack-real
                 :pathname "src/"
-                :serial :clml.lapack-package
+                :serial t
+                :around-compile call-with-environment  
+                :depends-on (:f2cl-lib)
                 :components (
+                             (:file "package")
                              (:file "dlamch")
                              (:file "dlapy2")
                              (:file "dlartg")
@@ -109,9 +114,9 @@
   )
 (asdf:defsystem :clml.lapack
                   :pathname "src/"
-                  :serial :clml.blas
+                  :serial t
+                  :around-compile call-with-environment  
                   :depends-on (
-                               :f2cl
+                               :f2cl-lib
                                :clml.blas
-                               :clml.lapack-package
                                :clml.lapack-real))

@@ -44,12 +44,12 @@
     (+ ts-wsize score-wsize (* 2 sdar-k)))
   (assert (< 0d0 discount 1d0))
   (let* ((dim (length (dataset-dimensions ts)))
-         (ts-sdar (ts-ar::init-sdar ts :ar-k sdar-k))
+         (ts-sdar (clml.time-series.autoregression::init-sdar ts :ar-k sdar-k))
          (last-pt-stats
           (loop for i below sdar-k
               as dvec = (ts-p-pos (aref (ts-points ts) i))
-              do (ts-ar::update-xt-array ts-sdar dvec)
-              finally (return (multiple-value-bind (mu s) (ts-ar::predict-sdar ts-sdar)
+              do (clml.time-series.autoregression::update-xt-array ts-sdar dvec)
+              finally (return (multiple-value-bind (mu s) (clml.time-series.autoregression::predict-sdar ts-sdar)
                                 `(:pt-1 ,(multi-gaussian mu s) :pt nil)))))
          (cf (make-instance 'changefinder
                :n-dim dim :ts-model ts-sdar :last-pt-stats last-pt-stats
@@ -73,12 +73,12 @@
              (ts (make-constant-time-series-data '("smthed-score")
                                                  (map 'vector (lambda (v) (make-dvec 1 v))
                                                       train-for-score-model)))
-             (score-sdar (ts-ar::init-sdar ts :ar-k sdar-k))
+             (score-sdar (clml.time-series.autoregression::init-sdar ts :ar-k sdar-k))
              (last-qt-stats
               (loop for i below sdar-k
                   as dvec = (ts-p-pos (aref (ts-points ts) i))
-                  do (ts-ar::update-xt-array score-sdar dvec)
-                  finally (return (multiple-value-bind (mu s) (ts-ar::predict-sdar score-sdar)
+                  do (clml.time-series.autoregression::update-xt-array score-sdar dvec)
+                  finally (return (multiple-value-bind (mu s) (clml.time-series.autoregression::predict-sdar score-sdar)
                                     `(:pt-1 ,(multi-gaussian mu s) :pt nil))))))
         
         (setf (score-model cf) score-sdar
@@ -112,7 +112,7 @@
 (macrolet ((update-score (model stats score-list)
              `(progn 
                 (multiple-value-bind (new-mu new-sigma)
-                    (ts-ar::update-sdar (,model cf) new-dvec :discount (discount cf)) 
+                    (clml.time-series.autoregression::update-sdar (,model cf) new-dvec :discount (discount cf)) 
                   (when (eq (score-type cf) :hellinger)
                     (setf (getf (,stats cf) :pt) (multi-gaussian new-mu new-sigma)))
                   
@@ -120,7 +120,7 @@
                     
                     (setf (,score-list cf) (append (cdr (,score-list cf)) (list score)))
                     
-                    (multiple-value-bind (new-mu new-sigma) (ts-ar::predict-sdar (,model cf))
+                    (multiple-value-bind (new-mu new-sigma) (clml.time-series.autoregression::predict-sdar (,model cf))
                       (setf (getf (,stats cf) :pt-1) (multi-gaussian new-mu new-sigma)))
                     score)))))
 
@@ -191,7 +191,7 @@
           (a-x-mx-m (mat2array x-mx-m ))
           (a-res (mat2array res))
           )
-      (blas:dgemm "N" "N" dim dim dim -0.5d0 a-inv-sigma dim a-x-mx-m dim 0d0 a-res dim)
+      (clml.blas:dgemm "N" "N" dim dim dim -0.5d0 a-inv-sigma dim a-x-mx-m dim 0d0 a-res dim)
       `(array2mat a-res ,dim res))
     (tr res)
     ))

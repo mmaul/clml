@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
 (defpackage :clml.svm.mu
-  (:nicknames :svm)
+  
   (:use :common-lisp
         :clml.hjs.meta)
   (:export :kernel
@@ -26,13 +26,13 @@ A nice and clear explanation of SVMs can be found in
   )
 
 (defpackage :clml.svm.wss3
-  (:nicknames :svm.wss3)
+  
   (:use :cl
 	:clml.hjs.meta
 	:clml.hjs.vector
 	:clml.hjs.read-data
     :clml.hjs.matrix)
-  (:import-from :decision-tree
+  (:import-from :clml.decision-tree.decision-tree
 		#:sum-up)
   (:export #:make-svm-learner
 	   #:load-svm-learner
@@ -55,8 +55,8 @@ A nice and clear explanation of SVMs can be found in
 	:clml.hjs.vector
 	:clml.hjs.read-data
     :clml.hjs.matrix)
-  (:nicknames :one-class-svm)
-  (:import-from :svm.wss3
+  
+  (:import-from :clml.svm.wss3
 		#:sign
 		#:call-kernel-function-uncached
 		#:call-kernel-function)
@@ -69,13 +69,13 @@ Reference: "A Study on SMO-type Decomposition Methods for Support Vector Machine
 Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"))
 
 (defpackage :clml.svm.pwss3
-  (:nicknames :pwss3-svm)
+  
   (:use :cl
           :clml.hjs.meta
           :clml.hjs.vector
           :clml.hjs.read-data
           :clml.hjs.matrix)
-  (:import-from :decision-tree
+  (:import-from :clml.decision-tree.decision-tree
 		#:sum-up)
   (:export #:make-svm-learner
 	   #:load-svm-learner
@@ -92,7 +92,7 @@ Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"))
         :clml.hjs.vector
         :clml.hjs.matrix
         :clml.hjs.meta)
-  (:import-from :decision-tree
+  (:import-from :clml.decision-tree.decision-tree
 		#:sum-up)
   (:export
    #:linear-kernel
@@ -111,14 +111,14 @@ Reference: Jhon C. Platt. "Fast Training of Support Vector Machines using Sequen
 
 
 (defpackage :clml.svm.svr
-  (:nicknames :svr)
+  
   (:use :cl
-	:svm.wss3
+	:clml.svm.wss3
 	:clml.hjs.meta
 	:clml.hjs.vector
 	:clml.hjs.read-data
         :clml.hjs.matrix)
-  (:import-from :svm.wss3
+  (:import-from :clml.svm.wss3
 		#:call-kernel-function-uncached
 		#:call-kernel-function
 		#:define-kernel-function)

@@ -17,7 +17,7 @@ TOTAL: 507 assertions passed, 0 failed, 0 execution errors.
       ))
 
 (define-test test-sample-w
-    (let ((*sample-w* spectral-clustering::*sample-w*))
+    (let ((*sample-w* clml.clustering.spectral-clustering::*sample-w*))
       (assert-true (handler-case
                        (progn  (spectral-clustering-mcut *sample-w* 0)
                                nil)
@@ -43,7 +43,7 @@ TOTAL: 507 assertions passed, 0 failed, 0 execution errors.
 
 (define-test test-random-w
     (loop repeat 50
-        as w = (spectral-clustering::make-random-symmetric-matrix
+        as w = (clml.clustering.spectral-clustering::make-random-symmetric-matrix
                 100 0 most-positive-single-float)
         do (loop for c-num from 1 to 10
                do (assert-equality 

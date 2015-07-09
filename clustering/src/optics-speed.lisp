@@ -1,7 +1,7 @@
 ;; optics with nearest-serach package
 
 
-(in-package :optics)
+(in-package :clml.clustering.optics)
 
 (defclass optics-input-speed (optics-input)
   ((nns-args  :initform nil    :initarg :nns-args :accessor nns-args)

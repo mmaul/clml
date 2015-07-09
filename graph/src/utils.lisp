@@ -4,8 +4,8 @@
 (defgeneric retrieve-node (gr id-or-name))
 (defmethod retrieve-node ((gr simple-graph) id-or-name)
   (etypecase id-or-name
-    (fixnum (gethash id-or-name (read-graph::node-hashtab gr)))
-    (string (loop for node being each hash-value in (read-graph::node-hashtab gr)
+    (fixnum (gethash id-or-name (clml.graph.read-graph::node-hashtab gr)))
+    (string (loop for node being each hash-value in (clml.graph.read-graph::node-hashtab gr)
                 as name = (node-name node)
                 when (equal name id-or-name)
                 return node))))
@@ -14,7 +14,7 @@
 (defmethod retrieve-link ((gr simple-graph) nid1-or-name nid2-or-name)
   (let ((node1 (retrieve-node gr nid1-or-name))
         (node2 (retrieve-node gr nid2-or-name))
-        (htab (read-graph::link-hashtab gr))
+        (htab (clml.graph.read-graph::link-hashtab gr))
         (dirp (directed-p gr)))
     (when (and node1 node2)
       (let ((nid1 (node-id node1))
@@ -40,7 +40,7 @@ Output:
                       (remove nid (node-links nd) :key #'link-node1 :test-not #'eql)
                     (node-links nd))
       as w = (link-weight link)
-      as adj = (read-graph::get-node gr 
+      as adj = (clml.graph.read-graph::get-node gr 
                                      (cond ((eql (link-node1 link) nid) (link-node2 link))
                                            ((eql (link-node2 link) nid) (link-node1 link))
                                            (t (error "illegal graph structure: ~A is a link of ~A" link nd))))

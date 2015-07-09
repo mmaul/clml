@@ -1,11 +1,13 @@
 ;; -*- mode: lisp; syntax: common-lisp -*-
+#+sbcl
+(declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
 
-(in-package :cl-user)
+(defpackage :clml.statistics-environment (:use :cl :asdf))
+(in-package :clml.statistics-environment)
 
-(defpackage :clml.statistics-asd
-  (:use :cl :asdf))
-
-(in-package :clml.statistics-asd)
+(defun call-with-environment (fun)
+  (let ((*read-default-float-format* 'double-float))
+    (funcall fun)))
 
 
 (asdf:defsystem :clml.statistics
@@ -14,6 +16,7 @@
   :description "Statistics Library"
   :depends-on (:clml.statistics.rand)
   :serial t
+  :around-compile call-with-environment
   :components 
   ((:module "statistics" 
             :pathname "src/"

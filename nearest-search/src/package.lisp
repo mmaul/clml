@@ -1,6 +1,6 @@
 
 (defpackage :clml.nearest-search.k-nn
-  (:nicknames :k-nn :learn.k-nn)
+  
   (:use :cl
         :clml.hjs.vector
         :clml.hjs.read-data
@@ -20,12 +20,12 @@ self analysis is displayed.
   )
 
 (defpackage :clml.nearest-search.nearest
-  (:nicknames :learn.nearest)
+  
   (:use :cl
 	:clml.hjs.read-data
 	:clml.hjs.vector
 	:clml.hjs.meta
-	:nonpara.stat
+	:clml.nonparametric.statistics
 	:clml.hjs.matrix
 	:clml.pca
 	:clml.utility.priority-que)
@@ -60,7 +60,7 @@ self analysis is displayed.
 	   ))
 
 (defpackage :clml.nearest-search.k-nn-new
-  (:nicknames :k-nn-new :learn.k-nn-new)
+  
   (:use :cl
         :clml.hjs.vector
         :clml.hjs.read-data

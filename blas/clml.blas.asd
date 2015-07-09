@@ -1,24 +1,28 @@
-(asdf:defsystem :clml.blas-package 
-                :pathname "src/"
-                :depends-on (:f2cl)
-                :components (
-                             (:file "package"))
-                )
-( eval-when (:compile-toplevel :load-toplevel :execute)
-  (setq *read-default-float-format* 'double-float)
-  (loop while (not (eq *read-default-float-format* 'double-float))
-     do
-       (restart-case
-           (error "Please set *read-default-float-format* to 'double-float before loading/compiling the system.")
-         (use-double-float ()
-           :report "Set double-float to *read-default-float-format*."
-           (setq *read-default-float-format* 'double-float)))))
+#+sbcl
+(declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
+
+(defpackage :clml.blas-environment (:use :cl :asdf))
+(in-package :clml.blas-environment)
+
+(defun call-with-environment (fun)
+  (let ((*read-default-float-format* 'double-float))
+    (funcall fun)))
+
+(asdf:defsystem :f2cl-lib
+  :pathname "src/"
+  :around-compile call-with-environment  
+  :serial t
+  :components ((:file "package")
+               (:file "macro"))
+  )
 
 (asdf:defsystem :clml.blas.hompack
   :pathname "src/"
-  :depends-on (:clml.blas-package)
+  :around-compile call-with-environment  
   :serial t
+  :depends-on (:f2cl-lib)
   :components (
+               (:file "blas-package")
                (:file "daxpy")
                (:file "dcopy")
                (:file "ddot")
@@ -30,8 +34,10 @@
 (asdf:defsystem :clml.blas.real
                 :pathname "src/"
                 :serial t
-                :depends-on (:clml.blas-package)
+                :around-compile call-with-environment
+                :depends-on (:f2cl-lib)
                 :components (
+                             (:file "blas-package")
                              (:file "lsame")
                              (:file "xerbla")
                              (:file "dasum")
@@ -71,8 +77,9 @@
 (asdf:defsystem :clml.blas.complex
   :pathname "src/"
   :serial t
-  :depends-on (:clml.blas-package)
+  :around-compile call-with-environment  
   :components (
+               (:file "blas-package")
                (:file "zaxpy")
                (:file "zcopy")
                (:file "zdotc")
@@ -111,7 +118,7 @@
 (asdf:defsystem :clml.blas
   :pathname "src/"
   :serial t
-  :depends-on (:clml.blas-package
-               :clml.blas.hompack
+  :around-compile call-with-environment  
+  :depends-on (:clml.blas.hompack
                :clml.blas.real
                :clml.blas.complex))

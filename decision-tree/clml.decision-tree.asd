@@ -1,20 +1,24 @@
-(asdf:defsystem :clml.decision-tree-package
-                :pathname "src/"
-                :serial t
-                :components (
-                             (:file "package")))
+#+sbcl
+(declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
+
+(defpackage :clml.nearest-search-environment (:use :common-lisp :asdf))
+(in-package :clml.nearest-search-environment)
+
+(defun call-with-environment (fun)
+  (let ((*read-default-float-format* 'double-float))
+    (funcall fun)))
+
 
 
 (asdf:defsystem :clml.decision-tree
                 :pathname "src/"
                 :serial t
-                :depends-on ( :clml.hjs
-                              ;:future
-                              :lparallel
-                             :clml.decision-tree-package
+                :around-compile call-with-environment
+                :depends-on (:clml.hjs
+                             :lparallel
                              )
                 :components (
-                             
+                             (:file "package")
                              (:file "decision-tree")
                              (:file "random-forest")
                              ))

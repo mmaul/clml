@@ -3,8 +3,8 @@
 (defpackage :clml.test
   (:use
    :cl
-   :vars
-   :read-data
+   :clml.hjs.vars
+   :clml.hjs.read-data
    :clml.statistics
    :clml.statistics.math
    :clml.clustering.CLUSTER-VALIDATION
@@ -67,7 +67,7 @@
                :set-equal
                )
   
-  (:import-from :decision-tree :make-decision-tree :print-decision-tree
+  (:import-from :clml.decision-tree.decision-tree :make-decision-tree :print-decision-tree
                :decision-tree-validation :predict-decision-tree :make-regression-tree
                :predict-regression-tree :print-regression-tree :regression-tree-validation)
   ;(:import-from "SPECTRAL-CLUSTERING" "*SAMPLE-W*")

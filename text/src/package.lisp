@@ -1,7 +1,7 @@
 
 
 (defpackage :clml.text.utilities
-  (:nicknames :text-utils :text-utilities)
+  
   (:use :common-lisp
         :clml.hjs.read-data)
   (:export :calculate-string-similarity
@@ -17,7 +17,7 @@
 
 ;; package of interfaces for :text.hdp-lda
 (defpackage :clml.text.hdp-lda
-  (:nicknames :text.hdp :hdp-lda)
+  
   (:use :cl :clml.hjs.read-data :clml.hjs.vector :clml.nonparametric.hdp-lda)
   
   (:export #:hdp-lda

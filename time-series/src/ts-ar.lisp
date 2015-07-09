@@ -19,14 +19,14 @@
           do (format stream "a~D~T~F~%" i coef))
       (format stream "Order selected ~D~%~Tsigma^2 estimated as ~D~%~TAIC: ~D"
               selected-order s (nth selected-order (slot-value model 'aic))))))
-(defmethod ts-stsp::x-00 ((model ar-model))
+(defmethod clml.time-series.state-space::x-00 ((model ar-model))
   (with-accessors ((ar-coefs ar-coefficients)
-                   (ts ts-stsp::observed-ts)) model
+                   (ts clml.time-series.state-space::observed-ts)) model
     (make-array (car ar-coefs)
                 :initial-element (aref (ts-mean ts) 0)
                 :element-type 'double-float)))
-(defmethod ts-stsp::v-00 ((model ar-model))
-  (let ((var (aref (ts-covariance (ts-stsp::observed-ts model)) 0 0)))
+(defmethod clml.time-series.state-space::v-00 ((model ar-model))
+  (let ((var (aref (ts-covariance (clml.time-series.state-space::observed-ts model)) 0 0)))
     (diag (car (ar-coefficients model)) var)))
 
 (defgeneric aic (model))
@@ -74,7 +74,7 @@
 
 (defun calc-aic (cov num-of-coef num-of-data)
   (if (>= 0d0 cov)
-      handling-missing-value:+-inf+
+      clml.hjs.missing-value:+-inf+
       (+ (* num-of-data (1+ (log (* 2 (coerce pi 'double-float) cov))))
          (* 2 (1+ num-of-coef)))))
 
@@ -230,7 +230,7 @@
 |#
 (defmethod predict ((model ar-model) &key (n-ahead 0))
   (assert (not (minusp n-ahead)))
-  (with-accessors ((ts ts-stsp::observed-ts) (demean demean) 
+  (with-accessors ((ts clml.time-series.state-space::observed-ts) (demean demean) 
                    (ar-c ar-coefficients)) model
     (let* ((n (length (ts-points ts)))
            (pos-list (make-list (+ n n-ahead)
@@ -243,7 +243,7 @@
                                            :initial-element (sqrt (sigma^2 model))
                                            :element-type 'double-float))))
       (unless (= 0 (car ar-c))
-        (ts-stsp::kalman-filter model)
+        (clml.time-series.state-space::kalman-filter model)
         (multiple-value-setq (pos-list se-list)
           (clml.time-series.state-space::forecast model n-ahead)))
       (let* ((start (tf-incl (ts-start ts) (car ar-c) :freq (ts-freq ts)))
@@ -269,7 +269,7 @@
           :start start :end end :freq (ts-freq ts))
          (make-constant-time-series-data
           '("standard error")
-          (coerce (mapcar #'(lambda (mat) (matrix::mat2array mat)) se-list)
+          (coerce (mapcar #'(lambda (mat) (clml.hjs.matrix::mat2array mat)) se-list)
                   'vector)
           :time-label-name (time-label-name ts)
           :time-labels time-labels
@@ -630,7 +630,7 @@
            (format nil "~a-~a" i m))
          (calc-aic (cov d m)
            (let ((d-cov (det cov)))
-             (cond ((>= 0 d-cov) handling-missing-value:+nan+)
+             (cond ((>= 0 d-cov) clml.hjs.missing-value:+nan+)
                    ((and (minusp d-cov) (> (abs d-cov) *epsilon*))
                     (error "Covariance must be positive-definite matrix ~A" cov))
                    
@@ -848,7 +848,7 @@
                as (%coef-vec lev-obj) = (multiple-value-list
                                          (multivariate-levinsion cj-vec len))
                as aic = (lev-aic lev-obj)
-               when (and (not (handling-missing-value:nan-p aic))
+               when (and (not (clml.hjs.missing-value:nan-p aic))
                          (> min-aic (lev-aic lev-obj))) do
                  (setf min-aic (lev-aic lev-obj)
                        coef-vec %coef-vec

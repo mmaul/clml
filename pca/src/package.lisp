@@ -1,5 +1,5 @@
 (defpackage :clml.pca
-  (:nicknames :clml.hjs.pca)
+  
   (:use :cl
         :clml.hjs.meta
         :clml.hjs.matrix
@@ -7,8 +7,9 @@
         :clml.hjs.vector
         :clml.hjs.read-data
         :clml.statistics
-        :clml.hjs.vars)
-  (:nicknames :pca)
+        :clml.hjs.vars
+        :clml.hjs.missing-value)
+  
   (:export 
    #:pca-result
    #:princomp

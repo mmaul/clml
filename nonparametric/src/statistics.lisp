@@ -1,6 +1,6 @@
 ;; base statistics and small utility for nonparametric Bayes
 
-(in-package :clml.nonparameteric.statistics)
+(in-package :clml.nonparametric.statistics)
 
 (defmacro make-adarray (dim &rest args)
   `(make-array ,dim :fill-pointer t :adjustable t ,@args))

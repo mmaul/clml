@@ -120,8 +120,8 @@ N), where M is the number of ponits and N is the dimension size.
                          (sqrt #-ccl (the (double-float 0.0) val)
                                #+ccl val))))))
               (ecase type
-                (:matrix (fill-vec (make-dvec dim) handling-missing-value:+nan+))
-                (:closure (lambda (ir) (declare (ignore ir)) handling-missing-value:+nan+)))))
+                (:matrix (fill-vec (make-dvec dim) clml.hjs.missing-value:+nan+))
+                (:closure (lambda (ir) (declare (ignore ir)) clml.hjs.missing-value:+nan+)))))
          ;; computing the correlation matrix
          (correlation
           (when (eq method :correlation)

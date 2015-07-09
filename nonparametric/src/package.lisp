@@ -1,6 +1,6 @@
 
-(defpackage :clml.nonparameteric.statistics
-  (:nicknames :nonparameteric.statistics :nonpara.stat)
+(defpackage :clml.nonparametric.statistics
+  
   (:use :cl :clml.hjs.matrix :clml.hjs.vector :clml.hjs.meta)
   (:export :make-adarray
    
@@ -52,12 +52,12 @@
 
 
 (defpackage :clml.nonparametric.dpm
-  (:nicknames :dpm :nonparametric.dpm)
+  
   (:use :cl
         :clml.hjs.meta
         :clml.hjs.matrix
         :clml.hjs.vector
-        :nonpara.stat)
+        :clml.nonparametric.statistics)
   (:export :dpm
 	   :dpm-k
 	   :dpm-p
@@ -120,8 +120,7 @@
        ))
 
 (defpackage :clml.nonparametric.hdp-lda
-  ;; (:nicknames :hdp-lda :text.hdp-lda)
-  (:use :cl :nonparameteric.statistics :clml.hjs.meta)
+  (:use :cl :clml.nonparametric.statistics :clml.hjs.meta)
   (:export :hdp-lda
 	   :word
 	   :document
@@ -166,8 +165,8 @@
   )
 
 (defpackage :clml.nonparametric.hdp
-  (:nicknames :nonparametric.hdp)
-  (:use :cl :clml.hjs.meta :nonpara.stat :nonparametric.dpm)
+  
+  (:use :cl :clml.hjs.meta :clml.nonparametric.statistics :clml.nonparametric.dpm)
   (:export :hdp-cluster
 	   :cluster-latent-table
 	   :cluster-tmp-table
@@ -185,10 +184,10 @@
 	   ))
 
 (defpackage :clml.nonparametric.hdp-hmm
-  (:nicknames :nonparametric.hdp-hmm)
+  
   (:use :cl
         :clml.hjs.meta
-        :clml.nonparameteric.statistics
+        :clml.nonparametric.statistics
         :clml.nonparametric.dpm
         :clml.nonparametric.hdp)
   (:export :hidden-state
@@ -212,7 +211,7 @@
            ))
 
 (defpackage :clml.nonparametric.gauss-hdp-hmm
-  (:nicknames :nonparametric.gauss-hdp-hmm)
+  
   (:use :cl)
   (:import-from :clml.nonparametric.dpm
                 :gaussian-cluster
@@ -224,11 +223,11 @@
 	   :make-sticky-test))
 
 (defpackage :clml.nonparametric.sticky-hdp-hmm
-  (:nicknames :nonparametric.sticky-hdp-hmm)
-  (:use :cl :nonpara.stat :clml.hjs.meta
-	:nonparametric.dpm
-	:nonparametric.hdp
-	:nonparametric.hdp-hmm)
+  
+  (:use :cl :clml.nonparametric.statistics :clml.hjs.meta
+	:clml.nonparametric.dpm
+	:clml.nonparametric.hdp
+	:clml.nonparametric.hdp-hmm)
   (:export :sticky-hdp-hmm
 	   :sticky-hidden-state
 	   :sticky-state-uniform
@@ -239,11 +238,11 @@
 	   :*rho-base-d*))
 
 (defpackage :clml.nonparametric.blocked-hdp-hmm
-  (:nicknames nonparametric.blocked-hdp-hmm)
-  (:use :cl :nonpara.stat :clml.hjs.meta
-        :nonparametric.hdp-hmm
-        :nonparametric.dpm 
-        :nonparametric.hdp
+  
+  (:use :cl :clml.nonparametric.statistics :clml.hjs.meta
+        :clml.nonparametric.hdp-hmm
+        :clml.nonparametric.dpm 
+        :clml.nonparametric.hdp
 	)
   (:export :blocked-hidden-state
 	   :blocked-hdp-hmm
@@ -260,14 +259,14 @@
 	   :state-pi))
 
 (defpackage :clml.nonparametric.ihmm
-  (:nicknames :nonparametric.ihmm)
+  
   (:use :cl :clml.hjs.meta
-	:nonpara.stat
-	:nonparametric.dpm
-	:nonparametric.hdp
-	:nonparametric.hdp-hmm
-	:nonparametric.sticky-hdp-hmm
-	:nonparametric.blocked-hdp-hmm)
+	:clml.nonparametric.statistics
+	:clml.nonparametric.dpm
+	:clml.nonparametric.hdp
+	:clml.nonparametric.hdp-hmm
+	:clml.nonparametric.sticky-hdp-hmm
+	:clml.nonparametric.blocked-hdp-hmm)
   (:export :ihmm
 	   :ihmm-state
 	   :ihmm-state-uniform))
@@ -276,9 +275,9 @@
 
 
 (defpackage :clml.nonparametric.ftm
-  (:nicknames :nonparametric.ftm)
+  
   (:use :cl
-        :clml.nonparameteric.statistics
+        :clml.nonparametric.statistics
         :clml.nonparametric.dpm)
   (:export :ftm-topic
 	   :topic-pi
@@ -295,10 +294,10 @@
    ))
 
 (defpackage :clml.nonparametric.lfm
-  (:nicknames :nonparametric.lfm)
-  (:use :cl :nonpara.stat :clml.hjs.meta
+  
+  (:use :cl :clml.nonparametric.statistics :clml.hjs.meta
 	:clml.hjs.matrix :clml.hjs.vector
-	:nonparametric.dpm)
+	:clml.nonparametric.dpm)
   (:export :ibp
 	   :ibp-row
 	   :ibp-distribution

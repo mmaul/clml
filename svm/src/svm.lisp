@@ -208,8 +208,8 @@ training data.
 	    (tmp (make-array n :element-type 'double-float)))
         (declare (type dvec alpha tmp))
 	(loop repeat iterations
-	   for apalpha = (matrix:m*v ap alpha)
-	   for amalpha = (matrix:m*v am alpha)
+	   for apalpha = (clml.hjs.matrix:m*v ap alpha)
+	   for amalpha = (clml.hjs.matrix:m*v am alpha)
 	   for R =
 	     (loop for i from 0 below n sum
 		  (safe-/ (aref alpha i) (aref apalpha i)))

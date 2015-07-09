@@ -243,7 +243,7 @@
 (defmethod make-face-estimator-random-forest-with-pca
     ((face-dataset numeric-and-category-dataset)
      pca-result pca-model &key dimension-thld (id-column "personID")
-                               (tree-test #'decision-tree::delta-gini)
+                               (tree-test #'clml.decision-tree.decision-tree::delta-gini)
                                (tree-number 500))
   (unless dimension-thld (setq dimension-thld (length (loading-factors pca-model))))
   (let* ((points (map 'vector #'copy-seq
@@ -279,7 +279,7 @@
              (cons id-column (loop for i from 1 to dim collect (format nil "princ~A" i)))
              (map 'vector (lambda (id pt) (concatenate 'simple-vector `(,id) pt)) ids score)
              :missing-value-check nil))
-           (forest (random-forest:make-random-forest
+           (forest (clml.decision-tree.random-forest:make-random-forest
                     train-dataset id-column :test tree-test
                     :tree-number tree-number))
            (face-estimator
@@ -293,8 +293,8 @@
                 ;; projection
                 (base-projection bases face-v s-dvec)
                 ;; forest prediction
-                (random-forest:predict-forest (concatenate 'simple-vector 
-                                                `(,handling-missing-value:+na+) s-dvec)
+                (clml.decision-tree.random-forest:predict-forest (concatenate 'simple-vector 
+                                                `(,clml.hjs.missing-value:+na+) s-dvec)
                                               train-dataset forest)))))
       (values face-estimator forest (length bases) train-dataset))))
 (defgeneric make-face-estimator (face-dataset &key)

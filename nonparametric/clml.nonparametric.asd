@@ -1,18 +1,22 @@
-(asdf:defsystem :clml.nonparametric.package
-                :pathname "src/"
-                :serial t
-                :components (
-                             (:file "package")))
+#+sbcl
+(declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
+
+(defpackage :clml.nonparametric-environment (:use :common-lisp :asdf))
+(in-package :clml.nonparametric-environment)
+
+(defun call-with--environment (fun)
+  (let ((*read-default-float-format* 'double-float))
+    (funcall fun)))
 
 
 (asdf:defsystem :clml.nonparametric
                 :pathname "src/"
                 :serial t
+                :around-compile call-with--environment
                 :depends-on (
                              :clml.hjs
-                             :clml.nonparametric.package
                              )
-                :components (
+                :components ((:file "package")
                              (:file "statistics")
                              (:file "gamma")
                              (:file "dpm")

@@ -514,7 +514,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
         :missing-values-list missing-values-list)))
     (:csv
      (multiple-value-bind (data header)
-         (csv:read-csv-file filename :header csv-header-p :type-spec csv-type-spec
+         (clml.utility.csv:read-csv-file filename :header csv-header-p :type-spec csv-type-spec
                             :external-format (if external-format-p external-format
                                                  #+allegro :932
                                                  #+ccl :Windows-31j

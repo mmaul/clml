@@ -1,6 +1,6 @@
 
 (defpackage :clml.graph.read-graph
-  (:nicknames :read-graph)
+  
   (:use :cl 
         :parse-number
          :clml.hjs.matrix
@@ -49,7 +49,7 @@
            #:get-connected-components))
 
 (defpackage :clml.graph.shortest-path
-  (:nicknames :graph-shortest-path)
+  
   (:use :cl
         :clml.hjs.meta
         :clml.hjs.vector
@@ -82,7 +82,7 @@
            #:degree-centrality
            #:eigen-centrality
            #:pagerank)
-  (:import-from :graph-shortest-path #:%find-all-shortest-paths)
+  (:import-from :clml.graph.shortest-path #:%find-all-shortest-paths)
   (:documentation "Graph Centrailty
 
 *** sample usage
@@ -100,8 +100,8 @@
         :clml.hjs.meta
         :clml.hjs.eigensystems
         :clml.statistics
-        :read-data
-        :missing-val
+        :clml.hjs.read-data
+        :clml.hjs.missing-value
         :clml.utility.csv
         :clml.time-series.util
         :clml.time-series.read-data

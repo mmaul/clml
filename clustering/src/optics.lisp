@@ -9,7 +9,7 @@
 ;;; Institute for Computer Science, University of Munich
 
 
-(in-package :optics)
+(in-package :clml.clustering.optics)
 
 
 

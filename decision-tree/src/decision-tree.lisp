@@ -1,7 +1,7 @@
 ;;;
 
 	    
-(in-package :decision-tree)
+(in-package :clml.decision-tree.decision-tree)
 
 (defun make-variable-index-hash (unspecialized-dataset)
   (let ((dim-vector (dataset-dimensions unspecialized-dataset)))

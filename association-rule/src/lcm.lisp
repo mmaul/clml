@@ -1,5 +1,5 @@
 ;; Occurence Deliver
-(in-package :association-rule)
+(in-package :clml.association-rule)
 
 (defun occurence-deliver (sub-transactions rest-keys)
   (let ((next-transactions (mapcar #'(lambda (key)

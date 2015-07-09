@@ -107,7 +107,7 @@
        (map 'vector (lambda (v) (round-to v precision))
             array))
     (2
-       (let ((arr (matrix:copy-mat array)))
+       (let ((arr (clml.hjs.matrix:copy-mat array)))
          (loop for i below (array-dimension arr 0)
                do
             (loop for j below (array-dimension arr 1)

@@ -9,7 +9,7 @@
 
 
 
-(in-package :spectral-clustering)
+(in-package :clml.clustering.spectral-clustering)
 
 
 (defvar *debug-spectral* nil)

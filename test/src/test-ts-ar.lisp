@@ -9,10 +9,10 @@
                              :range '(1) :time-label 0
                              :start 1960 :frequency 4)))
       (assert-true (setq model (ar ukgas)))
-      (with-accessors ((coefs ts-autoregression::ar-coefficients)
-                       (s2 ts-autoregression::sigma^2)
-                       (dem ts-autoregression::demean)
-                       (method ts-autoregression::ar-method)) model
+      (with-accessors ((coefs clml.time-series.autoregression::ar-coefficients)
+                       (s2 clml.time-series.autoregression::sigma^2)
+                       (dem clml.time-series.autoregression::demean)
+                       (method clml.time-series.autoregression::ar-method)) model
         (assert-equality #'epsilon> 337.63055555555553d0 (aref dem 0))
         (assert-equality #'epsilon> 1231.505368951319d0 s2)
         (assert-eq :burg method)
@@ -31,7 +31,7 @@
             1095.5232071332118d0 1097.5230807182193d0 1099.3876611523242d0 1101.3189817751283d0
             1099.1548231232998d0 1101.0027662762807d0 1098.8203207533102d0 1099.7222047541711d0
             1099.8811865464495d0)
-          (slot-value model 'ts-autoregression::aic)
+          (slot-value model 'clml.time-series.autoregression::aic)
           :test #'epsilon>)))
       (assert-true 
        (multiple-value-setq (pred std-err) (predict model :n-ahead 12)))

@@ -534,7 +534,7 @@
                                             :pagerank-c pagerank-c) into actvecs
                  finally (return (make-constant-time-series-data param-names
                                                                  (coerce actvecs 'vector)))))
-         (sdar (ts-autoregression::init-sdar ts :ar-k ar-k)))
+         (sdar (clml.time-series.autoregression::init-sdar ts :ar-k ar-k)))
     (make-instance 'anomaly-detector-eb-predict
       :sdar sdar
       :ar-k ar-k
@@ -583,10 +583,10 @@
 (defgeneric update-sdar-as-detector (sdar new-xt
                                     &key discount
                                          threshold))
-(defmethod update-sdar-as-detector ((sdar ts-autoregression::sdar) new-xt
+(defmethod update-sdar-as-detector ((sdar clml.time-series.autoregression::sdar) new-xt
                                     &key (discount 0.01d0)
                                          (threshold 5d0))
-  (multiple-value-bind (pre-mu pre-v) (ts-ar::predict-sdar sdar)
+  (multiple-value-bind (pre-mu pre-v) (clml.time-series.autoregression::predict-sdar sdar)
     (let* ((n (array-dimension pre-v 0))
            (inv-v (round-mat
                    (m^-1 (mcm (round-mat pre-v) (diag n 1d-2) :c #'+)))))
@@ -594,7 +594,7 @@
       (let* ((d (%mahalanobis-distance new-xt pre-mu inv-v))
              (state (if (>= threshold d) :normal :anomaly)))
         (ecase state
-          (:normal (ts-ar::update-sdar sdar new-xt :discount discount))
+          (:normal (clml.time-series.autoregression::update-sdar sdar new-xt :discount discount))
           (:anomaly (let* ((v (vcv new-xt pre-mu :c #'-))
                            (denom (loop for j below n sum
                                         (* (loop for i below n sum
@@ -605,7 +605,7 @@
                                         (t (sqrt (/ (* threshold threshold) denom)))))
                            (new-xt (make-dvec n)))
                       (v+ pre-mu (v-scale v scale new-xt) new-xt)
-                      (ts-ar::update-sdar sdar new-xt :discount discount))))
+                      (clml.time-series.autoregression::update-sdar sdar new-xt :discount discount))))
         (values pre-mu pre-v d state)))))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -758,7 +758,7 @@
   (with-open-file (in fname :direction :input :external-format external-format)
     (let* ((params (ecase format
                      (:sexp (read in nil nil nil))
-                     (:csv (csv::parse-csv-string (read-line in nil nil nil)))))
+                     (:csv (clml.utility.csv::parse-csv-string (read-line in nil nil nil)))))
            (n (length params))
            (csv-type-spec (make-list n :initial-element 'double-float))
            (data 
@@ -1107,7 +1107,7 @@
       (:sexp (let ((sexp (read stream nil nil nil)))
                (setq parsed-names sexp)))
       (:csv (let ((line (read-line stream nil nil nil)))
-              (when line (let ((strs (csv::parse-csv-string line)))
+              (when line (let ((strs (clml.utility.csv::parse-csv-string line)))
                            (setq parsed-names strs))))))
     (when parsed-names
       (values (remove time-label-name parsed-names :test #'string=)
@@ -1126,7 +1126,7 @@
                          time-label (nth time-pos sexp))))))
       (:csv (let ((line (read-line stream nil nil nil)))
               (when line
-                (let* ((strs (csv::parse-csv-string line))
+                (let* ((strs (clml.utility.csv::parse-csv-string line))
                        (vals (loop for i from 0
                                  for str across strs
                                  unless (= i time-pos)
@@ -2079,7 +2079,7 @@ Variance-covariance matrix calculation class of  matrix value data
     #+mkl 
     (mkl.blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
     #-mkl        
-    (blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
+    (clml.blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
     (tr res)))
 ;; マハラノビス距離 
 (defun mahalanobis-distance (x y sigma)

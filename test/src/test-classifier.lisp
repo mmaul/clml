@@ -82,7 +82,7 @@
 (defun classify-k-nn (test train objective-param-name  manhattan)
              (let (original-data-column-length)
                (setq original-data-column-length 
-                     (length (aref (read-data:dataset-points train) 0)))
+                     (length (aref (clml.hjs.read-data:dataset-points train) 0)))
                (let* ((k 5)
                       (k-nn-estimator
                        (clml.nearest-search.k-nn:k-nn-analyze train k objective-param-name :all :distance manhattan :normalize t)))

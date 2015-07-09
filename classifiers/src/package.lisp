@@ -1,6 +1,6 @@
 ;-*- coding: utf-8 -*-
 (defpackage :clml.classifiers.linear-regression
-  ;(:nicknames :linear-regression)
+  ;
   (:use :cl
         :clml.hjs.read-data
         :clml.hjs.matrix
@@ -38,7 +38,7 @@
         :clml.hjs.matrix))
 
 (defpackage :clml.classifiers.nbayes
-  (:nicknames :nbayes)
+  
   (:use :cl
 	:clml.hjs.read-data)
   (:export

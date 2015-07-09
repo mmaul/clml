@@ -1,7 +1,7 @@
 ;; Dirichlet Process Mixture
 ;; with simple one-dimension gauss distribution definition
 
-(in-package :nonparametric.dpm)
+(in-package :clml.nonparametric.dpm)
 
 (defparameter *hyper-base-a* 1d0)
 (defparameter *hyper-base-b* 1d0)

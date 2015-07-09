@@ -1,5 +1,5 @@
 
-(in-package :nmf)
+(in-package :clml.clustering.nmf)
 
 (defun m^t (matrix)
   (declare (optimize (speed 3) (debug 0) (safety 0))

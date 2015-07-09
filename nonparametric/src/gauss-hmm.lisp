@@ -1,6 +1,6 @@
 
 
-(in-package :nonparametric.hdp-hmm)
+(in-package :clml.nonparametric.hdp-hmm)
 
 (defclass gaussian-state (gaussian-cluster hidden-state) ())
 

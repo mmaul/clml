@@ -135,7 +135,7 @@
   (:documentation ""))
 |#
 (defpackage :clml.statistics
-  ;  (:nicknames :statistics)
+  ;  
   (:use :cl :clml.statistics.utilities :clml.statistics.math :clml.statistics.rand)
   (:export
    ;; DATA ANALYSIS

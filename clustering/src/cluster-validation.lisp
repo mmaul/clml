@@ -6,17 +6,17 @@
 ||#
 
 
-(in-package :cluster-validation)
+(in-package :clml.clustering.cluster-validation)
 
 (defvar *workspace* nil
   "*workspace* | validation target, the result of k-means clustering")
 
 (defun default-init-workspace ()
-  (progn (setf cluster-validation:*workspace* 
-               (k-means:k-means 
+  (progn (setf clml.clustering.cluster-validation:*workspace* 
+               (clml.hjs.k-means:k-means 
                 10 
-                (read-data:pick-and-specialize-data 
-                 (read-data:read-data-from-file
+                (clml.hjs.read-data:pick-and-specialize-data 
+                 (clml.hjs.read-data:read-data-from-file
                   (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/norm-interp-feature.sexp")) :except '(0)
                   :data-types (make-list 12 :initial-element :numeric))))nil))
 (defdoublefunc v-diff-sum^2 (dvec dvec))

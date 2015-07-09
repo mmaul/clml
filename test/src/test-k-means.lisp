@@ -15,7 +15,7 @@
       (assert-true (get-cluster-points result 0))
       (assert-eql (length centroids) 20)
       (loop for cid below 20
-          as cluster = (find cid (pw-clusters result) :test #'eql :key #'k-means::c-id)
+          as cluster = (find cid (pw-clusters result) :test #'eql :key #'clml.hjs.k-means::c-id)
           as pts = (get-cluster-points result cid)
           do (assert-eql (c-size cluster) (length pts))
              (loop for pt across pts

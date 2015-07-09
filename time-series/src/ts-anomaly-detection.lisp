@@ -287,7 +287,7 @@
          (setf (aref projed i) (aref vec i))
       finally (return projed)))
 (defun global-anomaly-score (target mu sigma)
-  (let ((density (changefinder::multivariate-normal-density mu sigma target)))
+  (let ((density (clml.time-series.changefinder::multivariate-normal-density mu sigma target)))
     (- (log 
         (cond ((>= 0d0 density) least-positive-double-float)
               ((= #.++inf+
@@ -300,7 +300,7 @@
          (mu-vec (vectorization (transpose mu))))
     (assert (= (length mu-vec) (length target-vec)
                (first dims) (second dims)))
-    (let ((density (changefinder::multivariate-normal-density mu-vec sigma target-vec)))
+    (let ((density (clml.time-series.changefinder::multivariate-normal-density mu-vec sigma target-vec)))
       (- (log 
           (cond ((>= 0d0 density) least-positive-double-float)
                 ((= #.++inf+

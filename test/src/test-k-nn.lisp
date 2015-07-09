@@ -43,7 +43,7 @@
             do (assert-equality #'string= (format nil "~D" i) teacher))
         
         (assert-points-equal
-         (map 'vector (lambda (pts) (map 'util:dvec 
+         (map 'vector (lambda (pts) (map 'clml.hjs.meta:dvec 
                                       (lambda (val m)
                                         #+sbcl ; sbcl bug
                                         (if (zerop m)

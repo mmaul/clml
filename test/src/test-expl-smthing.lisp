@@ -10,12 +10,12 @@
           :range '(1) :time-label 0
           :frequency 4)))
       (assert-true (setq model (holtwinters ukgas :seasonal :multiplicative)))
-      (with-accessors ((seasonal exponential-smoothing::seasonal)
-                       (err-info exponential-smoothing::err-info)
-                       (exp-type exponential-smoothing::exp-type)
-                       (3-params exponential-smoothing::3-params)) model
+      (with-accessors ((seasonal clml.time-series.exponential-smoothing::seasonal)
+                       (err-info clml.time-series.exponential-smoothing::err-info)
+                       (exp-type clml.time-series.exponential-smoothing::exp-type)
+                       (3-params clml.time-series.exponential-smoothing::3-params)) model
         (assert-eq :multiplicative seasonal)
-        (assert-eq 'EXPONENTIAL-SMOOTHING::MSE (first err-info))
+        (assert-eq 'CLML.TIME-SERIES.EXPONENTIAL-SMOOTHING::MSE (first err-info))
         (assert-equality #'epsilon> 1131.3876624098614d0 (second err-info))
         (assert-eq :triple exp-type)
         (assert-true (set-equal '(0.1d0 0.2d0 0.7999999999999999d0) 3-params :test #'epsilon>)))

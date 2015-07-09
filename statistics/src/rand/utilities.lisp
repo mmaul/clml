@@ -1,4 +1,4 @@
-(in-package :rand)
+(in-package :clml.statistics.rand)
 (defmacro dfloat (x)
     `(the double-float (coerce ,x 'double-float)))
   

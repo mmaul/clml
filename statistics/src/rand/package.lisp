@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
 (defpackage :clml.statistics.rand
-  (:nicknames :rand :clml.statistics.rand)
+  
   (:use :cl)
   (:export ;; utilities.lisp
            :unit-random

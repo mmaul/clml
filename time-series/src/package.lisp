@@ -1,8 +1,8 @@
 ;-*- coding: utf-8 -*-
 
 (defpackage :clml.time-series.read-data
-  (:use :cl :util :vector :vars :read-data :missing-val)
-  (:nicknames :ts-read-data)
+  (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.hjs.vars :clml.hjs.read-data :clml.hjs.missing-value)
+  
   (:export 
    #:time-series-dataset
    #:time-series-data
@@ -22,7 +22,7 @@
    #:tf-incl
    #:tf-gap
    #:ts-cleaning)
-  (:import-from :read-data #:clean-points #:dimension)
+  (:import-from :clml.hjs.read-data #:clean-points #:dimension)
   (:documentation
    "Time-Series-Read-Data
 
@@ -51,7 +51,7 @@ package for reading time series data
   (:import-from :UIOP/RUN-PROGRAM #:RUN-PROGRAM)
   #+allegro
   (:use :excl)
-  (:nicknames :ts-util)
+  
   (:export #:ts-to-sta
            #:timeseries-model
            #:sub-ts
@@ -76,7 +76,7 @@ package for reading time series data
         :clml.time-series.read-data
         :clml.time-series.util
         :clml.numeric.fast-fourier-transform)
-  (:nicknames :ts-stat)
+  
   (:export
    #:lag
    #:diff
@@ -113,10 +113,11 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
 *** sample usage
 #+INCLUDE: \"../sample/state-space-model.org\" example lisp 
 ")
-  (:use :cl :read-data :util :vector :matrix
-        :clml.statistics :ts-util :ts-stat :ts-read-data
-        :handling-missing-value)
-  (:nicknames :ts-stsp)
+  (:use :cl :clml.hjs.read-data :clml.hjs.meta :clml.hjs.vector :clml.hjs.matrix
+   :clml.statistics :clml.time-series.util :clml.time-series.statistics
+        :clml.time-series.read-data
+        :clml.hjs.missing-value)
+  
   
   (:export 
    #:trend #:trend-prediction
@@ -138,7 +139,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.time-series.read-data
         :clml.time-series.state-space)
   ;(:shadow :predict)
-  (:nicknames :ts-ar :ts-autoregression)
+  
   (:export
    #:ar #:ar-prediction
    #:parcor #:parcor-filtering
@@ -161,7 +162,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.hjs.missing-value
         )
   (:shadow :predict)
-  (:nicknames :changefinder)
+  
   (:export :init-changefinder
            :update-changefinder)
   (:documentation "ChangeFinder
@@ -223,7 +224,7 @@ Package for "ChangeFinder"
         :clml.hjs.vars
         :clml.hjs.read-data
         :clml.time-series.read-data)
-  (:nicknames :expl-smoothing :exponential-smoothing)
+  
   (:export
    #:best-single-exp-parameters
    #:best-double-exp-parameters
@@ -235,9 +236,9 @@ Package for "ChangeFinder"
 #+INCLUDE: \"../sample/time-series-holtwinters.org\"  example lisp "))
 
 (defpackage :clml.time-series.burst-detection
-  (:use :cl :read-data :handling-missing-value
-        :ts-util :ts-stat :ts-read-data)
-  (:nicknames :ts-burst-detection)
+  (:use :cl :clml.hjs.read-data :clml.hjs.missing-value
+        :clml.time-series.util :clml.time-series.statistics :clml.time-series.read-data)
+  
   (:export
    #:continuous-kleinberg
    #:print-burst-indices
