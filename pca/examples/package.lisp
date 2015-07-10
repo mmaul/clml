@@ -9,4 +9,5 @@
         ;:clml.hjs.vars
         :clml.pca
         )
+  (:export #:faces-example #:eyes-example)
 )
