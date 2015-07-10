@@ -1,7 +1,7 @@
 ( eval-when (:compile-toplevel)
   (setq *read-default-float-format* 'double-float))
 (defpackage :clml.lapack
-  (:use :clml.blas :cl)
+  (:use :f2cl-lib :cl)
   (:shadow :zswap)
   (:export
    :dbdsdc :dbdsqr :ddisna :dgebak :dgebal :dgebd2 :dgebrd :dgeev :dgeevx
