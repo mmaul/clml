@@ -36,7 +36,7 @@
 (asdf:defsystem :clml.som.example
                 :pathname "examples/"
                 :serial t
-                :around-compile call-with-clml.test-environment
+                :around-compile call-with-environment
                 :depends-on (:clml.hjs
                              :split-sequence
                              :clml.som

@@ -1,6 +1,6 @@
 ;;; -*- mode: lisp; syntax: common-lisp -*-
 
-(in-package :svm)
+(in-package :clml.svm)
 
 (defun test (kernel positive-data negative-data filename
              &key (border 5) (scale 10))
