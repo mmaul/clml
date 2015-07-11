@@ -10,8 +10,8 @@
 
 (defsystem :clml.statistics.rand
   :author "Yotsutsuji Tetsuaki"
-  :licence "?"
-  :description "Random Number Generator Library"
+  :licence "LLGPL"
+  :description "CLML Probability distribution random number generation method Library"
   :serial t
   :around-compile call-with-environment  
   :components 

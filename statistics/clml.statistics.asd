@@ -12,7 +12,7 @@
 
 (asdf:defsystem :clml.statistics
   :author "Peter Salvi / MSI (statistics), Ryo Fujii (statistics & distribution), Yotsutsuji Tetsuaki (rand)"
-  :licence "?"
+  :licence "LLGPL"
   :description "Statistics Library"
   :depends-on (:clml.statistics.rand)
   :serial t

@@ -10,11 +10,26 @@
 
 
 (asdf:defsystem :clml.lapack-real
-                :pathname "src/"
-                :serial t
-                :around-compile call-with-environment  
-                :depends-on (:f2cl-lib :clml.blas)
-                :components (
+  :description "CLML lapack (real)"
+  :author"
+     Original Authors: (One or more of)
+       Salvi Péter,
+       Naganuma Shigeta,
+       Tada Masashi,
+       Abe Yusuke,
+       Jianshi Huang,
+       Fujii Ryo,
+       Abe Seika,
+       Kuroda Hisao
+     Author Post MSI CLML Contribution:
+       Mike Maul  <maul.mike@gmail.com>"
+  :maintainer "Mike Maul  <maul.mike@gmail.com>"
+  :license "LLGPL"
+  :pathname "src/"
+  :serial t
+  :around-compile call-with-environment  
+  :depends-on (:f2cl-lib :clml.blas)
+  :components (
                              (:file "package")
                              (:file "dlamch")
                              (:file "dlapy2")
@@ -113,7 +128,22 @@
                              )
   )
 (asdf:defsystem :clml.lapack
-                  :pathname "src/"
+  :description "CLML LAPACK"
+  :author"
+     Original Authors: (One or more of)
+       Salvi Péter,
+       Naganuma Shigeta,
+       Tada Masashi,
+       Abe Yusuke,
+       Jianshi Huang,
+       Fujii Ryo,
+       Abe Seika,
+       Kuroda Hisao
+     Author Post MSI CLML Contribution:
+       Mike Maul  <maul.mike@gmail.com>"
+  :maintainer "Mike Maul  <maul.mike@gmail.com>"
+  :license "LLGPL"
+  :pathname "src/"
                   :serial t
                   :around-compile call-with-environment  
                   :depends-on (

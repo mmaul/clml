@@ -9,22 +9,36 @@
     (funcall fun)))
 
 (asdf:defsystem :clml.clustering
-                :pathname "src/"
-                :serial t
-                :around-compile call-with-environment
-                :depends-on (:clml.hjs
-                             :clml.blas
-                             :iterate
-                             :clml.nearest-search
-                             )
-                :components (
-                             (:file "package")
-                             (:file "hc")
-                             (:file "nmf")
-                             (:file "optics")
-                             (:file "spectral-clustering")
-                             (:file "cluster-validation")
-                             (:file "optics-speed")
-                             (:file "k-means2")
-                             
-                             ))
+  :description "CLML Clustering Library"
+  :author"
+     Original Authors: (One or more of)
+       Salvi Péter,
+       Naganuma Shigeta,
+       Tada Masashi,
+       Abe Yusuke,
+       Jianshi Huang,
+       Fujii Ryo,
+       Abe Seika,
+       Kuroda Hisao
+     Author Post MSI CLML Contribution:
+       Mike Maul  <maul.mike@gmail.com>"
+  :maintainer "Mike Maul  <maul.mike@gmail.com>"
+  :license "LLGPL"
+  :pathname "src/"
+  :serial t
+  :around-compile call-with-environment
+  :depends-on (:clml.hjs
+               :clml.blas
+               :iterate
+               :clml.nearest-search
+               )
+  :components (
+               (:file "package")
+               (:file "hc")
+               (:file "nmf")
+               (:file "optics")
+               (:file "spectral-clustering")
+               (:file "cluster-validation")
+               (:file "optics-speed")
+               (:file "k-means2")
+               ))

@@ -9,6 +9,21 @@
     (funcall fun)))
 
 (asdf:defsystem :clml.blas.hompack
+  :description "CLML BLAS Library (hompack)"
+  :author"
+     Original Authors: (One or more of)
+       Salvi Péter,
+       Naganuma Shigeta,
+       Tada Masashi,
+       Abe Yusuke,
+       Jianshi Huang,
+       Fujii Ryo,
+       Abe Seika,
+       Kuroda Hisao
+     Author Post MSI CLML Contribution:
+       Mike Maul  <maul.mike@gmail.com>"
+  :maintainer "Mike Maul  <maul.mike@gmail.com>"
+  :license "LLGPL"
   :pathname "src/"
   :around-compile call-with-environment  
   :serial t
@@ -24,7 +39,22 @@
            ))
 
 (asdf:defsystem :clml.blas.real
-                :pathname "src/"
+  :description "CLML BLAS Library (Reals)"
+  :author"
+     Original Authors:(One or more of)
+       Salvi Péter,
+       Naganuma Shigeta,
+       Tada Masashi,
+       Abe Yusuke,
+       Jianshi Huang,
+       Fujii Ryo,
+       Abe Seika,
+       Kuroda Hisao
+     Author Post MSI CLML Contribution:
+       Mike Maul  <maul.mike@gmail.com>"
+  :maintainer "Mike Maul  <maul.mike@gmail.com>"
+  :license "LLGPL"
+  :pathname "src/"
                 :serial t
                 :around-compile call-with-environment
                 :depends-on (:f2cl-lib)
@@ -67,6 +97,21 @@
            ))
 
 (asdf:defsystem :clml.blas.complex
+  :description "CLML BLAS (Complex)"
+  :author"
+     Original Authors: (One or more of)
+       Salvi Péter,
+       Naganuma Shigeta,
+       Tada Masashi,
+       Abe Yusuke,
+       Jianshi Huang,
+       Fujii Ryo,
+       Abe Seika,
+       Kuroda Hisao
+     Author Post MSI CLML Contribution:
+       Mike Maul  <maul.mike@gmail.com>"
+  :maintainer "Mike Maul  <maul.mike@gmail.com>"
+  :license "LLGPL"
   :pathname "src/"
   :serial t
   :around-compile call-with-environment  
@@ -109,6 +154,21 @@
                (:file "ztrsv")))
 
 (asdf:defsystem :clml.blas
+  :description "CLML BLAS (Complex)"
+  :author"
+     Original Authors: (One or more of)
+       Salvi Péter,
+       Naganuma Shigeta,
+       Tada Masashi,
+       Abe Yusuke,
+       Jianshi Huang,
+       Fujii Ryo,
+       Abe Seika,
+       Kuroda Hisao
+     Author Post MSI CLML Contribution:
+       Mike Maul  <maul.mike@gmail.com>"
+  :maintainer "Mike Maul  <maul.mike@gmail.com>"
+  :license "LLGPL"
   :pathname "src/"
   :serial t
   :around-compile call-with-environment  
