@@ -8,14 +8,6 @@
 
 #+sbcl (declaim (sb-ext:muffle-conditions sb-ext:compiler-note))
 #+sbcl (declaim (sb-ext:muffle-conditions sb-kernel:character-decoding-error-in-comment))
-#+sbcl (eval-when (:compile-toplevel :load-toplevel :execute)
-         (progn
-           ;; Modules won't load if sb-fasl:*fasl-file-type* is not "fasl"
-           ;; So load them first
-           (loop for module in '(:sb-posix :sb-aclrepl :sb-bsd-sockets :sb-cltl2 :sb-cover
-                                 :sb-introspect :sb-md5 :sb-rotate-byte :sb-sprof)
-              do (require module))))
-
 
 #+ (and has-mkl (or mswindows linux))
 (eval-when (:compile-toplevel :load-toplevel :execute)
