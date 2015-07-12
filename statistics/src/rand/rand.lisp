@@ -2404,7 +2404,7 @@
     (aref (the (vector fixnum) (aref tix i)) (ash r (* (- i #.(- +lookup-table-l+ 1)) +lookup-table-k+)))))
 
 (defun binomial-table-histogram (size probability)
-  (declare (optimize (speed 3) (safety 0) (debug 0))
+  #-sbcl (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float probability)
 	   (type fixnum size))
   (let* ((nsq (+ size 1))
@@ -2426,20 +2426,27 @@
       (when (or (= k 16)
 		(> (/ (reduce #'+ pbins :key #'(lambda (x) (floor (* b x)))) b)
 		   0.9))
-	(return)))
+        (return)))
     (let ((w (dfloat (expt 2 (- k +bit-operation-m+))))
-	  (table (make-array b :initial-element -1 :element-type 'fixnum))
+          (table (make-array (loop with j = 0
+                               for x from 0
+                               for pbin across pbins
+                               for tx = (floor (* b pbin))
+                               finally (return
+                                         (loop for index from j below (+ j tx) 
+                                               finally (return index)))
+                               do (incf j tx)) :initial-element -1 :element-type 'fixnum))
 	  (thetan 0d0))
       (declare (type double-float w thetan)
 	       (type (vector fixnum *) table))
       (loop with j = 0
-	  for x from 0
-	  for pbin across pbins
-	  for tx = (floor (* b pbin)) do
-	    (loop for index from j below (+ j tx) do
-		  (setf (aref table index) x))
-	    (incf thetan (setf (aref pbins x) (- (* b pbin) tx)))
-	    (incf j tx))
+            for x from 0
+            for pbin across pbins
+            for tx = (floor (* b pbin)) do
+              (loop for index from j below (+ j tx) do
+                (setf (aref table index) x))
+              (incf thetan (setf (aref pbins x) (- (* b pbin) tx)))
+              (incf j tx))
       ;; pbins -> thetas
       (map-into pbins #'(lambda (x) (/ x thetan)) pbins)
       ;; robin hood
