@@ -16,16 +16,34 @@
                                                              :initial-element :numeric))
                         :random-state
                         (clml.hjs.k-means:make-random-state-with-seed 0))))
-    (assert-true (epsilon> (calinski) 441.62300853729414))
-    (assert-true (epsilon> (hartigan) 2.5069376578154543))
-    (assert-true (epsilon> (ball-and-hall) 1128.3210196476964))
+    (print (list (calinski) 441.62300853729414))
+    (assert-true (epsilon> (calinski)
+                           #+ (or lispworks allegro) 441.62300853729414
+                           #- (or lispworks allegro) 441.8562453167574d0))
+    (print (list (hartigan) (ball-and-hall) (dunn-index :distance :euclid
+                                       :intercluster :hausdorff
+                                                    :intracluster :centroid)
+                 (davies-bouldin-index :distance :euclid
+                                                 :intercluster :average
+                                       :intracluster :complete)
+                 (global-silhouette-value :distance :euclid)
+                 ))
+    (assert-true (epsilon> (hartigan)
+                           #+ (or lispworks allegro) 2.5069376578154543
+                          #- (or lispworks allegro) 2.5074656538807005d0))
+    (assert-true (epsilon> (ball-and-hall)
+                           #+ (or lispworks allegro) 1128.3210196476964
+                           #- (or lispworks allegro)   1127.7702976190476d0))
     (assert-true (epsilon> (dunn-index :distance :euclid
                                        :intercluster :hausdorff
                                        :intracluster :centroid)
-                           1.218510772099368))
+                           #+ (or lispworks allegro) 1.218510772099368
+                           #- (or lispworks allegro)  1.2576613811360222d0))
     (assert-true (epsilon> (davies-bouldin-index :distance :euclid
                                                  :intercluster :average
                                                  :intracluster :complete)
-                           1.8817487113136586))
+                           #+ (or lispworks allegro) 1.8817487113136586
+                           #- (or lispworks allegro) 1.899415427296523d0))
     (assert-true (epsilon> (global-silhouette-value :distance :euclid)
-                           0.5793276055727323))))
+                           #+ (or lispworks allegro) 0.5793276055727323
+                           #- (or lispworks allegro) 0.5786560352400679d0 ))))
