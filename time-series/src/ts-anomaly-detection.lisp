@@ -30,7 +30,6 @@
                  (ts-points ts)))
          
          (moments (get-initial-moments vecs :typical-method typical)))
-    
     (unless beta (setf beta (dfloat (/ (length vecs)))))
     (lambda (new-dvec)
       (assert (eql (length new-dvec) dim))
@@ -498,7 +497,7 @@
   (let* ((n (length act-vecs))
          (m (length (car act-vecs)))
          (cmat (make-array `(,n ,m) :element-type 'double-float
-                           :initial-contents (coerce act-vecs 'vector)))
+                                    :initial-contents (coerce act-vecs 'vector)))
          (s (make-dvec (min m n)))
          (u (make-array `(,m ,m) :element-type 'double-float))
          (vt (make-array `(,1 ,1) :element-type 'double-float))
@@ -510,25 +509,26 @@
          (info 0)
          (pattern (make-dvec m))
          result)
-
-    (setq result 
+    (setq result
           (third (multiple-value-list
-                         #+mkl
-                         (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
-                         #+allegro
-                         (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
-                         #-mkl           
-                         (let ((a-cmat (clml.hjs.matrix:mat2array cmat))
-                               (a-u (clml.hjs.matrix:mat2array u))
-                               (a-vt (clml.hjs.matrix:mat2array vt)))
-                           ;; TODO problem returns nil
-                           (clml.lapack::dgesvd "S" "N" m n a-cmat lda s a-u ldu a-vt ldvt work lwork info)
-                           ))))
-    (assert (= info 0))    
+                  #+mkl
+                  (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
+                  #+ (and  (not mkl) (or lispworks allegro))
+                  (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
+                  #+ (and (not mkl) (or sbcl ccl))
+                  (let ((a-cmat (clml.hjs.matrix:mat2array cmat))
+                        (a-u (clml.hjs.matrix:mat2array u))
+                        (a-vt (clml.hjs.matrix:mat2array vt)))
+                    ;; TODO problem returns nil
+                    (clml.lapack::dgesvd "S" "N" m n a-cmat lda s a-u ldu a-vt ldvt work lwork info))
+                  
+                  )))
+    (assert (= info 0))
     (do-vec (_ pattern :type double-float :setf-var sf :index-var i)
-      #-sbcl (declare (ignore _))
-      (let ((val (abs (aref result 0 i))))  (setf sf (if (> *epsilon* val) 0d0 val))))
+      (declare (ignore _))
+      (let ((val (abs (aref result 0 i)))) (setf sf (if (> *epsilon* val) 0d0 val))))
     pattern))
+
 ;; 平均
 (defun typical-pattern-mean (act-vecs)
   (let* ((dim (length (car act-vecs)))
