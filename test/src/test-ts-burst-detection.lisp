@@ -41,7 +41,7 @@
          (with-output-to-string (s str)
            (print-burst-indices bi :stream s))
          str)
-       "   0.0 |
+       #+ (or allegro lispworks) "   0.0 |
  410.0 |+
  450.0 |++
  565.0 |+++
@@ -50,6 +50,17 @@
  710.0 |+
  780.0 |
 1000.0 |
+"
+       #+ (not (or allegro lispworks))
+       "   0.0d0 |
+ 410.0d0 |+
+ 450.0d0 |++
+ 565.0d0 |+++
+ 570.0d0 |+
+ 600.0d0 |
+ 710.0d0 |+
+ 780.0d0 |
+1000.0d0 |
 ")
 
       (assert-equality
