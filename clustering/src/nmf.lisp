@@ -426,6 +426,24 @@
   (make-array (array-dimensions a) :element-type element-type
               :initial-contents (2d-array-to-list a :cofn cofn)))
 
+(defun rho-kp (matrix k &key (type :row) (cost-fn :euclidean) (iteration 100) (repeat 100))
+  (flet (( f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))
+                                                                 'fixnum)) v)))
+    (let* ((avc (average-consensus-matrix
+                 (coerce-2d-array matrix 'fixnum (lambda (x)  (floor x)))
+                 k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
+           (d (sim-mat->dis-mat avc))
+           (u (cophenetic-matrix d)))
+      (print (list d u))
+      (cophenetic-cc d u))))
+
+(defun make-distance-matrix (similarity-matrix)
+  (let* ((n (array-dimension similarity-matrix 0))
+	 (distance-matrix (make-array (list n n) :element-type 'double-float)))
+    (dotimes (i n distance-matrix)
+      (dotimes (j n)
+	(setf (aref distance-matrix i j) (- 1.0 (aref similarity-matrix i j)))))))
+
 (defun rho-k (matrix k &key (type :row) (cost-fn :euclidean) (iteration 100) (repeat 100))
   "- stability of nmf clustering associated with k. we consider k is more stable closer to 1.0.
 - return: DOUBLE-FLOAT
@@ -441,16 +459,11 @@
 
 *** sample usage
 #+INCLUDE: \"../sample/rho-k.org\" example lisp"
-  
-  (flet (( f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))
-                                                                 'fixnum)) v)))
-    (let* ((avc (average-consensus-matrix
-                 (coerce-2d-array matrix 'fixnum (lambda (x)  (floor x)))
-                 k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
-           (d (sim-mat->dis-mat avc))
-           (u (cophenetic-matrix d)))
-      (cophenetic-cc d u))))
-
+  (let* ((avc (average-consensus-matrix matrix k :type type :cost-fn cost-fn :iteration iteration :repeat repeat))
+	 (d (make-distance-matrix avc))
+	 (u (cophenetic-matrix d)))
+    (cophenetic-cc d u))
+  )
 
 (defun nmf-clustering (matrix k &key (type :row) (cost-fn :euclidean) (iteration 100))
   "- clustering using nmf, each row or column datum is placed into cluster corresponding to highest feature
