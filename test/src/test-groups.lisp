@@ -20,41 +20,45 @@
                                         test-sample-k-means
                                         ))
 
+(defparameter *nearest-search* '(test-sample-k-nn))
 
 (defparameter *time-series-tests* '(
-                                         test-sample-ts-ar
-                                         test-ts-burst-detection
-                                         test-sample-ts-read-data
-                                         test-sample-ts-stat
-                                         test-sample-ts-stsp
-                                         test-sample-expl-smthing
-                                         test-ts-anomaly-detection
-                                         test-changefinder
-                                         ))
+                                    test-sample-ts-ar
+                                    test-ts-burst-detection
+                                    test-sample-ts-read-data
+                                    test-sample-ts-stat
+                                    test-sample-ts-stsp
+                                    test-sample-expl-smthing
+                                    test-ts-anomaly-detection-data
+                                    test-ts-anomaly-detection-snn
+                                    ;test-ts-anomaly-detection-periodic-detector
+                                    ;test-ts-anomaly-detection-eec-detector
+                                    ;test-ts-anomoly-detection-db-detector
+                                    test-changefinder))
 
 
 (defparameter *svm-tests* '(test-sample-svm
-                                 svm.smo.kernels
-                                 smo.svm
-                                 test-pwss3-kernels
-                                 test-pwss3-svm
-                                 test-wss3-kernels
-                                 test-wss3-svm
-                                 test-one-class-svm
-                                 test-svr
-                                 ))
+                            svm.smo.kernels
+                            smo.svm
+                            test-pwss3-kernels
+                            test-pwss3-svm
+                            test-wss3-kernels
+                            test-wss3-svm
+                            test-one-class-svm
+                            test-svr))
 
 (defparameter *classifiers-tests* '(test-sample-linear-regression
-                                         simple-linear-regression-case
-                                         multi-linear-regression-case
-                                         test-nbayes))
+                                    simple-linear-regression-case
+                                    multi-linear-regression-case
+                                    test-nbayes))
 
 (defparameter *association-rule-tests* '(test-sample-assoc))
 
 (defparameter *nonparametric-tests* '(
                                         ;test-sample-dpm ; gaussian-dpm does not exist
                                         ;test-sample-hdp-lda
-                                           ))
+                                      ))
+
 (defparameter *som-tests* '(test-sample-som))
 
 (defparameter *text-tests* '(test-sample-text-utils))
@@ -68,10 +72,13 @@
                             test-ps
                             test-fill-rem
                             test-spline))
+
 (defparameter *all-tests* (append *statistics-tests* *decision-tree-tests* *clustering-tests*
                                   *time-series-tests* *svm-tests* *classifiers-tests*
-                                  *association-rule-tests* *nonparametric-tests*
-                                  *som-tests* *text-tests* *pca-tests* *hjs-tests*))
+                                  *association-rule-tests* *som-tests* *text-tests*
+                                  *pca-tests* *hjs-tests*
+                                  *nonparametric-tests*
+                                  *nearest-search*))
 #| #'test-sample-assoc #'test-sample-cluster-validation
              #'test-decision-tree #'test-sample-expl-smthing
              #'test-hc #'test-sample-k-means

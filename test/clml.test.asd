@@ -28,23 +28,8 @@
   :serial t
   :around-compile call-with-environment
   :depends-on (:lisp-unit
-               :clml
-               #|:clml.statistics
-               :clml.hjs
-                 :blas
-               :clml.decision-tree
-                 :clml.clustering
-               :clml.time-series
-                 :clml.svm
-               :clml.classifiers
-                 :clml.association-rule
-               :clml.nonparametric
-                 :clml.som
-               :clml.text
-                 :clml.pca
-               :clml.nearest-search
-               |#
-               )
+               :clml)
+  
   :components ((:file "package")
                (:file "test-groups")
                (:file "test-utils")
