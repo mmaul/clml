@@ -158,20 +158,35 @@
     (assert (< 0d0 xi 1d0) (xi) "xi must be 0 < xi < 1.")
     (loop for start from 0 
         for end from window-size to (length pts)
-        as %window = (subseq pts start end)
-        as (global locals) = (multiple-value-list (calc-eec-features %window dim xi global-m))
-        collect global into globals
+          
+          as %window = (subseq pts start end)
+          as (global locals) = (multiple-value-list (calc-eec-features %window dim xi global-m))
+          collect global into globals
         collect locals into locals-list finally 
           (setf window %window
                 global-cov (init-covariance (coerce globals 'vector) (coerce globals 'vector))
                 local-covs (loop for i below dim
                                as locals = (map 'vector (lambda (l) (nth i l)) locals-list)
                                collect (init-matrix-covariance locals))))
+    (loop for start from 0 
+        for end from window-size to (length pts)
+          
+          as %window = (subseq pts start end)
+          as (global locals) = (multiple-value-list (calc-eec-features %window dim xi global-m))
+          collect global into globals
+        collect locals into locals-list finally 
+          (setf window %window
+                global-cov (init-covariance (coerce globals 'vector) (coerce globals 'vector))
+                local-covs (loop for i below dim
+                               as locals = (map 'vector (lambda (l) (nth i l)) locals-list)
+                               collect (init-matrix-covariance locals))))
+
     (lambda (new-dvec)
       (setf window (concatenate 'vector (subseq window 1) (list new-dvec)))
       (multiple-value-bind (global locals cor-str-mat cls)          
           (calc-eec-features window dim xi global-m)
         (declare (ignorable cor-str-mat cls))
+        
         (prog1 (list :score (global-anomaly-score global 
                                                   (x-mean-vec global-cov)
                                                   (get-covariance global-cov))
@@ -181,7 +196,9 @@
                          for mu in (mapcar #'mean-mat local-covs)
                          as score = (local-anomaly-score local mu cov)
                          collect score))
+          
           (update-covariance global-cov global global)
+          
           (mapc (lambda (local cov-obj)
                   (update-matrix-covariance cov-obj local))
                 locals local-covs))))))
@@ -190,21 +207,37 @@
 ; routines for eec ;
 ;;;;;;;;;;;;;;;;;;;;
 (defun calc-eec-features (window dim xi global-m)
+  
   (let ((aij (correlation-with-constant (coerce window 'vector) :absolute t)))
+    
     (multiple-value-bind (global-feature princ-eigen-vec)
+        
         (calc-global-feature aij global-m)
+      
       (multiple-value-bind (local-features clusterings)
           (calc-local-features dim princ-eigen-vec aij xi)
         (values global-feature local-features aij clusterings)))))
+
 (defun calc-global-feature (cor-mat global-m &optional (abstol 1d-12))
-  (multiple-value-bind (eigen-vals eigen-mat) 
-      #+mkl (symat-ev (copy-mat cor-mat) :eigen-thld global-m :abstol abstol)
-      #-mkl (eigen-by-power (copy-mat cor-mat) :eigen-thld global-m :precision abstol)
+  (let (
+        #-mkl (e-mat (copy-mat cor-mat)))
+    (multiple-value-bind (eigen-vals eigen-mat) 
+        #+mkl (symat-ev (copy-mat cor-mat) :eigen-thld global-m :abstol abstol)
+        #-mkl (eigen-by-power e-mat :eigen-thld global-m :precision abstol)
+      
       (let ((principal (make-dvec (array-dimension cor-mat 0))))
+        
         (do-vec (_ principal :type double-float :index-var i :setf-var sf)
           #-sbcl (declare (ignore _))
-          (setf sf (aref eigen-mat 0 i))) ;; section 3.3
-        (values eigen-vals principal))))
+          
+          (setf sf (aref
+                    #+mkl eigen-mat
+                    #-mkl e-mat
+                    0 i))
+          ) ;; section 3.3
+        
+        (values eigen-vals principal)))))
+
 (defun calc-local-features (dim psi-vec cor-strength-mat xi &key clusters-list)
   (assert (equal `(,dim ,dim) (array-dimensions cor-strength-mat)))
   (loop for i below dim
@@ -215,6 +248,7 @@
       collect mat into mats
       collect clusters into clusterings
       finally (return (values mats clusterings))))
+
 (defun calc-local-feature (index dim cor-str-mat psi &key (xi 0.8d0) (clusters nil))
   (declare (type dmat cor-str-mat) (type dvec psi))
   (check-type psi dvec)
@@ -232,6 +266,7 @@
                do (setf (aref mat col row) val
                         (aref mat row col) val))
         finally (return (values mat clusters)))))
+
 ;; Cluster structure
 ;; C1 : i itself
 ;; C2 : strong correlations
@@ -249,6 +284,7 @@
                  ((<= 0 cor-str xi) (push i c3))
                  (t (error "Unexpected situation")))
         finally (return `(,c1 ,c2 ,c3)))))
+
 ;; 局所特徴量の各要素値
 (defun calc-local-feature-component (dim cor-str-mat psi ck1 ck2)
   (declare (type dmat cor-str-mat) (type dvec psi))
@@ -269,6 +305,7 @@
            #-mkl
            (m*v symat vec)))
     (inner-product (cck psi dim ck2) (%m*v cor-str-mat (cck psi dim ck1)))))
+
 (defun cck (psi dim ck)
   (declare (type dvec psi) (optimize speed))
   (let* ((pck*psi (proj-by-ck psi ck dim))
@@ -278,6 +315,7 @@
           ((zerop denom) (error "Unexpected situation at #'cck : ~A" pck*psi))
           (t (do-vec (val pck*psi :type double-float :setf-var sf :return pck*psi)
                (setf sf (/ val denom)))))))
+
 (defun proj-by-ck (vec ck dim)
   "クラスタリング ck による射影"
   (loop with projed = (make-dvec (length vec) 0d0)
@@ -285,6 +323,7 @@
       do (assert (< i dim))
          (setf (aref projed i) (aref vec i))
       finally (return projed)))
+
 (defun global-anomaly-score (target mu sigma)
   (let ((density (clml.time-series.changefinder::multivariate-normal-density mu sigma target)))
     (- (log 
@@ -293,6 +332,7 @@
                   ;*INFINITY-DOUBLE*
                   density) most-positive-double-float)
               (t density))))))
+
 (defun local-anomaly-score (target mu sigma)
   (let* ((dims (array-dimensions sigma))
          (target-vec (vectorization (transpose target)))
@@ -318,6 +358,7 @@
    (x-mean-vec :initarg :x-mean-vec :accessor x-mean-vec)
    (y-mean-vec :initarg :y-mean-vec :accessor y-mean-vec)
    (n :initarg :n :accessor n)))
+
 (defun init-covariance (x-trials y-trials)
   (declare (type (vector dvec) x-trials y-trials))
   (check-type x-trials (vector dvec))
@@ -372,6 +413,7 @@
              as val = (* (aref x-vec row) y-val)
              do (setf (aref res col row) val))
       finally (return res)))
+
 ;; 行列値データの分散共分散行列算出クラス
 ;; - 初期化: init-matrix-covariance
 ;; - 更新: update-matrix-covariance
@@ -384,6 +426,7 @@
    (x-col :initarg :x-col :accessor x-col)
    (x-row :initarg :x-row :accessor x-row)
    (n :initarg :n :accessor n)))
+
 (defun init-matrix-covariance (mats)
   (declare (type (vector dmat) mats))
   (check-type mats (vector dmat))
@@ -400,6 +443,7 @@
                do (setf (aref covs col row) (init-covariance row-x-rows col-x-rows))))
     (make-instance 'matrix-covariance 
       :covs covs :x-col x-col :x-row x-row :mean-mat mu :n (length mats))))
+
 (defun make-row-series-hash (mats)
   (declare (type (vector dmat) mats))
   (let ((hash (make-hash-table :test #'eql))
@@ -409,6 +453,7 @@
                as row-vec = (get-row mat row)
                do (push row-vec (gethash row hash nil)))
         finally (return hash))))
+
 (defun matrix-mean (mats)
   (let* ((len (length mats))
          (dims (array-dimensions (car mats)))
@@ -416,6 +461,7 @@
     (loop for mat in mats
         do (setf result (mcm mat result :c #'+))
         finally (return (c*mat (dfloat (/ len)) result)))))
+
 (defun get-row (mat nrow)
   (declare (type dmat mat))
   (check-type mat dmat)
@@ -423,7 +469,9 @@
     (do-vec (val row :type double-float :return row :index-var i :setf-var sf)
       #-sbcl (declare (ignore val))
       (setf sf (aref mat i nrow)))))
+
 (defun get-row-series (n hash) (coerce (reverse (gethash n hash)) 'vector))
+
 (defgeneric update-matrix-covariance (model new-mat))
 (defmethod update-matrix-covariance ((model matrix-covariance) new-mat)
   (with-accessors ((x-col x-col)
@@ -439,6 +487,7 @@
         do (loop for row below x-row
                as row-x-row = (nth row rows)
                do (update-covariance (aref covs col row) row-x-row col-x-row)))))
+
 (defgeneric get-matrix-covariance (model))
 (defmethod get-matrix-covariance ((model matrix-covariance))
   (with-accessors ((x-col x-col) (x-row x-row) (covs covs)) model
@@ -454,19 +503,22 @@
                                as val = (aref cov-mat %col %row)
                                do (setf (aref cov col row) val))))
           finally (return cov)))))
+
 ;;; general tool for expectation calculation
 (defun update-expectation (old-e old-n new-sample)
   (let* ((numerator (+ (* old-e old-n) new-sample))
          (denom (1+ old-n)))
     (/ numerator denom)))
+
 (defun update-vec-expec (expec-vec old-n new-sample)
-  (declare (type dvec old-n new-sample))
+  (declare (type dvec  new-sample)) ;old-n ; XXX
   (check-type expec-vec dvec)
   (check-type new-sample dvec)
   (do-vecs ((mv expec-vec :type double-float :setf-var sf)
             (nv new-sample :type double-float))
     (setf sf (update-expectation mv old-n nv)))
   expec-vec)
+
 (defun update-mat-expec (expec-mat old-n new-sample)
   (declare (type dmat expec-mat new-sample))
   (check-type expec-mat dmat)
@@ -477,6 +529,7 @@
                   (update-expectation (aref expec-mat col row) old-n 
                                       (aref new-sample col row))))
       finally (return expec-mat)))
+
 (defun vectorization (mat &optional result)
   (let* ((dims (array-dimensions mat))
          (col (first dims))
@@ -509,20 +562,23 @@
          (info 0)
          (pattern (make-dvec m))
          result)
+    
     (setq result
+          #+mkl
           (third (multiple-value-list
-                  #+mkl
-                  (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
-                  #+ (and  (not mkl) (or lispworks allegro))
-                  (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
-                  #+ (and (not mkl) (or sbcl ccl))
-                  (let ((a-cmat (clml.hjs.matrix:mat2array cmat))
-                        (a-u (clml.hjs.matrix:mat2array u))
-                        (a-vt (clml.hjs.matrix:mat2array vt)))
-                    ;; TODO problem returns nil
-                    (clml.lapack::dgesvd "S" "N" m n a-cmat lda s a-u ldu a-vt ldvt work lwork info))
-                  
-                  )))
+                  (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)))
+           #+ (and  (not mkl) (or lispworks allegro))
+                  (progn
+                   (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
+                   u)
+           #+ (and (not mkl) (not (or lispworks allegro)))
+           (let ((a-cmat (clml.hjs.matrix:mat2array cmat))
+                 (a-u (clml.hjs.matrix:mat2array u))
+                 (a-vt (clml.hjs.matrix:mat2array vt)))
+             ;; XXX
+             (clml.lapack::dgesvd "S" "N" m n a-cmat lda s a-u ldu a-vt ldvt work lwork info)
+             (clml.hjs.matrix:array2mat a-u  (second (array-dimensions u))))
+          )
     (assert (= info 0))
     (do-vec (_ pattern :type double-float :setf-var sf :index-var i)
       (declare (ignore _))
@@ -548,10 +604,12 @@
   (ecase method
     (:svd (typical-pattern-svd act-vecs))
     (:mean (typical-pattern-mean act-vecs))))
+
 ;; 非類似度
 (defun dissimilarity (typical-vec act-vec)
   (declare (type dvec typical-vec act-vec))
   (- 1 (inner-product typical-vec act-vec)))
+
 ;; 1次および2次の moment の漸化式
 ;; ref: 論文の 式 (18), (19)
 (defun next-moments (zt last-moments beta)
@@ -559,6 +617,7 @@
         (zt (dfloat zt)))
     (cons (+ (* scale (car last-moments)) (* beta zt))
           (+ (* scale (cdr last-moments)) (* beta (expt zt 2))))))
+
 ;; moment の初期値を求める
 (defun get-initial-moments (act-vecs &key (typical-method :svd))
   (let* ((window-size (length act-vecs))
@@ -569,6 +628,7 @@
          (act-vec (nth (1- window-size) act-vecs))
          (dissim (dissimilarity typ-vec act-vec)))
     (cons dissim (expt dissim 2))))
+
 ;; moment から 式 (17) の sigma, n-1 の両パラメータを推定する
 (defun estimate-vmf-parameters (moments)
   (let* ((1st (car moments))
@@ -578,6 +638,7 @@
     (declare (type double-float 1st 2nd 1st^2))
     (values (/ (* 2 1st^2) 2nd-1st^2)
             (/ 2nd-1st^2 (* 2 1st)))))
+
 ;; Z_th を求める
 (defun vmf-threshold (n-1 sigma pc)
   (let* ((scale (* 2 sigma))
@@ -602,6 +663,7 @@
     (loop for i from period below (length vec-list)
         do (update-pwindow (nth i vec-list) pwindow r))
     pwindow))
+
 (defun update-pwindow (vec pwindow &optional (r 0.5d0))
   (declare (type dvec vec))
   (assert (<= 0d0 r 1d0))
@@ -629,7 +691,6 @@
 
 (defun score-by-mahalanobis (dvec pwindow  &key (beta 1d-2))
   (destructuring-bind (&key mu cov &allow-other-keys) (first pwindow)              
-      
     (declare #-sbcl (type dvec dvec mu)
              #-sbcl (type dmat cov)
              )
@@ -676,6 +737,7 @@
                          (t (error "Unexpected value for correlation ~A (~A ~A)" aij i j)))
                  do (setf (aref a i j) d (aref a j i) d))
           finally (return a)))))
+
 (defun correlation-with-constant (pts &key (absolute nil))
   (declare (type (vector dvec) pts))
   (check-type pts (vector dvec))
@@ -694,6 +756,7 @@
                do (when absolute (setf aij (abs aij)))
                   (setf (aref a i j) aij (aref a j i) aij))
         finally (return a))))
+
 (defun kronecker-delta (i j) (if (eql i j) 1d0 0d0))
 (defun knn-list (wmat k)
   (declare (type dmat wmat))
@@ -705,6 +768,7 @@
                          for %i from 0
                          unless (eql %i i) collect (cons %i d))
       collect (subseq (sort i-d-alist #'< :key #'cdr) 0 k)))
+
 (defun coupling-probabilities (nbrs-d-list sigma-i)
   (flet ((z_i (i)
            (let ((nbrs-d (nth i nbrs-d-list)))
@@ -721,12 +785,14 @@
                                    (FLOATING-POINT-UNDERFLOW (c) (declare (ignore c)) 0d0))
                                  (z_i i))
                     collect (cons j `(:cp ,prob :d ,d))))))
+
 (defun coupling-tightness (nbrs cp-alist)
   (if (> (length nbrs) 0)
       (loop for j in nbrs
           as prob = (getf (cdr (assoc j cp-alist :test #'eql)) :cp)
           sum (if prob prob 0d0))
     0d0))
+
 (defun e-score (target-i ref-i target-model ref-model)
   (let* ((target-cp-alist (cdr (assoc target-i (graphs target-model) :test #'eql)))
          (ref-cp-alist (cdr (assoc ref-i (graphs ref-model) :test #'eql)))
