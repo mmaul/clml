@@ -37,7 +37,8 @@
         (assert-true (every (lambda (pro) (eq :numeric pro)) vec-profiles))
         (assert-false vec-weight)
         (assert-true (every #'zerop mins))
-        (assert-true (set-equal expected-maxs (coerce maxs 'list) :test #'epsilon>))
+        (let ((*epsilon* 1d-7))
+          (assert-true (set-equal expected-maxs (coerce maxs 'list) :test #'epsilon>)))
         (loop for i from 1
             for teacher across teachers
             do (assert-equality #'string= (format nil "~D" i) teacher))
