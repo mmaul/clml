@@ -987,22 +987,25 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
       (:numeric (setq tr-fcn 'transposeV vec-type 'dvec))
       (:category (setq tr-fcn 'trans vec-type 'vector))
       (t (error "invalid type | ~A" type)))
-    `(let ((tr-data (funcall ',tr-fcn ,points)))
-       (unless ,outlier-types (setq ,outlier-types 
-                                (make-list (length tr-data) :initial-element nil)))
-       (unless ,outlier-values (setq ,outlier-values
-                                 (make-list (length tr-data) :initial-element nil)))
-       (assert (every (lambda (val) 
-                        (or (null val) (member val (getf +known-outlier-types+ ,type))))
-                      ,outlier-types))
-       (assert (= (length tr-data) (length ,outlier-types) (length ,outlier-values)))
-       (funcall ',tr-fcn
-        (do-vec (vec tr-data :type ,vec-type :index-var i :setf-var sf :return tr-data)
-          (let ((outlier-type (elt ,outlier-types i))
-                (value (elt ,outlier-values i)))
-            (when outlier-type
-              (setf sf (outlier-verification 
-                        vec :type outlier-type :outlier-value value :seq-type ,type)))))))))
+    (let ((outlier-types-t (gensym))
+          (outlier-values-t (gensym))
+          (tr-data-t (gensym)))
+      `(let ((,tr-data-t (funcall ',tr-fcn ,points)))
+         (let ((,outlier-types-t (if ,outlier-types ,outlier-types
+                                     (make-list (length ,tr-data-t) :initial-element nil)))
+               (,outlier-values-t (if ,outlier-values ,outlier-values
+                                      (make-list (length ,tr-data-t) :initial-element nil))))
+           (assert (every (lambda (val) 
+                            (or (null val) (member val (getf +known-outlier-types+ ,type))))
+                          ,outlier-types-t))
+           (assert (= (length ,tr-data-t) (length ,outlier-types-t) (length ,outlier-values-t)))
+           (funcall ',tr-fcn
+                    (do-vec (vec ,tr-data-t :type ,vec-type :index-var i :setf-var sf :return ,tr-data-t)
+                      (let ((outlier-type (elt ,outlier-types-t i))
+                            (value (elt ,outlier-values-t i)))
+                        (when outlier-type
+                          (setf sf (outlier-verification 
+                                    vec :type outlier-type :outlier-value value :seq-type ,type)))))))))))
 
 (defmacro interp-points (points interp-types &key (type :numeric))
   (let (tr-fcn vec-type)
