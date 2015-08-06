@@ -1008,23 +1008,24 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                     vec :type outlier-type :outlier-value value :seq-type ,type)))))))))))
 
 (defmacro interp-points (points interp-types &key (type :numeric))
-  (let (tr-fcn vec-type)
+  (let ((interp-types-t (gensym))
+        tr-fcn vec-type)
     (case type 
       (:numeric (setq tr-fcn 'transposeV vec-type 'dvec))
       (:category (setq tr-fcn 'trans vec-type 'vector))
       (t (error "invalid type | ~A" type)))
     `(let ((tr-data (funcall ',tr-fcn ,points)))
-       (unless ,interp-types (setq ,interp-types (make-list (length tr-data) :initial-element nil)))
-       (assert (every (lambda (val) 
-                        (or (null val) (member val (getf +known-interp-types+ ,type))))
-                      ,interp-types))
-       (assert (= (length tr-data) (length ,interp-types)))
-       (funcall ',tr-fcn
-        (do-vec (vec tr-data :type ,vec-type :index-var i :setf-var sf :return tr-data)
-          (let ((interp-type (elt ,interp-types i)))
-            (declare (type symbol interp-type))
-            (when interp-type
-              (setf sf (interpolate vec :interp interp-type :seq-type ,type)))))))))
+       (let ((,interp-types-t (if ,interp-types ,interp-types (make-list (length tr-data) :initial-element nil))))
+         (assert (every (lambda (val) 
+                          (or (null val) (member val (getf +known-interp-types+ ,type))))
+                        ,interp-types-t))
+         (assert (= (length tr-data) (length ,interp-types-t)))
+         (funcall ',tr-fcn
+                  (do-vec (vec tr-data :type ,vec-type :index-var i :setf-var sf :return tr-data)
+                    (let ((interp-type (elt ,interp-types-t i)))
+                      (declare (type symbol interp-type))
+                      (when interp-type
+                        (setf sf (interpolate vec :interp interp-type :seq-type ,type))))))))))
 
 (defmacro clean-points (points interp-types outlier-types outlier-values
                         &key (type :numeric))
