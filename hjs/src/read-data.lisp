@@ -1044,7 +1044,20 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                         (cdr (assoc outlier-type outlier-values-alist :test #'eq))))))
 
 (defgeneric dataset-cleaning (d &key interp-types-alist outlier-types-alist outlier-values-alist)
-  (:documentation "Cleaning: Outlier verification and Interpolation"))
+  (:documentation "Cleaning: Outlier verification and Interpolation
+- arguments:
+  - d : <dataset>
+  - interp-types-alist   : a-list (key: column name, datum: interpolation(:zero :min :max :mean :median :mode :spline)) | nil\\
+  - outlier-types-alist  : a-list (key: column name, datum: outlier-verification(:std-dev :mean-dev :user :smirnov-grubbs :freq)) | nil\\
+  - outlier-values-alist : a-list (key: outlier-verification datum: the value according to outlier-verification) | nil
+- example:
+#+BEGIN_SRC 
+(clml.hjs.read-data:dataset-cleaning (dataset-points dataset)
+                                     :outlier-types-alist '((\"hits\" . :std-dev))
+                                     :outlier-values-alist '((:std-dev . 1))
+                                     :interp-types-alist '((\"hits\" . :max)))
+#+END_SRC 
+"))
 
 (defmethod dataset-cleaning ((d numeric-dataset)
                              &key interp-types-alist
