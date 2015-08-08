@@ -21,11 +21,13 @@
 
 The dataset for time-series data. Values are specialized in numeric"))
 
+
 (defgeneric time-series-data (d &key)
   (:documentation "- return: <time-series-dataset>
 - arguments:
   - d          : <unspecialized-dataset>
   - start      : <list integer integer> | integer, specify the start time, integer larger than 1 or a list of integer of such kind. e.g. (1861 3)
+                 Where the second integer is the starting frequency value.
   - end        : <list integer integer> | integer, specify the end time, format same as start. When unspecified, all the lines will be read in.
   - frequency  : integer >= 1, specify the frequency 
   - range      : :all | <list integer>, indices of columns used in the result, start from 0, e.g. '(0 1 3 4)
@@ -92,8 +94,9 @@ The dataset for time-series data. Values are specialized in numeric"))
       (t nil)))))
 
 (defstruct (ts-point (:conc-name ts-p-)
-            (:constructor %make-ts-point (time freq label pos))
-            (:copier copy-ts-point))
+                     (:constructor %make-ts-point (time freq label pos))
+                     (:copier copy-ts-point)
+             )
   "- accessor
   - ts-p-time : n-th period of the data point, integer larger than 1.
   - ts-p-freq : n-th of the period of the data point, integer larget than 1
@@ -103,6 +106,7 @@ The dataset for time-series data. Values are specialized in numeric"))
   (freq -1 :type fixnum)
   (label "" :type string)
   (pos #() :type dvec))
+
 (defun make-ts-point (time freq label pos)
   (let ((pos (coerce pos 'dvec)))
     (check-type time fixnum)
@@ -129,13 +133,27 @@ The dataset for time-series data. Values are specialized in numeric"))
   (multiple-value-bind (shou mod)
       (floor (+ num (1- (second tf-list))) freq)
     `(,(+ (first tf-list) shou) ,(1+ mod))))
+
 (defun tf-gap (tf1 tf2 &key (freq 1))
   (+ (* freq (- (first tf2) (first tf1)))
      (- (second tf2) (second tf1))))
+
 (defun make-constant-time-series-data (all-column-names data 
                                        &key (start '(1 1)) end 
                                             (freq 1) time-labels
                                             time-label-name)
+  " Create time-series-dataset from a vector of samples.
+
+- return: <time-series-dataset>
+- arguments:
+  - all-column-names : List of column names
+  - data             : Vector of dvec '(simple-array double-float (*)) containg samples
+  - start            : ~optional~ <list integer integer> | specify the start time (>1), and initial frequency, default (1 1)
+  - end              : ~optional~ <list integer integer> | integer, specify the end time and frequwncy, format same as start. When unspecified, all the lines will be read in.
+  - freq             : ~optional~ integer >= 1, specify the frequency 
+  - time-lables      : ~optional~ <array string (length data)>, array containing string time lables should be same length as data.
+  - time-label       : point label for the time lables in the timeseries dataset
+"
   (assert (> (length data) 0))
   (assert (> (length all-column-names) 0))
   (assert (= (length all-column-names) (length (aref data 0))))
