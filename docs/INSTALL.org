@@ -1,8 +1,7 @@
 
 ** Requirements
-  + Language: SBCL, Allegro or Lispworks
+  + Language: SBCL, CCL, Allegro or Lispworks
   + Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
-  + Optionally Intel Math Kernel Library
   + ASDF3 and optionally Quicklisp (This document assumes [[http://quicklisp.org][Quicklisp]])
 
 
@@ -27,9 +26,9 @@ Or download zip archive at
 *** Installing
 **** For Quicklisp ****
 1. Place code in ~~/quicklisp/local-projects~
-2. Start LISP and enter ~(ql:quickload :clml)~ 
+2. Start LISP and enter ~(ql:quickload :clml :verbose t)~ 
 
-**** For ASDF3 only (Non quicklisp users)
+**** DONE For ASDF3 only (Non quicklisp users)
 1. Place in a location on your ASDF search path path such as ~~/common-lisp~
 2. Start LISP and enter ~(asdf:load-system :clml)~
 

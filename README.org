@@ -31,10 +31,12 @@ This repository contains is a authorized fork of the original CLML with the foll
 
 ** Documentation
 *** User and API Documentation
-User and API documentation may be found on line at http://mmaul.github.io/clml/
-and also in the project directories docs/clml-manual.html 
-Notes and Algorithmic Details and Background    
-    files in memo, notes and docs
++ User and API documentation may be found on line at http://mmaul.github.io/clml/
+and also in the project directories docs/clml-manual.html.
++ Tutorials may be found on the clml.tutorials blog at https://mmaul.github.io/clml.tutorials/ 
++ Usage examples can be found in the docs/sample project directory
++ Some notes and algorithmic details and background information can be
+found in the project directory docs/notes files in memo, notes and docs
 
     #+INCLUDE: "./docs/USING.org" :minlevel 2
 
@@ -43,6 +45,8 @@ Notes and Algorithmic Details and Background
    - cl-plplot integration
    - cl-ana integration
    - r-datasets - Library for seamless access to R datasets
+   - eazy-gnuplot integration
+ + clml.tutorials - https://github.com/mmaul/clml.tutorials Tutorials for CLML
 
 ** Contributing
 All contributions are welcome. If the contribution is to resolve and

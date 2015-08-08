@@ -71,9 +71,8 @@ This repository contains is a authorized fork of the original CLML with the foll
 
 ## Requirements
 
--   Language: SBCL, Allegro or Lispworks
+-   Language: SBCL, CCL, Allegro or Lispworks
 -   Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
--   Optionally Intel Math Kernel Library
 -   ASDF3 and optionally Quicklisp (This document assumes [Quicklisp](http://quicklisp.org))
 
   Note: Default heapsize should be around 2560K for SBCL this can be
@@ -100,9 +99,9 @@ Or download zip archive at
 1.  For Quicklisp **\*\***
 
     1.  Place code in `~/quicklisp/local-projects`
-    2.  Start LISP and enter `(ql:quickload :clml)`
+    2.  Start LISP and enter `(ql:quickload :clml :verbose t)`
 
-2.  For ASDF3 only (Non quicklisp users)
+2.  DONE For ASDF3 only (Non quicklisp users)
 
     1.  Place in a location on your ASDF search path path such as `~/common-lisp`
     2.  Start LISP and enter `(asdf:load-system :clml)`
@@ -111,10 +110,15 @@ Or download zip archive at
 
 ### User and API Documentation
 
-User and API documentation may be found on line at <http://mmaul.github.io/clml/>
-and also in the project directories docs/clml-manual.html 
-Notes and Algorithmic Details and Background    
-    files in memo, notes and docs
+-   User and API documentation may be found on line at <http://mmaul.github.io/clml/>
+
+and also in the project directories docs/clml-manual.html.
+
+-   Tutorials may be found on the clml.tutorials blog at <https://mmaul.github.io/clml.tutorials/>
+-   Usage examples can be found in the docs/sample project directory
+-   Some notes and algorithmic details and background information can be
+
+found in the project directory docs/notes files in memo, notes and docs
 
 ## Sample Data
 
@@ -365,6 +369,8 @@ export `C-c C-e` cord.
     -   cl-plplot integration
     -   cl-ana integration
     -   r-datasets - Library for seamless access to R datasets
+    -   eazy-gnuplot integration
+-   clml.tutorials - <https://github.com/mmaul/clml.tutorials> Tutorials for CLML
 
 ## Contributing
 
