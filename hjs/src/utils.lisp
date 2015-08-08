@@ -13,6 +13,10 @@
 (defmacro dfloat (x)
   `(the double-float (coerce ,x 'double-float)))
 
+(defmacro v2dvec (v)
+  "Convert vector to dvec"
+  `(coerce ,v 'CLML.HJS.META:DVEC))
+
 ;;Check that a number returned from a user function is a double-float
 (defun dfloat-check (x)
   (check-type x double-float)

@@ -10,6 +10,7 @@
 	   #:dvec
 	   #:cvec
 	   #:make-dvec
+       #:v2dvec
 	   #:array-index
        #:dfloat
 	   #:+fl
