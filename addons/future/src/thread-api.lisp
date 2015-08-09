@@ -26,7 +26,8 @@
 
 ;;
 (defun make-mutex (&key name owner)
-  #+sbcl (sb-thread:make-mutex :name name :%owner owner)
+  (declare (ignore owner))
+  #+sbcl (sb-thread:make-mutex :name name)
   #+allegro (mp:make-process-lock :name name :locker owner))
 
 (defun mutex-owner (mutex)
