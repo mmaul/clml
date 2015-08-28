@@ -332,34 +332,33 @@
 	(format stream "No->")
 	(print-regression-tree (third regression-tree) stream indent)))))
 
-(defun predict-decision-tree (query-vector unspecialized-dataset tree)
+(defun predict-decision-tree (query-vector unspecialized-dataset tree &optional (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
   "- return: string, prediction
 - arguments:
  - query-vector
  - unspecialized-dataset : dataset used to make a decision tree
  - decision-tree
+ - variable-index-hash should be left to default when called elsewhere, used to pass data to child calls
 
 *** sample usage
 #+INCLUDE: \"../sample/predict-decision-tree.org\" example lisp"
-  (let ((variable-index-hash (make-variable-index-hash unspecialized-dataset)))
-    (if (= (length tree) 2)		;leaf or not leaf
-	(car (reduce #'(lambda (x y) (if (<= (cdr x) (cdr y))
-					 y
+  (if (= (length tree) 2)		;leaf or not leaf
+      (car (reduce #'(lambda (x y) (if (<= (cdr x) (cdr y))
+				       y
 				       x)) (first tree)))
-  
       (progn
 	(let ((i (column-name->column-number variable-index-hash (caaaar tree))))
 	  (cond ((realp (cdaaar tree))
 		 (if (<= (cdaaar tree) (svref query-vector i))
-		     (predict-decision-tree query-vector unspecialized-dataset (second tree))
-		   (predict-decision-tree query-vector unspecialized-dataset (third tree))))
-	       
+		     (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
+		     (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
+		
 		((or (stringp (cdaaar tree)) (symbolp (cdaaar tree)))
 		 (if (equal (cdaaar tree) (svref query-vector i))
-		     (predict-decision-tree query-vector unspecialized-dataset (second tree))
-		   (predict-decision-tree query-vector unspecialized-dataset (third tree))))
-	      
-		(t (error "invalid dataset."))))))))
+		     (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
+		     (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
+		
+		(t (error "invalid dataset.")))))))
  
 (defun decision-tree-validation (validation-dataset objective-column-name decision-tree)
   "- return: CONS, validation result
@@ -381,33 +380,32 @@
 		collect (cons (predict-decision-tree (svref validation-data-vector i) validation-dataset decision-tree)
 			      (svref (svref validation-data-vector i) k))))))
 
-(defun predict-regression-tree (query-vector unspecialized-dataset tree)
+(defun predict-regression-tree (query-vector unspecialized-dataset tree &optional (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
   "- return: real, predictive value
 - arguments:
  - query-vector :
  - unspecialized-dataset : used dataset to make the regression tree
  - regression-tree
-
+ - variable-index-hash should be left to default when called elsewhere, used to pass data to child calls
 *** sample usage
 #+INCLUDE: \"../sample/predict-regression-tree.org\" example lisp
 "
-  (let ((variable-index-hash (make-variable-index-hash unspecialized-dataset)))
-    (if (= (length tree) 2)		;leaf or not leaf
-	(mean (first tree))
+  (if (= (length tree) 2)		;leaf or not leaf
+      (mean (first tree))
       (progn
 	(let ((i (column-name->column-number variable-index-hash (caaaar tree))))
 	  (cond ((realp (cdaaar tree))
 		 (if (<= (cdaaar tree) (svref query-vector i))
-		     (predict-regression-tree query-vector unspecialized-dataset (second tree))
-		   (predict-regression-tree query-vector unspecialized-dataset (third tree))))
-	       
+		     (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
+		     (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
+		
 		;;((stringp (cdaaar tree))
 		((or (stringp (cdaaar tree)) (symbolp (cdaaar tree)))
 		 (if (equal (cdaaar tree) (svref query-vector i))
-		     (predict-regression-tree query-vector unspecialized-dataset (second tree))
-		   (predict-regression-tree query-vector unspecialized-dataset (third tree))))
+		     (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
+		     (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
 		
-		(t (error "invalid dataset."))))))))
+		(t (error "invalid dataset.")))))))
 
 (defun regression-tree-validation (validation-dataset objective-column-name regression-tree)
   "- return: MSE (Mean Squared Error)
