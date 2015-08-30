@@ -18,5 +18,5 @@ install:
 - curl -L https://github.com/luismbo/cl-travis/raw/master/install.sh | sh
 script:
 - cl -e '(ql:quickload :clml.test)(in-package :clml.test)
-(unless (run-all-tests)
-(uiop:quit 1))'
+         (unless (run-all-tests)
+         (uiop:quit 1))'
