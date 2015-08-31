@@ -2404,7 +2404,7 @@
     (aref (the (vector fixnum) (aref tix i)) (ash r (* (- i #.(- +lookup-table-l+ 1)) +lookup-table-k+)))))
 
 (defun binomial-table-histogram (size probability)
-  #-sbcl (declare (optimize (speed 3) (safety 0) (debug 0))
+  #- (or  sbcl ccl) (declare (optimize (speed 3) (safety 0) (debug 0))
 	   (type double-float probability)
 	   (type fixnum size))
   (let* ((nsq (+ size 1))
