@@ -1,13 +1,24 @@
 
 (in-package :clml.decision-tree.random-forest)
 
-(defun make-bootstrap-sample (unspecialized-dataset)
+(defmacro bag-sizer (bag-size-key set-size-number)
+  `(case ,bag-size-key
+     (:set-size ,set-size-number)
+     (:half-set-size (round (/ ,set-size-number 2)))
+     (:quarter-set-size (round (/ ,set-size-number 4)))
+     (:sqrt-set-size (round (sqrt ,set-size-number)))
+     (t (if (and (integerp ,bag-size-key) (< 0 ,bag-size-key))
+	    ,bag-size-key
+	    (error "~A is not a valid choice for set-size." ,bag-size-key)))))
+
+(defun make-bootstrap-sample (unspecialized-dataset &key (data-bag-size :set-size))
   (let* ((data-vector (dataset-points unspecialized-dataset))
 	 (n (array-dimension data-vector 0))
-	 (new-data-vector (make-array n)))
+	 (m (bag-sizer data-bag-size n))
+	 (new-data-vector (make-array m)))
     
     (loop
-	for i below n 
+	for i below m
 	do (setf (svref new-data-vector i) (svref data-vector (random n))))
     new-data-vector))
 
@@ -142,20 +153,41 @@
   (let ((tree (make-random-decision-tree unspecialized-dataset objective-column-name :test test)))
     (print-decision-tree tree stream)))
 
-(defun make-random-decision-tree (unspecialized-dataset objective-column-name &key (test #'delta-gini))
-  (let* ((data-vector (make-bootstrap-sample unspecialized-dataset))
+(defun random-subset (list new-size &optional (len (length list)))
+  "Return a new list containing new-size number of randomly chosen elements of list without replacement. len is assumed to be the length of list."
+  (declare (list list) (type (integer 0) new-size len))
+  (if (= new-size len)
+      list
+      (let ((picked-table (make-hash-table :test #'eql)))
+	(assert (< new-size len))
+	(loop
+	   for i below new-size
+	   do (do ((index #1=(random len) #1#)) ((null (gethash index picked-table)) (setf (gethash index picked-table) t))))
+	(loop
+	   for l in list
+	   for j below len
+	   if (gethash j picked-table)
+	   collect l))))
+
+(defun make-random-decision-tree (unspecialized-dataset objective-column-name &key (test #'delta-gini) (data-bag-size :set-size) (feature-bag-size :set-size))
+  (let* ((data-vector (make-bootstrap-sample unspecialized-dataset :data-bag-size data-bag-size))
 	 (variable-index-hash (make-variable-index-hash unspecialized-dataset))
 	 (objective-column-index (column-name->column-number variable-index-hash objective-column-name))
-	 (column-list (loop
-			  with dim-vector = (dataset-dimensions unspecialized-dataset)
-			  for i below (length dim-vector)
+	 (dim-vector (dataset-dimensions unspecialized-dataset))
+	 (dim-vector-length (length dim-vector))
+	 (old-column-list-size (if (< objective-column-index dim-vector-length) (1- dim-vector-length) dim-vector-length))
+	 (column-list (random-subset
+		       (loop
+			  for i below dim-vector-length
 			  if (/= i objective-column-index)
-			  collect (dimension-name (aref dim-vector i))))
+			  collect (dimension-name (aref dim-vector i)))
+		       (bag-sizer feature-bag-size old-column-list-size)
+		       old-column-list-size))
 	 (root (make-root-node-for-rf data-vector variable-index-hash objective-column-index column-list
 			       :test test)))
     (make-decision-tree-for-rf data-vector variable-index-hash objective-column-index root :test test)))
 
-(defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500))
+(defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500) (data-bag-size :set-size) (feature-bag-size :set-size))
   "This implementation requires lparallel:*kernel* be set with a kernel object. This can be done
 by:
 #+BEGIN_SRC lisp
@@ -169,10 +201,13 @@ Where N is the number of worker threads which should generally be the number of 
  - objective-variable-name
  - test : delta-gini | delta-entropy , splitting criterion function, default is delta-gini
  - tree-number : the number of decision trees, default is 500
+ - data-bag-size : the number of data points from unspecialized-dataset to use to train each tree in the forest. Chosen randomly with replacement for each tree. The default :set-size gives a bag the same size as unspecialized-dataset
+ - feature-bag-size : the number of variables from all available to use to train each tree in the forest. Chosen randomly with replacement for each tree. The default :set-size uses all variables.
+ - Other available options for data-bag-size and feature-bag-size are :half-set-size, :quarter-set-size, and :sqrt-set-size. If an integer is specified it will be used instead.
 - reference : [[http://www-stat.stanford.edu/~tibs/ElemStatLearn/][Trevor Hastie, Robert Tibshirani and Jerome Friedman. The Elements of Statistical Learning:Data Mining, Inference, and Prediction]]
 "
   (lparallel:pmap 'vector
-                  (lambda (l)  (declare (ignore l)) (make-random-decision-tree unspecialized-dataset objective-column-name :test test)) (make-array tree-number))
+                  (lambda (l)  (declare (ignore l)) (make-random-decision-tree unspecialized-dataset objective-column-name :test test :data-bag-size data-bag-size :feature-bag-size feature-bag-size)) (make-array tree-number))
   )
 
 (defun predict-forest (query-vector unspecialized-dataset forest)
@@ -208,15 +243,20 @@ Where N is the number of worker threads which should generally be the number of 
 
 
 
-(defun make-random-regression-tree (unspecialized-dataset objective-column-name)
-  (let* ((data-vector (make-bootstrap-sample unspecialized-dataset))
+(defun make-random-regression-tree (unspecialized-dataset objective-column-name &key (data-bag-size :set-size) (feature-bag-size :set-size))
+  (let* ((data-vector (make-bootstrap-sample unspecialized-dataset :data-bag-size data-bag-size))
 	 (variable-index-hash (make-variable-index-hash unspecialized-dataset))
 	 (objective-column-index (column-name->column-number variable-index-hash objective-column-name))
-	 (column-list (loop
-			  with dim-vector = (dataset-dimensions unspecialized-dataset)
-			  for i below (length dim-vector)
+	 (dim-vector (dataset-dimensions unspecialized-dataset))
+	 (dim-vector-length (length dim-vector))
+	 (old-column-list-size (if (< objective-column-index dim-vector-length) (1- dim-vector-length) dim-vector-length))
+	 (column-list (random-subset
+		       (loop
+			  for i below dim-vector-length
 			  if (/= i objective-column-index)
-			  collect (dimension-name (aref dim-vector i))))
+			  collect (dimension-name (aref dim-vector i)))
+		       (bag-sizer feature-bag-size old-column-list-size)
+		       old-column-list-size))
 	 (root (make-root-node-for-rf data-vector variable-index-hash objective-column-index column-list
 				      :test #'delta-variance)))
     (make-regression-tree-for-rf data-vector variable-index-hash objective-column-index root :test #'delta-variance)))
@@ -238,7 +278,7 @@ Where N is the number of worker threads which should generally be the number of 
   (let ((tree (make-random-regression-tree unspecialized-dataset objective-column-name)))
     (print-regression-tree tree stream)))
 
-(defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500))
+(defun make-regression-forest (unspecialized-dataset objective-column-name &key (tree-number 500) (data-bag-size :set-size) (feature-bag-size :set-size))
   "This implementation requires lparallel:*kernel* be set with a kernel boject. This can be done
 by:
 #+BEGIN_SRC lisp
@@ -251,11 +291,14 @@ Where N is the number of worker threads which should generally be the number of 
  - unspecialized-dataset
  - objective-variable-name
  - tree-number : the number of decision trees, default is 500
+ - data-bag-size : the number of data points from unspecialized-dataset to use to train each tree in the forest. Chosen randomly with replacement for each tree. The default :set-size gives a bag the same size as unspecialized-dataset
+ - feature-bag-size : the number of variables from all available to use to train each tree in the forest. Chosen randomly with replacement for each tree. The default :set-size uses all variables.
+ - Other available options for data-bag-size and feature-bag-size are :half-set-size, :quarter-set-size, and :sqrt-set-size. If an integer is specified it will be used instead.
 "
 (let ((lparallel:*kernel* (if (null lparallel:*kernel*)
                                (lparallel:make-kernel 4) lparallel:*kernel*))
       )(lparallel:pmap 'vector
-        (lambda (l) (declare (ignore l)) (make-random-regression-tree unspecialized-dataset objective-column-name )) (make-array tree-number))))
+        (lambda (l) (declare (ignore l)) (make-random-regression-tree unspecialized-dataset objective-column-name :data-bag-size data-bag-size :feature-bag-size feature-bag-size)) (make-array tree-number))))
 
 (defun predict-regression-forest (query-vector unspecialized-dataset forest)
  
