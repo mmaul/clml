@@ -100,9 +100,11 @@
 	(false-list '()))
    
     (dolist (i list-of-row-numbers (values true-list false-list))
-      (if (funcall split-predicate (svref (svref data-vector i) attribute-column-index))
-	  (push i true-list)
-	(push i false-list)))))
+      (handler-case
+	  (if (funcall split-predicate #1=(svref (svref data-vector i) attribute-column-index))
+	      (push i true-list)
+	      (push i false-list))
+	(type-error () (unless (eql :NA #1#) (error "Don't know how to handle the value ~A. Expected something with type ~A." #1# (type-of attribute))))))))
 
 (defun split (data-vector variable-index-hash list-of-row-numbers attribute-column-name attribute)
   (if (and (null attribute-column-name)
@@ -349,7 +351,7 @@
       (progn
 	(let ((i (column-name->column-number variable-index-hash (caaaar tree))))
 	  (cond ((realp (cdaaar tree))
-		 (if (<= (cdaaar tree) (svref query-vector i))
+		 (if (handler-case (<= (cdaaar tree) #1=(svref query-vector i)) (type-error () (if (eql :NA #1#) (if (= 2 (length (third tree))) t (if (= 2 (length (second tree))) nil (if (<= (cadaar (second tree)) (cadaar (third tree))) nil t))) (error "Don't know how to handle the value ~A. Expected something of type real." #1#))))
 		     (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
 		     (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
 		
@@ -395,7 +397,7 @@
       (progn
 	(let ((i (column-name->column-number variable-index-hash (caaaar tree))))
 	  (cond ((realp (cdaaar tree))
-		 (if (<= (cdaaar tree) (svref query-vector i))
+		 (if (handler-case (<= (cdaaar tree) #1=(svref query-vector i)) (type-error () (if (eql :NA #1#) (if (= 2 (length (third tree))) t (if (= 2 (length (second tree))) nil (if (<= (cadaar (second tree)) (cadaar (third tree))) nil t))) (error "Don't know how to handle the value ~A. Expected something of type real." #1#))))
 		     (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
 		     (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
 		
