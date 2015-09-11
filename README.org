@@ -25,6 +25,8 @@ This repository contains is a authorized fork of the original CLML with the foll
   + Kuroda Hisao
 *** Current Branch Maintainer(s)/Authors(s):    
   +  Mike Maul
+*** Contributors:
+  +  gambyte
 
 ** [#B] Installation
 #+INCLUDE: "./docs/INSTALL.org" :minlevel 2

@@ -8,6 +8,7 @@
 <ul>
 <li><a href="#sec-1-1-1">1.1.1. Original</a></li>
 <li><a href="#sec-1-1-2">1.1.2. Current Branch Maintainer(s)/Authors(s):</a></li>
+<li><a href="#sec-1-1-3">1.1.3. Contributors:</a></li>
 </ul>
 </li>
 <li><a href="#sec-1-2">1.2. Installation</a></li>
@@ -66,6 +67,10 @@ This repository contains is a authorized fork of the original CLML with the foll
 ### Current Branch Maintainer(s)/Authors(s):
 
 -   Mike Maul
+
+### Contributors:
+
+-   gambyte
 
 ## Installation
 

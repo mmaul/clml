@@ -14,7 +14,7 @@
       
       (setf cars (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/cars.csv") :type :csv :csv-type-spec '(double-float double-float)))
       (let ((lparallel:*kernel* (lparallel:make-kernel 4)))
-        (setf forest (make-random-forest syobu "種類"))
+        (setf forest (make-random-forest syobu "種類" :feature-bag-size :quarter-set-size :data-bag-size :quarter-set-size))
         
         (assert-eql 500 (length forest))
         (let ((stream (make-string-output-stream)))
