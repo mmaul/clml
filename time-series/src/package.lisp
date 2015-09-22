@@ -244,3 +244,41 @@ Package for "ChangeFinder"
    #:print-burst-indices
    #:enumerate-kleinberg))
 
+(defpackage :clml.time-series.finance
+  (:use :cl)
+  (:import-from :clml.hjs.read-data #:read-data-from-file #:dataset-points
+                #:pick-and-specialize-data #:dataset-dimensions #:dimension-name)
+  (:import-from :clml.hjs.meta #:v2dvec)
+  (:import-from :clml.time-series.read-data #:time-series-data #:ts-points #:time-series-dataset
+                #:ts-p-pos :ts-start #:ts-end #:ts-freq #:make-constant-time-series-data
+                #:ts-p-label)
+  (:import-from :clml.hjs.missing-value #:+nan+ )
+
+  (:export
+   #:atr)
+
+  (:documentation "Financial Analysis Algorithims for time-series finance data
+
+#+BEGIN_SRC lisp
+
+; Calulate tr and atr for daily tick data for QQQ from 1 April 2010 to 13 May 2010
+(defparameter cs-atr-csv
+  (read-data-from-file
+   (clml.utility.data:fetch \"https://mmaul.github.io/clml.data/sample/cs-atr.csv\")
+   :type :csv :csv-type-spec '(string double-float double-float double-float double-float
+                               double-float double-float double-float double-float)
+   :missing-values-list '("NA")))
+
+(defparameter cs-atr-ts (time-series-data cs-atr-csv :time-label 0 :range '(1 2 3)))
+(defparameter qqq-atr-ts (atr cs-atr-ts :high 0 :low 1 :close 2))
+
+(format t \"~9A \" (or (clml.time-series.read-data:time-label-name qqq-atr-ts) \"Time\"))
+(loop for d across (dataset-dimensions qqq-atr-ts)
+      do (format t \"~8a  \" (dimension-name d)))
+(loop for line across (ts-points qqq-atr-ts)
+      do (format t \"~&~9A ~{~5$~^ ~}~%\" (ts-p-label line) (coerce  (ts-p-pos line) 'list)))
+
+#+END_SRC
+"
+))
+
