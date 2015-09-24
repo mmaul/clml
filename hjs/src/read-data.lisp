@@ -525,6 +525,24 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                      :missing-value-check missing-value-check
                                      :missing-values-list missing-values-list)))))
 
+;;;; read and process data
+;;@ function-type: string -> unspecialized-dataset
+(defun read-data-from-stream (stream &key
+                                     csv-type-spec
+                                     (csv-header-p t)
+                                     (missing-value-check t)
+                                     missing-values-list)
+  "Reads CSV data from a stream. The normal convention is first line is column name.
+However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the column names"
+  (multiple-value-bind (data header)
+         (clml.utility.csv:read-csv-stream stream :header csv-header-p :type-spec csv-type-spec)
+       (make-unspecialized-dataset (coerce header 'list) data
+
+                                     :missing-value-check missing-value-check
+                                     :missing-values-list missing-values-list))
+  )
+
+
 ;;; function-type: unspecialized-dataset -> specialized-dataset
 
 (defgeneric pick-and-specialize-data (d  &key

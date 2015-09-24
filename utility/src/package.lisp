@@ -28,5 +28,6 @@
 
 (defpackage :clml.utility.data
   (:use :common-lisp)
-  (:export #:fetch))
+  (:export
+   #:fetch #:fetch-stream #:process-finance-header))
 
