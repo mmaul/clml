@@ -21,7 +21,10 @@
    #:ts-type
    #:tf-incl
    #:tf-gap
-   #:ts-cleaning)
+   #:ts-cleaning
+   #:choice-a-dimension
+   #:choice-a-dimensions
+)
   (:import-from :clml.hjs.read-data #:clean-points #:dimension)
   (:documentation
    "Time-Series-Read-Data
