@@ -87,15 +87,20 @@ Note that it is important to ensure that dir and subdir if used end in a /"
     (t (values nil 404 "Not file of url"))
     )))
 
-(defun fetch-stream (url)
-  ( multiple-value-bind (content-or-stream status header tk stream must-close status-string)
-      (drakma:http-request url :want-stream t :external-format-out :utf-8)
-    #+sbcl (declare (ignore content-or-stream header tk must-close status-string))
-    (values
-     (if (= status 200)
-                 stream
-                 nil)
-     )))
+(defun fetch-stream (url-or-path &key (dir (namestring (asdf:system-relative-pathname 'clml "sample/"))))
+  (cond
+    ((is-file (condition-path url-or-path)) (open (condition-path url-or-path)) :direction :input)
+    ((is-file (condition-path (concatenate 'string  dir url-or-path)))
+     (open  (condition-path (concatenate 'string  dir url-or-path)) :direction :input))
+    ((puri:parse-uri url-or-path)
+      (multiple-value-bind (content-or-stream status header tk stream must-close status-string)
+          (drakma:http-request url-or-path :want-stream t :external-format-out :utf-8)
+        #+sbcl (declare (ignore content-or-stream header tk must-close status-string))
+        (values
+         (if (= status 200)
+             stream
+             nil)
+         )))))
 
 
 (defun process-finance-header (stream &key (seperator "=") (column-key "COLUMNS") (len 6))
