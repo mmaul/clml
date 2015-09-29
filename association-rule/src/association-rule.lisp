@@ -65,7 +65,9 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(inline make-rule finalize-rule)))
 (defun finalize-rule (atom-rule) ;; optional -- for visualize
-  (format nil "~A=~A" (car atom-rule) (cdr atom-rule)))
+  atom-rule
+  ;(format nil "~A=~A" (car atom-rule) (cdr atom-rule))
+  )
 (defun finalize-rules (rule)
   (mapcar #'(lambda (x) (finalize-rule x)) rule))
 (defun make-rule (conc pre sup conf lif conv)
