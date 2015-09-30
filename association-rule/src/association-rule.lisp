@@ -434,3 +434,40 @@
       (with-standard-io-syntax
         (let ((*read-default-float-format* 'double-float))
           (assoc-data-out assoc-result stream))))))
+
+(defgeneric apply-rules (result-dataset premises &key)
+  (:documentation "
+Applies rules `assoc-result-dataset` to premises in premesises` and returns conclusions.
+
+-return: List of vectors where each vector contains alist of field values of conclusion, support,
+         confidence,lift and conviction
+- arguments:
+    - result-dataset : assoc-result-dataset
+    - premises : alist of field and values for premises to match
+    - support : <optional keyword> if non nul support of result must be equal or greater than
+                supplied value
+    - confidence : <optional keyword> if non nul support of result must be equal or greater than
+                supplied value
+    - lift : <optional keyword> if non nul support of result must be equal or greater than
+                supplied value
+    - conviction : <optional keyword> if non nul support of result must be equal or greater than
+                supplied value
+
+"))
+(defmethod apply-rules ((rules assoc-result-dataset) premises
+                        &key support confidence lift conviction)
+  (let ((np (length premises)))
+    (loop
+      for rule in (assoc-result-rules rules)
+      when (and (= np (loop for p in premises
+                            sum (loop for r in (elt rule 0)
+                                      when (and (equal (car r) (car p)) (equal (cdr r) (cdr p)))
+                                        count 1
+                                      )))
+                (or (not support) (>= (elt rule 2) support))
+                (or (not confidence) (>= (elt rule 3) confidence))
+                (or (not lift) (>= (elt rule 4) lift))
+                (or (not conviction) (>= (elt rule 2) conviction)))
+        collect (subseq rule 1)
+      ))
+  )

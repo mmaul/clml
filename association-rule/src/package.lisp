@@ -18,7 +18,7 @@
            :scan-eclat
            :scan-input-data-eclat
            :%association-analyze-eclat
-           
+           :apply-rules
            )
   (:documentation "Package for association rule analysis
 *** sample usage
