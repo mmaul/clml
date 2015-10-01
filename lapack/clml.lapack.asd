@@ -6,20 +6,15 @@
 
 (defun call-with-environment (fun)
   (let ((*read-default-float-format* 'double-float))
-    (funcall fun)))
-(defun check-dynamic-space-size (fun)
-  (progn
-    #+sbcl
-   (when  (< (sb-ext:dynamic-space-size) 2684354560)
-     (error 'dynamic-heap-space-too-small :text (format nil  "Durring compilation with SBCL this system requires that the heap space be set to 2560 or greater. ~%This can be set by dynamic-space-size flag when starting sbcl. To resolve restart sbcl as follows:~%    sbcl --dynamic-space-size 2560~%"))
+    (when  (< (sb-ext:dynamic-space-size) 2684354560)
+      (error 'dynamic-heap-space-too-small :text (format nil  "Durring compilation with SBCL this system requires that the heap space be set to 2560 or greater. ~%This can be set by dynamic-space-size flag when starting sbcl. To resolve restart sbcl as follows:~%    sbcl --dynamic-space-size 2560~%"))
      )
-   (funcall fun)
-   )
-  )
+    (funcall fun)))
+
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (asdf:defsystem :clml.lapack-real
     :description "CLML lapack (real)"
-    :around-compile (check-dynamic-space-size)
+    :around-compile (call-with-environment)
     :author"
      Original Authors: (One or more of)
        Salvi Péter,
