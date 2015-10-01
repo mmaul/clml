@@ -133,6 +133,7 @@
   (:import-from :alexandria #:define-constant)
   (:export 
    #:read-data-from-file
+   #:read-data-from-stream
    #:pick-and-specialize-data
    #:divide-dataset
    #:dataset-dimensions

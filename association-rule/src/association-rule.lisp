@@ -65,7 +65,9 @@
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(inline make-rule finalize-rule)))
 (defun finalize-rule (atom-rule) ;; optional -- for visualize
-  (format nil "~A=~A" (car atom-rule) (cdr atom-rule)))
+  atom-rule
+  ;(format nil "~A=~A" (car atom-rule) (cdr atom-rule))
+  )
 (defun finalize-rules (rule)
   (mapcar #'(lambda (x) (finalize-rule x)) rule))
 (defun make-rule (conc pre sup conf lif conv)
@@ -176,44 +178,6 @@
              transactions)
     (values transactions item-order)))
 
-(defun %association-analyze (unsp-dataset target-variables key-variable rule-length
-                                             &key (support 0) (confident 0) (lift 0) (conviction 0))
-  "- return: assoc-result-dataset
-- arguments:
-  - infile : <string>
-  - outfile : <string>
-  - target-variables : <list string> column names
-  - key-variable : <string> column name for determining identities
-  - rule-length : <integer> >= 2, maximum length for a rule
-  - support : <number> for percentage
-  - confident : <number> for percentage
-  - lift : <number> beyond 0
-  - conviction : <number> beyond 0
-  - file-type		:	:sexp | :csv
-  - external-format	:	<acl-external-format>
-  - csv-type-spec	:	<list symbol>, type conversion of each column when reading lines from CSV file, e.g. '(string integer double-float double-float)
-  - algorithm : :apriori | :da | :fp-growth | :eclat | :lcm
-"
-  (assert (and (<= 0 support 100) (<= 0 confident 100) (<= 0 lift) (<= 0 conviction)))
-  (assert (and (integerp rule-length) (<= 2 rule-length)))
-  (multiple-value-bind (transactions item-order)
-      (scan-input-data unsp-dataset target-variables key-variable)
-    (let ((rule-occur (apriori-itemset-counting
-                       transactions item-order support rule-length)))
-      (loop with ans = nil
-          with count = (hash-table-count transactions)
-          for rule being the hash-key in rule-occur do
-            (map-separated-two-groups
-             rule
-             #'(lambda (conc pre)
-                 (when (and conc pre)
-                   (multiple-value-bind (sup conf lif conv) (rule-indexes conc pre rule
-                                                                          rule-occur count)
-                     (when (and (>= sup support) (>= conf confident) (>= lif lift) (>= conv conviction))
-                       (push (make-rule conc pre
-                                        sup conf lif conv) ans))))))
-          finally (return (make-assoc-result ans support confident 
-                                             lift conviction rule-length))))))
 
 ;; ap-genrule
 ;; pass fn such that push rule into some variable to this ap-maprule
@@ -244,6 +208,18 @@
 
 (defun %association-analyze-ap-genrule (unsp-dataset target-variables key-variable rule-length
 					&key (support 0) (confident 0) (lift 0) (conviction 0))
+  "association analyze with ap-genrule algorithm.
+- return: assoc-result-dataset
+- arguments:
+  - unsp-dataset: <unspecialized-dataset>
+  - target-variables : (list of string) column names
+  - key-variable : <string> column name for determining identities
+  - rule-length : <integer> >= 2, maximum length for a rule
+  - support : <number> for percentage
+  - confident : <number> for percentage
+  - lift : <number> beyond 0
+  - conviction : <number> beyond 0
+"
   (assert (and (<= 0 support 100) (<= 0 confident 100) (<= 0 lift) (<= 0 conviction)))
   (assert (and (integerp rule-length) (<= 2 rule-length)))
   (multiple-value-bind (transactions item-order)
@@ -351,7 +327,7 @@
 
 (defun %association-analyze-apriori (unsp-dataset target-variables key-variable rule-length
 				     &key (support 0) (confident 0) (lift 0) (conviction 0))
-  "ssociation analyze with apriori algorithm.
+  "association analyze with apriori algorithm.
 - return: assoc-result-dataset
 - arguments:
   - unsp-dataset: <unspecialized-dataset>
@@ -370,65 +346,173 @@
     (let ((rule-occur (apriori-itemset-counting-trie
                        transactions item-order support rule-length)))
       (let ((ans nil)
-	    (count (hash-table-count transactions)))
-	(maphash #'(lambda (rule rule-count)
-		     (let ((rule-length (length rule)))
-		       (when (> rule-length 1)
-			 (ap-maprule
-			  #'(lambda (conc pre)
-			      (multiple-value-bind (sup conf lif conv) (rule-indexes conc pre rule
-										     rule-occur count)
-				(when (and (>= sup support) (>= conf confident) (>= lif lift) (>= conv conviction))
-				  (push (make-rule conc pre
-						   sup conf lif conv) ans))))
-			  rule (length rule)
-			  #'(lambda (itemset) (gethash itemset rule-occur))
-			  (confident->max-precount rule-count confident)))))
-		 rule-occur)
+            (count (hash-table-count transactions)))
+        (maphash #'(lambda (rule rule-count)
+                     (let ((rule-length (length rule)))
+                       (when (> rule-length 1)
+                         (ap-maprule
+                          #'(lambda (conc pre)
+                              (multiple-value-bind (sup conf lif conv) (rule-indexes conc pre rule
+                                                                                     rule-occur count)
+                                (when (and (>= sup support) (>= conf confident) (>= lif lift) (>= conv conviction))
+                                  (push (make-rule conc pre
+                                                   sup conf lif conv) ans))))
+                          rule (length rule)
+                          #'(lambda (itemset) (gethash itemset rule-occur))
+                          (confident->max-precount rule-count confident)))))
+                 rule-occur)
         (make-assoc-result ans support confident 
-			   lift conviction rule-length)))))
+                           lift conviction rule-length)))))
 
 
 ;; interface
-(defun association-analyze (infile outfile target-variables key-variable rule-length
-                            &key (support 0) (confident 0) (lift 0) (conviction 0) (external-format :default)
-                                 (file-type :sexp) (csv-type-spec '(string double-float))
-                                 (algorithm :lcm))
+(defun association-analyze (unsp-dataset target-variables key-variable rule-length
+                            &key (algorithm :lcm)
+                              (support 0) (confident 0) (lift 0) (conviction 0))
+  "Preform association rule analysis on an unspecialized dataset. The dataset should contain an 'key' collumn with a unique string identifier that groups all rows belonging to the same transaction. For example:
+    id     item
+    ------|----------
+    \"1\"   milk
+    \"1\"   bread
+    \"2\"   pork chops
+    \"2\"   pepper
+In the above example the 'id' column would be the key-varable and 'item' would be a target variable.
+
+- return: assoc-result-dataset
+- arguments:
+- unsp-dataset: <unspecialized-dataset>
+- target-variables : <list string> column names
+- key-variable : <string> column name for determining identities
+- rule-length : <integer> >= 2, maximum length for a rule
+- support : <number> for percentage
+- confident : <number> for percentage
+- lift : <number> beyond 0
+- conviction : <number> beyond 0
+- algorithm : :apriori | :da | :fp-growth | :eclat | :lcm (default)
+"
+
   (assert (member algorithm `(:apriori :da :fp-growth :eclat :lcm)))
-  (let ((assoc-result
-         (case algorithm
-           (:apriori
-            (%association-analyze-apriori 
-             (read-data-from-file infile :external-format external-format
-                                  :type file-type :csv-type-spec csv-type-spec)
-             target-variables key-variable rule-length
-             :support support :confident confident :lift lift :conviction conviction))
-           (:da
+  (case algorithm
+            (:apriori
+             (%association-analyze-apriori 
+              unsp-dataset
+              target-variables key-variable rule-length
+              :support support :confident confident :lift lift :conviction conviction))
+            (:da
             (%association-analyze-da-ap-genrule
-             (read-data-from-file infile :external-format external-format
-                                  :type file-type :csv-type-spec csv-type-spec)
+             unsp-dataset
              target-variables key-variable rule-length
              :support support :confident confident :lift lift :conviction conviction))
            (:fp-growth
             (%association-analyze-fp-growth
-             (read-data-from-file infile :external-format external-format
-                                  :type file-type :csv-type-spec csv-type-spec)
+             unsp-dataset
              target-variables key-variable rule-length
              :support support :confident confident :lift lift :conviction conviction))
            (:eclat
             (%association-analyze-eclat
-             (read-data-from-file infile :external-format external-format
-                                  :type file-type :csv-type-spec csv-type-spec)
+             unsp-dataset
              target-variables key-variable rule-length
              :support support :confident confident :lift lift :conviction conviction))
            (:lcm
             (%association-analyze-lcm
-             (read-data-from-file infile :external-format external-format
-                                  :type file-type :csv-type-spec csv-type-spec)
+             unsp-dataset
              target-variables key-variable rule-length
-             :support support :confident confident :lift lift :conviction conviction)))))
+             :support support :confident confident :lift lift :conviction conviction))))
+
+(defun association-analyze-file (infile outfile target-variables key-variable rule-length
+                            &key (support 0) (confident 0) (lift 0) (conviction 0)
+                              (external-format :default) (file-type :sexp)
+                              (csv-type-spec '(string double-float))
+                              (algorithm :lcm))
+  "- return: assoc-result-dataset
+- arguments:
+- infile : <string>
+- outfile : <string>
+- target-variables : <list string> column names
+- key-variable : <string> column name for determining identities
+- rule-length : <integer> >= 2, maximum length for a rule
+- support : <number> for percentage
+- confident : <number> for percentage
+- lift : <number> beyond 0
+- conviction : <number> beyond 0
+- file-type : :sexp | :csv
+- external-format : <acl-external-format>
+- csv-type-spec : <list symbol>, type conversion of each column when reading lines from CSV file, e.g. '(string integer double-float double-float)
+- algorithm : :apriori | :da | :fp-growth | :eclat | :lcm
+"
+
+  (assert (member algorithm `(:apriori :da :fp-growth :eclat :lcm)))
+  (let ((assoc-result
+          (case algorithm
+            (:apriori
+             (%association-analyze-apriori
+              (read-data-from-file infile :external-format external-format
+                                          :type file-type :csv-type-spec csv-type-spec)
+              target-variables key-variable rule-length
+              :support support :confident confident :lift lift :conviction conviction))
+            (:da
+             (%association-analyze-da-ap-genrule
+              (read-data-from-file infile :external-format external-format
+                                          :type file-type :csv-type-spec csv-type-spec)
+              target-variables key-variable rule-length
+              :support support :confident confident :lift lift :conviction conviction))
+            (:fp-growth
+             (%association-analyze-fp-growth
+              (read-data-from-file infile :external-format external-format
+                                          :type file-type :csv-type-spec csv-type-spec)
+              target-variables key-variable rule-length
+              :support support :confident confident :lift lift :conviction conviction))
+            (:eclat
+             (%association-analyze-eclat
+              (read-data-from-file infile :external-format external-format
+                                          :type file-type :csv-type-spec csv-type-spec)
+              target-variables key-variable rule-length
+              :support support :confident confident :lift lift :conviction conviction))
+            (:lcm
+             (%association-analyze-lcm
+              (read-data-from-file infile :external-format external-format
+                                          :type file-type :csv-type-spec csv-type-spec)
+              target-variables key-variable rule-length
+              :support support :confident confident :lift lift :conviction conviction)))))
     (with-open-file (stream outfile :direction :output :if-exists :supersede
-                     :external-format external-format)
+                                    :external-format external-format)
       (with-standard-io-syntax
         (let ((*read-default-float-format* 'double-float))
           (assoc-data-out assoc-result stream))))))
+
+(defgeneric apply-rules (result-dataset premises &key)
+  (:documentation "
+Applies rules `assoc-result-dataset` to premises in premesises` and returns conclusions.
+
+-return: List of vectors where each vector contains alist of field values of conclusion, support,
+         confidence,lift and conviction
+- arguments:
+    - result-dataset : assoc-result-dataset
+    - premises : alist of field and values for premises to match
+    - support : <optional keyword> if non nul support of result must be equal or greater than
+                supplied value
+    - confidence : <optional keyword> if non nul support of result must be equal or greater than
+                supplied value
+    - lift : <optional keyword> if non nul support of result must be equal or greater than
+                supplied value
+    - conviction : <optional keyword> if non nul support of result must be equal or greater than
+                supplied value
+
+"))
+(defmethod apply-rules ((rules assoc-result-dataset) premises
+                        &key support confidence lift conviction)
+  (let ((np (length premises)))
+    (loop
+      for rule in (assoc-result-rules rules)
+      when (and (= np (loop for p in premises
+                            sum (loop for r in (elt rule 0)
+                                      when (and (equal (car r) (car p)) (equal (cdr r) (cdr p)))
+                                        count 1
+                                      )))
+                (or (not support) (>= (elt rule 2) support))
+                (or (not confidence) (>= (elt rule 3) confidence))
+                (or (not lift) (>= (elt rule 4) lift))
+                (or (not conviction) (>= (elt rule 2) conviction)))
+        collect (subseq rule 1)
+      ))
+  )

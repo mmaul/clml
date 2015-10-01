@@ -7,7 +7,8 @@
 	   #:read-csv-stream
 	   #:write-csv-file
 	   #:write-csv-stream
-	   #:read-csv-file-and-sort))
+	   #:read-csv-file-and-sort
+       #:parse-csv-string))
 
  (defpackage :clml.utility.priority-que
    
@@ -28,5 +29,6 @@
 
 (defpackage :clml.utility.data
   (:use :common-lisp)
-  (:export #:fetch))
+  (:export
+   #:fetch #:fetch-stream #:process-finance-header))
 

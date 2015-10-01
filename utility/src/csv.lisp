@@ -239,7 +239,7 @@ map-fns is a list of functions of one argument and output one result.
 each function in it will be applied to the parsed element.
 If any function in the list is nil or t, it equals to #'identity.
 If map-fns is nil, then nothing will be applied.
-
+https://cgit.gentoo.org/proj/lisp.git/tree/dev-lisp/cl-rsm-finance/cl-rsm-finance-1.1.ebuild?h=old-portage&id=e9b71910b0d4f22aeb66f14e158a2451f9955b0d
 external-format (default is shift-jis) is a valid AllegroCL external-format type.
 
 OS is a set to eol-convention of the file stream.

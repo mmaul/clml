@@ -46,5 +46,6 @@
                (:file "ts-anomaly-detection")
                (:file "ts-burst-detection")
                (:file "exponential-smoothing")
+               (:file "finance")
                
                ))

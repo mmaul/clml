@@ -49,7 +49,7 @@
                         7.695690413368514d0 27.04791344667697d0 1.28407f0 1.0820224f0))))
       (declare (ignorable expected-header))
       (assert-true
-       (setf result (association-analyze (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/result.sexp")
+       (setf result (association-analyze-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/result.sexp")
                                          '("商品名") "ID番号" 3 
                                          :support 2 :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
       (loop for rule1 in expected-result

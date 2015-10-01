@@ -138,7 +138,9 @@
 
 (defun finalize-rule-da (index decode-array)
   (symbol-macrolet ((atom-rule (aref decode-array index))) ;; optional -- for visualize
-    (format nil "~A=~A" (car atom-rule) (cdr atom-rule))))
+    atom-rule
+    ;(format nil "~A=~A" (car atom-rule) (cdr atom-rule))
+    ))
 (defun finalize-rules-da (rule decode-array)
   (map 'list #'(lambda (x) (finalize-rule-da x decode-array)) rule))
 (defun make-rule-da (conc pre sup conf lif conv decode-array)

@@ -44,8 +44,9 @@
 
 (defun is-file (path)
   (handler-case (probe-file path)
-    (type-error (e) (error 'invalid-path-error
+    (type-error (e) #+sbcl (declare (ignore e)) (error 'invalid-path-error
                  :text (format nil "Invalid path: ~A" path)))))
+
 
 
 (defun fetch (url-or-path &key (cache t)
@@ -86,6 +87,68 @@ Note that it is important to ensure that dir and subdir if used end in a /"
     (t (values nil 404 "Not file of url"))
     )))
 
+(defun fetch-stream (url-or-path &key (dir (namestring (asdf:system-relative-pathname 'clml "sample/"))))
+  (cond
+    ((is-file (condition-path url-or-path)) (open (condition-path url-or-path)) :direction :input)
+    ((is-file (condition-path (concatenate 'string  dir url-or-path)))
+     (open  (condition-path (concatenate 'string  dir url-or-path)) :direction :input))
+    ((puri:parse-uri url-or-path)
+      (multiple-value-bind (content-or-stream status header tk stream must-close status-string)
+          (drakma:http-request url-or-path :want-stream t :external-format-out :utf-8)
+        #+sbcl (declare (ignore content-or-stream header tk must-close status-string))
+        (values
+         (if (= status 200)
+             stream
+             nil)
+         )))))
+
+
+(defun process-finance-header (stream &key (seperator "=") (column-key "COLUMNS") (len 6))
+  "Reads `len` lines of stream extracting header column names and metadata. The stream is
+expected to be of format:
+
+    <metadata-key><seperator><metadata-value>
+    ...
+    <column-key><seperator><comma seperated list of column names>
+    ...
+
+Metadata values are parsed in to numbers where possible and comma seperated values are
+stored as lists. Google Finance, and Yahoo finance follow these conventions. The defaults
+are provisioned for Google Finance. Yahoo finance would use the following:
+  seperator \":\"
+  column-key \"values\"
+  len 16
+  -return: list of column names and alist of metadata or nil if unable to read stream
+  -arguments:
+    -stream:
+#+BEGIN_SRC lisp
+
+#+END_SRC
+"
+  (if stream
+      (loop 
+        with header = '()
+        with meta = '()
+        for n upfrom 0
+        as l = (read-line stream nil)
+        if (and l (<= n len))
+          do (multiple-value-bind (a cols) (cl-ppcre:scan-to-strings (concatenate 'string "(.*)" seperator "(.*)") l)
+               (if (and a (string= (elt cols 0) column-key))
+                   (setf header (clml.utility.csv::parse-csv-string (elt  cols 1)))
+                   (when a (setf meta
+                                 (acons (elt cols 0)
+                                        (let ((v (elt cols 1)))
+                                          (let ((pv (handler-case
+                                                        (map 'list #'parse-number:parse-number
+                                                             (clml.utility.csv::parse-csv-string v))
+                                                      (error () v))))
+                                            (if (> (length pv) 1)
+                                                pv
+                                                (car pv))))  meta)))))
+        when (or (not l) (> n len))
+          do (return (values  (coerce header 'list)  meta))
+        )
+      nil))
 
 
 

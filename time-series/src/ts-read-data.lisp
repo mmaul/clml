@@ -231,3 +231,36 @@ The dataset for time-series data. Values are specialized in numeric"))
         (when pts
           (do-vec (vec pts :type dvec :index-var i :return d)
             (setf (ts-p-pos (svref points i)) vec)))))))
+
+(defmethod choice-dimensions (names (data time-series-dataset))
+  (with-accessors ((dims dataset-dimensions)
+                   (pts ts-points)) data
+    (let* ((poses (loop for name in names 
+                      collect (position name dims :key #'dimension-name :test #'string=)))
+           (types (mapcar (lambda (pos) (dimension-type (aref dims pos))) poses))
+           (type (cond ((every (lambda (ty) (eq ty :numeric)) types) :numeric)
+                       ((every (lambda (ty) (eq ty :category)) types) :category)
+                       (t t))))
+      (when poses
+        (loop for pt across pts
+            as new-pt = (mapcar (lambda (pos) (aref pt pos)) poses)
+            collect (case type 
+                      (:numeric (coerce new-pt 'dvec))
+                      (:category (coerce new-pt 'vector)) ;;
+                      (t (coerce new-pt 'vector))) into result
+            finally (return (coerce result 'vector)))))))
+
+(defmethod choice-a-dimension (name (data time-series-dataset))
+  (multiple-value-bind (pos type)
+      (loop for pos from 0
+          for dim across (dataset-dimensions data)
+          when (string= (dimension-name dim) name)
+          return (values pos (dimension-type dim)))
+    (when pos 
+      (loop for vec across (ts-points data)
+            collect (aref (ts-p-pos vec) pos) into result
+          finally (return (ecase type 
+                            (:numeric (coerce result 'dvec))
+                            (:category (coerce result 'vector)) ;;
+                            ))))))
+
