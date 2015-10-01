@@ -25,7 +25,7 @@
         
         (assert-true (string= "Versicolor" (predict-forest query syobu forest)))
         
-        (setf forest (make-random-forest bc-train "Class"))
+        (setf forest (make-random-forest bc-train "Class" :balance t))
         
         (assert-eql 4 (length (forest-validation bc-test "Class" forest)))
 

@@ -26,7 +26,7 @@ This repository contains is a authorized fork of the original CLML with the foll
 *** Current Branch Maintainer(s)/Authors(s):    
   +  Mike Maul
 *** Contributors:
-  +  gambyte
+  +  Graham Dobbins
 
 ** [#B] Installation
 #+INCLUDE: "./docs/INSTALL.org" :minlevel 2

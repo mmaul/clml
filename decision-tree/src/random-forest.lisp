@@ -22,6 +22,24 @@
 	do (setf (svref new-data-vector i) (svref data-vector (random n))))
     new-data-vector))
 
+(defun make-balanced-bootstrap-sample (unspecialized-dataset objective-column-index &key (data-bag-size :set-size) (balance t))
+  (let* ((data-vector (dataset-points unspecialized-dataset))
+	 (n (array-dimension data-vector 0))
+	 (m (bag-sizer data-bag-size n))
+	 (new-data-vector (make-array m))
+	 (new-balance (ceiling (/ m #1=(if (and (integerp balance) (< 0 balance)) balance 2))))
+	 (collect-table (make-hash-table :test #'equal :size #1#)))
+    (flet ((collect? (objective)
+	     (if #2=(gethash objective collect-table)
+		 (if (<= #2# new-balance)
+		     (incf #2#)
+		     nil)
+		 (setf #2# 1))))
+      (loop
+	 for i below m
+	 do (setf (svref new-data-vector i) (do ((data-point #3=(svref data-vector (random n)) #3#)) ((collect? (svref data-point objective-column-index)) data-point))))
+      new-data-vector)))
+
 (defun make-explanatory-variable-index-list (variable-index-hash objective-column-index)
   (let* ((n (hash-table-count variable-index-hash))
 	 (m (floor (sqrt n)))
@@ -169,10 +187,12 @@
 	   if (gethash j picked-table)
 	   collect l))))
 
-(defun make-random-decision-tree (unspecialized-dataset objective-column-name &key (test #'delta-gini) (data-bag-size :set-size) (feature-bag-size :set-size))
-  (let* ((data-vector (make-bootstrap-sample unspecialized-dataset :data-bag-size data-bag-size))
-	 (variable-index-hash (make-variable-index-hash unspecialized-dataset))
+(defun make-random-decision-tree (unspecialized-dataset objective-column-name &key (test #'delta-gini) (data-bag-size :set-size) (feature-bag-size :set-size) (balance nil))
+  (let* ((variable-index-hash (make-variable-index-hash unspecialized-dataset))
 	 (objective-column-index (column-name->column-number variable-index-hash objective-column-name))
+	 (data-vector (if balance
+			  (make-balanced-bootstrap-sample unspecialized-dataset objective-column-index :data-bag-size data-bag-size :balance balance)
+			  (make-bootstrap-sample unspecialized-dataset :data-bag-size data-bag-size)))
 	 (dim-vector (dataset-dimensions unspecialized-dataset))
 	 (dim-vector-length (length dim-vector))
 	 (old-column-list-size (if (< objective-column-index dim-vector-length) (1- dim-vector-length) dim-vector-length))
@@ -187,7 +207,7 @@
 			       :test test)))
     (make-decision-tree-for-rf data-vector variable-index-hash objective-column-index root :test test)))
 
-(defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500) (data-bag-size :set-size) (feature-bag-size :set-size))
+(defun make-random-forest (unspecialized-dataset objective-column-name &key (test #'delta-gini) (tree-number 500) (data-bag-size :set-size) (feature-bag-size :set-size) (balance nil))
   "This implementation requires lparallel:*kernel* be set with a kernel object. This can be done
 by:
 #+BEGIN_SRC lisp
@@ -204,10 +224,11 @@ Where N is the number of worker threads which should generally be the number of 
  - data-bag-size : the number of data points from unspecialized-dataset to use to train each tree in the forest. Chosen randomly with replacement for each tree. The default :set-size gives a bag the same size as unspecialized-dataset
  - feature-bag-size : the number of variables from all available to use to train each tree in the forest. Chosen randomly with replacement for each tree. The default :set-size uses all variables.
  - Other available options for data-bag-size and feature-bag-size are :half-set-size, :quarter-set-size, and :sqrt-set-size. If an integer is specified it will be used instead.
+ - If balance in non-nil, the dataset will be sampled so that each of the possible values of objective-column-name are approximately equally represented. The value passed to :balance should be the number of possible values of objective-column-name; if t, assumed to be 2.
 - reference : [[http://www-stat.stanford.edu/~tibs/ElemStatLearn/][Trevor Hastie, Robert Tibshirani and Jerome Friedman. The Elements of Statistical Learning:Data Mining, Inference, and Prediction]]
 "
   (lparallel:pmap 'vector
-                  (lambda (l)  (declare (ignore l)) (make-random-decision-tree unspecialized-dataset objective-column-name :test test :data-bag-size data-bag-size :feature-bag-size feature-bag-size)) (make-array tree-number))
+                  (lambda (l)  (declare (ignore l)) (make-random-decision-tree unspecialized-dataset objective-column-name :test test :data-bag-size data-bag-size :feature-bag-size feature-bag-size :balance balance)) (make-array tree-number))
   )
 
 (defun predict-forest (query-vector unspecialized-dataset forest)
