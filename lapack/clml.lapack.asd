@@ -6,7 +6,7 @@
 
 (defun call-with-environment (fun)
   (let ((*read-default-float-format* 'double-float))
-    (when  (< (sb-ext:dynamic-space-size) 2684354560)
+    #+sbcl (when  (< (sb-ext:dynamic-space-size) 2684354560)
       (error 'dynamic-heap-space-too-small :text (format nil  "Durring compilation with SBCL this system requires that the heap space be set to 2560 or greater. ~%This can be set by dynamic-space-size flag when starting sbcl. To resolve restart sbcl as follows:~%    sbcl --dynamic-space-size 2560~%"))
      )
     (funcall fun)))
