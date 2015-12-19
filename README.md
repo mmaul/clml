@@ -37,7 +37,7 @@
 </div>
 
 
-# CL Machine-Learning <https://travis-ci.org/mmaul/clml.svg?branch=master>
+# CL Machine-Learning [![Build Status](https://travis-ci.org/mmaul/clml.svg?branch=master)](https://travis-ci.org/mmaul/clml)
 
 CL Machine-Learning is high performance and large scale statistical
 machine learning package written in Common Lisp developed at 
