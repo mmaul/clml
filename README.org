@@ -1,6 +1,6 @@
 #+INFOJS_OPT: view:overview toc:t
 #+OPTIONS: toc:nil
-* CL Machine-Learning
+* CL Machine-Learning [[https://travis-ci.org/mmaul/clml.svg?branch=master]]
 
 CL Machine-Learning is high performance and large scale statistical
 machine learning package written in Common Lisp developed at 

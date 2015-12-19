@@ -2,7 +2,7 @@
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1. CL Machine-Learning</a>
+<li><a href="#sec-1">1. CL Machine-Learning </a>
 <ul>
 <li><a href="#sec-1-1">1.1. Author(s):</a>
 <ul>
@@ -37,22 +37,23 @@
 </div>
 
 
-# CL Machine-Learning<a id="sec-1" name="sec-1"></a>
+# CL Machine-Learning <https://travis-ci.org/mmaul/clml.svg?branch=master>
 
 CL Machine-Learning is high performance and large scale statistical
 machine learning package written in Common Lisp developed at 
 [MSI](http://cl-www.msi.co.jp).
 
 This repository contains is a authorized fork of the original CLML with the following goals in mind:
+
 -   Remove dependent libraries available from the Quicklisp repository
 -   Re-factor code to support Quicklisp packaging
 -   Organize code into independent systems based on functional category
 -   Support for SBCL, CCL, LispWorks and Allegro Common Lisp
 -   Improve documentation
 
-## Author(s):<a id="sec-1-1" name="sec-1-1"></a>
+## Author(s):
 
-### Original<a id="sec-1-1-1" name="sec-1-1-1"></a>
+### Original
 
 -   Salvi Péter
 -   Naganuma Shigeta
@@ -63,17 +64,17 @@ This repository contains is a authorized fork of the original CLML with the foll
 -   Abe Seika
 -   Kuroda Hisao
 
-### Current Branch Maintainer(s)/Authors(s):<a id="sec-1-1-2" name="sec-1-1-2"></a>
+### Current Branch Maintainer(s)/Authors(s):
 
 -   Mike Maul
 
-### Contributors:<a id="sec-1-1-3" name="sec-1-1-3"></a>
+### Contributors:
 
 -   Graham Dobbins
 
-## Installation<a id="sec-1-2" name="sec-1-2"></a>
+## Installation
 
-## Requirements<a id="sec-1-3" name="sec-1-3"></a>
+## Requirements
 
 -   Language: SBCL, CCL, Allegro or Lispworks
 -   Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
@@ -85,9 +86,9 @@ done by set with the switch
 
 Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
 
-## Installation Notes<a id="sec-1-4" name="sec-1-4"></a>
+## Installation Notes
 
-### Obtaining code<a id="sec-1-4-1" name="sec-1-4-1"></a>
+### Obtaining code
 
 Code can be obtained by one of the following methods:
 -   Clone this repository with:
@@ -98,7 +99,7 @@ Or download zip archive at
 
     https://github.com/mmaul/clml/archive/master.zip
 
-### Installing<a id="sec-1-4-2" name="sec-1-4-2"></a>
+### Installing
 
 1.  For Quicklisp **\*\***
 
@@ -110,20 +111,21 @@ Or download zip archive at
     1.  Place in a location on your ASDF search path path such as `~/common-lisp`
     2.  Start LISP and enter `(asdf:load-system :clml)`
 
-## Documentation<a id="sec-1-5" name="sec-1-5"></a>
+## Documentation
 
-### User and API Documentation<a id="sec-1-5-1" name="sec-1-5-1"></a>
+### User and API Documentation
 
 -   User and API documentation may be found on line at <http://mmaul.github.io/clml/>
 
 and also in the project directories docs/clml-manual.html.
+
 -   Tutorials may be found on the clml.tutorials blog at <https://mmaul.github.io/clml.tutorials/>
 -   Usage examples can be found in the docs/sample project directory
 -   Some notes and algorithmic details and background information can be
 
 found in the project directory docs/notes files in memo, notes and docs
 
-## Sample Data<a id="sec-1-6" name="sec-1-6"></a>
+## Sample Data
 
 The sample datasets are located outside the CLML repository.
 Fortunately CLML is able to download sample datasets from remote sites
@@ -138,9 +140,10 @@ anywhere a path to a file is required the output from
 `clml.utility.data:fetch` can be provided instead.
 
 The contents of the Sample dataset repository can be found at:
+
 -   [ CLML.DATA: <http://mmaul.github.io/clml.data/> ](http://mmaul.github.io/clml.data/)
 
-## Usage<a id="sec-1-7" name="sec-1-7"></a>
+## Usage
 
 This library is organized as a hierarchical tree of systems.
 -   clml
@@ -233,7 +236,6 @@ This library requires that default reader float for mat is set to double-float. 
 be done before loading the systems.
 
     (setf *read-default-float-format* 'double-float)
-
 -   Example below is using CLML.EXTRAS
 
 Here is a quick demonstration:
@@ -292,7 +294,7 @@ Here is a quick demonstration:
                       No->((Versicolor . 47))
            No->((Setosa . 50))
 
-## Tests<a id="sec-1-8" name="sec-1-8"></a>
+## Tests
 
 CLML uses the
 [[<https://github.com/OdonataResearchLLC/lisp-unit][lispunit>] testing
@@ -324,7 +326,7 @@ for convience.
 
     (run-tests *clustering-tests*)
 
-## Building Documentation<a id="sec-1-9" name="sec-1-9"></a>
+## Building Documentation
 
 CLML uses the a modified version of the CLOD package for it's
 dcumentation system. Specific details of using clod can be found
@@ -366,7 +368,7 @@ The CMLM manual and API documentation can be exported to the desired
 format by opening the docs/clml-manual.org and using the org-mode
 export `C-c C-e` cord.
 
-## Related Repositories<a id="sec-1-10" name="sec-1-10"></a>
+## Related Repositories
 
 -   clml.extras - <https://github.com/mmaul/clml.extras> Extended features for clml
     -   cl-plplot integration
@@ -375,7 +377,7 @@ export `C-c C-e` cord.
     -   eazy-gnuplot integration
 -   clml.tutorials - <https://github.com/mmaul/clml.tutorials> Tutorials for CLML
 
-## Contributing<a id="sec-1-11" name="sec-1-11"></a>
+## Contributing
 
 All contributions are welcome. If the contribution is to resolve and
 problem with CLML, please open an issue in the github repository 
