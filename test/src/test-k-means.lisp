@@ -3,15 +3,15 @@
 
 (define-test test-sample-k-means
     (let (dataset centroids result)
-      (assert-true
+      (assert
        (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #+sbcl :sjis #+ccl :Windows-31j)))
       (assert-true
        (setf dataset
          (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric))))
-      (assert-true
+      (assert
        (setf result
          (k-means 20 dataset :distance-fn #'manhattan-distance)))
-      (assert-true (setf centroids (get-cluster-centroids result)))
+      (assert (setf centroids (get-cluster-centroids result)))
       (assert-true (get-cluster-points result 0))
       (assert-eql (length centroids) 20)
       (loop for cid below 20

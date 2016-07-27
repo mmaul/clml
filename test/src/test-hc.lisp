@@ -10,7 +10,7 @@
       (setf d-matrix (distance-matrix (numeric-matrix seiseki)))
       (assert-eql 68.65857557508748d0 (aref d-matrix 0 1))
       ;;average
-      (assert-true (multiple-value-setq (cophenetic-matrix merge-matrix) (cophenetic-matrix d-matrix #'hc-average)))
+      (assert (multiple-value-setq (cophenetic-matrix merge-matrix) (cophenetic-matrix d-matrix #'hc-average)))
       (assert-eql 69.92295649225116d0 (aref cophenetic-matrix 0 1))
       (assert-equalp #2A((-5 -1) (-4 -2) (2 0) (-6 1) (-3 3) (4 5)) merge-matrix)
       ;;ward

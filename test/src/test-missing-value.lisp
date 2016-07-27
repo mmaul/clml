@@ -41,11 +41,11 @@
       (assert-true (tree-equal `(10 194 8.6d0 69 5 10 ,+na+ ,+na+ ,+na+ 3 4.5d0 6 5 5 5)
                                (clml.hjs.missing-value::remove-na-nan (fill-na *sample*) :remove-na nil)
                                :test #'equalp))
-      (assert-true (loop for val in (clml.hjs.missing-value::remove-na-nan 
+      (assert (loop for val in (clml.hjs.missing-value::remove-na-nan 
                                      (clml.hjs.missing-value::na2nan (fill-na *sample*)) 
                                      :seq-type :numeric)
                        always (numberp val)))
-      (assert-true (loop for val in (clml.hjs.missing-value::remove-na-nan
+      (assert (loop for val in (clml.hjs.missing-value::remove-na-nan
                                      (clml.hjs.missing-value::na2c-nan (fill-na *sample*))
                                      :seq-type :category)
                        always (and (numberp val) (not (c-nan-p val)))))))
@@ -67,7 +67,7 @@
                               :interp :mode
                               :seq-type :category)
                              :test #'eql))
-    (assert-true (loop for val1 in '(10d0 194d0 8.6d0 69d0 5d0 10d0 26.28360779871214d0
+    (assert (loop for val1 in '(10d0 194d0 8.6d0 69d0 5d0 10d0 26.28360779871214d0
                                      22.92285714285714d0 11.350677915573574d0 3d0 4.5d0
                                      6d0 5d0 5d0 5d0)
                     for val2 across (clml.hjs.missing-value::interpolate numeric-seq
@@ -75,11 +75,11 @@
                                                                          :seq-type :numeric)
                     always (> *epsilon* (abs (- val1 val2)))))
     
-    (assert-true (loop for val1 in `(10d0 3d0 ,+nan+ 8.6d0 ,+nan+ 5d0 10d0 3d0 3d0 3d0
+    (assert (loop for val1 in `(10d0 3d0 ,+nan+ 8.6d0 ,+nan+ 5d0 10d0 3d0 3d0 3d0
                                             ,+nan+ 3d0 4.5d0 6d0 5d0 5d0 5d0)
                     for val2 in (outlier-verification *sample-1* :seq-type :numeric)
                     always (or (= val1 val2) (and (nan-p val1) (nan-p val2)))))
-    (assert-true (loop for val1 in `(10d0 3d0 ,+nan+ 8.6d0 ,+nan+ 5d0 10d0 3d0 3d0 3d0
+    (assert (loop for val1 in `(10d0 3d0 ,+nan+ 8.6d0 ,+nan+ 5d0 10d0 3d0 3d0 3d0
                                           ,+nan+ 3d0 4.5d0 6d0 5d0 5d0 5d0)
                     for val2 in (outlier-verification *sample-1* 
                                                       :type :std-dev
@@ -87,7 +87,7 @@
                                                       :seq-type :numeric)
                        always (or (= val1 val2)
                                   (and (nan-p val1) (nan-p val2)))))
-    (assert-true (loop for val1 in `(10 3 ,+c-nan+ ,+c-nan+ 5 10 3 3 3 ,+c-nan+ 3 ,+c-nan+ 5 5 5)
+    (assert (loop for val1 in `(10 3 ,+c-nan+ ,+c-nan+ 5 10 3 3 3 ,+c-nan+ 3 ,+c-nan+ 5 5 5)
                     for val2 in (outlier-verification *sample-2* 
                                                       :type :freq
                                                       :outlier-value 0.075

@@ -48,7 +48,7 @@
                       #(("商品名=菓子") ("商品名=野菜" "商品名=乳製品")
                         7.695690413368514d0 27.04791344667697d0 1.28407f0 1.0820224f0))))
       (declare (ignorable expected-header))
-      (assert-true
+      (assert
        (setf result (association-analyze-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/result.sexp")
                                          '("商品名") "ID番号" 3 
                                          :support 2 :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
@@ -65,7 +65,7 @@
                            (set-equal (coerce (assoc-result-header result) 'list)
                                       (coerce rule 'list) :test #'string=))
                           (assert-true (rule-equal rule (nth (1- i) rules)))))
-      (assert-true 
+      (assert
        (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
       
       ;; verify rule indexes
@@ -102,23 +102,23 @@
                 for rule in (assoc-result-rules result)
                 do (verify-rule-indexes rule))))
       
-      (assert-true 
+      (assert 
        (setf result1 (%association-analyze-apriori dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1)
       
-      (assert-true 
+      (assert 
        (setf result1 (%association-analyze-da-ap-genrule dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1)
       
-      (assert-true 
+      (assert 
        (setf result1 (%association-analyze-fp-growth dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1)
       
-      (assert-true 
+      (assert 
        (setf result1 (%association-analyze-eclat dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1)
       
-      (assert-true 
+      (assert 
        (setf result1 (%association-analyze-lcm dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1))
 ))

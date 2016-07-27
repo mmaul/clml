@@ -3,7 +3,7 @@
 
 (define-test test-sample-ts-stat
     (let (ukgas useco)
-      (assert-true 
+      (assert 
        (setq ukgas 
              (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
                            :range '(1) :time-label 0)

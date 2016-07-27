@@ -149,11 +149,11 @@
 
 
                          ))
-      (assert-true (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/original-airquality.sexp"))))
+      (assert (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/original-airquality.sexp"))))
       (assert-true (typep dataset 'UNSPECIALIZED-DATASET))
       (assert-points-equal expected-pts1 (dataset-points dataset) :test #'equalp)
 
-      (assert-true (setf dataset (pick-and-specialize-data
+      (assert (setf dataset (pick-and-specialize-data
                                   dataset :range :all
                                   :data-types '(:category :numeric :numeric :numeric :numeric
                                                 :category :category))))
@@ -167,27 +167,27 @@
         (dataset-dimensions dataset)
         :name-test #'string=))
 
-      (assert-true (setf n-pts (dataset-numeric-points dataset)))
+      (assert (setf n-pts (dataset-numeric-points dataset)))
       (assert-true (typep n-pts 'vector))
       (loop for pts across n-pts 
           for count from 1
          do ;(assert-true (typep pts 'dvec))
            (assert-eql 4 (length pts))
              (loop for val across pts
-                 do (assert-true (or (numberp val) (nan-p val))))
+                 do (assert (or (numberp val) (nan-p val))))
           finally (assert-eql 153 count))
 
-      (assert-true (setf c-pts (dataset-category-points dataset)))
+      (assert (setf c-pts (dataset-category-points dataset)))
       (assert-true (typep c-pts 'vector))
       (loop for pts across c-pts 
           for count from 1
           do (assert-true (typep pts 'vector))
              (assert-eql 3 (length pts))
              (loop for val across pts
-                 do (assert-true (or (c-nan-p val) (integerp val))))
+                 do (assert (or (c-nan-p val) (integerp val))))
           finally (assert-eql 153 count))
       
-      (assert-true 
+      (assert
        (setf dataset 
          (dataset-cleaning dataset 
                            :interp-types-alist (pairlis '("Ozone" "Solar.R" "Wind" "Temp" "Month" "Day")
@@ -196,16 +196,16 @@
                                                          '(:std-dev :mean-dev :smirnov-grubbs :user :freq))
                            :outlier-values-alist (pairlis '(:std-dev :mean-dev :smirnov-grubbs :user)
                                                           '(2d0 2d0 0.05d0 5)))))
-      (assert-true (setf n-pts (dataset-numeric-points dataset)))
+      (assert (setf n-pts (dataset-numeric-points dataset)))
       (assert-points-equal expected-pts2 n-pts :test #'epsilon>)
-      (assert-true (setf c-pts (dataset-category-points dataset)))
+      (assert (setf c-pts (dataset-category-points dataset)))
       (assert-points-equal expected-pts3 c-pts :test #'=)
 
       
       (let (d1 d2)
         (assert-true (multiple-value-setq (d1 d2)
                        (divide-dataset dataset :divide-ratio '(3 2) :except '(2 3 4))))
-        (assert-true (and d1 d2))
+        (assert (and d1 d2))
         (assert-eql 91 (length (dataset-points d1)))
         (assert-eql 62 (length (dataset-points d2)))
         (let ((e-dim (map 'vector
@@ -215,7 +215,7 @@
           (assert-dimensions-equal e-dim (dataset-dimensions d2))))
       
       (let (choice)
-        (assert-true (setq choice (choice-dimensions '("Day" "Month" "Temp" "Wind") dataset)))
+        (assert (setq choice (choice-dimensions '("Day" "Month" "Temp" "Wind") dataset)))
         (let* ((dims (dataset-dimensions dataset))
                (poses (mapcar (lambda (name) (position name dims :key #'dimension-name :test #'string=))
                               '("Day" "Month" "Temp" "Wind")))
@@ -224,18 +224,18 @@
                                  (lambda (vec) (coerce (mapcar (lambda (pos) (aref vec pos)) poses) 'vector))
                                  (dataset-points dataset))
                                choice :test #'=)
-          (assert-true (setq choice (choice-a-dimension "Ozone" dataset)))
+          (assert (setq choice (choice-a-dimension "Ozone" dataset)))
           (assert-a-point-equal (map 'vector (lambda (vec) (aref vec ozone-pos)) (dataset-points dataset))
                                 choice :test #'=)))
       
       (let (samples)
-        (assert-true (setq samples (make-bootstrap-sample-datasets dataset :number-of-datasets 3)))
+        (assert (setq samples (make-bootstrap-sample-datasets dataset :number-of-datasets 3)))
         (assert-eql 3 (length samples))
         (flet ((sample-check (sample)
                  (loop for sample-pt across (dataset-points sample)
                      always (loop for pt across (dataset-points dataset)
                                 thereis (point-equal sample-pt pt :test #'=)))))
-          (assert-true (loop for sample in samples always (sample-check sample)))))
+          (assert (loop for sample in samples always (sample-check sample)))))
       ))
 
 

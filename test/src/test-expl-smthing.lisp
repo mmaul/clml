@@ -3,13 +3,13 @@
 
 (define-test test-sample-expl-smthing
     (let (ukgas model pred)
-      (assert-true 
+      (assert 
        (setq ukgas
          (time-series-data
           (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
           :range '(1) :time-label 0
           :frequency 4)))
-      (assert-true (setq model (holtwinters ukgas :seasonal :multiplicative)))
+      (assert (setq model (holtwinters ukgas :seasonal :multiplicative)))
       (with-accessors ((seasonal clml.time-series.exponential-smoothing::seasonal)
                        (err-info clml.time-series.exponential-smoothing::err-info)
                        (exp-type clml.time-series.exponential-smoothing::exp-type)
@@ -20,7 +20,7 @@
         (assert-eq :triple exp-type)
         (assert-true (set-equal '(0.1d0 0.2d0 0.7999999999999999d0) 3-params :test #'epsilon>)))
       
-      (assert-true (setq pred (predict model :n-ahead 12)))
+      (assert (setq pred (predict model :n-ahead 12)))
       (assert-true
        (set-equal 
         '(1256.8668302235947d0 650.7271978623316d0 357.109252359615d0 847.1323726297013d0
@@ -29,7 +29,7 @@
         (map 'list (lambda (p) (aref (ts-p-pos p) 0)) (subseq (ts-points pred) 107))
         :test #'epsilon>))
       
-      (assert-true 
+      (assert 
        (setq pred (holtwinters-prediction ukgas :seasonal :multiplicative
                                           :n-learning 80 :n-ahead 12)))
       (assert-true 

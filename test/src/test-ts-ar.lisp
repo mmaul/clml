@@ -3,12 +3,12 @@
 
 (define-test test-sample-ts-ar
     (let (model traffic pred std-err ukgas)
-      (assert-true
+      (assert
        (setq ukgas 
            (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
                              :range '(1) :time-label 0
                              :start 1960 :frequency 4)))
-      (assert-true (setq model (ar ukgas)))
+      (assert (setq model (ar ukgas)))
       (with-accessors ((coefs clml.time-series.autoregression::ar-coefficients)
                        (s2 clml.time-series.autoregression::sigma^2)
                        (dem clml.time-series.autoregression::demean)
@@ -33,7 +33,7 @@
             1099.8811865464495d0)
           (slot-value model 'clml.time-series.autoregression::aic)
           :test #'epsilon>)))
-      (assert-true 
+      (assert
        (multiple-value-setq (pred std-err) (predict model :n-ahead 12)))
       (assert-true
        (set-equal
@@ -50,7 +50,7 @@
         (map 'list (lambda (p) (aref (ts-p-pos p) 0)) (subseq (ts-points std-err) 99))
         :test #'epsilon>))
       
-      (assert-true (setq pred (ar-prediction ukgas :method :burg :n-learning 80 :n-ahead 12)))
+      (assert (setq pred (ar-prediction ukgas :method :burg :n-learning 80 :n-ahead 12)))
       (assert-true
        (set-equal 
         '(130.45676936346104d0 87.60635293229583d0 122.88786839248075d0 178.94011319531705d0
@@ -77,7 +77,7 @@
         (map 'list (lambda (p) (aref (ts-p-pos p) 0)) (ts-points pred))
         :test #'epsilon>))
       
-      (assert-true
+      (assert
        (setq traffic (time-series-data
                       (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/mawi-traffic/pointF-20090330-0402.sexp"))
                       :except '(0) :time-label 0)))

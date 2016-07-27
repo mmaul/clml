@@ -18,7 +18,7 @@ TOTAL: 507 assertions passed, 0 failed, 0 execution errors.
 
 (define-test test-sample-w
     (let ((*sample-w* clml.clustering.spectral-clustering::*sample-w*))
-      (assert-true (handler-case
+      (assert (handler-case
                        (progn  (spectral-clustering-mcut *sample-w* 0)
                                nil)
                      (error ()  t)

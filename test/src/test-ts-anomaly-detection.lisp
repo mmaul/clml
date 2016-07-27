@@ -6,7 +6,7 @@
 (defparameter sample-ts nil)
 (defparameter exchange nil)
 (define-test test-ts-anomaly-detection-data
-    (assert-true 
+    (assert 
        (setf sample-ts
              (time-series-data 
               (read-data-from-file
@@ -127,7 +127,7 @@
 
 (defun ad ()
     (let (sample-ts exchange)
-      (assert-true 
+      (assert
        (setf sample-ts
          (time-series-data 
           (read-data-from-file

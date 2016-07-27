@@ -3,12 +3,12 @@
 
 (define-test test-sample-pca
     (let (dataset proj-vecs pca-result pca-model for-learn for-estimate)
-      (assert-true (setf dataset 
+      (assert (setf dataset 
                      (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") 
                                           :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
-      (assert-true (setf dataset (pick-and-specialize-data
+      (assert (setf dataset (pick-and-specialize-data
                                   dataset :range '(2 3) :data-types '(:numeric :numeric))))
-      (assert-true (multiple-value-setq (pca-result pca-model)
+      (assert (multiple-value-setq (pca-result pca-model)
                      (clml.pca:princomp dataset :method :correlation)))
       ;; check pca-result pca-model
       (assert-points-equal
@@ -42,7 +42,7 @@
       (assert-eq :correlation (clml.pca:pca-method pca-result))
       (assert-eq :correlation (clml.pca:pca-method pca-model))
       
-      (assert-true (setf proj-vecs (clml.pca:princomp-projection dataset pca-model)))
+      (assert (setf proj-vecs (clml.pca:princomp-projection dataset pca-model)))
       (assert-points-equal (clml.pca:components pca-result) proj-vecs :test #'=)
       
       (let ((eyes (pick-and-specialize-data

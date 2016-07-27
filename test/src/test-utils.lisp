@@ -12,7 +12,7 @@
   (assert-equality (lambda (p1 p2) (point-equal p1 p2 :test test)) expected target))
 
 (defun assert-points-equal (expected target &key (test #'epsilon>))
-  (assert-true (loop for pt1 across expected for pt2 across target
+  (assert (loop for pt1 across expected for pt2 across target
                    always (point-equal pt1 pt2 :test test))))
 
 (defun run-all-tests ()

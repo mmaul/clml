@@ -15,7 +15,7 @@
                            0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.0d0 0.7866667d0 0.7733333d0
                            0.0d0 0.4074074d0 1.0d0 0.0d0 0.0d0 0.0d0 0.74666667d0 0.6666667d0
                            0.0d0 0.0d0 0.2739726d0 0.0d0 0.0d0 0.0d0)))
-      (assert-true
+      (assert
        (setf data-for-learn
          (read-data-from-file
           (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/learn.csv")
@@ -23,14 +23,14 @@
           :csv-type-spec (cons 'string (make-list 105 :initial-element 'double-float)))))
 
       
-      (assert-true 
+      (assert
        (setf estimator
          (clml.nearest-search.k-nn:k-nn-analyze data-for-learn 2 "id" :all :distance :manhattan :normalize t)))
       (destructuring-bind (&key k target explanatories distance mins maxs
                                 vec-weight vecs vec-profiles teachers esttype &allow-other-keys)
           (clml.nearest-search.k-nn:estimator-properties estimator :verbose t)
         (assert-true (string= "id" target))
-        (assert-true (set-equal (loop for dim across (dataset-dimensions data-for-learn)
+        (assert (set-equal (loop for dim across (dataset-dimensions data-for-learn)
                                     as name = (dimension-name dim)
                                     unless (string= "id" name) collect name)
                                 explanatories :test #'string=))
@@ -62,13 +62,13 @@
         (assert-eql 2 k)        
         (assert-eq esttype :classify)
         
-        (assert-true
+        (assert
          (setf data-for-estimate
            (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/estimate.csv")
                                 :type :csv
                                 :csv-type-spec (make-list 105 :initial-element 'double-float))))
 
-        (assert-true (setf result (clml.nearest-search.k-nn:k-nn-estimate estimator data-for-estimate)))
+        (assert (setf result (clml.nearest-search.k-nn:k-nn-estimate estimator data-for-estimate)))
         (assert-true (set-equal
                       '("24" "27" "31" "17" "110" "49" "58" "30" "58" "71" "96" "96" "152"
                         "116" "80" "128" "188" "97" "167" "197" "196" "196" "196")

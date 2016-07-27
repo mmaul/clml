@@ -4,7 +4,7 @@
 
 (define-test test-sample-cluster-validation 
   (let (*workspace*)
-    (assert-true (setf *workspace*
+    (assert (setf *workspace*
                        (clml.hjs.k-means:k-means
                         5
                         (clml.hjs.read-data:pick-and-specialize-data

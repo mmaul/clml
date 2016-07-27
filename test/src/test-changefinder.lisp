@@ -3,7 +3,7 @@
 
 (define-test test-changefinder
     (let (ts cf)
-      (assert-true 
+      (assert
        (setf ts (time-series-data 
                  (read-data-from-file
                   (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv") 
@@ -12,7 +12,7 @@
                                        (make-list 6 :initial-element 'double-float)))
                  :except '(0) :time-label 0)))
       (assert-equality #'= 1015 (length (ts-points ts)))
-      (assert-true (setf cf (init-changefinder (sub-ts ts :start 0 :end 24)
+      (assert (setf cf (init-changefinder (sub-ts ts :start 0 :end 24)
                                                :score-type :log
                                                :ts-wsize 5 :score-wsize 5 :sdar-k 4
                                                :discount 0.005d0)))

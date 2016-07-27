@@ -10,8 +10,8 @@
                        (calculate-string-similarity "kitten" "sitting" :type :lev))
       (assert-equality #'epsilon> 0.6153846153846154d0
                        (calculate-string-similarity "kitten" "sitting" :type :lcs))
-      (assert-true (setq result (equivalence-clustering (dataset-points data))))
-      (assert-true (loop for cluster in '(("e") ("f" "z" "y" "x") ("c") ("b" "a") ("w"))
+      (assert (setq result (equivalence-clustering (dataset-points data))))
+      (assert (loop for cluster in '(("e") ("f" "z" "y" "x") ("c") ("b" "a") ("w"))
                        always (member cluster result :test (lambda (l1 l2)
                                                              (set-equal l1 l2 :test #'string=)))))))
 

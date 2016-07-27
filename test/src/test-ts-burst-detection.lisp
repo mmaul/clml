@@ -3,7 +3,7 @@
 
 (define-test test-ts-burst-detection
     (let (ts bi)
-      (assert-true 
+      (assert
        (setf ts (time-series-data 
                  (read-data-from-file
                   (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/burst-data.sexp"))
