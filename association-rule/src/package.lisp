@@ -6,6 +6,7 @@
   (:export :association-analyze
            :association-analyze-file
            :apply-rules
+           :read-association-list
            :%association-analyze-apriori
            :%association-analyze-da
            :%association-analyze-ap-genrule
@@ -17,6 +18,8 @@
            :assoc-result-rules
            :assoc-result-header
            :association-rule
+           :write-assoc-result-to-stream
+           :read-assoc-result-from-stream
            )
   (:documentation "Package for association rule analysis
 
