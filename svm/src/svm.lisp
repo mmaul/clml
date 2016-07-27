@@ -192,7 +192,7 @@ training data.
   (declare (optimize speed (safety 0) (debug 0)))
   (multiple-value-bind (n np nm ap am)
       (svm-init kernel positive-data negative-data)
-    (declare (type dvec ap am))
+    (declare (type dmat ap am))
     (flet ((res (i L apalpha amalpha)
              (declare (optimize speed (safety 0) (debug 0))
                       (type fixnum i)
