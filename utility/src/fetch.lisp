@@ -49,7 +49,7 @@
 
 
 
-(defun fetch (url-or-path &key (cache t)
+(defun %fetch (url-or-path &key (cache t)
                             (dir (namestring (asdf:system-relative-pathname 'clml "sample/")))
                             (flush nil)
                                  )
@@ -87,20 +87,35 @@ Note that it is important to ensure that dir and subdir if used end in a /"
     (t (values nil 404 "Not file of url"))
     )))
 
-(defun fetch-stream (url-or-path &key (dir (namestring (asdf:system-relative-pathname 'clml "sample/"))))
-  (cond
-    ((is-file (condition-path url-or-path)) (open (condition-path url-or-path)) :direction :input)
-    ((is-file (condition-path (concatenate 'string  dir url-or-path)))
-     (open  (condition-path (concatenate 'string  dir url-or-path)) :direction :input))
-    ((puri:parse-uri url-or-path)
-      (multiple-value-bind (content-or-stream status header tk stream must-close status-string)
-          (drakma:http-request url-or-path :want-stream t :external-format-out :utf-8)
-        #+sbcl (declare (ignore content-or-stream header tk must-close status-string))
-        (values
-         (if (= status 200)
-             stream
-             nil)
-         )))))
+(defun fetch (url-or-path
+              &key
+                (dir (namestring (asdf:system-relative-pathname 'clml "sample/")))
+                (external-format :utf-8)
+                (cache t)
+                (stream nil)
+                (flush nil))
+  "Fetch file from ~url-or-location~ if not cached in ~dir~ 
+stores the file in the location specified by dir if url or file is url the file
+is stored in ~dir~/~uri-host~/~uri-path~.
+
+Note that it is important to ensure that dir and subdir if used end in a /
+
+-return: path to file or stream if :stream parameter is passed
+-arguments:
+  - url-or-path: <string> pathname or url string identifying file to be fetched.
+  - stream: resuests that fetch returns a stream
+  - cache: <T|NIL> if T looks for file in -dir and uses that as source if NIL then the a fresh copy of the file is fetched
+  - dir: location to store fetched file, default location is in the sample directory in the top level of the clml source tree.
+  - flush: if T fetch does not download the file it deletes the existing file.
+"
+  (let ((fetched-path (%fetch url-or-path :dir dir :cache cache :flush flush)))
+    (if (not fetched-path)
+        nil
+        (if stream
+            (open fetched-path :direction :input :external-format external-format)
+            fetched-path))))
+
+
 
 
 (defun process-finance-header (stream &key (seperator "=") (column-key "COLUMNS") (len 6))
