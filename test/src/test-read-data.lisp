@@ -203,7 +203,7 @@
 
       
       (let (d1 d2)
-        (assert-true (multiple-value-setq (d1 d2)
+        (assert (multiple-value-setq (d1 d2)
                        (divide-dataset dataset :divide-ratio '(3 2) :except '(2 3 4))))
         (assert (and d1 d2))
         (assert-eql 91 (length (dataset-points d1)))

@@ -5,7 +5,7 @@
     (let (dataset centroids result)
       (assert
        (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #+sbcl :sjis #+ccl :Windows-31j)))
-      (assert-true
+      (assert
        (setf dataset
          (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric))))
       (assert
