@@ -13,8 +13,10 @@ env:
     - PATH=$HOME/.roswell/bin:$PATH
     - ROSWELL_INSTALL_DIR=$HOME/.roswell
   matrix:
-#    - LISP="sbcl-bin  --dynamic-space-size 2560"
+    - LISP="sbcl-bin  --dynamic-space-size 2560"
     - LISP=ccl-bin
+    allow_failures:
+      - LISP=ccl-bin
 #    - LISP=abcl
 #    - LISP=clisp
 #    - LISP=ecl
