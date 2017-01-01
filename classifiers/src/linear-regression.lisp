@@ -14,7 +14,7 @@
 
 (defun s-i-j (x-i x-j)
   "TODO: optimize"
-  
+
   (flet (( f (v)
            (let* ((lv (length v))
                   (fv (make-array (list lv) :element-type 'fixnum)))
@@ -25,34 +25,34 @@
              fv
              )))
     ;(map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x)) 'fixnum)) v)
-                                                              
-    
+
+
     (product-sum (vector-shift x-i (vector-mean x-i))(vector-shift x-j (vector-mean x-j)))
     #|(coerce
                      (product-sum (f (vector-shift x-i (vector-mean  (f x-i))))
                                   (f (vector-shift x-j (vector-mean (f x-j)))))
                      'double-float)|#
-    
+
     ))
 
 (defun make-matrix-s (numeric-dataset range)
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (assert (<= 2 (length range) (length (aref (dataset-numeric-points numeric-dataset) 0))))
-  
+
   (let* ((n (- (length range) 1))
          (s (make-array (list n n) :element-type 'double-float)))
-    
+
     (dotimes (i n s)
       (dotimes (j n)
         (progn
           (setf (aref s i j)
                 (s-i-j (i-thvector numeric-dataset (nth i range))
                        (i-thvector numeric-dataset (nth j range)))))))
-    
+
     ))
 
 (defun solve-system-of-equations (matrix vector)
-  
+
   (m-times-v (m^-1 matrix) vector))
 
 (defun m-times-v (matrix vector)
@@ -60,9 +60,9 @@
          (a (make-array n)))
     (dotimes (i n a)
       (setf (aref a i)
-	(loop for k below n 
+	(loop for k below n
 	    sum (* (aref matrix i k) (aref vector k)))))))
-	  
+	
 (defun make-vector-c (numeric-dataset range)
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (let* ((n (- (length range) 1))
@@ -71,7 +71,7 @@
       (setf (aref c i)
 	(s-i-j (i-thvector numeric-dataset (nth i range))
 	       (i-thvector numeric-dataset (first (last range))))))))
-			 
+			
 (defun mlr-intercept (numeric-dataset range)
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (flet ((f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))
@@ -81,7 +81,7 @@
            (coefficients (solve-system-of-equations s c))
            (n (first (array-dimensions coefficients)))
            (intercept (vector-mean (i-thvector numeric-dataset (first (last range))))))
-      
+
       (dotimes (i n intercept)
         (setf intercept
               (- intercept
@@ -94,14 +94,14 @@
   - range : <list>, '(indices of explanatory variables, index of objective variable)"
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (let* ((s (make-matrix-s numeric-dataset range))
-         
+
          (c (make-vector-c numeric-dataset range))
-         
+
          (coefficients (solve-system-of-equations s c))
          (n        (first (array-dimensions coefficients)))
-         
+
          (intercept (mlr-intercept numeric-dataset range))
-         
+
          (answer (make-array (+ n 1) :element-type 'double-float)))
     (dotimes (i (+ n 1) answer)
       (setf (aref answer i)
@@ -157,8 +157,8 @@
           (s^-1 (m^-1 (make-matrix-s numeric-dataset range))))
       (sqrt (* (small-se numeric-dataset range)
                (+ (/ 1 n)
-                  (loop 
-                     for i below (1- (length range)) 
+                  (loop
+                     for i below (1- (length range))
                      sum
                        (loop
                           for j below (1- (length range))
@@ -200,9 +200,9 @@
 (defun r^2 (numeric-dataset range)
   (flet ((f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))'fixnum)) v)))
     (assert (eq (type-of numeric-dataset) 'numeric-dataset))
-    (/ (square-sum (vector-shift (fitted numeric-dataset range) 
+    (/ (square-sum (vector-shift (fitted numeric-dataset range)
                                  (vector-mean (i-thvector numeric-dataset (first (last range))))))
-       (+ (square-sum (vector-shift (fitted numeric-dataset range) 
+       (+ (square-sum (vector-shift (fitted numeric-dataset range)
                                     (vector-mean (i-thvector numeric-dataset (first (last range))))))
           (capital-se numeric-dataset range)))))
 
@@ -212,7 +212,7 @@
     (- 1
        (/ (* (capital-se numeric-dataset range)
              (- (length (dataset-numeric-points numeric-dataset)) 1))
-          (* (square-sum (vector-shift (i-thvector numeric-dataset (first (last range))) 
+          (* (square-sum (vector-shift (i-thvector numeric-dataset (first (last range)))
                                        (vector-mean (i-thvector numeric-dataset (first (last range))))))
              (- (length (dataset-numeric-points numeric-dataset)) (- (length range) 1) 1))))))
 
@@ -241,10 +241,10 @@
   (if (= v 0.5)
 	(- 1 (* (/ 2 pi)
 		(atan (sqrt (/ (- 1 x) x)))))
-						 
+						
     (+ (odd-i x (- v 1))
        (/ (odd-u x (- v 1)) (- v 1)))))
-	  
+	
 (defun odd-u (x v)
   (if (= v 0.5)
       (/ (sqrt (* x (- 1 x))) pi)

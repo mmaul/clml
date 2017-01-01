@@ -50,13 +50,13 @@
                        1
 		       -1)
         do (progn (format stream "~@,0D " label)
-                  (loop 
+                  (loop
                     for i below label-index
                     as value = (aref row i)
                     do (format stream "~A:~A " (1+ i) value)
                     finally (format stream "~%")))))))
 
-$ time svm-train -s 0 -t 2 -g 0.5 -c 10 -m 0.00001 -h 0 svm-benchmark-train 
+$ time svm-train -s 0 -t 2 -g 0.5 -c 10 -m 0.00001 -h 0 svm-benchmark-train
 
 |#
 

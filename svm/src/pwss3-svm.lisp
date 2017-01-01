@@ -2,7 +2,7 @@
 ;;;Support Vector Machine Package using SMO-type algorithm
 ;;;Abe Yusuke,Jianshi Huang. 2010 June
 ;;;Reference: Working Set Selection Using Second Order Information for Training SVM.
-;;;Chih-Jen Lin. Department of Computer Science. National Taiwan University. 
+;;;Chih-Jen Lin. Department of Computer Science. National Taiwan University.
 ;;;Joint work with Rong-En Fan and Pai-Hsuen Chen.
 
 
@@ -250,10 +250,10 @@
   (defun swap-index (cache i j)
     (declare (type cache cache)
              (type array-index i j))
-    ;; 
+    ;;
     (when (= i j)
       (return-from swap-index))
-    ;; 
+    ;;
     (with-slots (heads lru-head size) cache
       (declare (type (simple-array head (*)) heads)
                (type head lru-head)
@@ -306,12 +306,12 @@
              (type kernel-function kernel-function)
              (type array-index i j)
              (ignorable kernel-function training-vector))
-    
+
     (let ((point-i (svref training-vector i))
           (point-j (svref training-vector j)))
-      
+
       (declare (type dvec point-i point-j))
-      
+
       (+ (call-kernel-function kernel-function point-i point-i)
          (call-kernel-function kernel-function point-j point-j)
          (* -2.0d0 (call-kernel-function kernel-function point-i point-j)))))
@@ -330,9 +330,9 @@
 
 
   (defun update-gradient (training-vector kernel-vec-i kernel-vec-j i j old-a-i old-a-j)
-    (declare (type simple-vector training-vector) 
+    (declare (type simple-vector training-vector)
              (type double-float old-a-i old-a-j))
-    
+
     (let* ((alpha-array *alpha-array*)
            (gradient-array *gradient-array*)
            (label-index *label-index*)
@@ -360,7 +360,7 @@
       nil))
 
   (defun qp-solver (training-vector kernel-function c weight cache-size-in-bytes)
-    
+
     (declare (type simple-vector training-vector)
              (type kernel-function kernel-function)
              (type double-float c weight))
@@ -375,7 +375,7 @@
     (setf *future-pool* (make-array (the fixnum (future:future-max-threads))))
     (loop for i of-type array-index below (future:future-max-threads)
           do (setf (aref *future-pool* i) (future::make-future)))
-    
+
     (let ((tau *tau*)
           (training-size *training-size*)
           (label-index *label-index*)
@@ -383,7 +383,7 @@
           (gradient-array *gradient-array*)
           (kernel-vec-d *kernel-vec-d*)
           (kernel-cache *kernel-cache*))
-      
+
       (declare (type double-float tau)
                (type fixnum training-size)
                (type array-index label-index)
@@ -394,45 +394,45 @@
             for point-k = (aref training-vector k)
             do
          (setf (aref kernel-vec-d k) (call-kernel-function kernel-function point-k point-k)))
-      
+
       (loop
         while t
-        do (multiple-value-bind (i j) 
+        do (multiple-value-bind (i j)
                (working-set-selection3 training-vector kernel-function c weight)
              (declare (type fixnum i j))
-             
+
              (incf *iteration*)
-             
+
              (when (= -1 j)
                ;; release memory
                (setf *kernel-cache* nil)
                (return-from qp-solver *alpha-array*))
-             
+
              (let ((y-i (aref (the dvec (svref training-vector i)) label-index))
                    (y-j (aref (the dvec (svref training-vector j)) label-index))
                    (kernel-vec-i (get-cached-values kernel-cache training-vector i training-size kernel-function)))
 
                (declare (type double-float y-i y-j)
                         (type dvec kernel-vec-i))
-               
+
                (let ((a (eta-cached kernel-vec-i kernel-vec-d i j))
                      (b (- (* y-j (aref gradient-array j))
                            (* y-i (aref gradient-array i)))))
-                 
+
                  (declare (type double-float a b))
 
                  (when (<= a 0.0d0)
                    (setf a tau))
-                 
+
                  ;;update alpha
                  (let ((old-a-i (aref alpha-array i))
                        (old-a-j (aref alpha-array j)))
-                   
+
                    (declare (type double-float old-a-i old-a-j))
-                   
+
                    (incf (aref alpha-array i) (/ (* y-i b) a))
                    (decf (aref alpha-array j) (/ (* y-j b) a))
-                   
+
                    ;;clipping
                    (let ((diff (- old-a-i old-a-j))
                          (sum (+ old-a-i old-a-j))
@@ -444,9 +444,9 @@
                          (c-j (if (plusp y-j)
                                   c
                                   (* weight c))))
-                     
+
                      (declare (type double-float diff sum new-a-i new-a-j c-i c-j))
-                     
+
                      (if (/= y-i y-j)
                          (progn
                            (if (> diff 0.0d0)
@@ -456,7 +456,7 @@
                                (when (< new-a-i 0.0d0)
                                  (setf (aref alpha-array i) 0.0d0)
                                  (setf (aref alpha-array j) (- diff))))
-                           
+
                            (if (> diff (- c-i c-j))
                                (when (> new-a-i c-i)
                                  (setf (aref alpha-array i) c-i)
@@ -472,7 +472,7 @@
                                (when (< new-a-j 0.0d0)
                                  (setf (aref alpha-array j) 0.0d0)
                                  (setf (aref alpha-array i) sum)))
-                           
+
                            (if (> sum c-j)
                                (when (> new-a-j c-j)
                                  (setf (aref alpha-array j) c-j)
@@ -480,7 +480,7 @@
                                (when (< new-a-i 0.0d0)
                                  (setf (aref alpha-array i) 0.0d0)
                                  (setf (aref alpha-array j) sum)))))
-                     
+
                      ;;update gradient
                      (let ((kernel-vec-i (get-cached-values kernel-cache training-vector i training-size kernel-function))
                            (kernel-vec-j (get-cached-values kernel-cache training-vector j training-size kernel-function)))
@@ -507,14 +507,14 @@
   (defun select-i (training-vector c)
     (declare (type simple-vector training-vector)
              (type double-float c))
-    
+
     (let ((training-size *training-size*)
           (label-index *label-index*)
           (alpha-array *alpha-array*)
           (gradient-array *gradient-array*)
           (i -1)
           (g-max most-negative-double-float))
-      
+
       (declare (type fixnum i training-size label-index)
                (type dvec alpha-array gradient-array)
                (type double-float g-max))
@@ -538,7 +538,7 @@
              (type double-float c weight g-max)
              (type array-index i)
              (ignorable kernel-function))
-    
+
     (let* ((training-size *training-size*)
            (label-index *label-index*)
            (alpha-array *alpha-array*)
@@ -550,19 +550,19 @@
            (kernel-cache *kernel-cache*)
            (kernel-vec-d *kernel-vec-d*)
            (kernel-vec-i (get-cached-values kernel-cache training-vector i training-size kernel-function)))
-      
+
       (declare (type fixnum i j training-size label-index)
                (type dvec alpha-array gradient-array kernel-vec-i kernel-vec-d)
                (type double-float tau g-max g-min obj-min)
                (dynamic-extent g-min obj-min))
-      
+
       (loop
         for k of-type array-index below training-size
         as y-k of-type double-float = (aref (the dvec (svref training-vector k)) label-index)
         as a-k of-type double-float = (aref alpha-array k)
         as g-k of-type double-float = (aref gradient-array k)
         as g-temp of-type double-float = (- (* y-k g-k))
-        with a of-type double-float = 0.0d0	      
+        with a of-type double-float = 0.0d0	
         with b of-type double-float  = 0.0d0
         if (or (and (= y-k 1.0d0) (> a-k 0.0d0))
                (and (= y-k -1.0d0) (< a-k (* weight c))))
@@ -579,7 +579,7 @@
              (when (<= g-temp g-min)
                (setf g-min g-temp)))
       (values j g-min)))
-  
+
   (defun working-set-selection3 (training-vector kernel-function c weight)
     (declare (type simple-vector training-vector)
              (type kernel-function kernel-function)
@@ -592,17 +592,17 @@
           (label-index *label-index*)
           (alpha-array *alpha-array*)
           (gradient-array *gradient-array*))
-      
+
       (declare (type fixnum i j)
                (type double-float eps tau)
                (type fixnum training-size)
                (type array-index label-index)
                (type dvec alpha-array gradient-array))
-      
+
       (let ((g-max most-negative-double-float)
             (g-min most-positive-double-float))
         (declare (type double-float g-max g-min))
-        
+
         ;;select i
         ;; (multiple-value-setq (i g-max) (select-i training-vector c))
         (loop
@@ -614,7 +614,7 @@
           if (and (>= g-temp g-max)
                   (or (and (= y-k 1.0d0) (< a-k c))
                       (and (= y-k -1.0d0) (> a-k 0.0d0))))
-            do (progn 
+            do (progn
                  (setf g-max g-temp)
                  (setf i k)))
 
@@ -633,7 +633,7 @@
               as a-k of-type double-float = (aref alpha-array k)
               as g-k of-type double-float = (aref gradient-array k)
               as g-temp of-type double-float = (- (* y-k g-k))
-              with a of-type double-float = 0.0d0	      
+              with a of-type double-float = 0.0d0	
               with b of-type double-float  = 0.0d0
               if (or (and (= y-k 1.0d0) (> a-k 0.0d0))
                      (and (= y-k -1.0d0) (< a-k (* weight c))))
@@ -649,10 +649,10 @@
                          (setf j k))))
                    (when (<= g-temp g-min)
                      (setf g-min g-temp)))))
-        
+
         (when (< (- g-max g-min) eps)
           (return-from working-set-selection3 (values -1 -1)))
-        
+
         (values i j))))
   )
 
@@ -664,32 +664,32 @@
 	   (type kernel-function kernel-function)
 	   (type double-float c weight)
            (ignorable kernel-function))
-  
+
   (let ((label-index (1- (length (aref training-vector 0))))
 	(n (length alpha-array)))
-    
+
     (declare (type fixnum label-index n))
-    
+
     (let ((result 0.0d0))
       (declare (type double-float result))
       (loop
         for i of-type fixnum below n
         as alpha-i of-type double-float = (aref alpha-array i)
         as y-i of-type double-float  = (aref (the dvec (svref training-vector i)) label-index)
-        as c-i of-type double-float = (if (plusp y-i) c (* weight c))	 
+        as c-i of-type double-float = (if (plusp y-i) c (* weight c))	
         with count = 0
         if (< 0.0d0 alpha-i c-i)
 	  do (incf count 1)
 	     (incf result
-		   (- y-i 
+		   (- y-i
 		      (let ((result2 0.0d0))
 			(declare (type double-float result2))
-			(loop 
+			(loop
                           for j of-type fixnum below n
-                          as alpha-j of-type double-float = (aref alpha-array j)  
-                          as y-j of-type double-float = (aref (the dvec (svref training-vector j)) label-index) 
+                          as alpha-j of-type double-float = (aref alpha-array j)
+                          as y-j of-type double-float = (aref (the dvec (svref training-vector j)) label-index)
                           unless (= 0.0d0 alpha-j)
-			    do (incf result2 
+			    do (incf result2
 				     (* alpha-j y-j
                                                 (call-kernel-function kernel-function
                                                                       (svref training-vector i)
@@ -709,7 +709,7 @@
       as y-i = (aref point-i label-index)
       as c-i of-type double-float = (if (plusp y-i) c (* weight c))
       if (< 0.0d0 a-i c-i)
-	do (print (- y-i 
+	do (print (- y-i
 		     (loop
                        for j below (length training-vector)
                        as a-j = (aref alpha-array j)
@@ -722,7 +722,7 @@
 
 
 (defun make-linear-kernel ()
-  (define-kernel-function (z-i z-j :linear) 
+  (define-kernel-function (z-i z-j :linear)
     (loop
       for k of-type array-index below (1- (length z-i))
       sum (* (aref z-i k) (aref z-j k))
@@ -748,7 +748,7 @@
         (d (coerce d 'double-float)))
     (declare (type double-float gamma r d))
     (let ((linear-kernel (make-linear-kernel)))
-      (define-kernel-function (z-i z-j :polynomial) 
+      (define-kernel-function (z-i z-j :polynomial)
         (d-expt (the (double-float 0d0)
                   (+ (* gamma (call-kernel-function-uncached linear-kernel z-i z-j)) r)) d)))))
 
@@ -770,7 +770,7 @@
   (declare (ignorable kernel-function))
   (let ((label-index (1- (length (svref training-vector 0)))))
     (lambda (point)
-      (sign (+ (loop 
+      (sign (+ (loop
                  for i below (length alpha-array)
                  as a-i = (aref alpha-array i)
                  unless (= 0.0d0 a-i)
@@ -786,15 +786,15 @@
 	   (type dvec alpha-array)
 	   (type double-float b)
            (ignorable kernel-function))
-  
+
   (let ((label-index (1- (length (svref training-vector 0)))))
-    
+
     (declare (type fixnum label-index))
-    
+
     (lambda (point)
       (sign (+ (let ((result 0.0d0))
-                 (declare (type double-float result))  
-                 (loop 
+                 (declare (type double-float result))
+                 (loop
                    for i of-type fixnum below (length alpha-array)
                    as a-i of-type double-float = (aref alpha-array i)
                    unless (= 0.0d0 a-i)
@@ -824,17 +824,17 @@
 
 
 (defun load-svm-learner (file-name kernel-function &key external-format)
-  (let* ((material-list 
+  (let* ((material-list
 	  (with-open-file (in file-name :external-format external-format :direction :input)
 	    (read in)))
 	 (training-vector (first material-list))
 	 (alpha-array (specialize-vec (second material-list)))
 	 (b (third material-list)))
-    
-    (loop 
+
+    (loop
       for i of-type fixnum below (length training-vector)
       do (setf (aref training-vector i) (specialize-vec (aref training-vector i))))
-    
+
     (make-discriminant-function training-vector kernel-function alpha-array b)))
 
 
@@ -859,9 +859,9 @@
 ;;for test
 (defun sample-vector (n)
   (let ((x (make-array n :initial-element 0.0d0 :element-type 'double-float)))
-    (loop for i below n 
+    (loop for i below n
           do (setf (aref x i) (coerce (random 10) 'double-float))
-          finally (return x)))) 
+          finally (return x))))
 
 
 (defun make-one-class-svm-kernel (&key gamma)

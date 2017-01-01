@@ -8,7 +8,7 @@
   (loop repeat 100
         do
      (progn
-       (assert-no-futures) 
+       (assert-no-futures)
        (let ((futures (loop repeat 100
                             collect
                          (future (+ 1 1)))))

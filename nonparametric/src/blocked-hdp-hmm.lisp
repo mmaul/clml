@@ -15,7 +15,7 @@
    (current-state-limit :initarg :L :accessor hdp-hmm-L)
    (l-step :initform 1 :initarg :l-step :accessor inc-l-step)))
 
-(defclass block-uniform (state-uniform) 
+(defclass block-uniform (state-uniform)
   ((cluster-class :initform 'blocked-hidden-state)))
 
 (defclass point-sequence ()
@@ -37,7 +37,7 @@
 ;;; so density-to-cluster avoid position search
 ;;;                             and sampling slice be fast too
 ;;; (old-state (aref data (length data)) defined as (hdp-hmm-eos dpm)
-;;; 
+;;;
 ;;; when sampling backwards, (old-state (aref data (1+ i))) is disappeared
 ;;; so copy (old-state (aref data (1+ i))) to (old-state (aref data i)) while forward filtering
 
@@ -123,7 +123,7 @@
 		   (ref (randomize-choice p sum)))
 	      (declare (type fixnum ref)
 		       (type double-float sum))
-	      (setf (point-cluster point) (aref states ref))	      
+	      (setf (point-cluster point) (aref states ref))	
 	      ))
 	;; backward-sampling loop
 	(loop for i fixnum from (1- tail) downto 0 do
@@ -286,7 +286,7 @@
 	for j fixnum from 0 below (length states)
 	for cluster = (aref states j) do
 	  (setf (aref ans j)
-	    (the double-float		    
+	    (the double-float		
 	      (log (the double-float (emission-prob cluster data :v (vocabulary dpm)))))))))
 
 #+ignore
@@ -375,7 +375,7 @@
   (hypers-sampling dpm))
 
 (defmethod seatings-sampling ((dpm blocked-hdp-hmm))
-  (declare (optimize (speed 3) (safety 0) (debug 0)))  
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (let ((data (dpm-data dpm)))
     (declare (type vector data))
     (loop for i fixnum from 0 below (the fixnum (length data))

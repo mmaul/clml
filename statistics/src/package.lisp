@@ -20,7 +20,7 @@
    :conditional-swap-let
    :conditional-let*
    :count-values
-   
+
    )
   )
 
@@ -55,7 +55,7 @@
    :*newton-raphson-initial-divisions*
    :newton-raphson
    :numerical-derivative
-   
+
    :*inv-lin-interp-precision*
    :*inv-lin-interp-max-iteration*))
 #|
@@ -64,18 +64,18 @@
   (:export
    :parse-dist-slots
    :defdistribution
-   
+
    ;; DATA ANALYSIS
    ;; (Functions on 1-valued data)
    :mean
    :mode
    :count-values
-   
-   
-   
-   
-   
-   
+
+
+
+
+
+
    :variance
    :standard-deviation
    ;; (Functions on 2-valued data)
@@ -122,10 +122,10 @@
 
    ;; DISTRIBUTION tests
    :normal-dist-test :poisson-dist-test
-   :binom-dist-test 
+   :binom-dist-test
    ;; Outlier verification
    ;; other
-   :get-sig-p 
+   :get-sig-p
    :make-sig-p-hash
    :mean-deviation
    :median :median-on-sorted
@@ -135,41 +135,41 @@
   (:documentation ""))
 |#
 (defpackage :clml.statistics
-  ;  
+  ;
   (:use :cl :clml.statistics.utilities :clml.statistics.math :clml.statistics.rand)
   (:export
    ;; DATA ANALYSIS
    ;; (Functions on 1-valued data)
    :mean :mode :count-values
-   
+
    :discrete-quantile :discrete-quantile-on-sorted
    :five-number-summary :five-number-summary-on-sorted
    :range
    :interquartile-range :interquartile-range-on-sorted
-   
+
    :variance
    :standard-deviation
    ;; (Functions on 2-valued data)
-   
-   
+
+
    :spearman-rank-correlation
    :kendall-rank-correlation
 
 
       :parse-dist-slots
    :defdistribution
-   
+
    ;; DATA ANALYSIS
    ;; (Functions on 1-valued data)
    :mean
    :mode
    :count-values
-   
-   
-   
-   
-   
-   
+
+
+
+
+
+
    :variance
    :standard-deviation
    ;; (Functions on 2-valued data)
@@ -216,16 +216,16 @@
 
    ;; DISTRIBUTION tests
    :normal-dist-test :poisson-dist-test
-   :binom-dist-test 
+   :binom-dist-test
    ;; Outlier verification
    ;; other
-   :get-sig-p 
+   :get-sig-p
    :make-sig-p-hash
    :mean-deviation
    :median :median-on-sorted
    :smirnov-grubbs
    :smirnov-grubbs-p
-   
+
    )
   (:documentation "
 

@@ -9,5 +9,5 @@
     ((dist  :initform (make-hash-table) :accessor cluster-dist-table)
      (emission :initform (make-hash-table :test #'equal) :accessor emission)))
 
-(defclass state-uniform (hdp-distribution) 
+(defclass state-uniform (hdp-distribution)
   ((cluster-class :initform 'hidden-state)))

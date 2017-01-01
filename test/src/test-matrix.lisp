@@ -13,7 +13,7 @@
   (setq eyes
     (clml.hjs.read-data:read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/eyes200.sexp")))
   (setf vecs
-        (clml.hjs.read-data:dataset-points 
+        (clml.hjs.read-data:dataset-points
          (clml.hjs.read-data:pick-and-specialize-data
           eyes
           :except '(0 1)

@@ -43,8 +43,8 @@
        ,@body)
      #+allegro
      (define-compiler-macro ,name ,lambda-list
-       `(let (,,@(loop 
-                   for n in lambda-list 
+       `(let (,,@(loop
+                   for n in lambda-list
                    collect ``(,',n ,,n)))
 	  (declare (optimize speed))
 	  ,@',body))

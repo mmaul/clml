@@ -48,9 +48,9 @@ Otherwise, you must use :auto for random-seed."))
 
 (eval-when (:execute :compile-toplevel :load-toplevel)
   (defstruct (cluster (:conc-name c-)
-                      
+
                       (:constructor %make-cluster (id center))
-                      
+
                       (:copier copy-cluster))
     (id -1 :type id)
     (center #.(make-dvec 0) :type dvec)
@@ -74,7 +74,7 @@ Otherwise, you must use :auto for random-seed."))
                     (:copier copy-point))
     (id -1 :type id)
     (pos #.(make-dvec 0) :type dvec)
-    (owner nil )                           ;:type cluster 
+    (owner nil )                           ;:type cluster
     ))
 (eval-when (:execute :compile-toplevel :load-toplevel)
  (defun make-point (id pos)
@@ -115,7 +115,7 @@ Otherwise, you must use :auto for random-seed."))
 	 (nclusters (length clusters))
 	 (distance-between-clusters (pw-distance-between-clusters problem-workspace))
 	 (lower-bounds (pw-lower-bounds problem-workspace)))
-    (declare (type dmat distance-between-clusters) 
+    (declare (type dmat distance-between-clusters)
 	     (type dvec lower-bounds)
 	     (type array-index nclusters)
 	     (optimize speed (safety 0)))
@@ -131,7 +131,7 @@ Otherwise, you must use :auto for random-seed."))
 	      (let ((distance (distance (c-center c1) (c-center c2))))
 		(setf (aref distance-between-clusters ic1 ic2) distance)
 		(setf (aref distance-between-clusters ic2 ic1) distance))))))
-    (loop  
+    (loop
        with len of-type array-index = (length lower-bounds)
        for i of-type array-index below len
        do (setf (aref lower-bounds i)
@@ -177,7 +177,7 @@ Otherwise, you must use :auto for random-seed."))
 		  (setf min-dis d)))
 	   finally (progn
 		     (setf (p-owner p) min-c)
-		     (setf (aref distance-between-point-and-owner pid) min-dis))))) 
+		     (setf (aref distance-between-point-and-owner pid) min-dis)))))
     result))
 
 ;;;; mainbody
@@ -278,7 +278,7 @@ Otherwise, you must use :auto for random-seed."))
 	(when (not (find n selected))
 	  (next count)
 	  (collect n into selected)
-	  (let ((c (make-cluster count (aref datapoints n)))) 
+	  (let ((c (make-cluster count (aref datapoints n))))
 	    (collect c into result result-type vector)))
 	(finally (return result))))
 
@@ -289,7 +289,7 @@ Otherwise, you must use :auto for random-seed."))
 ;;@  - point can't be zero dimension,
 ;;@  - number of clusters must be positive integer
 ;;@  - number of clusters must be less than the number of points
-;;@ postcondition: 
+;;@ postcondition:
 ;;@ depends-on:
 ;;@  - *distance-function*
 (defun pick-initial-clusters (num datapoints &key (distance-fn *distance-function*))
@@ -360,7 +360,7 @@ Otherwise, you must use :auto for random-seed."))
 	       ;; update center
 	       (do-vec (markedp point-mark :type bit :index-var pid)
 		 (when (= markedp 1)
-		   (let* ((p (aref points pid)) 
+		   (let* ((p (aref points pid))
 			  (distance-to-owner (aref distance-between-point-and-owner pid)))
 		     (declare (type double-float distance-to-owner))
 		     (do-vec (c clusters :type cluster)
@@ -386,7 +386,7 @@ Otherwise, you must use :auto for random-seed."))
 		       (distance (p-pos p) (c-center (p-owner p)))))
 	       ;; and reduce the iteration remained
 	       (decf rest-iteration)))
-      ;; main loop 
+      ;; main loop
       (loop
 	 do (next-iter)
 	 until (stop-p))
@@ -453,7 +453,7 @@ Otherwise, you must use :auto for random-seed."))
 	 repeat num-of-trials
 	 do (let* ((clusters (pick-initial-clusters k data))
 		   (points (let ((id-count -1))
-			     (map 'vector (lambda (d) (make-point (incf id-count) d)) data))) 
+			     (map 'vector (lambda (d) (make-point (incf id-count) d)) data)))
 		   (problem-workspace (make-problem-space points clusters)))
 	      (declare (type simple-vector clusters points))
 	      ;; trial
@@ -469,7 +469,7 @@ Otherwise, you must use :auto for random-seed."))
 	      table))))
 
 #+ignore
-(defun k-means-hss 
+(defun k-means-hss
     (infile outdatafile outclusterfile label-strings cluster-num
      &key
      (infile-type :csv)

@@ -58,7 +58,7 @@
                             (prog1
                                 (wait-for-new-items task-queue :timeout (thread-pool-keep-alive-seconds thread-pool))
                               (decf idle-thread-count)))
-                    (go :quit)) 
+                    (go :quit))
                   (go :run-next))
               :quit
                 ;; NOTE: be sure to check there's no task before quit

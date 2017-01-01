@@ -121,7 +121,7 @@
     (when (> (- size 1) dim)
       (let* ((q0 (prog1 (make-Q0 trials mean) (print "q0!")))
 	     (inv-sqrt-q0 (cholesky-decomp (m^-1 q0))
-			  #+ignore 
+			  #+ignore
 			  (if (zerop (det q0))
 			      (return-from sample-cluster-parameters);; abort
 			      (m^-1 (transpose (cholesky-decomp q0)))))

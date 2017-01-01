@@ -14,7 +14,7 @@
 	(codes (alloc-entries (entries-parent-gdata data)))
 	(dim (entries-dimension data)))
     (declare (type (integer 0 #.most-positive-fixnum) noc dim))
-    
+
     (setf (entries-dimension codes) dim)
     (setf (slot-value (entries-entries_flags codes) 'loadmode) +loadmode-all+)
     (setf (entries-xdim codes) xdim)
@@ -22,12 +22,12 @@
     (setf (entries-topol codes) topol)
     (setf (entries-neigh codes) neigh)
     (setf (entries-parent-gdata codes) (entries-parent-gdata data))
-    
+
     (setf (entries-entries codes)
       (loop for i fixnum from 1 to noc
 	  collect (alloc-entry codes)))
     (setf (entries-num-entries codes) noc)
-    
+
     (let* ((compcnt (make-array dim :element-type '(signed-byte 32) :initial-element 0))
 	   (maval (alloc-entry data))	; maval is data-entry
 	   (mival (alloc-entry data))	; mival is data-entry
@@ -59,10 +59,10 @@
       (loop for i fixnum from 0 to (1- dim)
 	  do (when (= (aref compcnt i) 0)
 	       (format t "randinit-codes: warning! component ~d has no data, using 0.0~%" (the fixnum (1+ i)))))
-      
-      ;; Randomize the vector values 
+
+      ;; Randomize the vector values
       (rewind-entries codes)
-      
+
       (loop for dentry in (entries-entries codes)
 	  do (loop for i fixnum from 0 to (1- dim)
 		 do (let ((data-entry-points-dentry (data-entry-points dentry)))
@@ -70,7 +70,7 @@
 		      (if (> (aref compcnt i) 0)
 			  (let ((orand (orand)))
 			    (declare (type (integer 0 #.most-positive-fixnum) orand))
-			    (setf (aref data-entry-points-dentry i) 
+			    (setf (aref data-entry-points-dentry i)
 			      (+ (aref data-entry-points-mival i)
 				 (* (- (aref data-entry-points-maval i)
 				       (aref data-entry-points-mival i))
@@ -78,7 +78,7 @@
 			(setf (aref data-entry-points-dentry i) 0.0d0)))
 		    (clear-entry-labels dentry)))
       codes)))
-      
+
 
 (defun get-mapdistf (topol)
   (declare (optimize (speed 3)))
@@ -98,7 +98,7 @@
 
 
 ;; set-som-params - set functions needed by the SOM algorithm in the
-;; teach-params structure 
+;; teach-params structure
 (defun set-som-params (params)
   (unless (teach-params-mapdist params)
     (setf (teach-params-mapdist params)
@@ -155,7 +155,7 @@
     ))
 
 
-;; Adaptation function for bubble-neighborhood 
+;; Adaptation function for bubble-neighborhood
 (defun bubble-adapt (teach-params sample bx by radius alpha)
   (declare (optimize (speed 3))
 	   (type fixnum bx by)
@@ -198,7 +198,7 @@
 		     (dotimes (i dim)
 		       (declare (type fixnum i))
 		       (unless (/= (the (signed-byte 32) (aref sample-data-entry-mask i)) 0)
-			 ;; ignore vector components that have 1 in mask 
+			 ;; ignore vector components that have 1 in mask
 			 (setq current (aref codes-data-entry-points i))
 			 (setf (aref codes-data-entry-points i)
 			   (+ current
@@ -218,7 +218,7 @@
 
 
 
-;; Adaptation function for gaussian neighbourhood 
+;; Adaptation function for gaussian neighbourhood
 (defun gaussian-adapt (teach-params sample bx by radius alpha)
   (declare (optimize (speed 3))
 	   (type fixnum bx by)
@@ -246,7 +246,7 @@
       (declare (type double-float w alp)
 	       (type (integer 0 #.most-positive-fixnum) tx ty index)
 	       (type (simple-array double-float (1)) dd))
-      
+
       ;; dd array is for reducing boxing.
       (dolist (codes-data-entry (entries-entries codes))
 	(declare (type data-entry codes-data-entry))
@@ -261,7 +261,7 @@
 				(* -0.5d0 w w)))
 		       (floating-point-underflow () 0.0d0))))
 	
-;;;	(funcall adapt codes-data-entry sample 
+;;;	(funcall adapt codes-data-entry sample
 ;;;		 dim
 ;;;		 alp)
 	;; adapt-vector
@@ -279,7 +279,7 @@
                 (dotimes (i dim)
                   (declare (type fixnum i))
                   (unless (/= (the (signed-byte 32) (aref sample-data-entry-mask i)) 0)
-                    ;; ignore vector components that have 1 in mask 
+                    ;; ignore vector components that have 1 in mask
                     (setq current (aref codes-data-entry-points i))
                     (setf (aref codes-data-entry-points i)
                       (+ current
@@ -301,12 +301,12 @@
 	(incf index)
 	))))
 
-	       
-					    
-	       
-;; som-training - train a SOM. Radius of the neighborhood decreases 
-;; linearly from the initial value to one and the learning parameter 
-;; decreases linearly from its initial value to zero. 
+	
+					
+	
+;; som-training - train a SOM. Radius of the neighborhood decreases
+;; linearly from the initial value to one and the learning parameter
+;; decreases linearly from its initial value to zero.
 (defun som-training (teach-params)
   (declare (optimize (speed 3))
 	   (type teach-params teach-params))
@@ -359,22 +359,22 @@
 	    (declare (type data-entry sample))
 	    (let ((weight (data-entry-weight sample)))
 	      (declare (type double-float weight))
-	      
-	      ;; Radius decreases linearly to one 
+	
+	      ;; Radius decreases linearly to one
 	      (setf (aref trad-arr 0)
 		(+ 1.0d0
-		   (* (- radius 1.0d0) 
+		   (* (- radius 1.0d0)
 		      (/ (coerce (- length le) 'double-float)
 			 (coerce length 'double-float)))))
-	      
-	      
+	
+	
 	      (funcall get-alpha le length alpha-arr new-alpha-arr)
-	      
+	
 
-              
+
 	      ;; If the sample is weighted, we
 	      ;; modify the training rate so that we achieve the same effect as
-	      ;; repeating the sample 'weighxt' times 
+	      ;; repeating the sample 'weighxt' times
 	      (when (and (> weight 0.0d0)
 			 (use-weights -1))
 		(setf (aref new-alpha-arr 0)
@@ -384,25 +384,25 @@
 
 		)
 
-	      ;; Find the best match 
-	      ;; If fixed point and is allowed then use that value 
+	      ;; Find the best match
+	      ;; If fixed point and is allowed then use that value
 	      (if (and (data-entry-fixed sample)
 		       (use-fixed -1))
 		  (progn
-		    (setq bxind 
+		    (setq bxind
 		      (slot-value (data-entry-fixed sample) 'xfix))
-		    (setq byind 
+		    (setq byind
 		      (slot-value (data-entry-fixed sample) 'yfix)))
 		(when (funcall find-winner codes sample win-info 1)
 		  (setf byind (floor (winner-info-index win-info) xdim))
 		  (setf bxind (rem (winner-info-index win-info) xdim))
 		  ))
-	      
-	      ;; Adapt the units 
+	
+	      ;; Adapt the units
 	      (funcall adapt teach-params sample bxind byind trad-arr new-alpha-arr)
 	      ;; todo
 	      ;; save snapshot when needed
-		   
+		
 	      (incf index)
 	      ))))
       (setf (teach-params-end-time teach-params)

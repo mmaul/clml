@@ -8,10 +8,10 @@
   (let* ((m (array-dimension matrix 0))
 	 (n (array-dimension matrix 1))
 	 (transpose (make-array (list n m) :element-type 'double-float)))
-   
-    (loop 
+
+    (loop
 	for i below n
-	do (loop 
+	do (loop
 	       for j below m
 	       do (setf (aref transpose i j) (aref matrix j i)))
 	finally (return transpose))))
@@ -26,28 +26,28 @@
 
 
 (defun copy-matrix (matrix)
-  
+
   (declare (type dmat matrix))
-  
+
   (let* ((m (array-dimension matrix 0))
 	 (n (array-dimension matrix 1))
 	 (copy-mat (make-array (list m n) :element-type 'double-float)))
-    
-    (loop 
+
+    (loop
 	for i below m
-	do (loop 
+	do (loop
 	       for j below n
 	       do (setf (aref copy-mat i j) (aref matrix i j)))
 	finally  (return copy-mat))))
 
 
 (defun make-test-matrix (m n)
-  
+
   (let ((test-mat (make-array (list m n) :element-type 'double-float)))
- 
-    (loop 
+
+    (loop
 	for i below m
-	do (loop 
+	do (loop
 	       for j below n
 	       do (setf (aref test-mat i j) (random 1.0d0)))
 	finally (return test-mat))))
@@ -56,43 +56,43 @@
 (defun sample-matrix (m n)
   (assert (and (< 0 m) (< 0 n)))
   (let ((sample-mat (make-array (list m n) :element-type 'double-float)))
-    (loop 
+    (loop
 	for i below m
-	do (loop 
+	do (loop
 	       for j below n
 	       do (setf (aref sample-mat i j) (coerce (random 100) 'double-float)))
 	finally (return sample-mat))))
 
 
 (defun norm (matrix)
-  
+
   (let ((n (array-dimension matrix 0))
 	(m (array-dimension matrix 1)))
-  
-    (loop 
+
+    (loop
 	for i below n
-	sum (loop 
-		for j below m 
+	sum (loop
+		for j below m
 		sum (* (aref matrix i j) (aref matrix i j))) into temp
 	finally (return (sqrt temp)))))	
 
 
 (defun m- (a b)
-  
+
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat a b))
   ;; (declare (:explain :inlining))
-  
+
   (assert (and (= (array-dimension a 0) (array-dimension b 0))
 	       (= (array-dimension b 1) (array-dimension b 1))))
-  
+
   (let* ((m (array-dimension a 0))
 	 (n (array-dimension a 1))
 	 (c (make-array (list m n) :element-type 'double-float)))
-    
-    (loop 
+
+    (loop
 	for i below m
-	do (loop 
+	do (loop
 	       for j below n
 	       do (setf (aref c i j) (- (aref a i j) (aref b i j))))
 	finally (return c))))
@@ -108,19 +108,19 @@
                 a*b-i-j))
 
 (defun a*b-i-j (a b i j)
-  
+
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat a b)
            (type fixnum i j))
   ;; (declare (:explain :inlining))
-  
+
   (assert (= (array-dimension a 1) (array-dimension b 0)))
-  
+
   (let ((k (array-dimension a 1))
   	(sum 0.0d0))
-    
+
     (declare (type double-float sum))
-    
+
     (dotimes (l k)
       (declare (type fixnum l))
       (incf sum (* (aref a i l) (aref b l j))))
@@ -131,13 +131,13 @@
   "destractive"
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type (simple-array double-float (* *)) a b))
- 
+
   (assert (= (array-dimension a 0) (array-dimension b 0)))
   (assert (= (array-dimension a 1) (array-dimension b 1)))
-   
+
   (let ((m (array-dimension a 0))
 	(n (array-dimension a 1)))
-     
+
     (dotimes (i m a)
       (dotimes (j n)
 	(setf (aref a i j) (* (aref a i j) (aref b i j)))))))
@@ -147,13 +147,13 @@
   "destractive"
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type (simple-array double-float (* *)) a b))
-  
+
   (assert (= (array-dimension a 0) (array-dimension b 0)))
   (assert (= (array-dimension a 1) (array-dimension b 1)))
-   
+
   (let ((m (array-dimension a 0))
 	(n (array-dimension a 1)))
-     
+
     (dotimes (i m a)
       (dotimes (j n)
 	(setf (aref a i j) (/ (aref a i j) (aref b i j)))))))
@@ -169,11 +169,11 @@
 	 (w (make-test-matrix m k))
 	 (h (make-test-matrix k n))
 	 (p (make-array (list m n) :element-type 'double-float)))
-    
+
     (declare (type dmat w h p))
-    
+
     (dotimes (l iteration)
-      
+
       (let ((w^t (m^t w))
 	    (wh (m-times-n w h p)))
 	(dotimes (i k)
@@ -182,7 +182,7 @@
 	      (/ (* (aref h i j)
                     (a*b-i-j w^t x i j))
 		 (a*b-i-j w^t wh i j))))))
-      
+
       (let ((h^t (m^t h))
 	    (wh (m-times-n w h p)))
 	(dotimes (i m)
@@ -191,50 +191,50 @@
 	      (/ (* (aref w i j)
                     (a*b-i-j x h^t i j))
 		 (a*b-i-j wh h^t i j)))))))
-    
-    
+
+
     (values w h)))
 
 #+ignore
 (defun nmf-euc (x k &key (iteration 100))
-  
+
   (declare (optimize (speed 3) (debug 0) (safety 0))
 	   (type dmat x))
- 
+
   (let* ((m (array-dimension x 0))
 	 (n (array-dimension x 1))
 	 (w (make-test-matrix m k))
 	 (h (make-test-matrix k n)))
-    
+
     (declare (type dmat w h))
-    
+
     (dotimes (p iteration)
-      
+
       (elementwise-product h (m-divides-n (m*m (m^t w) x)
 					  (m*m (m*m (m^t w) w) h)))
-      
+
       (elementwise-product w (m-divides-n (m*m x (m^t h))
 					  (m*m (m*m w h) (m^t h)))))
-    
+
     ;;(print (matrix-norm (m- x (m*m w h))))
     (values w h)))
 
 
 (defun m-times-n (a b &optional c)
-  
+
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat a b))
   ;; (declare (:explain :inlining))
- 
+
   (assert (= (array-dimension a 1) (array-dimension b 0)))
-  
+
   (let* ((m (array-dimension a 0))
 	 (n (array-dimension b 1))
          (c (or c
                 (make-array (list m n) :element-type 'double-float))))
-    
+
     (declare (type dmat c))
-  
+
     (dotimes (i m c)
       (dotimes (j n)
 	(setf (aref c i j) (a*b-i-j a b i j))))))
@@ -257,11 +257,11 @@
 	 (u (make-test-matrix m k))
 	 (v (make-test-matrix k n))
 	 (q (make-array (list m n) :element-type 'double-float)))
-    
+
     (declare (type dmat u v q))
-    
+
     (dotimes (p iteration (values u v))
-      
+
       (let ((uv (m-times-n u v q)))
 	(dotimes (i m)
 	  (dotimes (l k)
@@ -269,7 +269,7 @@
 	    (setf (aref u i l)
 	      (* (aref u i l)
 		 (aux-kl-1 x uv v i l))))))
-      
+
       (let ((old-u (copy-matrix u)))
 	
 	(declare (type dmat old-u))
@@ -282,7 +282,7 @@
 		 (loop
 		     for i below m
 		     sum (aref old-u i l)))))))
-      
+
       (let ((uv (m-times-n u v q)))
 	(dotimes (l k)
 	  (dotimes (j n)
@@ -296,16 +296,16 @@
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat x uv v))
   (loop
-      for j fixnum below (array-dimension x 1) 
+      for j fixnum below (array-dimension x 1)
       sum (/ (* (aref x i j) (aref v l j))
 	     (aref uv i j))
       of-type double-float))
 	
-	      
+	
 (defun aux-kl-2 (x uv u l j)
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat x uv u))
-  (loop 
+  (loop
       for i fixnum below (array-dimension x 0)
       sum (/ (* (aref x i j) (aref u i l))
 	     (aref uv i j))
@@ -316,7 +316,7 @@
   (let* ((n (array-dimension weight-matrix 0))
 	 (v (row-clustering-vector weight-matrix))
 	 (c (make-array (list n n))))
-    
+
     (dotimes (i n c)
       (dotimes (j n)
 	(setf (aref c i j)
@@ -329,7 +329,7 @@
   (let* ((n (array-dimension feature-matrix 1))
 	 (v (column-clustering-vector feature-matrix))
 	 (c (make-array (list n n))))
-    
+
     (dotimes (i n c)
       (dotimes (j n)
 	(setf (aref c i j)
@@ -364,7 +364,7 @@
 	 (c (make-array (list n n)))
 	 (u (make-array (list m k)))
 	 (v (make-array (list k n))))
-    
+
     (dotimes (l repeat average-c)
       (multiple-value-setq (u v) (nmf matrix k :cost-fn cost-fn :iteration iteration))
       (setf u u)
@@ -494,7 +494,7 @@
   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* * ))
   - k : size of dimension reduction
   - sparseness 0.0~1.0
-  - type : :left | :right 
+  - type : :left | :right
   - iteration : default is 100
 - comments : we do nmf with sparseness constrained for the left factor matrix each column vector or right factor matrix each row vector. Objective function is euclidean norm.
 - reference: [[http://www.cs.helsinki.fi/u/phoyer/papers/pdf/NMFscweb.pdf][Non-negative Matrix Factorization with Sparseness Constraints]]  - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* *))
@@ -532,7 +532,7 @@
 (defun pick-up-column-data (feature-matrix n &key results (stream t))
   (assert (< -1 n (array-dimension feature-matrix 0)))
   (let ((v (numbering (coerce (pick-up-row feature-matrix n) 'list))))
-   
+
     (setf v (sort v #'> :key  #'car))
     (dotimes (j results)
       (format stream "~A   ~A~%" (car (cdr (nth j v))) (car (nth j v))))))
@@ -549,7 +549,7 @@
 (defun pick-up-row-data (weight-matrix n &key results (stream t))
   (assert (< -1 n (array-dimension weight-matrix 1)))
   (let ((v (numbering (coerce (pick-up-column weight-matrix n) 'list))))
-    
+
     (setf v (sort v #'> :key  #'car))
     (dotimes (j results)
       (format stream "~A   ~A~%" (car (cdr (nth j v))) (car (nth j v))))))
@@ -580,7 +580,7 @@
          (multiple-value-bind (weight feature) (nmf matrix k :cost-fn cost-fn :iteration iteration)
              (cond ((eq type :row)
                     (result-row-data weight :results results))
-                   ((eq type :column) 
+                   ((eq type :column)
                     (result-column-data feature :results results))
                    (t (error "illegal keyword parameter."))))))
     v))
@@ -626,7 +626,7 @@
   (let ((term-index-vector (make-term-index corpus-dataset))
 	(document-index-vector (make-document-index corpus-dataset))
 	(tf*idf*cosine-matrix (make-document-term-matrix corpus-dataset)))
-    
+
     (multiple-value-bind (weight feature) (nmf tf*idf*cosine-matrix k :cost-fn cost-fn :iteration iteration)
       (result-terms feature term-index-vector :results results)
       (result-documents weight document-index-vector :results results))))
@@ -643,7 +643,7 @@
 (defun pick-up-documents (weight-matrix document-index-vector n &key results (stream t))
   (assert (< -1 n (array-dimension weight-matrix 1)))
   (let ((v (numbering (coerce (pick-up-column weight-matrix n) 'list))))
-    
+
     (setf v (sort v #'> :key  #'car))
     (dotimes (j results)
       (format stream "~A     ~A~%" (aref document-index-vector (car (cdr (nth j v)))) (car (nth j v))))))
@@ -660,7 +660,7 @@
 (defun pick-up-terms (feature-matrix term-index-vector n &key results (stream t))
   (assert (< -1 n (array-dimension feature-matrix 0)))
   (let ((v (numbering (coerce (pick-up-row feature-matrix n) 'list))))
-   
+
     (setf v (sort v #'> :key  #'car))
     (dotimes (j results)
       (format stream "~A     ~A~%" (aref term-index-vector (car (cdr (nth j v)))) (car (nth j v))))))
@@ -741,7 +741,7 @@
     (dotimes (i m new-matrix)
       (dotimes (j n)
 	(setf (aref new-matrix i j)
-	  (* (aref matrix i j) 
+	  (* (aref matrix i j)
 	     (log (/ (float m 0.0d0)
                      (float (dfreq matrix j) 0.0d0)))))))))
 
@@ -833,7 +833,7 @@
 - return: nil
 - arguments:
    - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* * ))
-   - row-or-column-number : 
+   - row-or-column-number :
    - type :row | :column : query type
    - cost-fn : :euclidean | :kl, default is euclidean
    - iteration : default is 100
@@ -845,11 +845,11 @@
 "
   (cond ((eq type :row)
                 (assert (< -1 row-or-column-number (array-dimension matrix 0)))
-                (nmf-analysis (row-theme-weighting matrix row-or-column-number) 1 
+                (nmf-analysis (row-theme-weighting matrix row-or-column-number) 1
                               :type type :iteration iteration :results results))
-               ((eq type :column) 
+               ((eq type :column)
                 (assert (< -1 row-or-column-number (array-dimension matrix 1)))
-                (nmf-analysis (column-theme-weighting matrix row-or-column-number) 1 
+                (nmf-analysis (column-theme-weighting matrix row-or-column-number) 1
                               :type type :iteration iteration :results results))
                (t (error "illegal keyword parameter.")))
   )
@@ -867,7 +867,7 @@
 (defun row-theme-weighting (matrix row-number)
   (let ((adjusting-factor (row-adjusting-factor matrix row-number))
 	(new-matrix (copy-matrix matrix)))
-    
+
     (dotimes (i (array-dimension matrix 0) new-matrix)
       (dotimes (j (array-dimension matrix 1))
 	(when (= i row-number)
@@ -902,25 +902,25 @@
 #+INCLUDE: \"../sample/nmf-corpus-search.org\" example lisp
 "
   (cond ((eq type :document)
-	 (let* ((term-index-vector (make-term-index corpus-dataset)) 
-		(document-index-vector (make-document-index corpus-dataset)) 
+	 (let* ((term-index-vector (make-term-index corpus-dataset))
+		(document-index-vector (make-document-index corpus-dataset))
 		(tf*idf*cosine-matrix (make-document-term-matrix corpus-dataset))
 		(row-number (document->row-number term-or-document-name document-index-vector))
 		(matrix (row-theme-weighting tf*idf*cosine-matrix row-number)))
 	
-	   (multiple-value-bind (weight feature) (nmf matrix 1 
+	   (multiple-value-bind (weight feature) (nmf matrix 1
 						      :iteration iteration)
 	     (result-terms feature term-index-vector :results results)
 	     (result-documents weight document-index-vector :results results))))
 	
-	((eq type :term) 
-	 (let* ((term-index-vector (make-term-index corpus-dataset)) 
-		(document-index-vector (make-document-index corpus-dataset)) 
+	((eq type :term)
+	 (let* ((term-index-vector (make-term-index corpus-dataset))
+		(document-index-vector (make-document-index corpus-dataset))
 		(tf*idf*cosine-matrix (make-document-term-matrix corpus-dataset))
 		(column-number (term->column-number term-or-document-name term-index-vector))
 		(matrix (column-theme-weighting tf*idf*cosine-matrix column-number)))
-	   
-	   (multiple-value-bind (weight feature) (nmf matrix 1 
+	
+	   (multiple-value-bind (weight feature) (nmf matrix 1
 						      :iteration iteration)
 	     (result-terms feature term-index-vector :results results)
 	     (result-documents weight document-index-vector :results results))))
@@ -994,7 +994,7 @@
     (declare (type dvec v))
     (dotimes (i (length a) v)
       (setf (aref v i) (- (aref a i) (aref b i))))))
-	       
+	
 (defun alpha (x s m)
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (ftype (function (simple-array simple-array) double-float) dot)
@@ -1092,18 +1092,18 @@
   (let ((w (make-array (length v) :element-type 'double-float)))
     (dotimes (i (length v) w)
       (setf (aref w i) (* alpha (aref v i))))))
-  
+
 (defun projection-operator (x sparseness)
   (assert (< 0.0 sparseness 1.0))
   (let* ((n (length x))
 	 (s (make-array n :element-type 'double-float))
 	 (z '())
 	 (m (make-array n :element-type 'double-float)))
-    
+
     (setf s (set-s0 x sparseness))
     (setf m (set-m x z sparseness))
     (setf s (set-s1 x s m))
-    
+
     (loop while (not (non-negative-vector-p s))
         do
           (setf z (set-z z s))
@@ -1128,13 +1128,13 @@
 
 (defun set-w (v w h iteration)
   (m- w
-      (alpha-m (coerce (/ (expt 2 iteration)) 'double-float) 
+      (alpha-m (coerce (/ (expt 2 iteration)) 'double-float)
 	       (m-times-n (m- (m-times-n w h) v)
 			  (m^t h)))))
 
 (defun set-h (v w h iteration)
   (m- h
-      (alpha-m (coerce (/ (expt 2 iteration)) 'double-float) 
+      (alpha-m (coerce (/ (expt 2 iteration)) 'double-float)
 	       (m-times-n (m^t w)
 			  (m- (m-times-n w h) v)))))
 		
@@ -1146,7 +1146,7 @@
   (let ((new-w (make-array (list (array-dimension w 0)
 				 (array-dimension w 1))
 			   :element-type 'double-float)))
-    
+
     (dotimes (j (array-dimension w 1) new-w)
       	(let ((w-j (projection-operator (pick-up-column w j) sparseness)))
           (declare (type dvec w-j))
@@ -1160,7 +1160,7 @@
   (let ((new-h (make-array (list (array-dimension h 0)
 				 (array-dimension h 1))
 			   :element-type 'double-float)))
-    
+
     (dotimes (i (array-dimension h 0) new-h)
       	(let ((h-i (projection-operator (pick-up-row h i) sparseness)))
 	  (dotimes (j (array-dimension h 1))
@@ -1171,25 +1171,25 @@
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat v))
   ;; (declare (:explain :inlining))
-  
+
   (let* ((m (array-dimension v 0))
 	 (n (array-dimension v 1))
 	 (w (make-test-matrix m k))
 	 (h (make-test-matrix k n))
 	 (q (make-array (list k k) :element-type 'double-float)))
-     
+
     (declare (type dmat w h))
-    
+
     (setf w (proj-w w sparseness))
-    
+
     (dotimes (p iteration)
-     
+
       (setf w (set-w v w h p))
       (setf w (proj-w w sparseness))
-    
+
       (let* ((w^t (m^t w))
 	     (w^tw (m-times-n w^t w q)))
- 
+
 	(declare (type dmat w^t w^tw))
     	
 	(dotimes (i k)
@@ -1213,13 +1213,13 @@
 	 (w (make-test-matrix m k))
 	 (h (make-test-matrix k n))
 	 (q (make-array (list m n) :element-type 'double-float)))
-     
+
     (declare (type dmat w h))
-    
+
     (setf h (proj-h h sparseness))
-    
+
     (dotimes (p iteration)
-      
+
       (let* ((h^t (m^t h))
 	     (wh (m-times-n w h q)))
 	
@@ -1235,7 +1235,7 @@
                                         ; avoid to divide by zero
       (setf h (set-h v w h p))
       (setf h (proj-h h sparseness)))
-      
+
     (values w h)))
 
 (defun nmf-sc (v k sparseness &key type (iteration 100))
@@ -1245,7 +1245,7 @@
   - non-negative-matrix : (SIMPLE-ARRAY DOUBLE-FLOAT (* * ))
   - k : size of dimension reduction
   - sparseness 0.0~1.0
-  - type : :left | :right 
+  - type : :left | :right
   - iteration : default is 100
 - comments : we do nmf with sparseness constrained for the left factor matrix each column vector or right factor matrix each row vector. Objective function is euclidean norm.
 - reference: [[http://www.cs.helsinki.fi/u/phoyer/papers/pdf/NMFscweb.pdf][Non-negative Matrix Factorization with Sparseness Constraints]]

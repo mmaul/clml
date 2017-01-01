@@ -36,7 +36,7 @@
           (split-sequence #\space str)
           ))
     (remove "" list :test #'string=)))
-    
+
 (defun get-topol (str)
   (let ((s (second (get-elements-list-elim-space str))))
     (if (stringp s)
@@ -86,12 +86,12 @@
       (setf (fixpoint-xfix tmp) (read-from-string x))
       (setf (fixpoint-yfix tmp) (read-from-string y)))
     tmp))
-    
 
 
 
-;; read-headers - reads the header information from file and sets the 
-;; entries variables accordingly. 
+
+;; read-headers - reads the header information from file and sets the
+;; entries variables accordingly.
 (defgeneric read-headers (entries))
 (defmethod read-headers ((entries entries))
   (let ((file-info (entries-file-info entries))
@@ -99,7 +99,7 @@
     ;; find the first not-comment line
     (loop
 	while (char= (elt (setq line (som-getline file-info)) 0) #\#))
-    
+
     (let ((dim (read-from-string (first (get-elements-list-elim-space line)))))
       (when (<= dim 0)
 	(error "Can't read dimension parameter in file ~a"
@@ -109,7 +109,7 @@
       (setf (entries-neigh entries) (get-neigh line))
       (setf (entries-xdim entries) (get-xdim line))
       (setf (entries-ydim entries) (get-ydim line))
-      
+
       )))
 
 ;; close-entries - closes the file associated with entries if there is one.
@@ -119,7 +119,7 @@
 
 (defun open-entries (gdata name)
   (let ((entries (open-data-file gdata name)))
-    (handler-case 
+    (handler-case
 	(read-headers entries)
       (error (c)
 	(ignore-errors (close-entries entries))
@@ -127,7 +127,7 @@
     entries))
 
 
-;; alloc-entries - make and initialize an entries-structure. 
+;; alloc-entries - make and initialize an entries-structure.
 (defun alloc-entries (gdata)
   (make-instance 'entries
     :parent-gdata gdata)
@@ -135,9 +135,9 @@
 
 
 
-;; open-data-file - opens a data file for reading. 
+;; open-data-file - opens a data file for reading.
 ;; Returns entries instance.
-;; If name is nil, just create the entries instance  but doesn't open any file. 
+;; If name is nil, just create the entries instance  but doesn't open any file.
 (defun open-data-file (gdata filename)
   (let ((entries (alloc-entries gdata)))
     (setf (entries-file-info entries)
@@ -147,44 +147,44 @@
 
 
 
-;; initialize and possibly allocate room for data-entry. If entry is NULL, 
-;; a new entry is allocated and initialized. If entry is a pointer to an 
+;; initialize and possibly allocate room for data-entry. If entry is NULL,
+;; a new entry is allocated and initialized. If entry is a pointer to an
 ;; old entry, the old entry is re-initialized.
 (defun init-entry (entr entry)
   (unless entry
     (setq entry (make-instance 'data-entry))
     (setf (data-entry-points entry)
-      (make-array (entries-dimension entr) 
+      (make-array (entries-dimension entr)
 		  :element-type 'double-float
 		  :initial-element 0.0d0)))
-  
+
   ;; discard mask
   (setf (data-entry-mask entry) nil)
-  
+
   ;; discard fixed point
   (setf (data-entry-fixed entry) nil)
-  
+
   (clear-entry-labels entry)
   (setf (data-entry-weight entry)  0.0d0)
-  
+
   entry)
 
 
-(defmacro alloc-entry (entr) 
+(defmacro alloc-entry (entr)
   `(init-entry ,entr nil))
 
 
-;; set-mask - sets a value in mask 
+;; set-mask - sets a value in mask
 (defun set-mask (mask dim n)
   (unless mask
     (setq mask (make-array dim :element-type '(signed-byte 32) :initial-element 0)))
   (when (>= n 0)
     (setf (aref mask n) 1))
   mask)
-    
 
-;; load-entry - loads one data-entry from file associated with entries. If 
-;; data-entry is non-nil, an old data-entry is reused, otherwise a new 
+
+;; load-entry - loads one data-entry from file associated with entries. If
+;; data-entry is non-nil, an old data-entry is reused, otherwise a new
 ;; data-entry is allocated.
 ;; when no more line returns nil
 (defun load-entry (entries data-entry)
@@ -192,11 +192,11 @@
 	   (unless (file-info-eof file-info)
 	     (let ((line))
 	       (loop
-		   do (setq line (som-getline file-info)) ;; get line from file 
+		   do (setq line (som-getline file-info)) ;; get line from file
 		      (when (and (not line)
 				 (file-info-eof file-info))
 			(return nil))
-		      (when (and line 
+		      (when (and line
 				 (not (char= (elt line 0) #\#)) ;; skip comments
 				 )
 			(return line))
@@ -209,18 +209,18 @@
 		 (unless line ; no more data -> loop end
 		   (setq data-entry nil)
 		   (return nil))
-		 
-		 ;; If data-entry is given, a new entry is loaded on over the old one. If 
-		 ;; data-entry is nil, room for the new entry is allocated 
+		
+		 ;; If data-entry is given, a new entry is loaded on over the old one. If
+		 ;; data-entry is nil, room for the new entry is allocated
 		 (setq data-entry (init-entry entries data-entry))
-	       
+	
 		 (let ((row (file-info-lineno file-info)))
 		   (when (stringp line)
 		     (let ((mask)
-			   (maskcnt 0)	; now many components are masked 
+			   (maskcnt 0)	; now many components are masked
 			   (toke-list (get-elements-list-elim-space line))
 			   (ent))
-		       ;; Read the vector values 
+		       ;; Read the vector values
 		       (loop for item in toke-list
 			   for i from 0 to (1- dim)
 			   do (if (string= item *masked-value*)
@@ -230,24 +230,24 @@
 				    (setq ent 0.0d0))
 				(setq ent (coerce (read-from-string item) 'double-float)))
 			      (setf (aref (data-entry-points data-entry) i) ent))
-		       ;; Entries with all components masked off are normally discarded but 
-		       ;; they are loaded if the skip_empty-flag is set in the flags of the 
+		       ;; Entries with all components masked off are normally discarded but
+		       ;; they are loaded if the skip_empty-flag is set in the flags of the
 		       ;; file.
 		       (when (= maskcnt dim)
 			 (format t "load-entry: skipping line ~d of file ~a, all components are masked off~%" row (file-info-name file-info))
 			 (when (slot-value (entries-entries_flags entries) 'skip-empty)
 			   (setq mask nil)
 			   (return-from set-one-line nil)))
-		       
+		
 		       (when mask
 			 (setf (data-entry-mask data-entry) mask)
 			 (setq mask nil))
-		       
+		
 		       ;; Now the following tokens (if any) are label,
 		       ;; weight term and fixed point description.
 		       ;; Sometimes label is not needed. Other terms are never
-		       ;; needed 
-		     
+		       ;; needed
+		
 		       (let ((label-found))
 			 (loop for item in (subseq toke-list dim)
 			     do (cond ((search "weight=" item)
@@ -257,7 +257,7 @@
 				       (setf (data-entry-fixed data-entry)
 					 (get-fixed item)))
 				      ((stringp item)
-				       (add-entry-label data-entry 
+				       (add-entry-label data-entry
 							(find-conv-to-ind item (entries-parent-gdata entries)))
 				       (setf label-found t))
 				      (t
@@ -269,8 +269,8 @@
 				  (file-info-name file-info)))))
 		     (return nil)))))))
     data-entry))
-    
-			  
+
+			
 
 ;; read-entries - reads data from file to memory. If LOADMODE_ALL is
 ;; used the whole file is loaded into memory at once and the file is
@@ -278,14 +278,14 @@
 ;; data vectors are read into memory at one time. The buffer size N is
 ;; given in the entries->buffer field. In both cases if there are any
 ;; previous entries in the entries structure, they are overwritten and
-;; the memory space allocated for them is reused. 
+;; the memory space allocated for them is reused.
 (defun read-entries (entries)
   (let ((noc 0)
 	(len (length (entries-entries entries)))
 	(data-entry)
 	(lst))
     (setf (entries-entries entries)
-      (loop 
+      (loop
 	  for i from 0
 	  do  (if (or (= len 0)
 		      (> i len))
@@ -303,8 +303,8 @@
       (setf (slot-value (entries-entries_flags entries) 'totlen-known) t)
       (close-file (entries-file-info entries))
       (setf (entries-file-info entries) nil))
-    
-    ;; Randomize entry order if wanted. 
+
+    ;; Randomize entry order if wanted.
     (when (slot-value (entries-entries_flags entries) 'random-order)
       (setf (entries-entries entries)
 	(randomize-entry-order (entries-entries entries))))))
@@ -322,7 +322,7 @@
     (incf (entries-lap entries))))
 
 
-;; randomize-entry-order - arrange a list of data-entries to random order. 
+;; randomize-entry-order - arrange a list of data-entries to random order.
 (defun randomize-entry-order (data-entries)
   (declare (optimize (speed 3)))
   (when data-entries
@@ -338,11 +338,11 @@
       (setq lst (reverse lst))
       lst)))
 
-		     
-      
+		
+
 
 ;; set-teach-params - sets values in teaching parameter structure based
-;; on values given in codebook and data files 
+;; on values given in codebook and data files
 (defun set-teach-params (params codes data)
   (setf (teach-params-topol params) (entries-topol codes))
   (setf (teach-params-mapdist params) nil)
@@ -350,7 +350,7 @@
   (setf (teach-params-neigh-adapt params) nil)
 
   ;; these two might change when using a different variation, for
-  ;; example, dot product 
+  ;; example, dot product
 
   (setf (teach-params-winner params) (function find-winner-euc))
   (setf (teach-params-dist params) (function vector-dist-euc))
@@ -371,8 +371,8 @@
   (handler-case (get-type-by-id *neigh-list* i)
     (error () "")))
 
-   
-;; write_header - writes header information to datafile 
+
+;; write_header - writes header information to datafile
 (defun write-header (file-info codes)
   (let ((fp (file-info-fp file-info)))
     (when codes
@@ -386,16 +386,16 @@
       (format fp "~%")))
   t)
 
-;; write_entry - writes one data entry to file. 
+;; write_entry - writes one data entry to file.
 (defun write-entry (file-info entries data-entry)
   (let ((fp (file-info-fp file-info)))
-    ;; write vector 
+    ;; write vector
     (loop for i from 0 to (1- (entries-dimension entries))
 	do (if (and (data-entry-mask data-entry)
 		    (/= (aref (data-entry-mask data-entry) i) 0))
 	       (format fp "~a " *masked-value*)
 	     (format fp "~f " (aref (data-entry-points data-entry) i))))
-    ;; Write labels. The last label is empty 
+    ;; Write labels. The last label is empty
     (loop for i from 0
 	do (let ((label (get-entry-labels data-entry i)))
 	     (if (/= label +label-empty+)
@@ -405,18 +405,18 @@
     t))
 
 ;; save_entries_wcomments - saves data to a file with optional comment
-;; or header lines. Returns a non-zero value on error. 
+;; or header lines. Returns a non-zero value on error.
 
 (defun save-entries-wcomment (codes out-code-file &optional (comments))
   (let ((file-info (open-file out-code-file "w")))
     (handler-case
 	(progn
-	  ;; write header 
+	  ;; write header
 	  (write-header file-info codes)
-	  ;; write comments if there are any 
-	  (when comments 
+	  ;; write comments if there are any
+	  (when comments
 	    (format (file-info-fp file-info) "~a" comments))
-	  ;; write entries 
+	  ;; write entries
 	  (rewind-entries codes)
 	  (loop for data-entry in (entries-entries codes)
 	      do (write-entry file-info codes data-entry)

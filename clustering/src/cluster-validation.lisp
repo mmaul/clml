@@ -12,10 +12,10 @@
   "*workspace* | validation target, the result of k-means clustering")
 
 (defun default-init-workspace ()
-  (progn (setf clml.clustering.cluster-validation:*workspace* 
-               (clml.hjs.k-means:k-means 
-                10 
-                (clml.hjs.read-data:pick-and-specialize-data 
+  (progn (setf clml.clustering.cluster-validation:*workspace*
+               (clml.hjs.k-means:k-means
+                10
+                (clml.hjs.read-data:pick-and-specialize-data
                  (clml.hjs.read-data:read-data-from-file
                   (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/norm-interp-feature.sexp")) :except '(0)
                   :data-types (make-list 12 :initial-element :numeric))))nil))
@@ -31,21 +31,21 @@
       (let ((diff (- ex ey)))
 	(incf result (* diff diff))))
     result))
-  
+
 
 (defparameter *distance* :euclid) ; :manhattan :euclid or :cosine
 (defun set-distance (method)
-  (assert 
+  (assert
       (or (eq method :euclid) (eq method :manhattan) (eq method :cosine)))
   (setf *distance* method))
-      
+
 
 #-(and)
 (defun-speedy d (x y)
   (euclid-distance x y))
 #-(and)
 (defmacro d (x y)
-  `(locally 
+  `(locally
        (declare (optimize speed (safety 0) (debug 0) (:explain :inlining)))
      (vml::sse3-euclid-indirect (length ,x) ,x ,y)))
 ; TODO
@@ -57,7 +57,7 @@
      (:euclid (euclid-distance ,x ,y))
      (:manhattan (manhattan-distance ,x ,y))
      (:cosine (cosine-distance ,x ,y))))
-  
+
 (defun foo (x y)
   (d x y))
 
@@ -88,7 +88,7 @@
     (intern
      (with-standard-io-syntax
      (format nil "~{~A~}" args))))
-  
+
   (defun memo-table-symbol (name)
     (let ((*package* (symbol-package name)))
       (symbolicate '% name '-%memo-table))))
@@ -142,7 +142,7 @@
 
 
 (defun-speedy d-chebyshev (x y)
-  (loop for a across x 
+  (loop for a across x
 	for b across y
 	maximizing (abs (- a b))))
 
@@ -157,7 +157,7 @@
 
 
 (defun-speedy d-1000 ()
-  (let ((x (make-dvec 10)) (y (make-dvec 10))) 
+  (let ((x (make-dvec 10)) (y (make-dvec 10)))
     (loop repeat 10000 do (d x y))))
 
 (defun-speedy nop ())
@@ -176,7 +176,7 @@
       (vml::|%cffi-foreign-function/CBLAS_DNRM2| n tmp 1))))
 
 
-	     
+	
 
 
 
@@ -246,7 +246,7 @@
   (let* ((points (c-points c))
 	 (n (length points))
 	 (centroid (c-centroid c)))
-    (* 2 
+    (* 2
        (/ (loop for p in points
               summing (d (p-pos p) centroid))
 	  n))))
@@ -271,9 +271,9 @@
 (defun intercluster-average-linkage (c0 c1)
   (let ((c0-points (c-points c0))
 	(c1-points (c-points c1)))
-    (let ((c0-n (length c0-points)) 
+    (let ((c0-n (length c0-points))
 	  (c1-n (length c1-points)))
-      (/ 
+      (/
        (loop for x in c0-points
            summing
              (loop for y in c1-points
@@ -286,24 +286,24 @@
 (defun intercluster-average-to-centroids-linkage (c0 c1)
   (let ((c0-points (c-points c0))
         (c1-points (c-points c1)))
-    (let ((c0-n (length c0-points)) 
+    (let ((c0-n (length c0-points))
           (c1-n (length c1-points)))
-      (/ 
+      (/
        (flet ((sum-to-c (centroid points)
                 (loop for x in points
                     summing (d (p-pos x) centroid))))
-         (+ 
+         (+
           (sum-to-c (c-centroid c0) c1-points)
           (sum-to-c (c-centroid c1) c0-points)))
        (+ c0-n c1-n)))))
-  
+
 
 (defun intercluster-hausdorff-linkage (c0 c1)
   (let ((c0-points (c-points c0))
 	(c1-points (c-points c1)))
     (flet ((max-min-d (xps yps)
       (iter (for x in-sequence xps)
-	    (maximizing 
+	    (maximizing
 	     (iter (for y in-sequence yps)
 		   (minimizing (p-d x y)))))))
       (max (max-min-d c0-points c1-points) (max-min-d c1-points c0-points)))))
@@ -318,7 +318,7 @@
     (:average-to-centroids (intercluster-average-to-centroids-linkage
                             c0 c1))
     (:hausdorff (intercluster-hausdorff-linkage c0 c1))))
-                          
+
 (defun intracluster-diameter (c &key (method :centroid))
   (ecase method
     (:centroid (intracluster-centroid-diameter c))
@@ -343,7 +343,7 @@
     (iter (for p in-sequence (pw-points *workspace*))
 	  (summing (v-diff-sum^2 (p-pos p) mu)))))
 
-	 
+	
 
 
 (defun make-zero-dvec ()
@@ -375,11 +375,11 @@
      (iter (for c0 in-sequence clusters)
            (minimizing (iter (for c1 in-sequence clusters)
                              (unless (eq c0 c1)
-                               (minimizing 
+                               (minimizing
                                 (intercluster-d c0 c1
                                                 :method intercluster))))))
      (iter (for c in-sequence clusters)
-           (maximizing (intracluster-diameter 
+           (maximizing (intracluster-diameter
                         c
                         :method intracluster))))))
 
@@ -390,20 +390,20 @@
   (set-distance distance)
   (let* ((clusters (pw-clusters *workspace*))
          (cids (map 'list #'(lambda (c)
-                              (intracluster-diameter 
-                               c 
+                              (intracluster-diameter
+                               c
                                :method intracluster)) clusters))
          (c (length clusters)))
-    (/      
+    (/
      (iter (for c0 in-sequence clusters)
            (for c0id in-sequence cids)
            (summing
             (iter (for c1 in-sequence clusters)
                   (for c1id in-sequence cids)
                   (unless (eq c0 c1)
-                    (maximizing (/ (+ c1id c0id) 
-                                   (intercluster-d 
-                                    c0 c1 
+                    (maximizing (/ (+ c1id c0id)
+                                   (intercluster-d
+                                    c0 c1
                                     :method intercluster)))))))
      c)))
 

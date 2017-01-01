@@ -7,7 +7,7 @@
 
 (defstruct (node (:conc-name node-))
   (id -1 :type fixnum)
-  (name "" :type string)  
+  (name "" :type string)
   (links nil)
   (buff nil))
 (defmethod print-object ((obj node) stream)
@@ -37,14 +37,14 @@
 (defclass simple-graph (graph) ;; 重み付き無向／有向グラフ
   ((links :initform nil :initarg :links :accessor links)
    (link-hashtab :initform (make-hash-table :test #'equal) :accessor link-hashtab)
-   (directed-p :initform nil :initarg :directed-p 
+   (directed-p :initform nil :initarg :directed-p
                :accessor directed-p) ;; nil (無向) | t (有向)
    ))
 (defmethod print-object ((obj simple-graph) stream)
   (call-next-method)
   (format stream "~&~D links" (length (links obj))))
 
-  
+
 ;; グラフ系列
 (defclass simple-graph-series ()
   ((graphs :initform nil :initarg :graphs :accessor graphs)
@@ -139,7 +139,7 @@
     (:sexp (read-graph-sexp stream :directed directed :id-name-alist id-name-alist :labelp labelp
                             ; :target-nodes target-nodes
                             ))
-    (:edgelist (read-graph-edgelist stream :directed directed :id-name-alist id-name-alist 
+    (:edgelist (read-graph-edgelist stream :directed directed :id-name-alist id-name-alist
                                     :labelp labelp ;:target-nodes target-nodes
                                     ))
     (:csv (read-graph-csv stream :directed directed :id-name-alist id-name-alist :labelp labelp
@@ -178,7 +178,7 @@
       as list = (delimited-string-to-list line #\Space)
       as id = (parse-integer (first list))
       as name = (second list)
-      collect (progn (unless (eql i id) 
+      collect (progn (unless (eql i id)
                        (error "invalid ID specification: ~A" line))
                      (cons id name))))
 (defun read-edgelist-part (stream &key (labelp nil))
@@ -187,7 +187,7 @@
                 while (not (nil-or-null-string-p line))
                 collect (parse-edge line))
             label)))
-(defun nil-or-null-string-p (str) 
+(defun nil-or-null-string-p (str)
   (or (null str)
       (= 0 (length (remove #\Space str :test #'char-equal)))))
 (defun parse-edge (line) ;; "nid1 nid2 weight"
@@ -202,7 +202,7 @@
 ;; :csv
 (defun read-graph-csv (stream &key (directed nil) (id-name-alist nil) (labelp nil))
   (let ((id-name-alist (if id-name-alist id-name-alist (read-name-part-csv stream))))
-    (multiple-value-bind (adj-mat label) 
+    (multiple-value-bind (adj-mat label)
         (read-matrix-part-csv stream (length id-name-alist) :labelp labelp)
       (when (and id-name-alist (or (not labelp) (and labelp label)))
         (let ((gr (make-simple-graph id-name-alist
@@ -219,12 +219,12 @@
   (defun read-matrix-part-csv (stream size &key (labelp nil))
     (assert (numberp size))
     (let ((label (when labelp (parse-csv-line stream)))
-          (adj-mat-list 
+          (adj-mat-list
            (loop repeat size
                as vals = (map 'list (lambda (str) (dfloat (parse-number str)))
                               (parse-csv-line stream))
                when vals collect vals)))
-      (values (if adj-mat-list 
+      (values (if adj-mat-list
                   (make-array `(,size ,size) :element-type 'double-float
                               :initial-contents adj-mat-list)
                 (make-array '(0 0) :element-type 'double-float))
@@ -243,7 +243,7 @@
 ;;        "12:05:00"
 ;;        ((0.0 6.0 5.0)
 ;;         (6.0 0.0 2.0)
-;;         (5.0 2.0 0.0))     
+;;         (5.0 2.0 0.0))
 ;;
 ;; - :edgelist 形式の場合
 ;;   辺パートの一番最初の行がラベル文字列として読み込まれる。
@@ -263,13 +263,13 @@
 ;; - :csv 形式の場合
 ;;   :sexpの各行がCSV形式であるようなもの
 ;;   e.g. "foo","bar","baz"
-;;        "12:00:00"          
-;;        0.0,7.0,9.0      
-;;        7.0,0.0,10.0    
-;;        9.0,10.0,0.0    
-;;        "12:05:00"      
-;;        0.0,6.0,5.0     
-;;        6.0,0.0,2.0     
+;;        "12:00:00"
+;;        0.0,7.0,9.0
+;;        7.0,0.0,10.0
+;;        9.0,10.0,0.0
+;;        "12:05:00"
+;;        0.0,6.0,5.0
+;;        6.0,0.0,2.0
 ;;        5.0,2.0,0.0
 (defun read-graph-series (fname &key (format :sexp) (directed nil) (external-format :default)
                                      (start 0) (end nil)
@@ -283,7 +283,7 @@
                         :target-labels target-labels
                         :target-nodes target-nodes)))
 
-(defmacro do-graph-series (((gr label) stream 
+(defmacro do-graph-series (((gr label) stream
                             &key (format :sexp) (directed nil) (start 0) (end nil)
                                  (start-label nil) (end-label nil)
                                  (target-labels nil)
@@ -310,15 +310,15 @@
                                     (:csv (read-name-part-csv ,stream)))
            for i from 0
            do (multiple-value-bind (,gr ,label)
-                  (%read-graph ,stream :format ,format :directed ,directed 
+                  (%read-graph ,stream :format ,format :directed ,directed
                                :id-name-alist id-name-alist :labelp t
                                :target-nodes ,target-nodes)
                 (unless ,gr (loop-finish))
-                (let ((in-range-p (in-range-p ,label i ,start ,end ,start-label 
+                (let ((in-range-p (in-range-p ,label i ,start ,end ,start-label
                                               ,end-label ,target-labels)))
                   (cond ((eq in-range-p :in-range) ,@body)
                         ((eq in-range-p :fin) (loop-finish)))))))))
-  
+
 (defun %read-graph-series (stream &key (format :sexp) (directed nil) (start 0) (end nil)
                                        (start-label nil) (end-label nil)
                                        (target-labels nil)
@@ -351,7 +351,7 @@
   - directed : t | nil, the graph is directed or not.
 
 *** sample usage
-#+INCLUDE: \"../sample/read-graph.org\"  example lisp 
+#+INCLUDE: \"../sample/read-graph.org\"  example lisp
 "
   (let ((gr (make-instance 'simple-graph :directed-p directed)))
     (loop for i from 1

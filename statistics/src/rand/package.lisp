@@ -1,7 +1,7 @@
 (in-package :cl-user)
 
 (defpackage :clml.statistics.rand
-  
+
   (:use :cl)
   (:export ;; utilities.lisp
            :unit-random
@@ -11,10 +11,10 @@
 	   :combination
 	   :dfloat
 	   :+bit-operation-m+
-	   
+	
 	   ;; test
 	   :test-random-moment
-	   
+	
 	   ;; rand.lisp
 	   :box-muller
 	   :gauss-polar

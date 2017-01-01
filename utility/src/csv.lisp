@@ -39,7 +39,7 @@ For efficiency reason, no intermediate string will be constructed. "
 				     (write-char *csv-quote*)
 				     (write-string e)
 				     (write-char *csv-quote*))
-				   (write-string e)))) 
+				   (write-string e))))
 		     (t (princ e)))
 		   (when (< i (1- record-size))
 		     (write-char *csv-separator*)))))))
@@ -73,7 +73,7 @@ Elements can be any types"
          (sep-regex (cl-ppcre:parse-string (string *csv-separator*)))
         )
      (cond ((zerop q-count) (cl-ppcre:split sep-regex str) ;(regexp:split-re *csv-separator* str)
-            
+
             )
            ((evenp q-count)
             (macrolet ((push-f (fld flds) `(push (coerce (reverse ,fld) 'string) ,flds)))
@@ -106,7 +106,7 @@ Elements can be any types"
                                    (push-f field fields)
                                    (setf state :at-first))
                                   (t (error "illegal value ( ~A ) after quotation" chr)))))
-                  finally (return 
+                  finally (return
                             (progn (push-f field fields) (reverse fields))))))
            (t (error "odd number of \" ( ~A ) in a line." q-count))))
    'vector))
@@ -130,7 +130,7 @@ If start or end is negative, it counts from the end. -1 is the last element.
 "
   (declare (type (or (simple-array function *) null) type-conv-fns map-fns))
   (let* ((rline (read-line stream nil nil)))
-    
+
     (when rline
       (let* ((line (string-trim '(#\Space #\Tab #\Newline #\Return) rline))
              (strs (parse-csv-string line))
@@ -213,7 +213,7 @@ If start or end is negative, it counts from the end. -1 is the last element.
          (etypecase header
              (cons (coerce header 'vector))
              (boolean (when header
-                        (read-csv-line stream)))))) 
+                        (read-csv-line stream))))))
     (loop for rec = (read-csv-line stream :type-conv-fns type-conv-fns :map-fns map-fns
                                    :start start :end end)
         while rec

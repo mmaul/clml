@@ -18,7 +18,7 @@
 (defun future-finished-p (future)
   (not (eq (future-result future) 'unbound)))
 
-;;; 
+;;;
 (defun initialize-environment (&key kill-current-futures-p)
   (when kill-current-futures-p
     (kill-all-futures))
@@ -84,7 +84,7 @@
           (queue-delete-item future (thread-pool-task-queue thread-pool)))))
     ;; use pop-all-finished-futures is better
     (pop-all-finished-futures)
-    nil)) 
+    nil))
 
 (defun kill-all-futures ()
   ;; NOTE: this is special
@@ -106,6 +106,6 @@
   (eval-future function args future))
 
 (defun touch (future)
-  (wait-for-future future) 
+  (wait-for-future future)
   (future-result future))
 

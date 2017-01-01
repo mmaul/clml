@@ -6,15 +6,15 @@
 (defparameter sample-ts nil)
 (defparameter exchange nil)
 (define-test test-ts-anomaly-detection-data
-    (assert 
+    (assert
        (setf sample-ts
-             (time-series-data 
+             (time-series-data
               (read-data-from-file
-               (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv") 
+               (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv")
                :type :csv :csv-type-spec (cons 'string
                                                (make-list 6 :initial-element 'double-float)))
               :frequency 12 :except '(0) :time-label 0)
-             exchange 
+             exchange
              (time-series-data
               (read-data-from-file
                (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/exchange.csv")
@@ -29,13 +29,13 @@
     (when (not (or sample-ts exchange)) (test-ts-anomaly-detection-data))
     (mapc (lambda (a1 a2)
               (assert-equality #'equal (car a2) (car a1))
-              (assert-equality #'epsilon> 
+              (assert-equality #'epsilon>
                                (coerce (cdr a2) 'single-float) (coerce (cdr a1) 'single-float) ))
             (let ((target-snn (make-snn (sub-ts exchange :start 1 :end 150) 3))
                   (reference-snn (make-snn (sub-ts exchange :start 600 :end 700) 3)))
               (e-scores target-snn reference-snn))
             '(("AUD/USD" . 0.47406298323897705d0) ("CAD/USD" . 0.5240011355714634d0)
-              ("CHF/USD" . 0.5325785438502517d0) ("EUR/USD" . 0.731769158687747d0) 
+              ("CHF/USD" . 0.5325785438502517d0) ("EUR/USD" . 0.731769158687747d0)
               ("GBP/USD" . 0.596827444239165d0) ("HKD/USD" . 0.5766733684269696d0)
               ("JPY/USD" . 0.5117506042665696d0) ("KRW/USD" . 0.5198055610159624d0)
               ("MXN/USD" . 0.7027828954312578d0) ("NZD/USD" . 0.2842836687583187d0)))
@@ -43,7 +43,7 @@
 
 (define-test test-ts-anomaly-detection-periodic-detector
   (when (not (or sample-ts exchange)) (test-ts-anomaly-detection-data))
-  (mapc (lambda (p1 p2) 
+  (mapc (lambda (p1 p2)
           (assert-equality #'epsilon> (getf p2 :score) (getf p1 :score))
           (mapc (lambda (v1 v2) (assert-equality #'epsilon> (coerce v2 'single-float) (coerce v1 'single-float)))
                 (getf p2 :local-scores) (getf p1 :local-scores)))
@@ -69,7 +69,7 @@
 
 (define-test test-ts-anomaly-detection-eec-detector
   (when (not (or sample-ts exchange)) (test-ts-anomaly-detection-data))
-  (mapc (lambda (p1 p2) 
+  (mapc (lambda (p1 p2)
           (assert-equality #'epsilon> (getf p2 :score) (getf p1 :score))
           (mapc (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
                 (getf p2 :local-scores) (getf p1 :local-scores)))
@@ -115,7 +115,7 @@
 (define-test test-ts-anomaly-detection-db-detector
   (when (not (or sample-ts exchange)) (test-ts-anomaly-detection-data))
   (mapc (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
-        (loop with detector = (make-db-detector 
+        (loop with detector = (make-db-detector
                                (sub-ts sample-ts :start '(1 1) :end '(2 12)))
               for p across (ts-points (sub-ts sample-ts :start '(3 1) :end '(3 12)))
               collect (funcall detector (ts-p-pos p)))
@@ -129,13 +129,13 @@
     (let (sample-ts exchange)
       (assert
        (setf sample-ts
-         (time-series-data 
+         (time-series-data
           (read-data-from-file
-           (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv") 
+           (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv")
            :type :csv :csv-type-spec (cons 'string
                                            (make-list 6 :initial-element 'double-float)))
           :frequency 12 :except '(0) :time-label 0)
-         exchange 
+         exchange
          (time-series-data
           (read-data-from-file
            (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/exchange.csv")
@@ -145,7 +145,7 @@
       (assert-equality #'= 1015 (length (ts-points sample-ts)))
       (assert-equality #'= 753 (length (ts-points exchange)))
 
-      (mapc (lambda (p1 p2) 
+      (mapc (lambda (p1 p2)
               (assert-equality #'epsilon> (getf p2 :score) (getf p1 :score))
               (mapc (lambda (v1 v2) (assert-equality #'epsilon> (coerce v2 'single-float) (coerce v1 'single-float)))
                     (getf p2 :local-scores) (getf p1 :local-scores)))
@@ -165,21 +165,21 @@
               (:SCORE 0.1753941034019109d0 :LOCAL-SCORES (0.0926869320817864d0 -0.04500698002481467d0 0.08111355541737571d0 -0.010867820410934509d0 -0.0027675310185543865d0 -0.11509576770374046d0))
               (:SCORE 0.21949653755912735d0 :LOCAL-SCORES (0.045993703368709546d0 -0.009282656742070803d0 0.09337478957559686d0 0.05588545026517181d0 -0.0016903984620666593d0 -0.18442976781751605d0))
               (:SCORE 0.12925093469918736d0 :LOCAL-SCORES (-0.011727190219218097d0 -0.08255653999587756d0 0.09714760754195113d0 -0.01394679381635095d0 3.227553008842132d-4 0.010885745599589552d0))))
-      
+
       (mapc (lambda (a1 a2)
               (assert-equality #'equal (car a2) (car a1))
-              (assert-equality #'epsilon> 
+              (assert-equality #'epsilon>
                                (coerce (cdr a2) 'single-float) (coerce (cdr a1) 'single-float) ))
             (let ((target-snn (make-snn (sub-ts exchange :start 1 :end 150) 3))
                   (reference-snn (make-snn (sub-ts exchange :start 600 :end 700) 3)))
               (e-scores target-snn reference-snn))
             '(("AUD/USD" . 0.47406298323897705d0) ("CAD/USD" . 0.5240011355714634d0)
-              ("CHF/USD" . 0.5325785438502517d0) ("EUR/USD" . 0.731769158687747d0) 
+              ("CHF/USD" . 0.5325785438502517d0) ("EUR/USD" . 0.731769158687747d0)
               ("GBP/USD" . 0.596827444239165d0) ("HKD/USD" . 0.5766733684269696d0)
               ("JPY/USD" . 0.5117506042665696d0) ("KRW/USD" . 0.5198055610159624d0)
               ("MXN/USD" . 0.7027828954312578d0) ("NZD/USD" . 0.2842836687583187d0)))
 
-      (mapc (lambda (p1 p2) 
+      (mapc (lambda (p1 p2)
               (assert-equality #'epsilon> (getf p2 :score) (getf p1 :score))
               (mapc (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
                     (getf p2 :local-scores) (getf p1 :local-scores)))
@@ -222,7 +222,7 @@
                 -3.4975080967910612d0))))
       (print "-------")
         (mapc (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
-            (loop with detector = (make-db-detector 
+            (loop with detector = (make-db-detector
                                    (sub-ts sample-ts :start '(1 1) :end '(2 12)))
                 for p across (ts-points (sub-ts sample-ts :start '(3 1) :end '(3 12)))
                   do (print "da")

@@ -3,7 +3,7 @@
 
 (define-test test-sample-expl-smthing
     (let (ukgas model pred)
-      (assert 
+      (assert
        (setq ukgas
          (time-series-data
           (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
@@ -19,22 +19,22 @@
         (assert-equality #'epsilon> 1131.3876624098614d0 (second err-info))
         (assert-eq :triple exp-type)
         (assert-true (set-equal '(0.1d0 0.2d0 0.7999999999999999d0) 3-params :test #'epsilon>)))
-      
+
       (assert (setq pred (predict model :n-ahead 12)))
       (assert-true
-       (set-equal 
+       (set-equal
         '(1256.8668302235947d0 650.7271978623316d0 357.109252359615d0 847.1323726297013d0
           1335.916980986101d0 691.0208683583539d0 378.884720191268d0 898.0123754388738d0
           1414.9671317486086d0 731.3145388543767d0 400.6601880229212d0 948.8923782480464d0)
         (map 'list (lambda (p) (aref (ts-p-pos p) 0)) (subseq (ts-points pred) 107))
         :test #'epsilon>))
-      
-      (assert 
+
+      (assert
        (setq pred (holtwinters-prediction ukgas :seasonal :multiplicative
                                           :n-learning 80 :n-ahead 12)))
-      (assert-true 
+      (assert-true
        (set-equal
-        '(160.1d0 129.7d0 84.8d0 120.1d0 128.23013695952972d0 128.53391201531772d0 
+        '(160.1d0 129.7d0 84.8d0 120.1d0 128.23013695952972d0 128.53391201531772d0
           125.77470476569742d0
           149.92192865911835d0 123.67992506779508d0 95.58295304480231d0 122.65348477231083d0
           170.5200842957654d0 141.3449608512281d0 93.95197627346832d0 127.56589471248853d0

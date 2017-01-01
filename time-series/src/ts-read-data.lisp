@@ -10,7 +10,7 @@
    (end :initarg :end :accessor ts-end :initform nil)
    (ts-type :initarg :ts-type :accessor ts-type :initform nil)
    (ts-points :initarg :ts-points :accessor ts-points :initform nil)
-   (time-label-name :initarg :time-label-name 
+   (time-label-name :initarg :time-label-name
                     :accessor time-label-name :initform nil))
   (:documentation
    "- accessor
@@ -29,7 +29,7 @@ The dataset for time-series data. Values are specialized in numeric"))
   - start      : <list integer integer> | integer, specify the start time, integer larger than 1 or a list of integer of such kind. e.g. (1861 3)
                  Where the second integer is the starting frequency value.
   - end        : <list integer integer> | integer, specify the end time, format same as start. When unspecified, all the lines will be read in.
-  - frequency  : integer >= 1, specify the frequency 
+  - frequency  : integer >= 1, specify the frequency
   - range      : :all | <list integer>, indices of columns used in the result, start from 0, e.g. '(0 1 3 4)
   - except     : <list integer>, the opposite of :range, indices of columns which will be excluded from the result, start from 0. e.g. '(2)
   - time-label : integer, index of column which represents the labels of time series data points, no labels when not specified.
@@ -39,12 +39,12 @@ The dataset for time-series data. Values are specialized in numeric"))
                                   (ts-type :constant)
                                   (range :all) except
                                   time-label)
-  
+
   (with-accessors ((dims dataset-dimensions)
                    (pts dataset-points)) d
   (assert (or (integerp start) (integerp (car start))))
   (assert (or (null end) (integerp end) (integerp (car end))))
-  
+
   (when (integerp start)
     (setq start (list start 1)))
   (when (integerp end)
@@ -57,19 +57,19 @@ The dataset for time-series data. Values are specialized in numeric"))
                      (loop for i below total-size collect i)
                    range))
          (range (sort (set-difference range1 except) #'<))
-         
+
          (column-names
           (loop for index in range
               collect (dimension-name (aref dims index))))
-         
+
          (size (length column-names))
          (time-labels (when time-label
            (map 'vector (lambda (p) (declare (simple-vector p))
                                 (format nil "~A" (svref p time-label))) pts)))
-         
+
          (time-label-name (when time-label
                             (dimension-name (svref dims time-label))))
-         
+
          (data
           (map 'vector
             (lambda (p)
@@ -80,12 +80,12 @@ The dataset for time-series data. Values are specialized in numeric"))
                     for i in range
                     for j from 0
                     as p-val = (svref p i)
-                    do (setf (aref sp j) 
+                    do (setf (aref sp j)
                          (if (na-p p-val) +nan+ (coerce p-val 'double-float)))
                     finally (return sp))))
             pts)))
-    
-    (case ts-type 
+
+    (case ts-type
       (:constant
        (make-constant-time-series-data
         column-names data
@@ -100,7 +100,7 @@ The dataset for time-series data. Values are specialized in numeric"))
   "- accessor
   - ts-p-time : n-th period of the data point, integer larger than 1.
   - ts-p-freq : n-th of the period of the data point, integer larget than 1
-  - ts-p-label : name of the data point. e.g. \"2009/jan/5th\" 
+  - ts-p-label : name of the data point. e.g. \"2009/jan/5th\"
   - ts-p-pos : coordinate of the data point"
   (time -1 :type fixnum)
   (freq -1 :type fixnum)
@@ -138,8 +138,8 @@ The dataset for time-series data. Values are specialized in numeric"))
   (+ (* freq (- (first tf2) (first tf1)))
      (- (second tf2) (second tf1))))
 
-(defun make-constant-time-series-data (all-column-names data 
-                                       &key (start '(1 1)) end 
+(defun make-constant-time-series-data (all-column-names data
+                                       &key (start '(1 1)) end
                                             (freq 1) time-labels
                                             time-label-name)
   " Create time-series-dataset from a vector of samples.
@@ -150,7 +150,7 @@ The dataset for time-series data. Values are specialized in numeric"))
   - data             : Vector of dvec '(simple-array double-float (*)) containg samples
   - start            : ~optional~ <list integer integer> | specify the start time (>1), and initial frequency, default (1 1)
   - end              : ~optional~ <list integer integer> | integer, specify the end time and frequwncy, format same as start. When unspecified, all the lines will be read in.
-  - freq             : ~optional~ integer >= 1, specify the frequency 
+  - freq             : ~optional~ integer >= 1, specify the frequency
   - time-lables      : ~optional~ <array string (length data)>, array containing string time lables should be same length as data.
   - time-label       : point label for the time lables in the timeseries dataset
 "
@@ -163,7 +163,7 @@ The dataset for time-series data. Values are specialized in numeric"))
   (check-type data simple-vector)
   (check-type (aref data 0) dvec)
   (unless time-labels
-    (setq time-labels (make-array (list (length data)) :initial-element "" 
+    (setq time-labels (make-array (list (length data)) :initial-element ""
                                   :element-type 'string)))
   (assert (= (length data) (length time-labels)))
   (let ((dimensions
@@ -171,7 +171,7 @@ The dataset for time-series data. Values are specialized in numeric"))
                      :initial-element (make-dimension "" :numeric 0))
           )
         (ts-len (length data)))
-    
+
     (loop
         for n in all-column-names
         for i from 0
@@ -218,7 +218,7 @@ The dataset for time-series data. Values are specialized in numeric"))
                              outlier-values-alist)
   (let ((names (map 'list #'dimension-name (dataset-dimensions d))))
     (multiple-value-bind (interp-types outlier-types outlier-values)
-        (clml.hjs.read-data::convert-cleaning-alist-to-list 
+        (clml.hjs.read-data::convert-cleaning-alist-to-list
          names
          interp-types-alist
          outlier-types-alist
@@ -235,7 +235,7 @@ The dataset for time-series data. Values are specialized in numeric"))
 (defmethod choice-dimensions (names (data time-series-dataset))
   (with-accessors ((dims dataset-dimensions)
                    (pts ts-points)) data
-    (let* ((poses (loop for name in names 
+    (let* ((poses (loop for name in names
                       collect (position name dims :key #'dimension-name :test #'string=)))
            (types (mapcar (lambda (pos) (dimension-type (aref dims pos))) poses))
            (type (cond ((every (lambda (ty) (eq ty :numeric)) types) :numeric)
@@ -244,7 +244,7 @@ The dataset for time-series data. Values are specialized in numeric"))
       (when poses
         (loop for pt across pts
             as new-pt = (mapcar (lambda (pos) (aref pt pos)) poses)
-            collect (case type 
+            collect (case type
                       (:numeric (coerce new-pt 'dvec))
                       (:category (coerce new-pt 'vector)) ;;
                       (t (coerce new-pt 'vector))) into result
@@ -256,10 +256,10 @@ The dataset for time-series data. Values are specialized in numeric"))
           for dim across (dataset-dimensions data)
           when (string= (dimension-name dim) name)
           return (values pos (dimension-type dim)))
-    (when pos 
+    (when pos
       (loop for vec across (ts-points data)
             collect (aref (ts-p-pos vec) pos) into result
-          finally (return (ecase type 
+          finally (return (ecase type
                             (:numeric (coerce result 'dvec))
                             (:category (coerce result 'vector)) ;;
                             ))))))

@@ -22,7 +22,7 @@
           :type :csv
           :csv-type-spec (cons 'string (make-list 105 :initial-element 'double-float)))))
 
-      
+
       (assert
        (setf estimator
          (clml.nearest-search.k-nn:k-nn-analyze data-for-learn 2 "id" :all :distance :manhattan :normalize t)))
@@ -42,9 +42,9 @@
         (loop for i from 1
             for teacher across teachers
             do (assert-equality #'string= (format nil "~D" i) teacher))
-        
+
         (assert-points-equal
-         (map 'vector (lambda (pts) (map 'clml.hjs.meta:dvec 
+         (map 'vector (lambda (pts) (map 'clml.hjs.meta:dvec
                                       (lambda (val m)
                                         #+sbcl ; sbcl bug
                                         (if (zerop m)
@@ -57,11 +57,11 @@
                                       maxs))
               (dataset-points data-for-learn))
          vecs)
-        
+
         (assert-eq :manhattan distance)
-        (assert-eql 2 k)        
+        (assert-eql 2 k)
         (assert-eq esttype :classify)
-        
+
         (assert
          (setf data-for-estimate
            (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/estimate.csv")

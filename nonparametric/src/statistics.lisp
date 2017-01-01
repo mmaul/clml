@@ -313,7 +313,7 @@
   (let ((LU (LU-factorization A))
 	(m (array-dimension A 1)))
     (loop for i from 0 below m do
-	  (loop 
+	  (loop
 	      for j from 0 below i do
 		(setf (aref LU i j) 0d0)))
     LU))
@@ -328,7 +328,7 @@
          (ipiv (make-array (min m n) :element-type '(unsigned-byte 32)))
          (info 0))
     (assert (= m n))
-    (setq info 
+    (setq info
       (car (last
             (multiple-value-list
              #+mkl (mkl.lapack::dgetrf m n Ar lda ipiv info)
@@ -336,7 +336,7 @@
     (assert (= 0 info))
     #+mkl (transpose Ar)
     #-mkl (transpose (clml.hjs.matrix::array2mat Ar m))))
-  
+
 (defun cholesky-decomp (mat &optional (result (make-array (array-dimensions mat)
 							  :element-type 'double-float
 							  :initial-element 0d0)
@@ -442,7 +442,7 @@
 	  (loop for j of-type array-index from 0 below s do
 		(setf (aref ans i j) (* (aref x i) (aref y j)))))
     ans))
-    
+
 (defun map-matrix-cell (fn dmat)
   (declare (type dmat dmat))
   (let ((ans (make-dmat (array-dimension dmat 0) (array-dimension dmat 1))))

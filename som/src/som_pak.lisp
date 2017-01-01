@@ -32,18 +32,18 @@
 			   xdim ;; x-dimension of output map
 			   ydim ;; y-dimension of output map
 			   randomize ;; random seed for initialization
-			   ;; training parameters 
+			   ;; training parameters
 			   length ;; how many times train for path1
 			   ialpha ;; learning rate for path1 x100
 			   iradius ;; learning radius for path1 x100
 			   ;; visualization parameters
-			   num-labels ;; number of labels on same map point 
+			   num-labels ;; number of labels on same map point
 			   ;; output ps directory
 			   directory
 			   &key (debug nil)
 			   )
-  
-  
+
+
   (let ((alpha (/ ialpha 100.0d0))
         (radius (/ iradius 100.0d0))
         (data)
@@ -55,40 +55,40 @@
     (format t "s-topol[~a] s-neigh[~a] xdim[~d] ydim[~d] nrand[~d]~%"
             s-topol s-neigh xdim ydim randomize)
     (format t "num-label[~d]~%" num-labels)
-    
+
     (format t "step 1 : initialization ~%")
-    
+
     (init-random randomize)
     (setq g-data (make-instance 'gdata))
     (setq data (open-entries g-data in-data-file))
     (setf (gdata-data g-data) data)
 
     (randinit g-data s-topol s-neigh xdim ydim randomize)
-    
+
     (when debug
       (save-entries-wcomment (gdata-data g-data) "data.dat")
       (save-entries-wcomment (gdata-codes g-data) "vsom-before.dat"))
-    
+
     (format t "step 2 : learning ~%")
     (vsom g-data length alpha radius "linear" randomize)
-    
+
     (when debug
       (save-entries-wcomment (gdata-codes g-data) "vsom-after.dat"))
 
     (format t "step 3 : calibration ~%")
     (vcal g-data num-labels)
-    
+
     (format t "step 4 : labeling ~%")
     (setq out-pathname
           (visual g-data :directory directory))
-    
+
     (format t "step 5 : making sammon map~%")
-    
+
     (multiple-value-setq (sammon-pathname gif-label-pos-list)
       (sammon g-data *sammon-length* randomize directory :debug debug))
-    
+
     (close-gdata g-data)
-    
+
     (values out-pathname sammon-pathname)))
 
 

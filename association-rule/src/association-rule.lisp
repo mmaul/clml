@@ -67,7 +67,7 @@ Format is:
 
      (<rule length> (<support> <confidence> <lift> <confiction>))
     #(<header>
-    #(<premise> <conclusion> <support> <confidence> <lift> <confiction>)) 
+    #(<premise> <conclusion> <support> <confidence> <lift> <confiction>))
 
 -arguments:
   - r : assoc-result-dataset
@@ -130,7 +130,7 @@ Format is:
                  as num = (gethash itemset itemset-hash)
                  if (and (numberp num) (>= num count-threshold))
                  collect itemset
-                 else 
+                 else
                  do (remhash itemset itemset-hash))))
       ;; first step, generate 1-itemsets
       (loop for trans being the hash-value in transactions
@@ -142,12 +142,12 @@ Format is:
           as itemsets =
             (if (= k 2)
                 (gen-next-itemsets
-                 (sort 
+                 (sort
                   (loop for itemset being the hash-key in itemset-hash
                       for num being the hash-value in itemset-hash
                       if (>= num count-threshold)
                       collect itemset
-                      else 
+                      else
                       do (remhash itemset itemset-hash))
                   #'< :key #'(lambda (itemset)
                                (gethash (car itemset) item-order))))
@@ -275,7 +275,7 @@ Format is:
 			  #'(lambda (itemset) (gethash itemset rule-occur))
 			  (confident->max-precount rule-count confident)))))
 		 rule-occur)
-        (make-assoc-result ans support confident 
+        (make-assoc-result ans support confident
 			   lift conviction rule-length)))))
 
 (defun gen-next-itemset-trie (pre-itemsets)
@@ -394,7 +394,7 @@ Format is:
                           #'(lambda (itemset) (gethash itemset rule-occur))
                           (confident->max-precount rule-count confident)))))
                  rule-occur)
-        (make-assoc-result ans support confident 
+        (make-assoc-result ans support confident
                            lift conviction rule-length)))))
 
 
@@ -427,7 +427,7 @@ In the above example the 'id' column would be the key-varable and 'item' would b
   (assert (member algorithm `(:apriori :da :fp-growth :eclat :lcm)))
   (case algorithm
             (:apriori
-             (%association-analyze-apriori 
+             (%association-analyze-apriori
               unsp-dataset
               target-variables key-variable rule-length
               :support support :confident confident :lift lift :conviction conviction))

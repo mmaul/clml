@@ -6,7 +6,7 @@
 (in-package :clml.statistics)
 
 ;;; refer R-code at http://aoki2.si.gunma-u.ac.jp/R/
-      
+
 #||
 normal-dist-test (正規分布検定)
 
@@ -41,8 +41,8 @@ OUTPUT( 3 values of property-list )
                      with init-val = (- inf (/ width 2))
                      collect (+ init-val (* i width)))))
          (xbar (/ (apply #'+ (mapcar #'* x mid)) n))
-         (variance (/ 
-                    (apply #'+ 
+         (variance (/
+                    (apply #'+
                            (mapcar #'* x
                                    (mapcar #'(lambda (a)
                                                (sqr (- a xbar)))
@@ -50,7 +50,7 @@ OUTPUT( 3 values of property-list )
                     n))
          (sd (sqrt variance))
          (result `(:total ,n :mean ,xbar :variance ,variance :sd ,sd))
-         
+
          (z (mapcar #'(lambda (a)
                         (/ (- (+ a (/ width 2)) xbar) sd))
                     mid))
@@ -61,7 +61,7 @@ OUTPUT( 3 values of property-list )
           p (mapcar #'- p
                     `(0 ,@(subseq p 0 (1- k)))))
     (let* ((expectation (mapcar #'(lambda (a) (* n a)) p))
-           (table `(:mid ,mid :freq ,x 
+           (table `(:mid ,mid :freq ,x
                          :z ,z :cdf ,p
                          :expectation ,expectation)))
       (setq x (copy-seq x)
@@ -87,7 +87,7 @@ OUTPUT( 3 values of property-list )
         (decf k 3)
         (setf p (- 1 (cdf (chi-square-distribution k) chisq))
               result2 `(:chi-sq ,chisq :d.f. ,k :p-value ,p))
-        
+
         (values result table result2)))))
 #||
 STAT(6): (normal-dist-test '(4 19 86 177 105 33 2) 40 5 0.1)
@@ -118,7 +118,7 @@ table (:C-ID 仮の階級値
        :FREQ 度数
        :P 確率
        :E 期待値)
-result2 (:CHI-SQ カイ二乗統計量 
+result2 (:CHI-SQ カイ二乗統計量
          :D.F. 自由度
          :P-VALUE P-値)
 ||#
@@ -215,7 +215,7 @@ result2 (:CHI-SQ カイ二乗統計量
     (assert (every #'(lambda (a) (>= size a)) x))
 
     (let* ((n (apply #'+ (coerce d 'list)))
-           (prob 
+           (prob
             (coerce (/ (/ (apply #'+ (map 'list #'* d x)) n) size)
                     *read-default-float-format*))
            (binom-dist (binomial-distribution size prob))

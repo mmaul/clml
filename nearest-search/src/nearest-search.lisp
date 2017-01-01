@@ -153,7 +153,7 @@
 	      (do-vecs ((x v :type double-float)
 			(_ lower-bounds :type double-float :setf-var l))
 		#-sbcl (declare (ignorable _))
-		(setf l (min l x)))))      
+		(setf l (min l x)))))
       (setf root-node (make-kd-tree input-data input-key lower-bounds upper-bounds))))
   search)
 
@@ -194,7 +194,7 @@
 			       nil)
 			      ((< elt second)
 			       (setf second elt)))
-		      finally 
+		      finally
 			(setf pivot second)
 			(divide!)))
 		(when (zerop (length right-data))
@@ -204,7 +204,7 @@
 		      for elt = (aref (funcall key p) dim)
 		      when (> elt max) do
 			(setf max elt)
-		      finally 
+		      finally
 			(setf pivot max)
 			(divide!)))
 		(when (and (not (zerop (length left-data)))
@@ -748,7 +748,7 @@
 				 (rotatef d-max td)
 				 (when (eq node c)
 				   (return)))))))))))))))
-				  
+				
 (defun m-nearest-epsilon (node x distance-fn epsilon result
 			  &optional (key #'identity) (d-pivot (funcall distance-fn x (m-tree-node-pivot node))))
   (declare (optimize (speed 3) (safety 0) (debug 0))

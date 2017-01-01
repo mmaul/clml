@@ -8,7 +8,7 @@
          (freq (ts-freq data))
          (start (tf-incl (ts-start data) (- k) :freq freq))
          (end (tf-incl (ts-end data) (- k) :freq freq)))
-    (setf 
+    (setf
         (ts-start data) start
         (ts-end data) end)
     (loop for point across (ts-points data)
@@ -49,7 +49,7 @@
 (defmethod ts-ratio ((d time-series-dataset) &key (lag 1))
   (unless lag
     (setq lag (ts-freq d)))
-  (compose-ts (merge-ts d (lag d :k (- lag))) :composer #'/ 
+  (compose-ts (merge-ts d (lag d :k (- lag))) :composer #'/
               :column-name (format nil "ratio (lag: ~A)" lag)))
 
 (defgeneric ts-log (d &key)
@@ -132,7 +132,7 @@
                      finally (return (let* ((n (length seq))
                                             (mean (/ x n))
                                             (cov (- (/ x^2 n) (d-expt mean 2d0))))
-                                       (list min max mean 
+                                       (list min max mean
                                              (if (plusp cov) (sqrt cov) 0d0)
                                              (median seq))))))
          (transposeV (map 'vector #'ts-p-pos points)))))
@@ -151,14 +151,14 @@
           (mean (ts-mean d)))
       (make-constant-time-series-data
        (map 'list #'dimension-name dims)
-       (map 'vector 
-  #'(lambda (p) 
+       (map 'vector
+  #'(lambda (p)
       (let ((dvec (make-dvec (length dims))))
         (loop for i below (length dims)
-            do (setf (aref dvec i) 
+            do (setf (aref dvec i)
                  (coerce (- (aref (ts-p-pos p) i) (aref mean i)) 'double-float)))
         dvec)) ps)
-       :start start :end end :freq freq 
+       :start start :end end :freq freq
        :time-labels time-label-array :time-label-name label-name))))
 
 (defgeneric ts-covariance (d &key)
@@ -212,7 +212,7 @@
                     (/ (aref C-k i j)
                        (sqrt (* (aref C-0 i i) (aref C-0 j j)))))))
     C-k))
-  
+
 ;;; moving-average
 (defgeneric ma (d &key)
   (:documentation "- return: <time-series-dataset>
@@ -244,14 +244,14 @@
                       (weight (when weight (subseq weight w-s-p w-e-p)))
                       (w*t (if weight (map 'list #'* target weight)
                              (map 'list #'(lambda (val) (/ val (length target))) target))))
-                 (coerce 
+                 (coerce
                   (apply #'+ w*t) 'double-float))))
         (let* ((seq (map 'vector #'(lambda (p)
                                      (aref (ts-p-pos p) 0)) ps))
-               (ma-seq (coerce 
+               (ma-seq (coerce
                         (loop for pos below (length seq)
                             collect (calc-ma seq pos)) 'vector))
-               (data (coerce 
+               (data (coerce
                       (loop for val across ma-seq
                           collect (make-dvec 1 val))
                       'vector)))
@@ -274,17 +274,17 @@
                                              (plot nil)
                                              (print t)
                                              max-k)
-  (with-accessors 
+  (with-accessors
       ((freq ts-freq) (ps ts-points) (start ts-start)
        (end ts-end) (dims dataset-dimensions)) d
     (unless max-k
-      (setq max-k 
-        (round 
+      (setq max-k
+        (round
         (* 10 (log (length ps) 10)))))
     (assert (> (length ps) max-k))
     (let* ((mat-list
             (loop for k to max-k
-                collect 
+                collect
                   (case type
                     (:correlation
                      (ts-correlation d :k k))
@@ -296,7 +296,7 @@
            (results
             (loop for param in params
                 for i from 0
-                collect 
+                collect
                   (progn
                     (when print
                       (princ (format nil "~&~A~%~{~A~^~T~}~%" param params)))
@@ -328,8 +328,8 @@
                      for result in results
                      do (loop for seq-lag in result
                             for param-2 in params
-                            do (format 
-                                *r-stream* 
+                            do (format
+                                *r-stream*
                                 "plot(c(~{~,3F~^,~}),c(~{~,3F~^,~}),type=\"h\",main=\"~A : ~A\",xlab=\"lag\",ylab=\"ACF\")~%"
                                 (nth 1 seq-lag) (nth 0 seq-lag) param-2 param-1)))
                  (format *r-stream* "dev.off()~%"))
@@ -351,12 +351,12 @@
   (assert (= (ts-freq d1) (ts-freq d2)))
   (assert (and (= 1 (length (dataset-dimensions d1))) (= 1 (length (dataset-dimensions d2)))))
   (let* ((d (merge-ts d1 d2)))
-    (with-accessors 
-        ((freq ts-freq) (ps ts-points) (start ts-start) 
+    (with-accessors
+        ((freq ts-freq) (ps ts-points) (start ts-start)
          (end ts-end) (dims dataset-dimensions)) d
       (assert (> (length ps) 0))
       (unless max-k
-        (setq max-k 
+        (setq max-k
           (round
           (* 10 (log (length ps) 10)))))
       (let* ((mat-list
@@ -409,7 +409,7 @@
 - arguments:
   - d     : <time-series-dataset>
   - plot  : nil | t, when plot is t, result picture will be plotted by R.
-  - print : nil | t, when print is t, result will be printed.  
+  - print : nil | t, when print is t, result will be printed.
   - log   : nil | t, when log is t, the value of P(f) will be logarized.
   - smoothing : :raw | :mean | :hanning | :hamming, the way of smoothing
   - step  : nil | <positive integer>, parameter for smoothing :mean
@@ -508,11 +508,11 @@
   (with-accessors ((dims dataset-dimensions)
                    (pts ts-points)) d
     (assert (= 1 (length dims)))
-    (let* ((extended-pts (make-expt-array 
+    (let* ((extended-pts (make-expt-array
                           2 (map 'vector #'(lambda (point)
                                              (aref (ts-p-pos point) 0))
                                  pts)))
-           (four1-pts (make-array 
+           (four1-pts (make-array
                        (* 2 (length extended-pts))
                        :element-type 'double-float
                        :initial-contents
@@ -533,7 +533,7 @@
 
 ;;; sample time-series-dataset
 #||
-(defparameter ukgas 
+(defparameter ukgas
     (time-series-data
      (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
      :range '(1) :time-label 0

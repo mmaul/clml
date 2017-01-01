@@ -16,7 +16,7 @@
   (stat-loc :pointer)
   (options :int))
 
-(defun waitpid (pid &key (no-hang nil) (untraced nil)) 
+(defun waitpid (pid &key (no-hang nil) (untraced nil))
   (cffi:with-foreign-object (stat-loc :int)
     (let ((result (%waitpid pid
                             stat-loc
@@ -24,7 +24,7 @@
                                     (if untraced 2 0))))) ; 2 == wuntraced
       (values result (cffi:mem-ref stat-loc :int)))))
 
-(cffi:defcfun ("kill" kill :convention :cdecl :library :default) :int 
+(cffi:defcfun ("kill" kill :convention :cdecl :library :default) :int
   (pid pid)
   (sig :int))
 
@@ -32,6 +32,6 @@
 
 (cffi:defcfun ("getpid" getpid :convention :cdecl :library :default) pid)
 
-(cffi:defcfun ("exit" exit :convention :cdecl :library :default) :int 
+(cffi:defcfun ("exit" exit :convention :cdecl :library :default) :int
   (code :int))
 

@@ -24,7 +24,7 @@
 (defmethod initialize-instance ((instance document) &rest initargs)
   (declare (ignore initargs))
   (call-next-method)
-  
+
   (let ((l (length (document-words instance))))
     (with-slots (restaurant table-topic p) instance
       (setf restaurant (make-array l :initial-element (make-table) :element-type 'table))
@@ -104,9 +104,9 @@ Find out why tables is not an array of table"
 	       (type double-float sum base))
       ;; calculated flag to minus
       (fill topic-p -1d0)
-      
+
       (when (>= alpha slice) ;; consider backoff
-        
+
         ;; calculate f_k(x_ij) into topic-p
         (loop
            for s fixnum across sims
@@ -130,12 +130,12 @@ Find out why tables is not an array of table"
       (loop for i fixnum from 0 upto limit
          for table across tables
          while table do
-           (let* ((assign (table-dish table)) 
+           (let* ((assign (table-dish table))
                   (subp (aref topic-p assign)))
              (declare (type fixnum assign)
                       (type double-float subp))
              (when (minusp subp)
-               
+
                (let ((new (/ (the double-float (+ (aref sims assign) beta))
                              (the double-float (+ (aref occurs assign) base)))))
                  (declare (type double-float new))
@@ -155,9 +155,9 @@ Find out why tables is not an array of table"
           (let ((topic (sample-new-topic hdp-lda topic-p (dfloat (/ v)))))
             (declare (type fixnum topic))
             ;(format t "~%DEBUG 1.5 ~a ~a ~a (~a)~%" tables ref topic (aref tables ref))
-            
-            (setf (table-dish (aref tables ref)) topic) 
-            
+
+            (setf (table-dish (aref tables ref)) topic)
+
             (incf (aref ttables topic))))
         ;(format t "~%DEBUG 2~%")
         (let* ((table (aref tables ref))
@@ -229,7 +229,7 @@ Find out why tables is not an array of table"
 	 (old (table-customer table))
 	 (ref (position table tables :start (aref layers old)))
 	 (new (decf (the fixnum (table-customer table))))
-	 (new-position (1- (the fixnum (aref layers new))))) 
+	 (new-position (1- (the fixnum (aref layers new)))))
     (declare (type fixnum old new topic new-position))
     ;; table resort
     (rotatef (aref tables ref)
@@ -242,9 +242,9 @@ Find out why tables is not an array of table"
 	;; delete topic
 	(decf (the fixnum (topic-count hdp-lda)))))
     (decf (aref (aref (hdp-lda-topics hdp-lda)
-					       
+					
 					       (the fixnum (word-id word)))
-		       
+		
 		       topic);(the (values fixnum &optional) (the (array fixnum (*))) (the (array fixnum (*)) ))
           )
     (decf (the fixnum (aref (the (array fixnum (*)) (hdp-lda-topic-occurs hdp-lda)) topic)))
@@ -283,7 +283,7 @@ TODO:Optimize in SBCL"
                (type double-float sum base))
       (fill topic-p 0d0)
       ;; calculate f_k(x_ij) into memoized arrays
-      
+
       (loop for c across customers
          for id fixnum = (word-id c)
          for f-k-row = (aref f-k id)
@@ -302,19 +302,19 @@ TODO:Optimize in SBCL"
          ;; incf occurence in this table
            (incf (gethash id memo 0)))
       ;; push f_k(x_ij) values into topic-p with slice!!
-      
+
       (loop
          for count across ttables
          for occur fixnum across occurs
          for i fixnum from 0 do
-           
+
            (cond ((zerop count)
                   (setf zero-position i))
                  ((>= count slice)
 		   ;;; push
                   (let ((ans 0d0))
                     (declare (type double-float ans))
-                    
+
                     (maphash #'(lambda (k v)
                                  (declare (type fixnum k v))
                                  ; TODO find out why n is 0 and negative
@@ -326,7 +326,7 @@ TODO:Optimize in SBCL"
                     (setf (aref topic-p i) ans)
                     (setf max (max max ans))))
                  (t (setf (aref topic-p i) 0d0))))
-      
+
       ;; max -> jack
       (setf max (- #.(/ +most-positive-exp-able-float+ 2) max))
       ;; k_new with slice too
@@ -339,21 +339,21 @@ TODO:Optimize in SBCL"
          unless (zerop x) do
            (let ((new (safe-exp (+ x max))))
              (declare (type double-float new))
-             
+
              (setf (aref topic-p i) new)
              (incf sum new)))
-      #+ignore	    
+      #+ignore	
       (map-into topic-p #'(lambda (x) (if (not (zerop x))
                                      (safe-exp (+ x max))
                                      0d0))
                 topic-p)
       #+ignore
       (incf sum (reduce #'+ topic-p))
-      
+
       (let ((ref (randomize-choice topic-p sum))) ;; now sample new dish
         ;; topic extention check
         (declare (type fixnum ref))
-        
+
         (when (= ref -1)
           (incf (topic-count hdp-lda))
           (setf ref zero-position)
@@ -402,7 +402,7 @@ TODO:Optimize in SBCL"
 
 (defgeneric hypers-sampling (hdp-lda)
   (:documentation "hyperparameter sampling"))
-  
+
 (defmethod hypers-sampling ((hdp-lda hdp-lda))
   #-sbcl (declare (optimize (speed 3) (safety 0) (debug 0))
            #+sbcl (ignorable hdp-lda))
@@ -414,7 +414,7 @@ TODO:Optimize in SBCL"
 	for doc across (hdp-lda-data hdp-lda)
 	for nj__ fixnum = (length (document-words doc))
 	summing (the double-float (log (beta-random (1+ old-alpha) (dfloat nj__)))) into wj double-float
-	summing (the double-float (bernoulli (/ nj__ (+ old-alpha nj__)))) into sj double-float 
+	summing (the double-float (bernoulli (/ nj__ (+ old-alpha nj__)))) into sj double-float
 	finally (setf (hdp-lda-alpha hdp-lda)
 			   (gamma-random (- (+ (the double-float *alpha-base-a*) ntables) sj)
 					 (- (the double-float *alpha-base-b*) wj))))
@@ -423,7 +423,7 @@ TODO:Optimize in SBCL"
 		       (the double-float (bernoulli (/ ntables (+ old-gamma ntables)))))
 		    (- (the double-float *gamma-base-b*)
 		       (the double-float (log (beta-random (1+ old-gamma) ntables))))))
-    
+
     (values (hdp-lda-alpha hdp-lda)
             (hdp-lda-gamma hdp-lda))))
 
@@ -433,7 +433,7 @@ TODO:Optimize in SBCL"
     (setf (hdp-lda-topic-tables hdp-lda) (make-adarray predict-k :element-type 'fixnum :initial-element 0))
     (setf (hdp-lda-topic-occurs hdp-lda) (make-adarray predict-k :element-type 'fixnum :initial-element 0))
     (setf (hdp-lda-p hdp-lda) (make-adarray predict-k :element-type 'double-float :initial-element 0d0))
-    
+
     (setf (hdp-lda-f-k hdp-lda) (make-adarray 0))
     (unless (slot-boundp hdp-lda 'alpha)
     (setf (hdp-lda-alpha hdp-lda) (gamma-random *alpha-base-a* *alpha-base-b*)))
@@ -458,35 +458,35 @@ TODO:Optimize in SBCL"
 	  (setf (aref a i) (make-adarray 0 :initial-element 0d0 :element-type 'double-float))))
   ;; reset predict-k
   (setf (topic-count hdp-lda) 0)
-  
+
   ;; initial sampling
   (loop for doc across (hdp-lda-data hdp-lda) do
        (loop for w across (document-words doc) do
-            
+
             (add-customer hdp-lda w doc)))
-  
+
   (loop for doc across (hdp-lda-data hdp-lda) do
 	(loop for table across (document-restaurant doc)
 	    for i from 0 below (aref (document-layer-points doc) 0) do
 	      (add-table hdp-lda table (remove-table hdp-lda table))))
-  
+
   (hypers-sampling hdp-lda))
 
 (defgeneric sampling (hdp-lda))
 (defmethod sampling ((hdp-lda hdp-lda))
-  
+
   (loop for doc across (shuffle-vector (hdp-lda-data hdp-lda)) do
 	(loop for w across (document-words doc) do
 	      (add-customer hdp-lda w doc (remove-customer hdp-lda w doc))))
-  
+
   (loop for doc across (hdp-lda-data hdp-lda) do
 	(loop for table across (document-restaurant doc)
 	    for i from 0 below (aref (document-layer-points doc) 0) do
-         
+
          (add-table hdp-lda table (remove-table hdp-lda table))
-         
+
          ))
-  
+
   (hypers-sampling hdp-lda)
   )
 
@@ -495,7 +495,7 @@ TODO:Optimize in SBCL"
   (let* ((k (topic-count model))
 	 (flags (hdp-lda-topic-occurs model))
 	 (resolv (make-array (length flags))))
-    (loop 
+    (loop
 	with k-dash = 0
 	for flag across flags
 	for i from 0
@@ -509,7 +509,7 @@ TODO:Optimize in SBCL"
 	  (let ((new (make-array k :initial-element (hdp-lda-gamma model)))) ;; add gamma as prior
 	    (loop
 	      for i from 0 to limit
-		for table = (aref tables i) 
+		for table = (aref tables i)
 		for s = (table-customer table)
 		for a = (table-dish table) do
 		  (incf (aref new (aref resolv a)) s))

@@ -73,7 +73,7 @@
 	     (VY-tmp (- VY (* tphi tphi tpi (- 1 tpi))))
 	     (power (expt 2d0 (+ x ey-tmp tphi)))
 	     (coef (+ doc-words -1 x ey-tmp tphi))
-	     (E (+ (/ 1d0 
+	     (E (+ (/ 1d0
 		      (* power coef))
 		   (/ (* vy-tmp (+ (* coef coef)
 				   (* #.(log 2d0) coef)
@@ -180,10 +180,10 @@
   (declare (ignore data discarded-cluster))
   (let ((new (call-next-method))
 	(minpi 1d0))
-    (loop 
+    (loop
 	with clusters = (dpm-clusters dpm)
 	for i from 0 below (dpm-k dpm) do
-	  (setf minpi (min minpi (topic-pi (aref clusters i)))))    
+	  (setf minpi (min minpi (topic-pi (aref clusters i)))))
     (setf (topic-pi new) (* minpi (beta-random (ftm-ibp-alpha dpm) 1d0)))
     (setf (topic-phi new) (gamma-random (dpm-hyper dpm) 1d0))
     (clrhash (topic-emission new))
@@ -198,7 +198,7 @@
       (unless found
 	(setf oldid (incf (vocabulary ftm)))
 	(setf (gethash string memo) oldid))
-      (make-point :data oldid))))  
+      (make-point :data oldid))))
 
 (defmethod parameters-sampling ((dpm ftm))
   (let ((docs (dpm-data dpm))
@@ -207,7 +207,7 @@
     ;; sample phi and gamma
     (sample-phi-and-gamma dpm)
     ;; sampling pi
-    (loop 
+    (loop
 	with m = (length docs)
 	for i from 0 below k do
 	  (let* ((topic (aref clusters i))

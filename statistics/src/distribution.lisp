@@ -299,7 +299,7 @@
 (defmethod update-distribution ((distribution normal-distribution))
   (with-slots (std variance mode) distribution
     #- (or ccl sbcl)
-    (assert (realp (slot-value distribution 'average)) 
+    (assert (realp (slot-value distribution 'average))
       "AVERAGE should be a real number.")
     #- (or ccl sbcl)
     (assert (and (realp std) (> std 0)) (std)
@@ -337,7 +337,7 @@
     (declare (optimize (speed 3) (safety 0) (debug 0))
 	     (type double-float average std))
     (normal-random average std)))
-  
+
 (defun normal-distribution-estimate-unbiased (sequence)
   (normal-distribution (mean sequence)
 		       (standard-deviation sequence :populationp nil)))
@@ -673,10 +673,10 @@ Kite:  KT = ZT + \(ZT^2 - 1) * G/6 + 1/3 * \(ZT^3 - 6 * ZT) * \(G/6)^2
 (defgeneric quantile-ili (distribution p))
 (defmethod quantile-ili ((distribution gamma-like-distribution) p)
   "Use the method of inverse-linear-interpolation for numerical calculation.
-If there is a numerical problem with quantile of gamma-like-distribution, 
+If there is a numerical problem with quantile of gamma-like-distribution,
 this method would be solve it. However this is slower than Newton-Raphson."
   (assert (< 0d0 p 1d0))
-  (loop with cdf-p = (lambda (x) 
+  (loop with cdf-p = (lambda (x)
                         (- (gammp (shape distribution) (/ x (scale distribution))) p))
       with lower = *inv-lin-interp-precision*
       with upper = 1d0
@@ -1538,7 +1538,7 @@ otherwise it uses the beta distribution quantile."
     (setf variance (/ (sqr (* location scale)) 3d0))
     (setf mode location))
   distribution)
-    
+
 (defun logistic-distribution (location scale)
   "- Parameters: location, scale"
   (assert (realp location) (location) "LOCATION should be a real number.")
@@ -1805,11 +1805,11 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   (setf (slot-value distribution 'skewness) (/ (sqrt (slot-value distribution 'rate))))
   (setf (slot-value distribution 'kurtosis) (+ (/ (slot-value distribution 'rate)) 3d0))
   (setf (slot-value distribution 'mode) (floor (slot-value distribution 'rate)))
-  
+
   distribution)
 
-    
-  
+
+
 
 (defun poisson-distribution (rate)
   "- Parameters: rate"
@@ -1892,7 +1892,7 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
 		      (sqr (- (gamma (+ (/ 2d0 shape) 1d0))
                       (sqr (gamma (+ (/ shape) 1d0))))))))
   #+sbcl
-   
+
   (let ((t-shape (slot-value distribution 'shape))
         (t-scale (slot-value distribution 'scale))
         )
@@ -1915,7 +1915,7 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
                                                      (- (* 3d0 (int-power (gamma (+ (/ t-shape) 1d0)) 4))))
                                                   (sqr (- (gamma (+ (/ 2d0 t-shape) 1d0))
                                                           (sqr (gamma (+ (/ t-shape) 1d0)))))))
-    
+
     )
   distribution)
 
@@ -2005,7 +2005,7 @@ length of seq must be more than 4"
   (assert (> 1 alpha 0))
   (assert (every #'numberp seq))
   (if (>= (length seq) 4)
-      (let* ((target (case type 
+      (let* ((target (case type
                        (:max (reduce #'max seq))
                        (:min (reduce #'min seq))))
              (target-pos (position target seq :test #'=)))
@@ -2020,8 +2020,8 @@ length of seq must be more than 4"
                                      alpha :type type :recursive recursive
                                      :sig-p-hash sig-p-hash)
                    (values %seq
-                           (if removed-poss 
-                               (cons target-pos 
+                           (if removed-poss
+                               (cons target-pos
                                      (mapcar (lambda (pos) (if (>= pos target-pos) (1+ pos) pos))
                                              removed-poss))
                              `(,target-pos)))))
@@ -2054,7 +2054,7 @@ length of seq must be more than 4"
 
 (defun get-sig-p (n alpha)
   (let* ((dist (t-distribution (- n 2)))
-         (t_alpha^2 (expt 
+         (t_alpha^2 (expt
                      (quantile
                       dist
                       (- 1 (/ (/ (* 100 alpha) n)
@@ -2067,7 +2067,7 @@ length of seq must be more than 4"
   (assert (>= n 4))
   (let ((hash (make-hash-table :test #'eql)))
     (loop for i from 4 to n
-        do (setf (gethash i hash) 
+        do (setf (gethash i hash)
              `(,(cons alpha (get-sig-p i alpha))))
         finally (return hash))))
 

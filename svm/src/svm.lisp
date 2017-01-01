@@ -203,7 +203,7 @@ training data.
 	       (safe-/ (- (sqrt (+ (* signed-L signed-L)
 				   (* 4.0d0 (aref apalpha i) (aref amalpha i))))
 			  signed-L)
-		       (* 2.0d0 (aref apalpha i))))))      
+		       (* 2.0d0 (aref apalpha i))))))
       (let ((alpha (make-array n :initial-element 1.0d0 :element-type 'double-float))
 	    (tmp (make-array n :element-type 'double-float)))
         (declare (type dvec alpha tmp))

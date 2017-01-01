@@ -49,7 +49,7 @@
            :svm-validation :load-svm-learner :make-svm-kernel :make-linear-kernel
            :make-one-class-svm-kernel)
   (:shadow :centroid)
-  
+
   (:import-from :LISP-UNIT
                :define-test
                :run-tests
@@ -66,7 +66,7 @@
                :ASSERT-PRINTS
                :set-equal
                )
-  
+
   (:import-from :clml.decision-tree.decision-tree :make-decision-tree :print-decision-tree
                :decision-tree-validation :predict-decision-tree :make-regression-tree
                :predict-regression-tree :print-regression-tree :regression-tree-validation)

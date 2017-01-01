@@ -44,7 +44,7 @@ updated)."
          (error-array *error-array*)
          ;; *b* will be changed
          (kernel-function-result *kernel-function-result*)
-         (kernel-function-result-cache *kernel-function-result-cache*) 
+         (kernel-function-result-cache *kernel-function-result-cache*)
          )
      (declare (type double-float c epsilon)
               (type fixnum training-size)
@@ -52,7 +52,7 @@ updated)."
               (type dvec alpha-array error-array kernel-function-result)
               (type dmat kernel-function-result-cache)
               (type simple-vector training-vector)
-              (type function kernel-function) 
+              (type function kernel-function)
               (ignorable training-vector kernel-function c training-size
                          label-index epsilon alpha-array error-array
                          kernel-function-result kernel-function-result-cache))
@@ -72,7 +72,7 @@ updated)."
        (let ((cached-value (aref kernel-function-result-cache x y)))
          (declare (type double-float cached-value))
          (if (= cached-value most-negative-double-float)
-             (progn 
+             (progn
                (funcall ,kernel-function (aref training-vector x) (aref training-vector y))
                (the double-float
                  (setf (aref kernel-function-result-cache x y)
@@ -92,7 +92,7 @@ updated)."
            (function kernel-function))
   (check-type training-vector simple-vector)
   (check-type (aref training-vector 0) dvec)
-  (check-type kernel-function function) 
+  (check-type kernel-function function)
   (setf *training-vector* training-vector)
   (setf *kernel-function* kernel-function)
   (setf *c* (coerce c 'double-float))
@@ -104,23 +104,23 @@ updated)."
   (setf *kernel-function-result-cache*
         (make-array (list *training-size* *training-size*)
                     :element-type 'double-float
-                    :initial-element most-negative-double-float)) 
-  
+                    :initial-element most-negative-double-float))
+
   ;;initialize error cache
   (with-common-local-bindings
-    (loop 
+    (loop
       for i of-type array-index below training-size
       do (setf (aref error-array i)
                (- (aref (the dvec (aref training-vector i)) label-index))))
-    
+
     (let ((number-changed 0)
           (examine-all t)
 	  (upper-bound (- c epsilon)))
-	  
+	
       (declare (type fixnum number-changed)
                (type double-float upper-bound))
-      
-      (loop 
+
+      (loop
         while (or (> number-changed 0) examine-all)
         do (setf number-changed 0)
            (if examine-all
@@ -133,12 +133,12 @@ updated)."
                                             sum (the fixnum (examine-example i))
                                               into result of-type fixnum
                                           finally (return result))))
-           
+
            (if examine-all
                (setf examine-all nil)
                (when (= number-changed 0)
                  (setf examine-all t))))
-      
+
       (values alpha-array *b*))))
 
 
@@ -153,30 +153,30 @@ updated)."
            (r2 (* (the double-float e2) (the double-float y2))))
       (declare (type dvec point2)
                (type double-float y2 alpha2 e2 r2 upper-bound))
-      
+
       ;;KKT-condition check of alpha-2
       (when (or (and (< r2 (- epsilon))
                      (< alpha2 upper-bound))
                 (and (> r2 epsilon)
                      (> alpha2 epsilon)))
-        
+
         (let ((i1 0)
               (max 0.0d0))
           (declare (type array-index i1)
                    (type double-float max))
           (when (loop for alpha of-type double-float across alpha-array
                       thereis (< epsilon alpha upper-bound))
-            (loop 
+            (loop
 		for i of-type array-index below training-size
 		as delta-error of-type double-float = (abs (- (aref error-array i) e2))
 		if (< epsilon (aref alpha-array i) upper-bound)
                 do (when (>= delta-error max)
                      (setf max delta-error)
                      (setf i1 i)))
-	    
+	
             (when (take-step i1 i2)
               (return-from examine-example 1))
-            
+
             (let ((random-start (random training-size)))
               (declare (type array-index random-start))
               (loop
@@ -184,20 +184,20 @@ updated)."
                 if (< epsilon (aref alpha-array i) upper-bound)
                   do (when (take-step i i2)
                        (return-from examine-example 1)))
-              
+
               (loop
                 for i of-type array-index below random-start
                 if (< epsilon (aref alpha-array i) upper-bound)
                   do (when (take-step i i2)
                        (return-from examine-example 1)))))
-          
+
           (let ((random-start (random training-size)))
             (declare (type array-index random-start))
             (loop
               for i of-type array-index from random-start below training-size
               do (when (take-step i i2)
                    (return-from examine-example 1)))
-            
+
             (loop
               for i of-type array-index below random-start
               do (when (take-step i i2)
@@ -220,7 +220,7 @@ updated)."
            (type array-index index))
   (- (let ((result 0d0))
        (declare (type double-float result))
-       (loop 
+       (loop
          for i of-type array-index below (length alpha-array)
          do (incf result
                   (* (aref alpha-array i)
@@ -238,11 +238,11 @@ updated)."
 (declaim (inline compute-v))
 (defun compute-v (training-vector kernel-function alpha-array label-index i1 i2 index)
   (declare (type simple-vector training-vector)
-           (type function kernel-function) 
+           (type function kernel-function)
            (type array-index label-index i1 i2 index))
   (let ((result 0d0))
     (declare (type double-float result))
-    (loop 
+    (loop
       for i of-type array-index below (length alpha-array)
       if (and (/= i i1) (/= i i2))
         do (incf result
@@ -259,7 +259,7 @@ updated)."
 (declaim (inline compute-w-const))
 (defun compute-w-const (training-vector alpha-array label-index i1 i2)
   (declare (type dvec alpha-array)
-           (type simple-vector training-vector) 
+           (type simple-vector training-vector)
            (type array-index label-index i1 i2))
   (let ((n (length alpha-array)))
     (declare (type fixnum n))
@@ -303,8 +303,8 @@ updated)."
     (if (= y1 y2)
 	(setf r (+ alpha1-old alpha2-old))
         (setf r (- alpha1-old alpha2-old)))
-    
-    (- r 
+
+    (- r
        (* s alpha)
        (- alpha)
        (* 0.5 k11 (the double-float (expt (- r (* s alpha)) 2)))
@@ -334,25 +334,25 @@ updated)."
            (e2 (aref error-array i2))
            (clipped nil)
            (l 0.0d0)
-           (h 0.0d0)) 
+           (h 0.0d0))
       (declare (type dvec point1 point2)
                (type double-float alpha1-old alpha2-old y1 y2 s alpha1-new alpha2-new e1 e2 l h))
-      
+
       (if (= y1 y2)
           (setf l (max 0.0d0 (- (+ alpha1-old alpha2-old) c))
                 h (min c (+ alpha1-old alpha2-old)))
           (setf l (max 0.0d0  (- alpha2-old alpha1-old))
                 h (min c (+ c (- alpha1-old) alpha2-old))))
-      
+
       (when (= l h)
         (return-from take-step nil))
-      
+
       (let* ((k11 (the double-float (call-kernel-function-with-indices kernel-function i1 i1)))
              (k12 (the double-float (call-kernel-function-with-indices kernel-function i1 i2)))
              (k22 (the double-float (call-kernel-function-with-indices kernel-function i2 i2)))
              (eta (- (* 2.0d0 k12) k11 k22)))
         (declare (type double-float k11 k12 k22 eta))
-        
+
         (if (< eta 0.0d0)
             (progn
               (setf alpha2-new (- alpha2-old
@@ -362,13 +362,13 @@ updated)."
               (when (<= alpha2-new l)
                 (setf alpha2-new l)
                 (setf clipped t))
-              
+
               (when (>= alpha2-new h)
                 (setf alpha2-new h)
                 (setf clipped t)))
-            
+
             ;;eta:not negative case
-            (let* ((v1 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i1))	       
+            (let* ((v1 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i1))	
                    (v2 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i2)))
               (declare (type double-float v1 v2))
               (let ((w-const (compute-w-const training-vector alpha-array label-index i1 i2)))
@@ -376,50 +376,50 @@ updated)."
                 (let* ((l-obj (compute-obj-fun alpha1-old alpha2-old y1 y2 s k11 k12 k22 v1 v2 w-const l))
                        (h-obj (compute-obj-fun alpha1-old alpha2-old y1 y2 s k11 k12 k22 v1 v2 w-const h)))
                   (declare (type double-float l-obj h-obj))
-                  
+
                   (cond  ((> l-obj (+ h-obj epsilon))
                           (setf alpha2-new l)
                           (setf clipped t))
-                        
+
                         ((< l-obj (- h-obj epsilon))
                          (setf alpha2-new h)
                          (setf clipped t))
-                        
+
                         (t
                          (setf alpha2-new alpha2-old)))))))
 
         (when (< (abs (- alpha2-new alpha2-old)) (* epsilon (+ alpha2-new alpha2-old epsilon)))
           (return-from take-step nil))
-        
+
         (setf alpha1-new (+ alpha1-old (* s (- alpha2-old alpha2-new))))
 
         ;;update the threshold b
-        (let* ((b1 (+ e1 
+        (let* ((b1 (+ e1
                       *b*
                       (* y1 (- alpha1-new alpha1-old) k11)
                       (* y2 (- alpha2-new alpha2-old) k12)))
-               
-               (b2 (+ e2 
+
+               (b2 (+ e2
                       *b*
                       (* y1 (- alpha1-new alpha1-old) k12)
                       (* y2 (- alpha2-new alpha2-old) k22)))
-               
+
                (b-old *b*))
           (declare (type double-float b1 b2 b-old))
-          
+
           (cond ((< epsilon alpha1-new (- c epsilon))
                  (setf *b* b1))
-                
+
                 ((< epsilon alpha2-new (- c epsilon))
                  (setf *b* b2))
-                
+
                 (t
                  (* 0.5d0 (+ b1 b2))))
-          
+
           ;;update the error cache using new Lagrange multipliers
-          (loop 
+          (loop
             for i of-type array-index below training-size
-            do (setf (aref error-array i) 
+            do (setf (aref error-array i)
                      (+ (aref error-array i)
                         (* y1
                            (- alpha1-new alpha1-old)
@@ -428,9 +428,9 @@ updated)."
                            (- alpha2-new alpha2-old)
                            (the double-float (call-kernel-function-with-indices kernel-function i2 i)))
                         (- b-old *b*))))
-          
+
           (setf (aref error-array i2) 0.0d0)
-          
+
           (when clipped
             (setf (aref error-array i1) (- (the double-float
                                              (f-old training-vector kernel-function alpha-array *b* i1))
@@ -438,7 +438,7 @@ updated)."
             (setf (aref error-array i2) (- (the double-float
                                              (f-old training-vector kernel-function alpha-array *b* i2))
                                            y2)))
-          
+
           ;;update the alpha array
           (setf (aref alpha-array i1) alpha1-new)
           (setf (aref alpha-array i2) alpha2-new)
@@ -456,20 +456,20 @@ updated)."
   (let ((label-index (1- (length (svref training-vector 0)))))
     (declare (type array-index label-index))
     ;; Allegro 8.1 can't optimize the following LOOP
-    ;; (loop 
+    ;; (loop
     ;;     for i of-type array-index below (length alpha-array)
     ;;     summing
-    ;;       (* (aref alpha-array i) 
+    ;;       (* (aref alpha-array i)
     ;;          (aref (the dvec (svref training-vector i)) label-index)
     ;;          (the double-float (call-kernel-function kernel-function (svref training-vector i) point))))
     ;; So we need to use ugly LET
     (lambda (point)
       (sign (- (let ((result 0d0))
                  (declare (type double-float result))
-                 (loop 
+                 (loop
                    for i of-type array-index below (length alpha-array)
                    do (incf result
-                            (* (aref alpha-array i) 
+                            (* (aref alpha-array i)
                                (aref (the dvec (svref training-vector i)) label-index)
                                (the double-float (call-kernel-function-with-vectors kernel-function (svref training-vector i) point)))))
                  result)
@@ -488,19 +488,19 @@ updated)."
     (declare (type array-index label-index))
     (lambda (point)
       ;; Allegro 8.1 can't optimize the following LOOP
-      ;; (loop 
+      ;; (loop
       ;;     for i of-type array-index below (length alpha-array)
       ;;     summing
-      ;;       (* (aref alpha-array i) 
+      ;;       (* (aref alpha-array i)
       ;;          (aref (the dvec (svref training-vector i)) label-index)
       ;;          (the double-float (call-kernel-function kernel-function (svref training-vector i) point))))
       ;; So we need to use ugly LET
       (- (let ((result 0d0))
 	   (declare (type double-float result))
-	   (loop 
+	   (loop
 	       for i of-type array-index below (length alpha-array)
 	       do (incf result
-			(* (aref alpha-array i) 
+			(* (aref alpha-array i)
 			   (aref (the dvec (svref training-vector i)) label-index)
 			   (the double-float (call-kernel-function-with-vectors kernel-function (svref training-vector i) point)))))
 	   result)
@@ -511,7 +511,7 @@ updated)."
   (declare (type double-float x))
   (if (>= x 0.0d0)
       1.0d0
-    -1.0d0)) 
+    -1.0d0))
 
 (defun linear-kernel (z-i z-j)
   "z-i =(x-i, y-i), x-i:input vector, y-i:label (+1 or -1)"
@@ -547,7 +547,7 @@ updated)."
       sum (expt (- (aref z-i k) (aref z-j k)) 2)
         into result of-type double-float
       finally (setf (aref *kernel-function-result* 0)
-                    (d-exp (* (- gamma) result)))) 
+                    (d-exp (* (- gamma) result))))
     nil))
 
 
@@ -601,7 +601,7 @@ updated)."
  - test-vector
 
 *** sample usage
-#+INCLUDE: \"../sample/svm-validation.org\"  example lisp 
+#+INCLUDE: \"../sample/svm-validation.org\"  example lisp
 "
   (check-type test-vector simple-vector)
   (check-type (aref test-vector 0) dvec)
@@ -620,15 +620,15 @@ updated)."
  - file-name : save file name of SVM
  - kernel-function :<Closure>, used kernel function to make the SVM
  - external-format : character code"
-  (let* ((material-list 
+  (let* ((material-list
 	  (with-open-file (in file-name :external-format :utf-8 :direction :input)
 	    (read in)))
 	 (training-vector (first material-list))
 	 (alpha-array (specialize-vec (second material-list)))
 	 (b (third material-list)))
-    
-    (loop 
+
+    (loop
 	for i below (length training-vector)
 	do (setf (aref training-vector i) (specialize-vec (aref training-vector i))))
-     
+
     (svm-output training-vector kernel-function alpha-array b)))

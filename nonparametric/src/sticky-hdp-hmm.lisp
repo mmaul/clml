@@ -53,7 +53,7 @@
 
 (defmethod hypers-sampling ((dpm sticky-hdp-hmm))
   (declare (optimize (speed 3) (safety 0) (debug 0)))
-  (multiple-value-bind (alpha* gamma) (call-next-method) ;; sampling (alpha + kappa) as alpha  
+  (multiple-value-bind (alpha* gamma) (call-next-method) ;; sampling (alpha + kappa) as alpha
     (let ((w__ 0)
 	  (m__ 0)
 	  (clusters (dpm-clusters dpm)))

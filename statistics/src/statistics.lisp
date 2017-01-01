@@ -141,7 +141,7 @@ given values."
                      (loop for i in (remove-duplicates rank1 :test #'=)
                          as n = (count i rank1 :test #'=)
                          sum (- (expt n 3) n))) 12))
-           (t2 (/ (- n3-n 
+           (t2 (/ (- n3-n
                      (loop for i in (remove-duplicates rank2 :test #'=)
                          as n = (count i rank2 :test #'=)
                          sum (- (expt n 3) n))) 12))
@@ -169,11 +169,11 @@ given values."
                    as n = (count i rank2 :test #'=)
                    sum (/ (* n (1- n)) 2)))
            (sigma-p (loop for i from 0 below n1
-                        sum 
+                        sum
                           (loop
                               for j from 0 below n1
                               when (/= i j)
-                              sum (if (or 
+                              sum (if (or
                                        (and (> (elt seq1 i) (elt seq1 j))
                                             (> (elt seq2 i) (elt seq2 j)))
                                        (and (< (elt seq1 i) (elt seq1 j))
@@ -181,11 +181,11 @@ given values."
                                       1
                                     0))))
            (sigma-q (loop for i from 0 below n1
-                        sum 
+                        sum
                           (loop
                               for j from 0 below n1
                               when (/= i j)
-                              sum (if (or 
+                              sum (if (or
                                        (and (> (elt seq1 i) (elt seq1 j))
                                             (< (elt seq2 i) (elt seq2 j)))
                                        (and (< (elt seq1 i) (elt seq1 j))

@@ -4,7 +4,7 @@
 (defun alist-count (list &key (test #'eq))
   (loop with alist for item in list
       as sub-alist = (assoc item alist :test test)
-      do (if sub-alist (incf (cdr sub-alist)) 
+      do (if sub-alist (incf (cdr sub-alist))
            (push (cons item 1) alist))
       finally (return alist)))
 
@@ -48,7 +48,7 @@
   (let ((hash (make-hash-table :test #'equalp))) ;; !!!!
     (case type
       (:mean
-       (loop 
+       (loop
            with counter = (map 'list (lambda (id) (cons id 0)) ids)
            for id across ids
            for sc across score
@@ -77,21 +77,21 @@
 (defmethod make-face-estimator-eigenface
     ((face-dataset numeric-and-category-dataset)
      pca-result pca-model &key dimension-thld
-                               (id-column "personID")                               
+                               (id-column "personID")
                                (d-fcn #'euclid-distance))
   (unless dimension-thld (setq dimension-thld (length (loading-factors pca-model))))
   (let* ((points (map 'vector #'copy-seq
                       (dataset-numeric-points face-dataset)))
          (e-mean (centroid pca-model))
          (c-points (do-vec (p points :type dvec :return points) (v- p e-mean p)))
-         (dim 
+         (dim
           (cond ((and (typep dimension-thld 'integer)
                       (plusp dimension-thld)) dimension-thld)
                 ((and (typep dimension-thld 'float)
                       (< 0 dimension-thld 1))
                  (count-if
                   (let ((s (reduce #'+ (contributions pca-result))) (c 0))
-                    (lambda (v) 
+                    (lambda (v)
                       (cond ((>= dimension-thld c) (incf c (/ v s)) t) (t nil))))
                   (contributions pca-result)))))
          (bases (subseq (loading-factors pca-model) 0 dim))
@@ -107,11 +107,11 @@
 
     ;; projection
     (base-projection-pts bases c-points score)
-    
+
     ;; make eigenfaces
     (setq eigenface-hash
       (make-eigenface-hash ids score :mean))
-        
+
     ;; make estimator
     (let ((face-estimator
            (lambda (face-vec)
@@ -124,7 +124,7 @@
                (v- face-v e-mean face-v)
                ;; projection
                (base-projection bases face-v s-dvec)
-               
+
                ;; calc distance
                (loop with candidate
                    with min = most-positive-double-float
@@ -137,7 +137,7 @@
 
 
 (defparameter *minimum-number-for-subspace* 5)
-(defun make-subspace-hash 
+(defun make-subspace-hash
     (ids data-vecs &key (pca-method :correlation) (dimension-thld 5))
   (declare (type vector ids) (type (simple-array dvec (*))))
   (let ((hash (make-hash-table :test #'equalp)) ;; !!!!
@@ -145,7 +145,7 @@
     (loop for id across ids
         for vec across data-vecs
         do (push vec (gethash id hash)))
-    (maphash 
+    (maphash
      (lambda (id vecs)
        (when (> *minimum-number-for-subspace* (length vecs))
          (restart-case (error "Number of data for ~A (~A) is insufficient." id (length vecs))
@@ -159,7 +159,7 @@
                                                    collect (format nil "col~A" i))
                                                (coerce (reverse v) 'vector)))
                       (pca-result
-                       (ignore-errors 
+                       (ignore-errors
                         (sub-princomp d :method pca-method :dimension-thld dimension-thld))))
                  (if pca-result
                      (progn
@@ -173,16 +173,16 @@
              hash)
     hash))
 
-(defun make-face-estimator-subspace% 
+(defun make-face-estimator-subspace%
     (subspace-hash pca-method
-     &key 
+     &key
      (similarity-fcn
       (lambda (proj-vec org-vec) ;; |cosine|
         (declare (type dvec proj-vec org-vec))
-        (abs (/ (inner-product proj-vec org-vec) 
+        (abs (/ (inner-product proj-vec org-vec)
                 (* (distance-to-origin proj-vec) (distance-to-origin org-vec)))))))
   (lambda (face-vec)
-    (loop 
+    (loop
         with candidate
         with max-s = most-negative-double-float
         for id being each hash-key in subspace-hash using (hash-value val)
@@ -206,12 +206,12 @@
         collect (cons id similarity) into ss
         finally (return (values candidate ss)))))
 
-(defgeneric make-face-estimator-subspace 
+(defgeneric make-face-estimator-subspace
     (face-dataset
      &key id-column
           dimension-thld
           pca-method))
-(defmethod make-face-estimator-subspace 
+(defmethod make-face-estimator-subspace
     ((face-dataset numeric-and-category-dataset)
      &key (id-column "personID")
           (dimension-thld 5)
@@ -222,10 +222,10 @@
                                 :test #'string-equal
                                 :key #'dimension-name))))
                 (map 'vector (lambda (vec) (aref vec pos)) (dataset-category-points face-dataset))))
-         (subspace-hash 
+         (subspace-hash
           (make-subspace-hash ids (dataset-numeric-points face-dataset)
                               :pca-method pca-method :dimension-thld dimension-thld))
-         (base-num 
+         (base-num
           (loop with max = 0
               with min = most-positive-fixnum
               for v being each hash-value in subspace-hash
@@ -250,14 +250,14 @@
                       (dataset-numeric-points face-dataset)))
          (e-mean (centroid pca-model))
          (c-points (do-vec (p points :type dvec :return points) (v- p e-mean p)))
-         (dim 
+         (dim
           (cond ((and (typep dimension-thld 'integer)
                       (plusp dimension-thld)) dimension-thld)
                 ((and (typep dimension-thld 'float)
                       (< 0 dimension-thld 1))
                  (count-if
                   (let ((s (reduce #'+ (contributions pca-result))) (c 0))
-                    (lambda (v) 
+                    (lambda (v)
                       (cond ((>= dimension-thld c) (incf c (/ v s)) t) (t nil))))
                   (contributions pca-result)))))
          (bases (subseq (loading-factors pca-model) 0 dim))
@@ -293,7 +293,7 @@
                 ;; projection
                 (base-projection bases face-v s-dvec)
                 ;; forest prediction
-                (clml.decision-tree.random-forest:predict-forest (concatenate 'simple-vector 
+                (clml.decision-tree.random-forest:predict-forest (concatenate 'simple-vector
                                                 `(,clml.hjs.missing-value:+na+) s-dvec)
                                               train-dataset forest)))))
       (values face-estimator forest (length bases) train-dataset))))
@@ -307,7 +307,7 @@
   - id-column : <string>, the name for the face ID column, default value is personID
   - dimension-thld : 0 < <number> < 1 | 1 <= <integer>, the threshold for determining the number of dimensions to use.
   - method : :eigenface | :subspace, method for face recognition, eigenface or subspace method.
-  - pca-method : :covariance | :correlation, only valid when method is :subspace 
+  - pca-method : :covariance | :correlation, only valid when method is :subspace
   - d-fcn : distance function for eigenface, default value is euclid-distance
   - pca-result : <pca-result>, necessary for :eigenface
   - pca-model : <pca-model>, necessary for :eigenface
@@ -328,7 +328,7 @@
                                      (d-fcn #'euclid-distance)
                                      pca-result pca-model
                                   bagging)
-  
+
   (assert (or (null bagging) (numberp bagging)))
   (flet ((make-estimator (d)
            (case method
@@ -351,8 +351,8 @@
                          finally
                            (return
                              `(,(lambda (face-vec)
-                                  (let ((alist 
-                                         (sort (alist-count 
+                                  (let ((alist
+                                         (sort (alist-count
                                                 (mapcar (lambda (est) (funcall est face-vec)) ests)
                                                 :test #'string=) #'> :key #'cdr)))
                                     (values (caar alist) alist)))
@@ -360,9 +360,9 @@
           (make-estimator face-dataset))
       (format t "~&Dimension : ~A~%" base-num)
       (format t "~&Number of self-misjudgement : ~A~%"
-              (loop for id across 
-                    (map 'vector 
-                      (let ((pos (dimension-index 
+              (loop for id across
+                    (map 'vector
+                      (let ((pos (dimension-index
                                   (find id-column
                                         (dataset-dimensions face-dataset)
                                         :key #'dimension-name :test #'string-equal))))
@@ -380,7 +380,7 @@
   - estimator : <closure>, the first return value for make-face-estimator
 *** Note
 - when using princomp and sub-princomp, if there exists two columns
-  that are of same value, the result for :correlation 
+  that are of same value, the result for :correlation
   method will not be converged. Therefore pick-and-specialize-data or
   divide-dataset must be used to remove one column.
 *** sample usage
@@ -411,7 +411,7 @@
                  collect (aref v oi))))
     (let ((ok 0) (not-ok 0)
           (total (length el)))
-      (loop for e in el for o in ol 
+      (loop for e in el for o in ol
           do (if (string-equal e o)
                  (incf ok) (incf not-ok)))
       (prog ((hr (/ ok total)))
@@ -424,7 +424,7 @@
       (read-line in)
       (setq lx (read in nil nil) ly (read in nil nil)
             rx (read in nil nil) ry (read in nil nil)))
-    (cons (floor (+ (* 0.5 (- lx rx)) rx 
+    (cons (floor (+ (* 0.5 (- lx rx)) rx
                     10)) ;; width for "eye"
           (floor (+ (* 0.5 (abs (- ly ry))) (min ly ry))))))
 

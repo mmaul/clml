@@ -8,7 +8,7 @@
 ;;;  "$Id: macros.l,v 1.96 2008-02-22 22:19:34 rtoy Exp $")
 
 ;;; Using Lisp International Allegro CL Enterprise Edition 8.1 [Windows] (Jun 26, 2009 10:35)
-;;; 
+;;;
 ;;; Options: ((:prune-labels nil) (:auto-save t) (:relaxed-array-decls t)
 ;;;           (:coerce-assigns :as-needed) (:array-type ':array)
 ;;;           (:array-slicing t) (:declare-common nil)

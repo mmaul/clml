@@ -27,19 +27,19 @@
   ((dpm-k :initform 0 :accessor dpm-k)
    (base-distribution :initarg :base-distribution :accessor dpm-base)
    (clusteres :initform (make-adarray 0) :accessor dpm-clusters)
-   (layers :initform (make-adarray 1 :element-type 'fixnum :initial-element 0) :accessor dpm-cluster-layers) 
+   (layers :initform (make-adarray 1 :element-type 'fixnum :initial-element 0) :accessor dpm-cluster-layers)
    (dpm-hyper :initform (gamma-random *hyper-base-a* *hyper-base-b*) :accessor dpm-hyper)
    (p :initform (make-array 0 :fill-pointer t :adjustable t :element-type 'double-float) :accessor dpm-p)
    (estimate-base? :initform nil :accessor estimate-base?)
    (data :initarg :data :accessor dpm-data)))
 
-;; use logged density for double-float 
+;; use logged density for double-float
 (defclass logged-dpm (dpm) ())
 
 (defclass gauss-dpm (dpm)
   ((base-distribution :initform (make-instance 'dp-gaussian))))
 
-(defclass dp-distribution () 
+(defclass dp-distribution ()
   ((cluster-class :initform 'cluster :accessor cluster-class)))
 
 (defclass dp-gaussian (dp-distribution)

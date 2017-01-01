@@ -1,12 +1,12 @@
 
 (defpackage :clml.graph.read-graph
-  
-  (:use :cl 
+
+  (:use :cl
         :parse-number
          :clml.hjs.matrix
         :clml.hjs.vector
         :clml.hjs.meta
-        
+
         )
   #+allegro
   (:use :excl)
@@ -21,21 +21,21 @@
            #:link-node1
            #:link-node2
            #:link-directed
-           
+
            #:simple-graph
            #:simple-graph-series
            #:nodes
            #:links
            #:directed-p
            #:graphs
-           
+
            #:read-graph
            #:do-graph-series
            #:read-graph-series
            #:make-simple-graph
            ))
 (defpackage :clml.graph.graph-utils
-  (:use :cl 
+  (:use :cl
         :parse-number
          :clml.hjs.matrix
         :clml.hjs.vector
@@ -49,7 +49,7 @@
            #:get-connected-components))
 
 (defpackage :clml.graph.shortest-path
-  
+
   (:use :cl
         :clml.hjs.meta
         :clml.hjs.vector
@@ -92,7 +92,7 @@
 
 (defpackage :clml.graph.graph-anomaly-detection
   (:use :cl
-        
+
         :clml.hjs.vars
         :clml.hjs.read-data
         :clml.hjs.matrix

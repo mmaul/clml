@@ -86,7 +86,7 @@
   (hypers-sampling dpm))
 
 (defmethod seatings-sampling ((dpm hdp-hmm))
-  (declare (optimize (speed 3) (safety 0) (debug 0)))  
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (let ((data (dpm-data dpm))
 	(old-before (hdp-hmm-eos dpm))
 	(new-before (hdp-hmm-eos dpm)))

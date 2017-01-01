@@ -50,11 +50,11 @@ e.g.
 	     (build-setf-var-clause ()
 	       (and setf-var `((,setf-var (aref ,vec-var ,index)))))
 	     (build-decl-clause ()
-	       `(declare 
+	       `(declare
 		 ,@(let ((vector-type-decl
 			  (or (second
 			       (assoc 'type
-                      #+ (or sbcl ccl) 
+                      #+ (or sbcl ccl)
                       (nth-value 3 (introspect-environment:variable-information vector env))
                       #+allegro
                       (nth-value 2 (sys:variable-information vector env))
@@ -152,7 +152,7 @@ e.g.
 			    (let ((vector-type-decl
 				   (second
 				    (assoc 'type
-                       #+ (or sbcl ccl) 
+                       #+ (or sbcl ccl)
                        (nth-value 3 (introspect-environment:variable-information vector env))
                        #+allegro
                        (nth-value 2 (sys:variable-information vector env))
@@ -440,7 +440,7 @@ e.g.
                   maximize (loop for v2 across pts2
                                minimize (funcall norm v1 v2)))))
     (max (h-d xpts ypts) (h-d ypts xpts))))
-  
+
 ;;@ function-type: vector -> (simple-array fixnum (*)) -> vector
 ;;@ precondition: length of vector is the same as length of indices and result
 ;;@ postcondition: return type is the same as input type

@@ -12,14 +12,14 @@
                    (t (epsilon> r1 r2)))))
 
 (defun assert-assoc-equal (expected-assoc assoc)
-  (assert-true 
+  (assert-true
    (set-equal (coerce (assoc-result-header expected-assoc) 'list)
               (coerce (assoc-result-header assoc) 'list) :test #'string=))
   (let ((expected-rules (assoc-result-rules expected-assoc))
         (rules (assoc-result-rules assoc)))
     (when (assert-eql (length expected-rules) (length rules))
-      ;(print (list "----"  expected-rules "====" rules)) 
-      (assert-false 
+      ;(print (list "----"  expected-rules "====" rules))
+      (assert-false
        (set-difference expected-rules rules :test #'rule-equal)))))
 
 (define-test test-sample-assoc
@@ -50,24 +50,24 @@
       (declare (ignorable expected-header))
       (assert
        (setf result (association-analyze-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/result.sexp")
-                                         '("商品名") "ID番号" 3 
+                                         '("商品名") "ID番号" 3
                                          :support 2 :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
       (loop for rule1 in expected-result
             for rule2 in (assoc-result-rules result)
             do (assert-true (rule-equal rule1 rule2)))
       (loop with rules = (assoc-result-rules result)
-            for rule in 
+            for rule in
                      (with-open-file (in (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/result.sexp") :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j) (read in))
             for i from 0
             do
-               (if (= i 0) 
-                          (assert-true 
+               (if (= i 0)
+                          (assert-true
                            (set-equal (coerce (assoc-result-header result) 'list)
                                       (coerce rule 'list) :test #'string=))
                           (assert-true (rule-equal rule (nth (1- i) rules)))))
       (assert
        (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
-      
+
       ;; verify rule indexes
       (let* ((key-pos (dimension-index (find "ID番号" (dataset-dimensions dataset)
                                              :test #'string= :key #'dimension-name)))
@@ -101,24 +101,24 @@
           (loop repeat 100 ;; for more accurate test, remove 'repeat'
                 for rule in (assoc-result-rules result)
                 do (verify-rule-indexes rule))))
-      
-      (assert 
+
+      (assert
        (setf result1 (%association-analyze-apriori dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1)
-      
-      (assert 
+
+      (assert
        (setf result1 (%association-analyze-da-ap-genrule dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1)
-      
-      (assert 
+
+      (assert
        (setf result1 (%association-analyze-fp-growth dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1)
-      
-      (assert 
+
+      (assert
        (setf result1 (%association-analyze-eclat dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1)
-      
-      (assert 
+
+      (assert
        (setf result1 (%association-analyze-lcm dataset '("商品名") "ID番号" 3 :support 2)))
       (assert-assoc-equal result result1))
 ))

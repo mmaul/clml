@@ -28,92 +28,92 @@
   (declare (type simple-vector training-vector)
 	   #+ (not sbcl) (type function kernel-function)
 	   (type double-float nu))
-  
+
   (setf *training-size* (length training-vector))
   (setf *alpha-array* (make-array *training-size* :element-type 'double-float :initial-element 0.0d0))
   (setf *gradient-array* (make-array *training-size* :element-type 'double-float :initial-element 0.0d0))
-  
+
   (let ((tau *tau*)
 	(training-size *training-size*)
 	(alpha-array *alpha-array*)
 	(gradient-array *gradient-array*))
-    
+
     (declare (type double-float tau)
 	     (type fixnum training-size)
 	     (type (simple-array double-float (*)) alpha-array gradient-array)
 	     (ignorable training-size))
-    
-    
+
+
     ;;initialize alpha-array
     (multiple-value-bind (n r) (floor (* nu training-size))
-      
+
       (declare (type fixnum n)
 	       (type double-float r))
       (loop
 	  for i of-type fixnum below n
 	  do (setf (aref alpha-array i) 1.0d0)
 	  finally (setf (aref alpha-array n) r))
-      
+
       ;;initialize gradient-array
       (loop
 	  for i of-type fixnum below training-size
 	  with point-n of-type (simple-array double-float (*)) = (svref training-vector n)
 	  as point-i of-type (simple-array double-float (*)) = (svref training-vector i)
-	  as k-i of-type double-float = (coerce (loop 
+	  as k-i of-type double-float = (coerce (loop
 						    for j of-type fixnum below n
 						    as point-j of-type (simple-array double-float (*)) = (svref training-vector j)
 						    sum (call-kernel-function kernel-function point-i point-j)) 'double-float)
 	  do (setf (aref gradient-array i) (+ k-i
-					      (* r 
+					      (* r
 						 (call-kernel-function kernel-function point-i point-n))))))
     (loop
 	while t
 	do (multiple-value-bind (i j)
 	       (working-set-selection3 training-vector kernel-function)
 	     (declare (type fixnum i j))
-         
+
          (when (= -1 j)
 	       (return-from qp-solver *alpha-array*))
-         
+
 	     (let ((a (eta training-vector kernel-function i j))
                (b (- (aref gradient-array j)
 			 (aref gradient-array i))))
-               
+
 	       (declare (type double-float a b))
-           
+
 	       (when (<= a 0.0d0)
 		 (setf a tau))
-		 
+		
 	       ;;update alpha
 	       (let ((old-a-i (aref alpha-array i))
 		     (old-a-j (aref alpha-array j)))
-           
+
 		 (declare (type double-float old-a-i old-a-j))
-		 
+		
 		 (incf (aref alpha-array i) (/ b a))
 		 (decf (aref alpha-array j) (/ b a))
-		 
+		
 		 ;;clipping
 		 (let ((sum (+ old-a-i old-a-j)))
-                   
+
 		   (declare (type double-float sum))
-                   
+
 		   (when (> (aref alpha-array i) 1.0d0)
 		     (setf (aref alpha-array i) 1.0d0))
-                   
+
 		   (when (< (aref alpha-array i) 0.0d0)
 		     (setf (aref alpha-array i) 0.0d0))
-		 
+		
 		   (setf (aref alpha-array j) (- sum (aref alpha-array i)))
-                   
+
 		   (when (> (aref alpha-array j) 1.0d0)
 		     (setf (aref alpha-array j) 1.0d0))
-                   
+
 		   (when (< (aref alpha-array j) 0.0d0)
 		     (setf (aref alpha-array j) 0.0d0))
-		   
+		
 		   (setf (aref alpha-array i) (- sum (aref alpha-array j)))
-		   
+		
 		   (update-gradient training-vector kernel-function i j old-a-i old-a-j))))))))
 
 
@@ -122,17 +122,17 @@
   (declare (type simple-vector training-vector)
 	   #+ (not sbcl) (type function kernel-function)
 	   (type double-float old-a-i old-a-j))
-  
+
   (let* ((alpha-array *alpha-array*)
 	 (gradient-array *gradient-array*)
 	 (training-size *training-size*)
 	 (delta-a-i (- (aref alpha-array i) old-a-i))
 	 (delta-a-j (- (aref alpha-array j) old-a-j)))
-       
+
     (declare (type fixnum i j training-size)
 	     (type (simple-array double-float (*)) alpha-array gradient-array)
 	     (type double-float delta-a-i delta-a-j))
-    
+
     (loop
 	for k of-type fixnum below training-size
 	with point-i of-type (simple-array double-float (*)) = (svref training-vector i)
@@ -149,26 +149,26 @@
   "for one-class-svm"
   (declare (type simple-vector training-vector)
 	   #+ (not sbcl) (type function kernel-function))
-  
+
   (let ((i -1)
 	(j -1)
 	(eps *eps*))
-    
+
     (declare (type fixnum i j)
 	     (type double-float eps))
-    
+
     (let ((g-max most-negative-double-float)
 	  (g-min most-positive-double-float))
-      
+
       (declare (type double-float g-max g-min))
-      
+
       (multiple-value-setq (i g-max) (select-i))
-      
+
       (multiple-value-setq (j g-min) (select-j training-vector kernel-function i g-max))
-      
+
       (when (< (- g-max g-min) eps)
         (return-from working-set-selection3 (values -1 -1)))
-      
+
       (values i j))))
 
 
@@ -179,7 +179,7 @@
 	(gradient-array *gradient-array*)
 	(i -1)
 	(g-max most-negative-double-float))
-    
+
     (declare (type fixnum i training-size)
 	     (type (simple-array double-float (*)) alpha-array gradient-array)
 	     (type double-float g-max))
@@ -200,7 +200,7 @@
   "for one-class-svm"
   (declare (type simple-vector training-vector)
 	   #+ (not sbcl) (type function kernel-function))
-  
+
   (let ((training-size *training-size*)
 	(alpha-array *alpha-array*)
 	(gradient-array *gradient-array*)
@@ -208,11 +208,11 @@
 	(j -1)
 	(g-min most-positive-double-float)
 	(obj-min most-positive-double-float))
-  
+
     (declare (type fixnum i j training-size)
 	     (type (simple-array double-float (*)) alpha-array gradient-array)
 	     (type double-float tau g-min g-max obj-min))
-    
+
     (loop
         for k of-type fixnum below training-size
         as a-k of-type double-float = (aref alpha-array k)
@@ -251,7 +251,7 @@
            (ignorable kernel-function training-vector))
   (let ((point-i (svref training-vector i))
         (point-j (svref training-vector j)))
-    
+
     (declare (type (simple-array double-float (*)) point-i point-j))
     (+ (call-kernel-function kernel-function point-i point-i)
                  (call-kernel-function kernel-function point-j point-j)
@@ -259,7 +259,7 @@
 
 ;;for check
 (defun print-rho (training-vector kernel-function alpha-array)
-  
+
   (loop
       for i below (length alpha-array)
       as a-i = (aref alpha-array i)
@@ -291,7 +291,7 @@
 		 unless (= 0.0d0 a-j)
 		 sum (* a-j
 			(call-kernel-function kernel-function point-i point-j))))
-     
+
      (loop
 	 for alpha of-type double-float across alpha-array count (< 0.0d0 alpha 1.0d0))))
 
@@ -303,11 +303,11 @@
 	   (type dvec alpha-array)
 	   (type double-float rho)
            (ignorable kernel-function))
-  
+
   (lambda (point)
     (sign (- (let ((result 0.0d0))
-	       (declare (type double-float result))  
-	       (loop 
+	       (declare (type double-float result))
+	       (loop
                    for i of-type fixnum below (length alpha-array)
                    as a-i of-type double-float = (aref alpha-array i)
                    unless (= 0.0d0 a-i)
@@ -326,7 +326,7 @@
  - gamma : gamma of RBF-kernel
 
 *** sample usage
-#+INCLUDE: \"../sample/one-class-svm.org\" example lisp 
+#+INCLUDE: \"../sample/one-class-svm.org\" example lisp
 "
   (assert (and (< 0.0d0 nu 1.0d0) (plusp gamma)))
   (let* ((nu (coerce nu 'double-float))

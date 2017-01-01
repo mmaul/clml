@@ -34,7 +34,7 @@
     (is (= 2 (touch f)))))
 
 (deftest wait-for-all-futures-test ()
-  (assert-no-futures) 
+  (assert-no-futures)
   (let ((f1 (future (sleep 0.1) (+ 1 1)))
         (f2 (future (sleep 0.2) (+ 1 1)))
         (f3 (future (+ 1 1))))
@@ -94,7 +94,7 @@
     (is (= 3 (futures-count)))
     (sleep 0.5)
     (kill-all-futures t)
-    (assert-no-futures) 
+    (assert-no-futures)
     (is (every (lambda (f) (not (probe-file (format nil fork-future::*future-result-file-template*
                                                     (fork-future::pid-of f)))))
                (list f1 f2 f3)))
@@ -109,12 +109,12 @@
            (+
             (let ((f1 (future (+ 1 1)))
                   (f2 (future (+ 2 2))))
-              (is (= 2 (futures-count))) 
+              (is (= 2 (futures-count)))
               (is (= 6 (+ (touch f1) (touch f2))))
               (+ (touch f1) (touch f2)))
             (let ((f1 (future (+ 1 1)))
                   (f2 (future (+ 2 2))))
-              (is (= 2 (futures-count))) 
+              (is (= 2 (futures-count)))
               (is (= 6 (+ (touch f1) (touch f2))))
               (+ (touch f1) (touch f2)))))))
     (is (= 1 (futures-count)))

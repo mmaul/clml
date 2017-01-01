@@ -2,7 +2,7 @@
   (:use :cl :clml.hjs.meta :clml.hjs.matrix :clml.hjs.vector
         :clml.hjs.read-data :clml.statistics :clml.hjs.vars
         :mkl.blas :mkl.lapack :mkl-matrix-utils)
-  (:export 
+  (:export
    #:princomp
    #:princomp-projection
    #:sub-princomp
@@ -21,7 +21,7 @@
 #||
 Here we calculate the PCA by solving the eigenvectors/eigenvalues of
 the covariance matrix of the input dataset. The dataset is of size (M,
-N), where M is the number of ponits and N is the dimension size. 
+N), where M is the number of ponits and N is the dimension size.
 ||#
 
 (defclass pca-result ()
@@ -54,7 +54,7 @@ N), where M is the number of ponits and N is the dimension size.
 		 :centroid centroid
 		 :orig-data-standard-deviations orig-data-standard-deviations))
 
-(defmethod make-cov-or-cor ((dataset numeric-dataset) 
+(defmethod make-cov-or-cor ((dataset numeric-dataset)
                             &key (method :covariance)
                             (type :matrix)) ; :matrix | :closure
   (let* ((points (vecs2mat (dataset-numeric-points dataset)))
@@ -70,7 +70,7 @@ N), where M is the number of ponits and N is the dimension size.
          (1/n (/ 1d0 size))
          ;; centering the points
          ;; NOTE: points cannot be used anymore
-         (c-points 
+         (c-points
           (mkl.blas:dger dim size -1d0 e-mean 1 identity 1 points dim))
          ;; transpose
          ;;(tc-points (transposeV c-points))
@@ -85,7 +85,7 @@ N), where M is the number of ponits and N is the dimension size.
             ;;    (error "type :closure currently is not supported.")
             ;;    (lambda (row col)
             ;;      (declare (type integer row col))
-            ;;      (* (inner-product (svref tc-points row) 
+            ;;      (* (inner-product (svref tc-points row)
             ;;                        (svref tc-points col)) 1/n)))
             ))
          ;; computing the standard deviations
@@ -156,7 +156,7 @@ N), where M is the number of ponits and N is the dimension size.
                (setf sv (/ v s))))
           (:closure
              (do-vec (v p :type double-float :index-var i :setf-var sv)
-               (setf sv (/ v (the (double-float 0d0) 
+               (setf sv (/ v (the (double-float 0d0)
                                (funcall standard-deviations i)))))))))
     (values cov-or-cor e-mean z-scores standard-deviations)))
 
@@ -218,7 +218,7 @@ N), where M is the number of ponits and N is the dimension size.
                 (do-vec (v eigen-vectors :type dvec :index-var iv)
                   (setf (aref r iv)
                     (inner-product p v))))
-              (values (make-pca-result score eigen-values eigen-vectors 
+              (values (make-pca-result score eigen-values eigen-vectors
                                        method e-mean standard-deviations)
                       (make-pca-model eigen-vectors method e-mean standard-deviations)))))))))
 
@@ -226,12 +226,12 @@ N), where M is the number of ponits and N is the dimension size.
   (assert (eq (type-of dataset) 'numeric-dataset))
   (let* ((points (map 'vector
                    #'copy-seq
-                   (dataset-numeric-points dataset)))          
+                   (dataset-numeric-points dataset)))
          ;; get empirial mean
          (e-mean (centroid pca-model))
          ;; centering the points
          ;; NOTE: points cannot be used anymore
-         (c-points 
+         (c-points
           (do-vec (p points :type dvec :return points)
             (v- p e-mean p)))
          ;; computing the standard deviations
@@ -242,7 +242,7 @@ N), where M is the number of ponits and N is the dimension size.
          ;; z-scores
          (z-scores c-points)            ; NOTE: c-points cannot be used anymore
          ;; score
-         (score (map 'vector (lambda (_) 
+         (score (map 'vector (lambda (_)
                                (declare (ignore _))
                                (make-dvec dim)) z-scores))
          )
@@ -254,7 +254,7 @@ N), where M is the number of ponits and N is the dimension size.
         (do-vecs ((v p :type double-float :setf-var sv)
                   (s standard-deviations :type double-float))
           (setf sv (/ v s)))))
-    ;; 
+    ;;
     (do-vecs ((p z-scores :type dvec :index-var ip)
               (r score :type dvec))
       (do-vec (v bases :type dvec :index-var iv)
@@ -290,8 +290,8 @@ N), where M is the number of ponits and N is the dimension size.
                   (r score :type dvec))
           (do-vec (v eigen-vectors :type dvec :index-var iv)
             (setf (aref r iv) (inner-product p v))))
-        (values 
-         (make-pca-result score eigen-values eigen-vectors 
+        (values
+         (make-pca-result score eigen-values eigen-vectors
                           method e-mean standard-deviations)
          (make-pca-model eigen-vectors method e-mean standard-deviations))))))
 
@@ -299,9 +299,9 @@ N), where M is the number of ponits and N is the dimension size.
 ;;;;;;;;;;;;;;;;;
 ; kernel P.C.A. ;
 ;;;;;;;;;;;;;;;;;
-;; reference: 
+;; reference:
 ;; - パターン認識と機械学習下: ベイズ理論による統計的予測 著者: C.M.ビショップ
-;; - B.Schlkoph and A.J.Smola, Learning With Kernel:Section 5, MIT Press, 2002. 
+;; - B.Schlkoph and A.J.Smola, Learning With Kernel:Section 5, MIT Press, 2002.
 
 ;;;;;;;;;;;;;;;;;;;;
 ; kernel functions ;
@@ -364,7 +364,7 @@ N), where M is the number of ponits and N is the dimension size.
    (centroid :initarg :centroid :accessor centroid)
    (demean-org-pts :initarg :demean-org-pts :accessor demean-org-pts)))
 
-(defun make-kernel-pca-result 
+(defun make-kernel-pca-result
     (components contributions loading-factors kernel-fcn centroid n-points)
   (make-instance 'kernel-pca-result
     :components components :contributions contributions
@@ -383,10 +383,10 @@ N), where M is the number of ponits and N is the dimension size.
          (size (length points))
          (-1/n (/ -1d0 size))
          (e-mean (mean-points points))
-         (c-points 
+         (c-points
           (do-vec (p points :type dvec :return points)
             (v- p e-mean p)))
-         (mem-kernel 
+         (mem-kernel
           (let ((mem (make-hash-table :test #'eql)))
             (lambda (r c) (declare (type fixnum r c))
                     (let ((key (if (> r c) ;; kernel-fcn is commutative
@@ -394,7 +394,7 @@ N), where M is the number of ponits and N is the dimension size.
                                  (+ (* r size) c))))
                       (multiple-value-bind (value pr-p)
                           (gethash key mem)
-                        (if pr-p value 
+                        (if pr-p value
                           (setf (gethash key mem)
                             (funcall kernel-fcn
                                      (svref c-points r)
@@ -403,7 +403,7 @@ N), where M is the number of ponits and N is the dimension size.
     (assert (> size 0))
     (loop for row of-type fixnum below size
         do (loop for col of-type fixnum below size
-               do 
+               do
                  (setf (aref k-mat row col)
                    (+ (funcall mem-kernel row col)
                       (* -1/n (loop for p of-type fixnum below size
@@ -432,11 +432,11 @@ N), where M is the number of ponits and N is the dimension size.
              (setf sr s))))
     score))
 
-(defmethod kernel-princomp ((dataset numeric-dataset) 
+(defmethod kernel-princomp ((dataset numeric-dataset)
                             &key dimension-thld
                                  (kernel-fcn +linear+))
   (declare (optimize debug))
-  (unless dimension-thld 
+  (unless dimension-thld
     (setf dimension-thld (length (dataset-numeric-points dataset))))
   (multiple-value-bind (kernel-mat n demean-pts e-mean)
       (make-kernel-mat dataset kernel-fcn)
@@ -465,13 +465,13 @@ N), where M is the number of ponits and N is the dimension size.
                  score eigen-vals eigen-vecs kernel-fcn e-mean n)
                 (make-kernel-pca-model eigen-vecs kernel-fcn e-mean demean-pts))
                 ))))
-          
+
 (defmethod princomp-projection ((dataset numeric-dataset) (kpca-model kernel-pca-model))
   (with-accessors ((e-mean centroid)
                    (egn-vecs loading-factors)
                    (kfcn kernel-fcn)
                    (org-pts demean-org-pts)) kpca-model
-    (declare (type dvec e-mean) 
+    (declare (type dvec e-mean)
              (type (simple-array dvec (*)) egn-vecs org-pts))
     (let* ((points (map 'vector #'copy-seq (dataset-numeric-points dataset)))
            (c-points
@@ -498,7 +498,7 @@ N), where M is the number of ponits and N is the dimension size.
           (loop for y below height
               do (loop for x below width
                      do
-                       (let ((pos (specialize-vec 
+                       (let ((pos (specialize-vec
                                    (make-array 2 :initial-contents
                                                (list (dfloat (+ minx (/ (- x (/ blank 2)) scale)))
                                                      (dfloat (+ miny (/ (- y (/ blank 2)) scale))))))))

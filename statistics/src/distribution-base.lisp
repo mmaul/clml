@@ -9,7 +9,7 @@
    (kurtosis)
    (mode)))
 
-  
+
   (defclass discrete-distribution (distribution) ())
   (defclass continuous-distribution (distribution) ()))
 

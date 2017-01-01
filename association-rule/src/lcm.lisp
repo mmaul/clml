@@ -21,7 +21,7 @@
 	when (>= occur minimum-count) do
 	  (let ((new-node (update-and-walk-trie trie key occur)))
 	    (unless (= length 1)
-	      (scan-lcm new-node sub-trans (1- length) (cdr keys) minimum-count))))))  
+	      (scan-lcm new-node sub-trans (1- length) (cdr keys) minimum-count))))))
 
 (defun scan-input-data-lcm (labeled-dataset target-variables key-variable rule-length support)
   (let ((rule-counter (make-hash-table :test #'equal))
@@ -73,7 +73,7 @@
 	    ;; lcm scan into trie
 	    (scan-lcm root-trie transactions rule-length keys (max 1 (* count (/ support 100.0))))
 	    (values root-trie count)))))))
-  
+
 (defun %association-analyze-lcm (labeled-dataset target-variables key-variable rule-length
 				       &key (support 0) (confident 0) (lift 0) (conviction 0))
   "Association analyze with Linear time Closed itemset Miner(LCM) algorithm

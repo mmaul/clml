@@ -13,18 +13,18 @@
 	number-of-codes
 	data
 	codes)
-    
-    ;; the topology type of the map 
+
+    ;; the topology type of the map
     (setq topol (topol-type s-topol))
     (when (unknown-topol-p topol)
       (error "Unknown topology type ~a" s-topol))
-    
+
     ;; the neighbourhood type
     (setq neigh (neigh-type s-neigh))
     (when (unknown-neigh-p neigh)
       (error "Unknown neighborhood type ~a" s-neigh))
     (label-not-needed 1)
-    
+
     (setq number-of-codes (* xdim ydim))
     (when (<= number-of-codes 0)
       (error "Dimensions of map (~d ~d) are incorrect" xdim ydim))
@@ -32,20 +32,20 @@
       (error "Dimensions of map (~d ~d) are incorrect" xdim ydim))
 
     (setq data (gdata-data g-data))
-    
+
     (setf (slot-value (entries-entries_flags data) 'loadmode)
       +loadmode-all+)
-    
+
     (init-random randomize)
-    
-    ;; do initialization 
+
+    ;; do initialization
     (setq codes
       (randinit-codes data topol neigh xdim ydim))
-    
+
     (setf (gdata-data g-data) data)
     (setf (entries-parent-gdata data) g-data)
     (setf (gdata-codes g-data) codes)
     (setf (entries-parent-gdata codes) g-data)
-    
+
     ))
 	

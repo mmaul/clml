@@ -2,7 +2,7 @@
 
 (defgeneric atr (d &key)
   (:documentation "
-True range (TR) is a measure of volatility of a High-Low-Close series; average true range (ATR) is a Welles Wilder's style moving average of the TR. Developed by J. Welles Wilder in 1978. 
+True range (TR) is a measure of volatility of a High-Low-Close series; average true range (ATR) is a Welles Wilder's style moving average of the TR. Developed by J. Welles Wilder in 1978.
 
 - return: copy of <time-series-dataset> starting after nth observation
           with tr and atr dimensions appended
@@ -21,7 +21,7 @@ True range (TR) is a measure of volatility of a High-Low-Close series; average t
                    (start ts-start)
                    (end ts-end)
                    (freq ts-freq)) d
-      
+
       (let* ((1st-point (clml.time-series.read-data:ts-p-pos (aref ps  0)))
              (1st-tr (- (aref 1st-point high) (aref 1st-point low)))
              )
@@ -53,7 +53,7 @@ True range (TR) is a measure of volatility of a High-Low-Close series; average t
                                                         'vector)))
                                into data
                            finally (return data)
-                           ) 
+                           )
                      'vector) 1)
            :start (list n 1) :end end
            :freq freq

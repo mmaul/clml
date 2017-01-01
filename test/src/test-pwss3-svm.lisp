@@ -27,26 +27,26 @@
                        (pick-and-specialize-data
                         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
                                              :type :csv
-                                             :csv-type-spec 
+                                             :csv-type-spec
                                              (make-list 10 :initial-element 'double-float))
                         :data-types (make-list 10 :initial-element :numeric))))
-    
+
     (assert (setf svm-bc-test
                        (pick-and-specialize-data
                         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
                                              :type :csv
-                                             :csv-type-spec 
+                                             :csv-type-spec
                                              (make-list 10 :initial-element 'double-float))
                         :data-types (make-list 10 :initial-element :numeric))))
-    
+
     (assert (setf training-vector (dataset-points svm-bc-train)))
     (assert (setf test-vector (dataset-points svm-bc-test)))
-    
+
     (assert (setf linear-svm (clml.svm.pwss3::make-svm-learner training-vector (clml.svm.pwss3:make-linear-kernel) :c 1))) ;Not sure whether is c or weight
     (assert-true (= 1.0d0 (funcall linear-svm (svref test-vector 0))))
     (assert-true (= -1.0d0 (funcall linear-svm (svref test-vector 7))))
     (assert-true (= 4 (length (clml.svm.pwss3::svm-validation linear-svm test-vector))))
-    
+
     (assert (setf rbf-kernel (clml.svm.pwss3::make-rbf-kernel :gamma 0.05d0)))
     (assert (setf rbf-svm (clml.svm.pwss3:make-svm-learner training-vector rbf-kernel :c 100)))
     (assert-true (= 1.0d0 (funcall rbf-svm (svref test-vector 0))))
@@ -66,6 +66,6 @@
     (assert (setf svm (clml.svm.pwss3:make-svm-learner training-vector rbf :c 10)))
     (assert (multiple-value-setq (results accuracy) (clml.svm.pwss3:svm-validation svm test-vector)))
     (assert-true (= accuracy 94.85150853161717d0))
-    
+
     )
   )

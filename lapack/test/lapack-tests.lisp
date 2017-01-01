@@ -45,39 +45,39 @@
 ;; Expected results from http://www.nag.co.uk/lapack-ex/examples/results/dgeev-ex.r
 ;;
 ;; DGEEV Example Program Results
-;; 
+;;
 ;;  Eigenvalue( 1) =  7.9948E-01
-;; 
+;;
 ;;  Eigenvector( 1)
 ;;  -6.5509E-01
 ;;  -5.2363E-01
 ;;   5.3622E-01
 ;;  -9.5607E-02
-;; 
+;;
 ;;  Eigenvalue( 2) = (-9.9412E-02, 4.0079E-01)
-;; 
+;;
 ;;  Eigenvector( 2)
 ;;  (-1.9330E-01, 2.5463E-01)
 ;;  ( 2.5186E-01,-5.2240E-01)
 ;;  ( 9.7182E-02,-3.0838E-01)
 ;;  ( 6.7595E-01, 0.0000E+00)
-;; 
+;;
 ;;  Eigenvalue( 3) = (-9.9412E-02,-4.0079E-01)
-;; 
+;;
 ;;  Eigenvector( 3)
 ;;  (-1.9330E-01,-2.5463E-01)
 ;;  ( 2.5186E-01, 5.2240E-01)
 ;;  ( 9.7182E-02, 3.0838E-01)
 ;;  ( 6.7595E-01,-0.0000E+00)
-;; 
+;;
 ;;  Eigenvalue( 4) = -1.0066E-01
-;; 
+;;
 ;;  Eigenvector( 4)
 ;;   1.2533E-01
 ;;   3.3202E-01
 ;;   5.9384E-01
 ;;   7.2209E-01
-;; 
+;;
 (defun print-dgeev-results (e-val e-vec)
   (format t "~2%DGEEV Example Program Results~%")
   (let ((n (length e-val)))
@@ -129,63 +129,63 @@
 ;; Expected results http://www.nag.co.uk/lapack-ex/examples/results/dgeevx-ex.r
 ;;
 ;; DGEEVX Example Program Results
-;; 
+;;
 ;;  Eigenvalue( 1) =  7.9948E-01
-;; 
+;;
 ;;  Reciprocal condition number =  9.9E-01
 ;;  Error bound                 =  1.3E-16
-;; 
+;;
 ;;  Eigenvector( 1)
 ;;  -6.5509E-01
 ;;  -5.2363E-01
 ;;   5.3622E-01
 ;;  -9.5607E-02
-;; 
+;;
 ;;  Reciprocal condition number =  8.2E-01
 ;;  Error bound                 =  1.6E-16
-;; 
+;;
 ;;  Eigenvalue( 2) = (-9.9412E-02, 4.0079E-01)
-;; 
+;;
 ;;  Reciprocal condition number =  7.0E-01
 ;;  Error bound                 =  1.8E-16
-;; 
+;;
 ;;  Eigenvector( 2)
 ;;  (-1.9330E-01, 2.5463E-01)
 ;;  ( 2.5186E-01,-5.2240E-01)
 ;;  ( 9.7182E-02,-3.0838E-01)
 ;;  ( 6.7595E-01, 0.0000E+00)
-;; 
+;;
 ;;  Reciprocal condition number =  4.0E-01
 ;;  Error bound                 =  3.3E-16
-;; 
+;;
 ;;  Eigenvalue( 3) = (-9.9412E-02,-4.0079E-01)
-;; 
+;;
 ;;  Reciprocal condition number =  7.0E-01
 ;;  Error bound                 =  1.8E-16
-;; 
+;;
 ;;  Eigenvector( 3)
 ;;  (-1.9330E-01,-2.5463E-01)
 ;;  ( 2.5186E-01, 5.2240E-01)
 ;;  ( 9.7182E-02, 3.0838E-01)
 ;;  ( 6.7595E-01,-0.0000E+00)
-;; 
+;;
 ;;  Reciprocal condition number =  4.0E-01
 ;;  Error bound                 =  3.3E-16
-;; 
+;;
 ;;  Eigenvalue( 4) = -1.0066E-01
-;; 
+;;
 ;;  Reciprocal condition number =  5.7E-01
 ;;  Error bound                 =  2.3E-16
-;; 
+;;
 ;;  Eigenvector( 4)
 ;;   1.2533E-01
 ;;   3.3202E-01
 ;;   5.9384E-01
 ;;   7.2209E-01
-;; 
+;;
 ;;  Reciprocal condition number =  3.1E-01
 ;;  Error bound                 =  4.2E-16
-;; 
+;;
 (defun print-dgeevx-results (tol e-val e-vec rconde rcondv)
   (format t "~2%DGEEVX Example Program Results~%")
   (let ((n (length e-val)))
@@ -196,7 +196,7 @@
 	(if (plusp rcnd)
 	    (format t "Error bound = ~A~%" (/ tol rcnd))
 	    (format t "Error bound is infinite~%")))
-      
+
       (format t "~%Eigenvector(~D)~%" k)
       (dotimes (row n)
 	(format t "~A~%" (aref e-vec row k)))
@@ -245,22 +245,22 @@
 	     (format t "Failure in DGEEV.  INFO = ~D~%" info)))
       ;; Display workspace info
       (format t "Optimum workspace required = ~D~%" (truncate (aref work 0)))
-      (format t "Workspace provided = ~D~%" lwork))))  
+      (format t "Workspace provided = ~D~%" lwork))))
 
 ;; Expected results (from http://www.nag.co.uk/lapack-ex/examples/results/dgesv-ex.r)
 ;; Solution
 ;;         1.0000    -1.0000     3.0000    -5.0000
-;; 
+;;
 ;;  Details of factorization
 ;;              1          2          3          4
 ;;  1      5.2500    -2.9500    -0.9500    -3.8000
 ;;  2      0.3429     3.8914     2.3757     0.4129
 ;;  3      0.3010    -0.4631    -1.5139     0.2948
 ;;  4     -0.2114    -0.3299     0.0047     0.1314
-;; 
+;;
 ;;  Pivot indices
 ;;              2          2          3          4
-;; 
+;;
 (defun print-dgesv-results (n a b ipiv)
   (format t "~2%DGESV Example Program Results~%")
   (format t "Solution~%")
@@ -282,7 +282,7 @@
   ;;  1.80   2.88   2.05  -0.89
   ;;  5.25  -2.95  -0.95  -3.80
   ;;  1.58  -2.69  -2.90  -1.04
-  ;; -1.11  -0.66  -0.59   0.80  
+  ;; -1.11  -0.66  -0.59   0.80
   ;;
   ;; RHS:
   ;; 9.52  24.35   0.77  -6.22
@@ -314,7 +314,7 @@
 ;; The result below is what the test program actually produces.
 
 ;; DGESDD Example Program Results
-;; 
+;;
 ;;  Singular values
 ;;      9.9966  3.6831  1.3569  0.5000
 ;;  Left singular vectors
@@ -323,23 +323,23 @@
 ;;  2   0.8794  0.3926  0.0752 -0.2587
 ;;  3  -0.2140  0.2980 -0.7827 -0.5027
 ;;  4   0.3795 -0.3351 -0.6178  0.6017
-;; 
+;;
 ;;  Right singular vectors by row (first m rows of V**T)
 ;;           1       2       3       4       5       6
 ;;  1  -0.2774 -0.2020 -0.2918  0.0938  0.4213 -0.7816
 ;;  2   0.6003  0.0301 -0.3348  0.3699 -0.5266 -0.3353
 ;;  3   0.1277 -0.2805 -0.6453 -0.6781 -0.0413  0.1645
 ;;  4  -0.1323 -0.7034 -0.1906  0.5399  0.0575  0.3957
-;; 
+;;
 ;;  Error estimate for the singular values
 ;;         1.1E-15
-;; 
+;;
 ;;  Error estimates for the left singular vectors
 ;;         1.8E-16    4.8E-16    1.3E-15    1.3E-15
-;; 
+;;
 ;;  Error estimates for the right singular vectors
 ;;         1.8E-16    4.8E-16    1.3E-15    2.2E-15
-;; 
+;;
 (defun print-dgesdd-results (m n s u a)
   (format t "~2%DGESDD Example Program Results~%")
   (format t "Singular values~%")
@@ -408,7 +408,7 @@
 
 ;; Expected results (from http://www.nag.co.uk/lapack-ex/examples/results/dgesvd-ex.r)
 ;; DGESVD Example Program Results
-;; 
+;;
 ;;  Singular values
 ;;      9.9966  3.6831  1.3569  0.5000
 ;;  Left singular vectors (first n columns of U)
@@ -419,23 +419,23 @@
 ;;  4   0.0938 -0.3699  0.6781 -0.5399
 ;;  5   0.4213  0.5266  0.0413 -0.0575
 ;;  6  -0.7816  0.3353 -0.1645 -0.3957
-;; 
+;;
 ;;  Right singular vectors by row (V**T)
 ;;           1       2       3       4
 ;;  1  -0.1921  0.8794 -0.2140  0.3795
 ;;  2  -0.8030 -0.3926 -0.2980  0.3351
 ;;  3   0.0041 -0.0752  0.7827  0.6178
 ;;  4  -0.5642  0.2587  0.5027 -0.6017
-;; 
+;;
 ;;  Error estimate for the singular values
 ;;         1.1E-15
-;; 
+;;
 ;;  Error estimates for the left singular vectors
 ;;         1.8E-16    4.8E-16    1.3E-15    2.2E-15
-;; 
+;;
 ;;  Error estimates for the right singular vectors
 ;;         1.8E-16    4.8E-16    1.3E-15    1.3E-15
-;; 
+;;
 (defun print-dgesvd-results (m n s vt a)
   (format t "~2%DGESVD Example Program Results~%")
   (format t "Singular values~%")

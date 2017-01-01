@@ -42,7 +42,7 @@
     (loop until (zerop (fill-pointer flip))
 	for c = (vector-pop flip) do
 	  (setf (gethash c table) t))
-    (loop for i from 0 below k 
+    (loop for i from 0 below k
 	for c = (aref clusters i) do
 	  (let ((coin (bernoulli (apply #'density-to-cluster dpm c data :past table :n n args))))
 	    (if (zerop coin)
@@ -223,7 +223,7 @@
       (vector-push-extend den p)
       (setf max (max max den)))
     (setf poisson-base (max least-positive-double-float (* poisson-base lambda)))
-    (loop 
+    (loop
 	while (>= poisson-base least-positive-double-float)
 	for i from 1 below *ibp-sample-threshold*
 	for den = (+ (log poisson-base) (base-distribution dpm dist customer :n i :ave c-ave)) do

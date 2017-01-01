@@ -13,7 +13,7 @@
   (delete object (find-nearest-epsilon (nn-search input) object (epsilon input) (neighbors input))))
 
 (defun optics-speed (input-path epsilon min-pts r-epsilon
-		     target-cols &key (file-type :sexp) 
+		     target-cols &key (file-type :sexp)
 				      (csv-type-spec '(string double-float double-float))
 				      (distance :manhattan)
 				      (normalize nil)
@@ -25,7 +25,7 @@
   (assert (and (plusp r-epsilon) (<= r-epsilon epsilon)))
   (assert target-cols)
   (let* ((dataset
-          (read-data-from-file input-path 
+          (read-data-from-file input-path
                                :type file-type
                                :csv-type-spec csv-type-spec
                                :external-format external-format))
@@ -38,7 +38,7 @@
     (setq dataset
       (pick-and-specialize-data dataset
                                 :range range
-                                :data-types 
+                                :data-types
                                 (make-list (length range)
                                            :initial-element :numeric)))
     (%optics-speed dataset epsilon min-pts r-epsilon
@@ -46,7 +46,7 @@
 
 (defun %optics-speed (numeric-dataset epsilon min-pts r-epsilon &key (distance :manhattan) normalize (nns-type :naive) nns-args)
   (when normalize
-    (setf (dataset-numeric-points numeric-dataset) 
+    (setf (dataset-numeric-points numeric-dataset)
       (standardize (dataset-numeric-points numeric-dataset))))
   (let* ((optics-input (make-optics-input-speed
                         (dataset-numeric-points numeric-dataset)
@@ -72,7 +72,7 @@
     (optics-main optics-input optics-output)
     optics-output))
 
-(defun make-optics-input-speed (input-data epsilon min-pts r-epsilon 
+(defun make-optics-input-speed (input-data epsilon min-pts r-epsilon
                           &key (distance :manhattan)
                                (normalize nil))
   (assert (<= r-epsilon epsilon))
@@ -87,7 +87,7 @@
                          :epsilon (clml.hjs.meta:dfloat epsilon) :min-pts min-pts
                          :r-epsilon (clml.hjs.meta:dfloat r-epsilon) :normalize normalize))
          (point-objs
-          (coerce 
+          (coerce
            (loop for point across input-data
                for id from 0
                collect (make-instance 'optics-point-object

@@ -28,7 +28,7 @@
                    (loop with start = (+ target-start code-max (- code-from) 1)
 		       for code from code-from upto (1- code-max) do
                          (setf start
-			   (build-sa-iter base 
+			   (build-sa-iter base
 					  (+ target-start code (- code-from))
 					  start (1+ code) code-max (1- l)))
 		       finally (return start))

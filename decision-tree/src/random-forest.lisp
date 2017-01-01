@@ -16,7 +16,7 @@
 	 (n (array-dimension data-vector 0))
 	 (m (bag-sizer data-bag-size n))
 	 (new-data-vector (make-array m)))
-    
+
     (loop
 	for i below m
 	do (setf (svref new-data-vector i) (svref data-vector (random n))))
@@ -52,12 +52,12 @@
 
 (defun algorithm-s (n max)
   "Knuth's random sampling algorithm."
-  (loop 
+  (loop
       for seen from 0
       when (< (* (- max seen) (random 1.0)) n)
       collect seen and do (decf n)
       until (zerop n)))
-  
+
 (defun make-split-criterion-list-for-rf (data-vector variable-index-hash objective-column-index)
   (let ((explanatory-variable-index-list (make-explanatory-variable-index-list variable-index-hash objective-column-index)))
     (loop with split-criterion-list = '()
@@ -77,10 +77,10 @@
 (defun select-best-splitting-attribute-for-rf (data-vector variable-index-hash
 					       list-of-row-numbers split-criterion-list
 					       objective-column-index &key (test #'delta-gini) (epsilon 0))
-  
+
   (let* ((v (mapcar #'(lambda (x) (list x (funcall test data-vector variable-index-hash list-of-row-numbers (car x) (cdr x) objective-column-index)))
 		    split-criterion-list))
-	 
+	
 	 (w (reduce #'(lambda (x y) (if (<= (second x) (second y))
 	 				y
 	 			      x)) v)))
@@ -89,19 +89,19 @@
       (values (car w) (* (length list-of-row-numbers) (second w))))))
 
 (defun make-root-node-for-rf (data-vector variable-index-hash objective-column-index column-list &key (test #'delta-gini) (epsilon 0))
-  
+
   (let ((initial-row-numbers-list (whole-row-numbers-list data-vector)))
 
     (multiple-value-bind (best-split-criterion split-criterion-list)
 	(select-best-splitting-attribute-for-rf
 	 data-vector variable-index-hash initial-row-numbers-list
 	 (make-split-criterion-list-for-rf data-vector variable-index-hash objective-column-index) objective-column-index :test test :epsilon epsilon)
-    
+
       (let ((result-ratio (sum-up-results data-vector initial-row-numbers-list objective-column-index)))
-					    					      
+					    					
 	(multiple-value-bind (right left) (split data-vector variable-index-hash initial-row-numbers-list
 						 (car best-split-criterion) (cdr best-split-criterion))
-	     
+	
 	  (list (list best-split-criterion split-criterion-list)
 		result-ratio
 		(list right left)
@@ -110,15 +110,15 @@
 		column-list
 		))))))
 
-(defun make-new-right-node-for-rf (data-vector variable-index-hash objective-column-index tree-node 
+(defun make-new-right-node-for-rf (data-vector variable-index-hash objective-column-index tree-node
 				   &key (test #'delta-gini) (epsilon 0))
   (if (null (caar tree-node))
       '()
     (let ((right-low-numbers-list (first (third tree-node))))
-      
+
       (multiple-value-bind (best-split-criterion split-criterion-list)
 	  (select-best-splitting-attribute-for-rf
-	   data-vector variable-index-hash right-low-numbers-list 
+	   data-vector variable-index-hash right-low-numbers-list
 	   (make-split-criterion-list-for-rf data-vector variable-index-hash objective-column-index)
 	   objective-column-index :test test :epsilon epsilon)
 	
@@ -126,20 +126,20 @@
 					    objective-column-index)))
 	  (multiple-value-bind (right left) (split data-vector variable-index-hash right-low-numbers-list
 						   (car best-split-criterion) (cdr best-split-criterion))
-	   
+	
 	    (list (list best-split-criterion split-criterion-list)
 		  result-ratio
 		  (list right left))))))))
 	 	
-(defun make-new-left-node-for-rf (data-vector variable-index-hash objective-column-index tree-node 
+(defun make-new-left-node-for-rf (data-vector variable-index-hash objective-column-index tree-node
 			    &key (test #'delta-gini) (epsilon 0))
   (if (null (caar tree-node))
       '()
     (let ((left-low-numbers-list (second (third tree-node))))
-      
+
       (multiple-value-bind (best-split-criterion split-criterion-list)
 	  (select-best-splitting-attribute-for-rf
-	   data-vector variable-index-hash left-low-numbers-list 
+	   data-vector variable-index-hash left-low-numbers-list
 	   (make-split-criterion-list-for-rf data-vector variable-index-hash objective-column-index)
 	   objective-column-index :test test :epsilon epsilon)
 
@@ -147,7 +147,7 @@
 					       objective-column-index)))
 	  (multiple-value-bind (right left) (split data-vector variable-index-hash left-low-numbers-list
 						 (car best-split-criterion) (cdr best-split-criterion))
-	    
+	
 	    (list (list best-split-criterion split-criterion-list)
 		result-ratio
 		(list right left))))))))
@@ -256,7 +256,7 @@ Where N is the number of worker threads which should generally be the number of 
   (let* ((variable-index-hash (make-variable-index-hash validation-dataset))
 	 (k (column-name->column-number variable-index-hash objective-column-name))
 	(validation-data-vector (dataset-points validation-dataset)))
-    
+
     (sum-up (loop
 		 for i below (length validation-data-vector)
 		 collect (cons (predict-forest (svref validation-data-vector i) validation-dataset forest)
@@ -322,7 +322,7 @@ Where N is the number of worker threads which should generally be the number of 
         (lambda (l) (declare (ignore l)) (make-random-regression-tree unspecialized-dataset objective-column-name :data-bag-size data-bag-size :feature-bag-size feature-bag-size)) (make-array tree-number))))
 
 (defun predict-regression-forest (query-vector unspecialized-dataset forest)
- 
+
   (/ (loop
 	 for i below (length forest)
 	 sum (predict-regression-tree query-vector unspecialized-dataset (svref forest i)))
@@ -333,10 +333,10 @@ Where N is the number of worker threads which should generally be the number of 
 	 (k (column-name->column-number variable-index-hash objective-column-name))
 	 (validation-data-vector (dataset-points validation-dataset))
 	 (n (length validation-data-vector)))
-    
+
     (loop
 	for i below n
-	sum (expt (- (predict-regression-forest (svref validation-data-vector i) validation-dataset regression-forest) 
+	sum (expt (- (predict-regression-forest (svref validation-data-vector i) validation-dataset regression-forest)
 		     (svref (svref validation-data-vector i) k))
 		  2) into s
 	finally (return (/ s n)))))

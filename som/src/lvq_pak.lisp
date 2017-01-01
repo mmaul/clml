@@ -11,26 +11,26 @@
     ((xfix :accessor fixpoint-xfix :initform nil)
      (yfix :accessor fixpoint-yfix :initform nil)))
 
-  ;; index to label data base 
+  ;; index to label data base
   (defclass data-entry_lab ()
     ((label :initform nil)
      (label-array :initform nil)))
-  
+
 
   ;; every entry (either input data or code vector) is stored
-  ;; in linked lists consisting of following objects 
+  ;; in linked lists consisting of following objects
 
   (defclass data-entry ()
     ((points :accessor data-entry-points :initform nil)
      (mask :accessor data-entry-mask :initform nil
-           :documentation "if mask is present, ignore vector components marked 
+           :documentation "if mask is present, ignore vector components marked
 		      with nonzero")
      (lab :accessor data-entry-lab :initform (make-instance 'data-entry_lab)
           :documentation "index to label data base")
      (num-labs :accessor data-entry-num-labs :initform 0)
      (weight :accessor data-entry-weight :type double-float :initform 0d0)
      (fixed :accessor data-entry-fixed :initform nil)))
-  
+
   (defclass entries_flags ()
     ((loadmode :initarg :loadmode :initform t
                :documentation "read whole file into memory or read entries from file when needed")
@@ -43,7 +43,7 @@
      (labels-needed :initarg :labels-needed :initform t
                     :documentation "Set if labels are required")
      ))
-  
+
   (defclass entries ()
     ((dimension :accessor entries-dimension :initarg :dimension :initform 0)
      (topol :accessor entries-topol :initarg :topol :initform +topol-unknown+)
@@ -59,7 +59,7 @@
                  :documentation "number of lines loaded in entries list")
      (num-entries :accessor entries-num-entries :initarg :num-entries :initform nil
                   :documentation "number of entries in the data set if known")
-     (flags :accessor entries-entries_flags :initarg :entries_flags 
+     (flags :accessor entries-entries_flags :initarg :entries_flags
             :initform (make-instance 'entries_flags
                                      :loadmode +loadmode-all+
                                      :totlen-known nil
@@ -74,22 +74,22 @@
      (parent-gdata :accessor entries-parent-gdata :initarg :parent-gdata :initform nil)
      )))
 
-;; get_type_by_id - search typelist for id 
+;; get_type_by_id - search typelist for id
 (defun get-type-by-id (typelist id)
   (second (find id typelist :key #'car)))
 
-;; get_type_by_str - search typelist for string 
+;; get_type_by_str - search typelist for string
 (defun get-type-by-str (typelist str)
   (first (find str typelist :test #'string= :key #'second)))
 
 (defparameter *rnd-max* 32767)
 (defvar *next* 1)
 
-;; May define my own random generator 
+;; May define my own random generator
 (defun osrand (i)
   (setq *next* i))
 
-;; init_random - initialize own random number generator with seed. 
+;; init_random - initialize own random number generator with seed.
 ;;   If seed is 0, uses default
 (defun init-random (seed)
   (if (> seed 0)
@@ -148,7 +148,7 @@
 ;; codebook using euclidean distance. Information about the winning
 ;; entry is saved in the winner_info structure. Return 1 (the number
 ;; of neighbours) when successful and nil when winner could not be found
-;; (for example, all components of data vector have been masked off) 
+;; (for example, all components of data vector have been masked off)
 ;; sample - sample data entry
 ;; win - winner-info instance
 (defun find-winner-euc (codes sample win knn)
@@ -164,10 +164,10 @@
     (setf (winner-info-index win) -1
 	  (winner-info-winner win) nil
 	  (winner-info-diff win) -1.0d0)
-    
-    ;; Go through all code vectors 
+
+    ;; Go through all code vectors
     (rewind-entries codes)
-    
+
     (let ((index -1)
 	  (sample-data-entry-points (data-entry-points sample))
 	  (sample-data-entry-mask (data-entry-mask sample)))
@@ -189,9 +189,9 @@
                 (declare (type (simple-array (signed-byte 32) (*)) sample-data-entry-mask))
                 (dotimes (i dim)
                   (if (/= (the (signed-byte 32) (aref sample-data-entry-mask i)) 0)
-                      (incf masked) ;; ignore vector components that have 1 in mask 
+                      (incf masked) ;; ignore vector components that have 1 in mask
                     (progn
-                      (setq diff 
+                      (setq diff
                         (- (aref codes-data-entry-points i)
                            (aref sample-data-entry-points i)))
                       (setq difference
@@ -199,10 +199,10 @@
                       (when (> difference diffsf)
                         (return nil))))
                   (when (= dim masked)
-                    ;; can't calculate winner, empty data vector 
+                    ;; can't calculate winner, empty data vector
                     (return-from find-winner-euc nil))))
 	    (dotimes (i dim)
-	      (setq diff 
+	      (setq diff
 		(- (aref codes-data-entry-points i)
 		   (aref sample-data-entry-points i)))
 	      (setq difference
@@ -216,15 +216,15 @@
 	    (setq diffsf difference)
 	    )
 	  )))
-    
+
     (when (< (the fixnum (winner-info-index win)) 0)
       (error "find-winner-euc: can't find winner~%"))
-    
+
     ;; number of neighbours
     1))
 
 ;; vector-dist-euc - compute distance between two vectors is euclidean
-;; metric. 
+;; metric.
 ;; arr and index are for not-boxing.
 (defun vector-dist-euc (data-entry-1 data-entry-2 dim arr index)
   (declare (optimize (speed 3))
@@ -244,7 +244,7 @@
       (declare (type (simple-array double-float (*)) data-entry-1-points data-entry-2-points))
       (if (not (or data-entry-1-mask data-entry-2-mask))
 	  (dotimes (i dim)
-	    (setq diff 
+	    (setq diff
 	      (- (aref data-entry-1-points i)
 		 (aref data-entry-2-points i)))
 	    (incf difference (* diff diff)))
@@ -260,10 +260,10 @@
                          (declare (type (simple-array (signed-byte 32) (*)) data-entry-2-mask))
 
                          (/= (aref data-entry-2-mask i) 0))))
-	      ;; ignore vector components that have 1 in mask 
+	      ;; ignore vector components that have 1 in mask
 	      (incf masked)
 	    (progn
-	      (setq diff 
+	      (setq diff
 		(- (aref data-entry-1-points i)
 		   (aref data-entry-2-points i)))
 	      (incf difference (* diff diff))))))
@@ -271,7 +271,7 @@
 	(setf (aref arr index) (sqrt difference)))
       nil)))
 
-;; adapt-vector - move a codebook vector towards another vector 
+;; adapt-vector - move a codebook vector towards another vector
 ;; codes-data-entry and sample is data-entry object.
 (defun adapt-vector (codes-data-entry sample dim alpha)
   (declare (optimize (speed 3))
@@ -290,7 +290,7 @@
 	(dotimes (i dim)
 	  (declare (type fixnum i))
 	  (unless (/= (the (signed-byte 32) (aref sample-data-entry-mask i)) 0)
-	    ;; ignore vector components that have 1 in mask 
+	    ;; ignore vector components that have 1 in mask
 	    (setq current (aref codes-data-entry-points i))
 	    (setf (aref codes-data-entry-points i)
 	      (+ current
@@ -306,7 +306,7 @@
     ))
 
 
-;; linearly decreasing alpha 
+;; linearly decreasing alpha
 (defun linear-alpha (iter length alpha new-alpha)
   (declare (optimize (speed 3))
 	   (type fixnum iter length)

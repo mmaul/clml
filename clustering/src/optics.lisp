@@ -4,7 +4,7 @@
 ;;; NAGANUMA Shigeta, 2009
 
 ;;; Reference:
-;;; Mihael Ankerst, Markus M. Breuning, Hans-Peter Kriegel and Jorg Sander. 
+;;; Mihael Ankerst, Markus M. Breuning, Hans-Peter Kriegel and Jorg Sander.
 ;;; "OPTICS:Ordering Points To Identify the Clustering Structure."
 ;;; Institute for Computer Science, University of Munich
 
@@ -13,7 +13,7 @@
 
 
 
-   
+
 (defclass optics-input ()
   ((input-data :initform nil :initarg :input-data :accessor input-data)
    (distance :initform nil :initarg :distance :accessor distance)
@@ -40,7 +40,7 @@
    (cluster-info :initform nil :initarg :cluster-info
                  :accessor cluster-info))
   (:documentation "+ accessor:
-  - ordered-data : points, reachability-distance, core-distance, cluster-id 
+  - ordered-data : points, reachability-distance, core-distance, cluster-id
   - cluster-info : <list (cluster-id . size)>, ID and the size of elements of each cluster
 + note: when cluster-id = -1, it means a noise point.")
   )
@@ -65,13 +65,13 @@
 ;;; target-cols   対象カラム(sequence)
 ;;; &key
 ;;; file-type     :csv or :sexp
-;;; csv-type-spec csvファイルの各列の型 string double-float integer etc. 
+;;; csv-type-spec csvファイルの各列の型 string double-float integer etc.
 ;;; distance      def. of distance :manhattan, :euclid or :cosine
 ;;; normalize     t or nil (now only nil)
 ;;; -output
 ;;; object of class :optics-output
 (defun optics (input-path epsilon min-pts r-epsilon
-               target-cols &key (file-type :sexp) 
+               target-cols &key (file-type :sexp)
                                 (csv-type-spec '(string double-float double-float))
                                 (distance :manhattan)
                                 (normalize nil)
@@ -96,7 +96,7 @@
   (assert (and (plusp r-epsilon) (<= r-epsilon epsilon)))
   (assert target-cols)
   (let* ((dataset
-          (read-data-from-file input-path 
+          (read-data-from-file input-path
                                :type file-type
                                :csv-type-spec csv-type-spec
                                :external-format external-format))
@@ -109,7 +109,7 @@
     (setq dataset
       (pick-and-specialize-data dataset
                                 :range range
-                                :data-types 
+                                :data-types
                                 (make-list (length range)
                                            :initial-element :numeric)))
     (%optics dataset epsilon min-pts r-epsilon
@@ -120,7 +120,7 @@
 (defmethod %optics ((numeric-dataset numeric-dataset) epsilon min-pts r-epsilon
                     &key (distance :manhattan) normalize)
   (when normalize
-    (setf (dataset-numeric-points numeric-dataset) 
+    (setf (dataset-numeric-points numeric-dataset)
       (standardize (dataset-numeric-points numeric-dataset))))
   (let* ((optics-input (make-optics-input
                         (dataset-numeric-points numeric-dataset)
@@ -149,7 +149,7 @@
                       (update order-seeds neighbors current-obj))))))
   (cluster-numbering optics-output optics-input))
 
-(defun make-optics-input (input-data epsilon min-pts r-epsilon 
+(defun make-optics-input (input-data epsilon min-pts r-epsilon
                           &key (distance :manhattan)
                                (normalize nil))
   (assert (<= r-epsilon epsilon))
@@ -164,7 +164,7 @@
                          :epsilon epsilon :min-pts min-pts
                          :r-epsilon r-epsilon :normalize normalize))
          (point-objs
-          (coerce 
+          (coerce
            (loop for point across input-data
                for id from 0
                collect (make-instance 'optics-point-object
@@ -183,7 +183,7 @@
          (e (epsilon input))
          (line-id (id object))
          (target-vals (point object)))
-    (coerce 
+    (coerce
      (loop for point-obj across (point-objs input)
          for i from 0
          as obj-vals = (point point-obj)
@@ -195,7 +195,7 @@
 
 (defgeneric set-core-d (object
                        neighbors))
-(defmethod set-core-d ((object optics-point-object) 
+(defmethod set-core-d ((object optics-point-object)
                        neighbors)
   (let* ((input (optics-input object))
          (d (distance input))
@@ -203,7 +203,7 @@
     (if (>= (length neighbors) minpts)
         (let* ((d-list (sort (map 'list
                                #'(lambda (obj)
-                                   (funcall d 
+                                   (funcall d
                                             (point object)
                                             (point obj)))
                                neighbors)
@@ -220,7 +220,7 @@
     (assert (numberp c-d))
     (loop for obj across neighbors
         when (not (processed obj))
-        do (let ((r-dist (max c-d (funcall d 
+        do (let ((r-dist (max c-d (funcall d
                                            (point obj)
                                            (point center-obj)))))
              (cond ((not (reachability-d obj))
@@ -261,13 +261,13 @@
 
 (defgeneric cluster-numbering (output
                               input &key a))
-(defmethod cluster-numbering ((output optics-output) 
+(defmethod cluster-numbering ((output optics-output)
                               input &key (a 1.01))
   (let* ((r-e (r-epsilon input))
          (a-e (* a (epsilon input))))
     (setf (ordered-data output)
-      (coerce 
-       (cons 
+      (coerce
+       (cons
         #("ID" "reachability" "core distance" "ClusterID")
         (loop for obj in (ordered-data output)
             as r = (or (reachability-d obj) a-e)

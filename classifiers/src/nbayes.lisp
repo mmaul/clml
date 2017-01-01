@@ -16,7 +16,7 @@
  - training-vector:bag of words matrix (rows = documents, columns = words) whose class label locates the final column
  - alpha :smoothing parameter, its default value is 1.0
 
-Multivariate Bernoulli Naive Bayes 
+Multivariate Bernoulli Naive Bayes
 Argument alpha is a smoothing parameter.
 We assume that final colum is the class label.
 "
@@ -27,16 +27,16 @@ We assume that final colum is the class label.
 		      collect (aref v l) into cs
 		      finally (return (sort (remove-duplicates cs :test #'equal) #'string<))))
 	 (k (length classes))
-	 (n-wc (make-array k :initial-contents 
+	 (n-wc (make-array k :initial-contents
 			   (loop
 			       repeat k
 			       collect (make-array l))))
-	 (p-wc (make-array k :initial-contents 
+	 (p-wc (make-array k :initial-contents
 			   (loop
 			       repeat k
 			       collect (make-array l :element-type 'double-float :initial-element 0.0d0))))
 	 (n-c (make-array k)))
-    
+
     (loop
 	for i below k
 	as category = (nth i classes)
@@ -46,7 +46,7 @@ We assume that final colum is the class label.
 		 as class = (aref v l)
 		 if (string= category class)
 		 count v)))
- 
+
     (loop
 	for i below k
 	as category = (nth i classes)
@@ -59,7 +59,7 @@ We assume that final colum is the class label.
 			if (and (string= category class)
 				(/= 0 (aref v j)))
 			count v))))
-   
+
     (loop
 	for i below k
 	do (loop
@@ -96,15 +96,15 @@ We assume that final colum is the class label.
 		      collect (aref v l) into cs
 		      finally (return (sort (remove-duplicates cs :test #'equal) #'string<))))
 	 (k (length classes))
-	 (n-wc (make-array k :initial-contents 
+	 (n-wc (make-array k :initial-contents
 			   (loop
 			       repeat k
 			       collect (make-array l))))
-	 (q-wc (make-array k :initial-contents 
+	 (q-wc (make-array k :initial-contents
 			   (loop
 			       repeat k
 			       collect (make-array l :element-type 'double-float :initial-element 0.0d0)))))
-    
+
     (loop
 	for i below k
 	as category = (nth i classes)
@@ -117,7 +117,7 @@ We assume that final colum is the class label.
 			as class = (aref v l)
 			if (string= category class)
 			sum (aref v j)))))
-    
+
     (loop
 	for i below k
 	as q-wci = (aref q-wc i)
@@ -130,7 +130,7 @@ We assume that final colum is the class label.
 			      for n across n-wci
 			      sum n)
 			  (* l alpha))))))
-    
+
     (list q-wc classes)))
 
 

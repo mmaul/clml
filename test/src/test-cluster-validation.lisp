@@ -2,7 +2,7 @@
 (in-package :clml.test)
 
 
-(define-test test-sample-cluster-validation 
+(define-test test-sample-cluster-validation
   (let (*workspace*)
     (assert (setf *workspace*
                        (clml.hjs.k-means:k-means

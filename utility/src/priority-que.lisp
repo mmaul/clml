@@ -31,7 +31,7 @@
     (setf (que-list que) root
 	  (que-last que) root)
     que))
-    
+
 (defun append-que (que x)
   (setf (que-last que)
 	(setf (cdr (que-last que))
@@ -91,7 +91,7 @@
 (defstruct dque
   next
   prev
-  ;; 
+  ;;
   item)
 
 (define-constant dque-item-header-tag '#'dque-item-header-tag :test #'equal)
@@ -273,7 +273,7 @@
 (defun delete-min-lheap (lh)
   ;; Removes an item of minimum key in linear heap LH
   ;; and returns the item.
-  
+
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (unless (lheap-p lh)
     (error "find-min-lheap: ~s is not lheap-p" lh))
@@ -969,7 +969,7 @@
   (degree 0 :type fixnum)
   (mark nil)
   (child (make-fdque-header)))
-  
+
 (defstruct fheap-box
   item
   node
@@ -1000,7 +1000,7 @@
           (format nil "~s ~s"
                   (funcall key (fheap-box-item (fheap-node-box fn)))
                   (fheap-box-item (fheap-node-box fn)))
-          
+
           "")))))
 
 (defun format-fheap (sm fh)
@@ -1031,7 +1031,7 @@
               (format nil "~s ~s"
                       (funcall key (fheap-box-item (fheap-node-box fn)))
                       (fheap-box-item (fheap-node-box fn)))
-              
+
               "")))))))
 
 (defun make-fheap (&key (lessp #'<) (key #'identity))
@@ -1228,7 +1228,7 @@
                        (fheap-node-keyval x)
                        newkey)
           (error "after-decrease-key-fheap: key of ~s has been increased"
-                 (fheap-box-item ib)))        
+                 (fheap-box-item ib)))
         (setf (fheap-node-keyval x) newkey)
         (when (and y (funcall lessp
                               (fheap-node-keyval x)
@@ -1338,7 +1338,7 @@
 (defmethod after-decrease-key-prique ((q fheap) (ib fheap-box))
   (after-decrease-key-fheap q ib))
 
-    
+
 (defun test-prique (implementation &key (size 10000))
   ;; insert
   ;; deletemin
@@ -1405,7 +1405,7 @@
 
 (defun format-tree-demo ()
   ;; Prints the following tree using format-tree.
-  ;; 
+  ;;
   ;; Node A
   ;; | a1
   ;; | a2

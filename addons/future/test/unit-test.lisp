@@ -191,7 +191,7 @@
 
 (deftest wait-for-all-futures-test ()
   (with-fixture future-default-thread-pool
-    (assert-no-futures) 
+    (assert-no-futures)
     (let* ((f1 (future (sleep 0.1) (+ 1 1)))
            (f2 (future (sleep 0.2) (+ 2 2)))
            (f3 (future (sleep 0.3) (+ 3 3)))
@@ -202,7 +202,7 @@
       (assert-no-futures)
       (is (every #'future::future-finished-p futures))
       (is (= 12 (+ (touch f1) (touch f2) (touch f3)))))))
- 
+
 (deftest kill-future-test ()
   (with-fixture future-default-thread-pool
     (assert-no-futures)

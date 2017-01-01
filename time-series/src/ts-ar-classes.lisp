@@ -9,9 +9,9 @@
 
 
   (defclass ar-model (clml.time-series.state-space::gaussian-stsp-model)
-    ((ar-coefficients :initarg :ar-coefficients 
+    ((ar-coefficients :initarg :ar-coefficients
                       :accessor ar-coefficients
-                      :type list 
+                      :type list
                       :initform '())
      (sigma^2 :initarg :sigma^2
               :accessor sigma^2

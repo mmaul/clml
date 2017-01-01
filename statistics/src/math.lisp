@@ -500,7 +500,7 @@ CHEBYSHEV and CHEBYSHEV-TERMS."
 					       (> (abs (- new old))
 						  (* tolerance new)))))
   "Calculates the infinite continued fraction with coefficients given by the
-functions A and B, with relative tolerance TOLERANCE. Initial values \(for 
+functions A and B, with relative tolerance TOLERANCE. Initial values \(for
 the n=0 case) can b given as keys.
 If PRED is given, it should be a function of two arguments, the new and old
 value in the iteration, that returns NIL when the iterations should stop."
@@ -884,7 +884,7 @@ of all the cases can be found in the Boost library documentation."
       as fb = (funcall fn (second range))
       as lean = (progn (assert (/= (signum fa) (signum fb)))
                        (/ (- fb fa) (- b a)))
-      as x-intercept = (let ((y-intercept (- fa (* lean a)))) 
+      as x-intercept = (let ((y-intercept (- fa (* lean a))))
                (/ (- y-intercept) lean))
       as fx = (funcall fn x-intercept)
       do (cond ((>= *inv-lin-interp-precision* (abs fx)) (return x-intercept))
@@ -941,13 +941,13 @@ of all the cases can be found in the Boost library documentation."
     (declare (type double-float gamser gammcf gammp))
 
     (if (or (< x 0d0) (<= a 0d0)) (error " invalid arguments for gammp : x = ~A, shape = ~A" x a))
-    (cond 
+    (cond
      ((< x (+ a 1d0))
-      (setq gamser (gser a x)) 
-      (setf gammp gamser)) 
+      (setq gamser (gser a x))
+      (setf gammp gamser))
      (t
-      (setq gammcf (gcf a x)) 
-      (setf gammp (- 1d0 gammcf)))) 
+      (setq gammcf (gcf a x))
+      (setf gammp (- 1d0 gammcf))))
     gammp))
 
 (declaim (ftype (function (double-float double-float) (double-float)) gammp))
@@ -956,9 +956,9 @@ of all the cases can be found in the Boost library documentation."
   #-sbcl
   (check-type xx double-float)
   (let* ((cof (make-array 6 :element-type 'double-float :initial-contents
-                          '(76.18009173d0 -86.50532033d0 24.01409822d0 
+                          '(76.18009173d0 -86.50532033d0 24.01409822d0
                             -1.231739516d0 0.120858003d-2 -0.536382d-5)))
-         (stp 2.50662827465d0) 
+         (stp 2.50662827465d0)
          (half 0.5d0)
          (one 1.0d0)
          (fpf 5.5d0)
@@ -966,9 +966,9 @@ of all the cases can be found in the Boost library documentation."
          (buff (+ x fpf))
          (tmp (- (* (+ x half) (log buff)) buff))
          (ser one))
-    (declare (type (simple-array double-float (*)) cof)) 
+    (declare (type (simple-array double-float (*)) cof))
     (declare (type double-float stp half one fpf tmp ser x))
- 
+
     (do ((j 0 (+ j 1)))
         ((> j 5) t)
       (declare (type fixnum j))
@@ -980,35 +980,35 @@ of all the cases can be found in the Boost library documentation."
   (declare (type double-float a x eps))
   (declare (type fixnum itmax))
 
-  (prog ((gamser 0d0) (gln 0d0) (ap 0d0) 
+  (prog ((gamser 0d0) (gln 0d0) (ap 0d0)
                       (del 0d0) (sum 0d0))
     (declare (type double-float gamser gln ap del sum))
 
 
-    (setf gln (gammln a)) 
-    (when 
-        (<= x 0)  
+    (setf gln (gammln a))
+    (when
+        (<= x 0)
       (if (< x 0d0) (error " invalid argument to gser "))
-      (setf gamser 0d0) 
-      (return (values gamser gln))) 
+      (setf gamser 0d0)
+      (return (values gamser gln)))
 
-    (setf ap a) 
-    (setf sum (/ 1d0 a)) 
-    (setf del sum) 
+    (setf ap a)
+    (setf sum (/ 1d0 a))
+    (setf del sum)
     (do ((n 1 (+ n 1)))
         ((> n itmax) t)
       (declare (type fixnum n))
       (setf ap (+ ap 1))
       (setf del (/ (* del x) ap))
       (setf sum (+ sum del))
-      (if (< (abs del) (* (abs sum) eps)) (go label1))) 
+      (if (< (abs del) (* (abs sum) eps)) (go label1)))
 
-    (error " a too large , itmax too small in gser ") 
-   label1 
+    (error " a too large , itmax too small in gser ")
+   label1
     (setf gamser (* sum
                     (handler-case (exp (+ (- x) (* a (log x)) (- gln)))
                       (FLOATING-POINT-UNDERFLOW (c) (declare (ignore c)) 0d0))))
-   
+
     (return (values gamser gln))))
 
 
@@ -1016,17 +1016,17 @@ of all the cases can be found in the Boost library documentation."
   (declare (type double-float a x eps))
   (declare (type fixnum itmax))
 
-  (prog ((gammcf 0d0) (gln 0d0) (gold 0d0) (a0 0d0) (a1 0d0) 
+  (prog ((gammcf 0d0) (gln 0d0) (gold 0d0) (a0 0d0) (a1 0d0)
                       (b0 0d0) (b1 0d0) (fac 0d0) (an 0d0) (ana 0d0) (anf 0d0) (g 0d0))
     (declare (type double-float gln gammcf gold a0 a0 b0 b1 fac an ana anf g))
 
-    (setf gln (gammln a)) 
-    (setf gold 0d0) 
-    (setf a0 1d0) 
-    (setf a1 x) 
-    (setf b0 0d0) 
-    (setf b1 1d0) 
-    (setf fac 1d0) 
+    (setf gln (gammln a))
+    (setf gold 0d0)
+    (setf a0 1d0)
+    (setf a1 x)
+    (setf b0 0d0)
+    (setf b1 1d0)
+    (setf fac 1d0)
     (do ((n 1 (+ n 1)))
         ((> n itmax) t)
       (setf an (coerce n 'double-float))
@@ -1036,17 +1036,17 @@ of all the cases can be found in the Boost library documentation."
       (setf anf (* an fac))
       (setf a1 (+ (* x a0) (* anf a1)))
       (setf b1 (+ (* x b0) (* anf b1)))
-      (when 
+      (when
           (not (= a1 0d0))
         (setf fac (/ 1d0 a1))
-        (setf g (* b1 fac)) 
+        (setf g (* b1 fac))
         (if (< (abs (/ (- g gold) g)) eps) (go label1))
-        (setf gold g))) 
-   
-    (error " a too large , itmax too small in gcf ") 
-   label1 
+        (setf gold g)))
+
+    (error " a too large , itmax too small in gcf ")
+   label1
     (setf gammcf (* (handler-case (exp (+ (- x) (* a (log x)) (- gln)))
                       (FLOATING-POINT-UNDERFLOW (c) (declare (ignore c)) 0d0))
                     g))
-   
+
     (return (values gammcf gln))))

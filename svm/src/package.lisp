@@ -1,11 +1,11 @@
 (in-package :cl-user)
 
 (defpackage :clml.svm.mu
-  
+
   (:use :common-lisp
         :clml.hjs.meta)
   (:export :kernel
-           :polynomial-kernel 
+           :polynomial-kernel
            :+linear-kernel+
            :radial-kernel :gaussian-kernel
            :sigmoid-kernel
@@ -26,7 +26,7 @@ A nice and clear explanation of SVMs can be found in
   )
 
 (defpackage :clml.svm.wss3
-  
+
   (:use :cl
 	:clml.hjs.meta
 	:clml.hjs.vector
@@ -55,7 +55,7 @@ A nice and clear explanation of SVMs can be found in
 	:clml.hjs.vector
 	:clml.hjs.read-data
     :clml.hjs.matrix)
-  
+
   (:import-from :clml.svm.wss3
 		#:sign
 		#:call-kernel-function-uncached
@@ -69,7 +69,7 @@ Reference: "A Study on SMO-type Decomposition Methods for Support Vector Machine
 Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"))
 
 (defpackage :clml.svm.pwss3
-  
+
   (:use :cl
           :clml.hjs.meta
           :clml.hjs.vector
@@ -111,7 +111,7 @@ Reference: Jhon C. Platt. "Fast Training of Support Vector Machines using Sequen
 
 
 (defpackage :clml.svm.svr
-  
+
   (:use :cl
 	:clml.svm.wss3
 	:clml.hjs.meta

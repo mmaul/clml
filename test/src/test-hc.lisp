@@ -3,7 +3,7 @@
 
 (define-test test-hc
     (let (seiseki d-matrix cophenetic-matrix merge-matrix)
-      (setf seiseki (pick-and-specialize-data 
+      (setf seiseki (pick-and-specialize-data
 		     (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/seiseki.csv") :type :csv :csv-type-spec
 					  '(string double-float double-float double-float double-float double-float))
 		     :range '(1 2 3 4 5) :data-types '(:numeric :numeric :numeric :numeric :numeric)))
@@ -32,8 +32,8 @@
       ;;median
       (multiple-value-setq (cophenetic-matrix merge-matrix) (cophenetic-matrix d-matrix #'hc-median))
       (assert-eql 45.42216730738696d0 (aref cophenetic-matrix 0 1))
-      
+
       (assert-equalp #2A((-5 -1) (-4 -2) (2 0) (-6 1) (-3 3) (4 5)) merge-matrix)
-      
+
       (assert-equalp #(1 2 1 3 1 2 2) (cutree 3 merge-matrix))
       ))

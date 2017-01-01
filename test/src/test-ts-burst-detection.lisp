@@ -4,7 +4,7 @@
 (define-test test-ts-burst-detection
     (let (ts bi)
       (assert
-       (setf ts (time-series-data 
+       (setf ts (time-series-data
                  (read-data-from-file
                   (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/burst-data.sexp"))
                  :time-label 0)))
@@ -71,11 +71,11 @@
        #'equal
        (continuous-kleinberg '((1 "abc")) :if-overlap :delete)
        '((0 "abc")))
-      
+
 #+allegro
       (progn
-        (assert-true 
-         (setf ts (time-series-data 
+        (assert-true
+         (setf ts (time-series-data
                    (read-data-from-file
                     (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/burst-string-time-data.sexp"))
                    :time-label 0

@@ -17,11 +17,11 @@
       (setq y-range (cons 1 (- (cdr y-range) (1- (car y-range))))))
     (when (>= (cdr y-range) 286)
       (setq y-range (cons (- (car y-range) (- (cdr y-range) 285)) 285)))
-    
+
     (with-open-file (in in-pgm :element-type '(unsigned-byte 8))
-      (with-open-file (out out-pgm :direction :output 
+      (with-open-file (out out-pgm :direction :output
                        :if-exists :supersede :if-does-not-exist :create)
-        (format out "P2~%~D ~D~%255~%" 
+        (format out "P2~%~D ~D~%255~%"
                 (if x-range (1+ (abs (- (car x-range) (cdr x-range)))) 384)
                 (if y-range (1+ (abs (- (car y-range) (cdr y-range)))) 286))
         (loop repeat 4 do (read-byte in))
@@ -29,7 +29,7 @@
             for num = (read-byte in nil nil)
             as (x y) = (multiple-value-bind (yy xx) (floor i 384)
                          `(,(1+ xx) ,(1+ yy)))
-            while num 
+            while num
             do (when (and (or (null x-range)
                               (<= (car x-range) x (cdr x-range)))
                           (or (null y-range)
@@ -52,7 +52,7 @@
            #+ignore(foo file (clml.utility.data:fetch (format nil "https://mmaul.github.io/clml.data/sample/faces/~A.pgm" c)) eye-pgm
                         :width 140 :height 140)
            (foo file (clml.utility.data:fetch
-                                                    (format nil 
+                                                    (format nil
                                                             "https://mmaul.github.io/clml.data/sample/faces/deye-~A.pgm" c)) eye-pgm
                 :width 115 :height 26 :h-upper-ratio 0.5 :w-left-ratio 0.5))))
 
@@ -77,7 +77,7 @@
     (loop for c below n
         as file = (if fname (asdf:system-relative-pathname
                              'clml (format nil  "https://mmaul.github.io/clml.data/sample/faces/~A-~A.pgm" fname (1+ c)))
-                      (clml.utility.data:fetch (format nil 
+                      (clml.utility.data:fetch (format nil
                                                                    "https://mmaul.github.io/clml.data/sample/faces/~A.pgm" (1+ c))))
         do (setf (aref dat c) (bar file))
            (push (pathname-name file) cols))
@@ -86,7 +86,7 @@
                                     'clml (format nil
                                                   "https://mmaul.github.io/clml.data/sample/~As~A.sexp" fname n))
                            (asdf:system-relative-pathname
-                            'clml (format nil 
+                            'clml (format nil
                                           "https://mmaul.github.io/clml.data/sample/faces~A.sexp" n)))
                      :direction :output :if-exists :supersede)
       (write
@@ -130,23 +130,23 @@
                              (make-list 2990 :initial-element :numeric))))))
   (loop for dim-thld in '(5 10 15 20 25 30 35)
       collect
-        (cons dim-thld 
-              (loop repeat 10 
+        (cons dim-thld
+              (loop repeat 10
                   collect
                     (multiple-value-bind (learn-eyes estimate-eyes)
                         (progn (print "divide data")
                                (divide-dataset eyes :divide-ratio '(1 1) :random t))
                       (multiple-value-bind (pca-result pca-model)
                           (progn (print "princomp")
-                                 (time (sub-princomp (divide-dataset learn-eyes :except '(0 1)) 
+                                 (time (sub-princomp (divide-dataset learn-eyes :except '(0 1))
                                                      :method :covariance
                                                      :dimension-thld dim-thld)))
-                        (let* ((estimator 
+                        (let* ((estimator
                                 (progn (print "make estimator")
-                                       (make-face-estimator 
+                                       (make-face-estimator
                                         learn-eyes :pca-result pca-result :pca-model pca-model
                                         :method :eigenface :bagging 20)))
-                               (ested 
+                               (ested
                                 (progn (print "estimation")
                                        (face-estimate (divide-dataset
                                                        estimate-eyes :except '(0 1))
@@ -162,21 +162,21 @@
              (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/eyes200.sexp") :external-format :shiftjis)
              :data-types (append (make-list 2 :initial-element :category)
                                  (make-list 1680 :initial-element :numeric)))))
-  (loop for dim-thld in '(5 10 15 20) 
+  (loop for dim-thld in '(5 10 15 20)
       collect
-        (cons dim-thld 
-              (loop repeat 10 
+        (cons dim-thld
+              (loop repeat 10
                   collect
                     (multiple-value-bind (learn-eyes estimate-eyes)
                         (progn (print "divide data")
                                (divide-dataset eyes :divide-ratio '(1 1) :random t))
-                      (let* ((estimator 
+                      (let* ((estimator
                               (progn (print "make estimator")
                                      (make-face-estimator learn-eyes :dimension-thld dim-thld
                                                           :pca-method :covariance
                                                           ; :correlation
                                                           :method :subspace)))
-                             (ested 
+                             (ested
                               (progn (print "estimation")
                                      (face-estimate (divide-dataset
                                                      estimate-eyes :except '(0 1))

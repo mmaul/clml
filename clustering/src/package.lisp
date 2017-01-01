@@ -1,7 +1,7 @@
 ;;;
 
 (defpackage :clml.clustering.hc
-  
+
   (:use :cl
 	:clml.hjs.read-data
 	:clml.hjs.vector
@@ -35,7 +35,7 @@
   )
 
 (defpackage :clml.clustering.nmf
-  
+
   (:use :cl
 	:clml.clustering.hc
 	:clml.blas
@@ -43,7 +43,7 @@
 	:clml.hjs.read-data
 	:clml.hjs.matrix
     :clml.hjs.meta)
-  (:import-from :clml.clustering.hc 
+  (:import-from :clml.clustering.hc
 		#:i-thvector
 		#:vector-sum
 		#:vector-mean
@@ -55,7 +55,7 @@
 		#:pick-up-row
 		#:pick-up-column
 		#:numeric-matrix)
-  
+
   (:export #:nmf
 	   #:nmf-clustering
 	   #:rho-k
@@ -69,7 +69,7 @@
 	   #:sample-matrix))
 
 (defpackage :clml.clustering.optics
-  
+
   (:use :cl
         :clml.hjs.read-data
         :clml.hjs.matrix
@@ -82,7 +82,7 @@
   )
 
 (defpackage :clml.clustering.optics-speed
-  
+
   (:use
    :clml.nearest-search.nearest
    :clml.clustering.optics
@@ -95,7 +95,7 @@
    :make-optics-input-speed))
 
 (defpackage :clml.clustering.spectral-clustering
-  
+
     (:use :cl :clml.hjs.matrix :clml.hjs.meta :clml.hjs.eigensystems)
     (:export #:spectral-clustering-mcut
              #:*sample-w*)
@@ -104,7 +104,7 @@
     (:documentation "   Package for undirected graph clustering"))
 
 (defpackage :clml.clustering.cluster-validation
-  
+
   (:use :cl
         :clml.hjs.k-means
         :clml.hjs.vector
@@ -133,21 +133,21 @@
 (defpackage :clml.clustering.k-means2
     (:use :cl :clml.hjs.vector :clml.hjs.meta
           :clml.statistics :clml.hjs.matrix)
-  
+
   (:export #:k-means
            #:make-cluster
            #:c-center
            #:c-size
            #:c-points
            #:cluster
-           
+
            #:pw-points
            #:pw-clusters
 
            #:p-pos
            #:p-owner
            #:point
-           
+
            #:get-cluster-centroids
            #:get-cluster-points
 	   ))

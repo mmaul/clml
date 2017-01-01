@@ -22,16 +22,16 @@
       (assert-true (> per 0.97)))
 
     (multiple-value-bind (true false per) (classify-decision-tree test train "Class" :double-manhattan)
-      
+
       (assert-equalp true 332)
       (assert-equalp false 13)
       (assert-true (> per 0.96))
       )
     )
-  
-  
+
+
     )
-  
+
 
 (define-test test-classifier-spam
   (let ((train (read-data-from-file
@@ -44,19 +44,19 @@
                :type :csv
                :csv-type-spec (append (make-list 55 :initial-element 'double-float)
                                                '(double-float double-float symbol)))))
-    
+
     (multiple-value-bind (true false per) (classify-k-nn test train "type" :double-manhattan)
       (assert-equalp true 1893)
       (assert-equalp false 208)
       (assert-true (> per 0.90))
       )
     (multiple-value-bind (true false per) (classify-decision-tree test train "type" :double-manhattan)
-      
+
       (assert-equalp true 1901)
       (assert-equalp false 200)
       (assert-true (> per 0.90))
       )
-    
+
     )
   )
 
@@ -81,7 +81,7 @@
 
 (defun classify-k-nn (test train objective-param-name  manhattan)
              (let (original-data-column-length)
-               (setq original-data-column-length 
+               (setq original-data-column-length
                      (length (aref (clml.hjs.read-data:dataset-points train) 0)))
                (let* ((k 5)
                       (k-nn-estimator
@@ -132,7 +132,7 @@
                                   (german (error "SVM not yet supported for ~A." type))))
           svm-learn-positive-ds
           svm-learn-negative-ds
-          svm-test-positive-ds 
+          svm-test-positive-ds
           svm-test-negative-ds
           svm-classifier
           (last-column-index (1- original-data-column-length))
@@ -147,7 +147,7 @@
           do (push (coerce (subseq v 0 (1- last-column-index)) 'list) svm-test-positive-ds)
           else do (push (coerce (subseq v 0 (1- last-column-index)) 'list) svm-test-negative-ds))
       (loop for (kernel-name . kernel-fn) in kernel-info
-          do  
+          do
             (setq svm-classifier
               (svm kernel-fn svm-learn-positive-ds svm-learn-negative-ds))
             (let ((true 0)
@@ -169,12 +169,12 @@ CL-USER(3): (classifier-test 'bc)
 classifier test [type : BC]
 Executing k-nn...
 Number of self-misjudgement : 13
-[k-nn(k=5) result]  true 337 | false 8 | precision :: 0.9768116 
+[k-nn(k=5) result]  true 337 | false 8 | precision :: 0.9768116
 Executing decision tree...
-[decision tree result]  true 332 | false 13 | precision :: 0.96231884 
+[decision tree result]  true 332 | false 13 | precision :: 0.96231884
 Executing svm...
-[svm linear result]  true 311 | false 34 | precision :: 0.90144926 
-[svm gaussian-0.1 result]  true 334 | false 11 | precision :: 0.9681159 
+[svm linear result]  true 311 | false 34 | precision :: 0.90144926
+[svm gaussian-0.1 result]  true 334 | false 11 | precision :: 0.9681159
 
 CL-USER(3): (classifier-test 'spam)
 

@@ -9,10 +9,10 @@
 ;;	rexpt
 ;;	fexport
 ;;	fproclaim
-;;	fuse-package 
+;;	fuse-package
 ;;	fin-package
 ;;	map-defvar
-;;	do1 
+;;	do1
 ;;	do!
 ;;	double-cdr
 ;;	putproperty
@@ -145,7 +145,7 @@ is not included")
 			     ',arr)))
       `(aref ,arr (the fixnum (+ (the fixnum ,(or offset 0)) ,(col-major-index indices bounds))))))
 
-(defmacro fset (a b) 
+(defmacro fset (a b)
   `(setf (fref ,(second a) ,@(cddr a)) ,b))
 
 (defmacro fref-string (s range)
@@ -264,7 +264,7 @@ is not included")
 	      ;; Need to truncate some data
 	      (subseq ,data-list 0 ,total-length))
 	     (t
-	      ,data-list)))))  
+	      ,data-list)))))
 
 ;;----------------------------------------------------------------------------
 
@@ -283,7 +283,7 @@ is not included")
 	(iteration_count (gensym (symbol-name '#:cnt-)))
 	(loop-var (first do_vble_clause)))
     `(prog* ((,step ,(third (third do_vble_clause)))
-	     (,iteration_count 
+	     (,iteration_count
 	      (max 0 (the integer4
 		       (truncate (the integer4
 				   (+ (the integer4 (- ,(third (first predicate_clause))
@@ -299,8 +299,8 @@ is not included")
 	  (cond				; all iterations done
 	    ((zerop ,iteration_count) nil)
 	    ;; execute loop, in/de-crement loop vble and decrement cntr
-	    ,(cons 't 
-		   (append 
+	    ,(cons 't
+		   (append
 		    (append body
 			    `((setq ,loop-var (the integer4 ,(third do_vble_clause))
 				    ,iteration_count (the integer4 (1- ,iteration_count)))))
@@ -308,38 +308,38 @@ is not included")
 
 ;;(defmacro fdo (do-vbles predicate-clause &rest body)
 ;;   `(prog nil
-;;          (setq ,(caar do-vbles) ,(cadar do-vbles)) 
+;;          (setq ,(caar do-vbles) ,(cadar do-vbles))
 ;;          loop
 ;;          (return
 ;;          (cond ,(reset-vble predicate-clause)
-;;                ,(cons 't 
-;;                       (append 
+;;                ,(cons 't
+;;                       (append
 ;;                        (append body `((setq ,(caar do-vbles) ,(caddar do-vbles))))
 ;;                        '((go loop))))))))
 ;;(defmacro fdo (do-vbles predicate-clause &rest body)
 ;;   `(prog (iteration-count)
-;;          ,(append '(psetq) 
+;;          ,(append '(psetq)
 ;;                   (do ((do-vars do-vbles (cdr do-vars))
 ;;                        (ret nil (append ret (list (caar do-vars) (cadar do-vars)))))
 ;;                       ((null do-vars) ret)))
 ;;          loop
 ;;          (return
 ;;          (cond ,predicate-clause
-;;                ,(cons 't 
-;;                       (append 
+;;                ,(cons 't
+;;                       (append
 ;;                        (append body
 ;;                                (list
 ;;                                (append '(psetq)
 ;;                                (do ((do-vars do-vbles (cdr do-vars))
-;;                                     (ret nil (append ret (if (null (caddar do-vars)) 
-;;                                                              nil 
-;;                                                              (list (caar do-vars) 
+;;                                     (ret nil (append ret (if (null (caddar do-vars))
+;;                                                              nil
+;;                                                              (list (caar do-vars)
 ;;                                                                    (caddar do-vars))))))
 ;;                                    ((null do-vars) ret)))))
 ;;                        '((go loop))))))))
 
 ;;----------------------------------------------------------------------------
-;; macro for division 
+;; macro for division
 
 (defmacro f2cl/ (x y)
   (let ((top (gensym))
@@ -406,14 +406,14 @@ is not included")
 #+nil
 (defmacro assigned-goto (i &optional tag-lst)
   `(if ,tag-lst
-       (if (member ,i ,tag-lst) 
+       (if (member ,i ,tag-lst)
 	   (go ,i)
 	   (error "bad statement number in assigned goto"))
        (go ,i)))
 
 
 (eval-when (:load-toplevel :compile-toplevel :execute)
-  (defun make-label (n) 
+  (defun make-label (n)
     (read-from-string (concatenate 'string (symbol-name :label) (princ-to-string n))))
 
 
@@ -570,11 +570,11 @@ is not included")
   ;; ftruncate is exactly what we want.
   (etypecase x
     (single-float
-     (locally 
+     (locally
 	 (declare (optimize (space 0) (speed 3)))
        (values (ftruncate (the single-float x)))))
     (double-float
-     (locally 
+     (locally
 	 (declare (optimize (space 0) (speed 3)))
        (values (ftruncate (the double-float x)))))))
 
@@ -1191,7 +1191,7 @@ causing all pending operations to be flushed"
 		     res))
 	      (t
 	       (push `(fformat1 ,dest
-				,(car (first directives)) 
+				,(car (first directives))
 				,(first arglist))
 		     res)
 	       (setq arglist (cdr arglist)))))))
@@ -1222,7 +1222,7 @@ causing all pending operations to be flushed"
 		   (push `(replace (aref ,init ,k) ,(car val)) forms)
 		   (incf k))
 		 (nreverse forms)))
-       
+
        ,init)))
 
 ;; This macro is supposed to set LHS to the RHS assuming that the LHS
@@ -1355,7 +1355,7 @@ causing all pending operations to be flushed"
   (ecase i
     ;; What does the unit numbers really mean in Lisp?  What do we
     ;; really want?
-    
+
     ;; The standard input unit
     (1 5)
     ;; The standard output unit

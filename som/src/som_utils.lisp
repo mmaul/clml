@@ -8,8 +8,8 @@
 	 (p *rnd-max*))
      (declare (type (integer 0 *) v p))
      (setq v (* v 23))
-     (rem 
-      (setq *next* 
+     (rem
+      (setq *next*
 	(rem v
 	     100000001))
       p

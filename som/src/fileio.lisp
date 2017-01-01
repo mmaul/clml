@@ -5,7 +5,7 @@
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (proclaim '(optimize (speed 3))))
-   
+
 (defclass file-info ()
   ((name :accessor file-info-name :initarg :name :initform nil)
    (fp :accessor file-info-fp :initarg :fp :initform nil) ; file stream
@@ -15,14 +15,14 @@
 	   :documentation "line number we are on")))
 
 
-;; som-getline - get a line from file. Returns the string of line 
+;; som-getline - get a line from file. Returns the string of line
 (defgeneric som-getline (file-info))
 (defmethod som-getline (file-info)
-  (handler-case 
+  (handler-case
       (let ((line (read-line (file-info-fp file-info))))
 	(incf (file-info-lineno file-info))
 	line)
-    (end-of-file () 
+    (end-of-file ()
       (setf (file-info-eof file-info) t)
       nil)))
 
@@ -34,7 +34,7 @@
 	       (open filename :direction :input)))
 	    ((string-equal fmode "w")
 	     (setf (file-info-fp file-info)
-	       (open filename 
+	       (open filename
 		     :direction :output
 		     :if-does-not-exist :create
 		     :if-exists :supersede)))
@@ -42,7 +42,7 @@
 	     (error "open-file :: unknown mode ~a" fmode)))
       (setf (file-info-name file-info) filename))
     file-info))
-		   
+		
 
 (defun close-file (file-info)
   (when (and file-info (streamp (file-info-fp file-info))
@@ -50,4 +50,4 @@
     (close (file-info-fp file-info))))
 
 
-    
+

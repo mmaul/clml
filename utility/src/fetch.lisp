@@ -60,7 +60,7 @@
   -dir: location to store fetched file, default location is in the sample directory in the top level of the clml source tree.
   -flush: if T fetch does not download the file it deletes the existing file.
 
-Fetch file from ~url-or-location~ if not cached in ~dir~ 
+Fetch file from ~url-or-location~ if not cached in ~dir~
 stores the file in the location specified by dir if url or file is url the file
 is stored in ~dir~/~uri-host~/~uri-path~.
 
@@ -82,7 +82,7 @@ Note that it is important to ensure that dir and subdir if used end in a /"
                  (drakma:parameter-error ()
                    (values nil 404 "Parameter Error")
                    ))))
-       
+
        ))
     (t (values nil 404 "Not file of url"))
     )))
@@ -94,7 +94,7 @@ Note that it is important to ensure that dir and subdir if used end in a /"
                 (cache t)
                 (stream nil)
                 (flush nil))
-  "Fetch file from ~url-or-location~ if not cached in ~dir~ 
+  "Fetch file from ~url-or-location~ if not cached in ~dir~
 stores the file in the location specified by dir if url or file is url the file
 is stored in ~dir~/~uri-host~/~uri-path~.
 
@@ -141,7 +141,7 @@ are provisioned for Google Finance. Yahoo finance would use the following:
 #+END_SRC
 "
   (if stream
-      (loop 
+      (loop
         with header = '()
         with meta = '()
         for n upfrom 0
