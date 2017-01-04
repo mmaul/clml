@@ -20,14 +20,14 @@
                                           :beta (second hyper-parameters)
                                           :gamma (third hyper-parameters)))
                     (make-instance 'hdp-lda :data docs :k initial-k))))
-    
+
     (loop repeat sampling
         initially (initialize model) ; problem
-       do (progn 
+       do (progn
                  (sampling model)
                  )
        finally (assign-theta model))
-    
+
     (values (make-document-theta-result model)
             (make-topic-beta-result model)
             model)))

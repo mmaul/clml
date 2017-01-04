@@ -14,7 +14,7 @@
 ;;         最短距離
 
 (defgeneric find-shortest-path-dijkstra (gr start-id-or-name
-                                        &key end-id-or-name 
+                                        &key end-id-or-name
                                              data-structure
                                           )
   (:documentation "
@@ -64,7 +64,7 @@ Shortest distance
             (setf (D start) 0)
             (dolist (n nodes)
               (setf (B n) (insert-prique prique n)))
-            (loop while (not (prique-empty-p prique)) do 
+            (loop while (not (prique-empty-p prique)) do
               (setq v (delete-min-prique prique))
               (when (= (D v) ++inf+)
                 (setq v nil)
@@ -132,7 +132,7 @@ Shortest distance
                             (when %path
                               `(:path ,(append path (cdr (getf %path :path)))
                                       :distance ,(+ val (getf %path :distance)))))
-                          (%find-all-shortest-paths d-mat path-mat i dest-i 
+                          (%find-all-shortest-paths d-mat path-mat i dest-i
                                                     :d-thld (- %d-thld val)))
            else if (and path (eql i dest-i) (<= val %d-thld))
            collect `(:path ,path :distance ,val))

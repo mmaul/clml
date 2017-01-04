@@ -12,7 +12,7 @@
 
 (defgeneric update-distribution (distribution)
   (:method (distribution)
-	   distribution))
+           distribution))
 
 (defmethod initialize-instance ((instance distribution) &rest initargs)
   (declare (ignore initargs))
@@ -136,7 +136,7 @@
 (defgeneric mass (discrete-distribution k)
   (:documentation "Probability mass function of DISTRIBUTION at X.")
   (:method (distribution k)
-	   (- (cdf distribution k) (cdf distribution (1- k)))))
+           (- (cdf distribution k) (cdf distribution (1- k)))))
 (defgeneric quantile (distribution p)
   (:documentation "Quantile of P according to DISTRIBUTION."))
 (defgeneric rand (distribution)
@@ -180,15 +180,15 @@
 (defun standard-deviation (sequence &key populationp)
   "Sample standard deviation; or population standard deviation if POPULATIONP."
   (sqrt (coerce (/ (sum-on-deviation #'sqr sequence)
-		   (if populationp (length sequence) (1- (length sequence))))
-		'double-float)))
+                   (if populationp (length sequence) (1- (length sequence))))
+                'double-float)))
 
 
 
 (defgeneric skewness (obj))
 (defmethod skewness ((sequence sequence))
   (let ((ave (mean sequence))
-	(var (variance sequence)))
+        (var (variance sequence)))
     (/ (reduce #'+ sequence :key #'(lambda (x) (int-power (- x ave) 3)))
        (* (length sequence) (half-integer-power var #.(/ 3 2))))))
 (defmethod skewness ((distribution distribution))
@@ -201,7 +201,7 @@
 (defgeneric kurtosis (obj))
 (defmethod kurtosis ((sequence sequence))
   (let ((ave (mean sequence))
-	(var (variance sequence)))
+        (var (variance sequence)))
     (/ (reduce #'+ sequence :key #'(lambda (x) (int-power (- x ave) 4)))
        (* (length sequence) (int-power var 2)))))
 (defmethod kurtosis ((distribution distribution))
@@ -212,16 +212,16 @@
 ;(defgeneric mode (obj &optional test))
 (defmethod mode ((seq sequence) &optional (test #'eql))
   (let ((hash (make-hash-table :test test))
-	(max 0)
-	value)
+        (max 0)
+        value)
     (do ((i 0 (+ i 1))
          (n (length seq)))
         ((= i n) (values value max))
       (declare (type integer i n))
       (let* ((val (elt seq i))
-	     (count (incf (gethash val hash 0))))
-	(when (> count max)
-	  (setf max count value val))))))
+             (count (incf (gethash val hash 0))))
+        (when (> count max)
+          (setf max count value val))))))
 
 
 ;;; Quantile guess/search functions (using moments)
@@ -231,30 +231,30 @@
   (let ((deviation (sqrt (funcall moment-fn 2))))
     (flet ((moment (r) (/ (funcall moment-fn r) (expt deviation r))))
       (let* ((z (quantile (standard-normal-distribution) p))
-	     (z2 (* z z))
-	     (z3 (* z2 z))
-	     (z4 (* z3 z))
-	     (k2 (moment 2))
-	     (k3 (moment 3))
-	     (k4 (- (moment 4) (* 3 k2 k2)))
-	     (k5 (- (moment 5) (* 10 k2 k3)))
-	     (cornish-fisher
-	      (+ z
-		 (* k3 (/ (- z2 1) 6))
-		 (* k4 (/ (- z3 (* 3 z)) 24))
-		 (- (* k3 k3 (/ (- (* 2 z3) (* 5 z)) 36)))
-		 (* k5 (/ (- z4 (* 6 z2) -3) 120))
-		 (- (* k3 k4 (/ (- z4 (* 5 z2) -2) 24)))
-		 (* k3 k3 k3 (/ (- (* 12 z4) (* 53 z2) -17) 324)))))
-	(+ mean (* deviation cornish-fisher))))))
+             (z2 (* z z))
+             (z3 (* z2 z))
+             (z4 (* z3 z))
+             (k2 (moment 2))
+             (k3 (moment 3))
+             (k4 (- (moment 4) (* 3 k2 k2)))
+             (k5 (- (moment 5) (* 10 k2 k3)))
+             (cornish-fisher
+              (+ z
+                 (* k3 (/ (- z2 1) 6))
+                 (* k4 (/ (- z3 (* 3 z)) 24))
+                 (- (* k3 k3 (/ (- (* 2 z3) (* 5 z)) 36)))
+                 (* k5 (/ (- z4 (* 6 z2) -3) 120))
+                 (- (* k3 k4 (/ (- z4 (* 5 z2) -2) 24)))
+                 (* k3 k3 k3 (/ (- (* 12 z4) (* 53 z2) -17) 324)))))
+        (+ mean (* deviation cornish-fisher))))))
 
 (defun central-moment-fn-from-moment-fn (moment-fn)
   "Converts moments around the origin to central moments"
   (let ((mean (funcall moment-fn 1)))
     (lambda (n)
       (loop for j from 0 to n
-	 sum (* (binomial n j) (expt -1 (- n j)) (funcall moment-fn j)
-		(expt mean (- n j)))))))
+         sum (* (binomial n j) (expt -1 (- n j)) (funcall moment-fn j)
+                (expt mean (- n j)))))))
 
 (defun cornish-fisher-guess-with-moments-around-origin (moment-fn p)
   (cornish-fisher-guess-with-central-moments
@@ -262,25 +262,25 @@
 
 (defun search-for-quantile (distribution p guess &key min max)
   (labels ((evaluate (x) (abs (- (cdf distribution x) p)))
-	   (search-around (plus max less)
-	     (loop
-		for prev = guess then next
-		for next = (funcall plus prev)
-		while (and (or (null max) (funcall less next max) (= next max))
-			   (funcall less (cdf distribution next) p))
-		finally
-		(return
-		  (if (or (not (or (null max)
-				   (funcall less next max) (= next max)))
-			  (< (evaluate prev) (evaluate next)))
-		      prev
-		      next)))))
+           (search-around (plus max less)
+             (loop
+                for prev = guess then next
+                for next = (funcall plus prev)
+                while (and (or (null max) (funcall less next max) (= next max))
+                           (funcall less (cdf distribution next) p))
+                finally
+                (return
+                  (if (or (not (or (null max)
+                                   (funcall less next max) (= next max)))
+                          (< (evaluate prev) (evaluate next)))
+                      prev
+                      next)))))
     (let ((guessed-value (cdf distribution guess)))
       (if (= guessed-value p)
-	  guess
-	  (if (< guessed-value p)
-	      (search-around #'1+ max #'<)
-	      (search-around #'1- min #'>))))))
+          guess
+          (if (< guessed-value p)
+              (search-around #'1+ max #'<)
+              (search-around #'1- min #'>))))))
 
 ;;; 1. Normal Distribution
 #|(eval-when (:compile-toplevel :load-toplevel)
@@ -299,7 +299,7 @@
 (defmethod update-distribution ((distribution normal-distribution))
   (with-slots (std variance mode) distribution
     #- (or ccl sbcl)
-    (assert (realp (slot-value distribution 'average)) 
+    (assert (realp (slot-value distribution 'average))
       "AVERAGE should be a real number.")
     #- (or ccl sbcl)
     (assert (and (realp std) (> std 0)) (std)
@@ -313,7 +313,7 @@
 (defmethod print-object ((obj normal-distribution) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": AVERAGE = ~a, STD = ~a"
-	    (average obj) (std obj))))
+            (average obj) (std obj))))
 
 (defmethod cdf ((distribution normal-distribution) x)
   (flet ((phi (x) (/ (1+ (erf (/ x #.(sqrt 2.0d0)))) 2.0d0)))
@@ -327,24 +327,24 @@
 (defmethod quantile ((distribution normal-distribution) p)
   (+ (average distribution)
      (* (std distribution) (sqrt 2.0d0)
-	(let ((x (1- (* 2.0d0 p))))
-	  (cond ((= x -1.0d0) #.(erf-inverse (1- double-float-epsilon)))
-		((= x 1.0d0) #.(erf-inverse (- 1.0d0 double-float-epsilon)))
-		(t (erf-inverse x)))))))
+        (let ((x (1- (* 2.0d0 p))))
+          (cond ((= x -1.0d0) #.(erf-inverse (1- double-float-epsilon)))
+                ((= x 1.0d0) #.(erf-inverse (- 1.0d0 double-float-epsilon)))
+                (t (erf-inverse x)))))))
 
 (defmethod rand ((distribution normal-distribution))
   (with-slots (average std) distribution
     (declare (optimize (speed 3) (safety 0) (debug 0))
-	     (type double-float average std))
+             (type double-float average std))
     (normal-random average std)))
-  
+
 (defun normal-distribution-estimate-unbiased (sequence)
   (normal-distribution (mean sequence)
-		       (standard-deviation sequence :populationp nil)))
+                       (standard-deviation sequence :populationp nil)))
 
 (defun normal-distribution-estimate-maximum-likelihood (sequence)
   (normal-distribution (mean sequence)
-		       (standard-deviation sequence :populationp t)))
+                       (standard-deviation sequence :populationp t)))
 
 (defun normal-distribution (average std)
   "- Parameters: expected-value, deviation
@@ -354,9 +354,9 @@
   #-ccl (assert (realp average) (average)
     "AVERAGE should be a real number.")
   (assert (and (realp std) (> std 0)) (std)
-	  "STD should be a positive real number.")
+          "STD should be a positive real number.")
   (make-instance 'normal-distribution
-		 :average average :std std))
+                 :average average :std std))
 
 (let ((standard (normal-distribution 0.0d0 1.0d0)))
   (defun standard-normal-distribution ()
@@ -375,67 +375,67 @@
     (let ((std2 (* std std)))
       (setf (slot-value distribution 'mean) (exp (+ (average (/ std2 2d0)))))
       (setf variance (* (exp (+ (* 2d0 average) std2))
-			(- (exp std2) 1d0)))
+                        (- (exp std2) 1d0)))
       (setf skewness (* (+ (exp std2) 2d0)
-			(sqrt (- (exp std2) 1d0))))
+                        (sqrt (- (exp std2) 1d0))))
       (setf kurtosis (+ (exp (* 4d0 std2))
-			(* 2d0 (exp (* 3d0 std2)))
-			(* 3d0 (exp (* 2d0 std2)))
-			-3d0))
+                        (* 2d0 (exp (* 3d0 std2)))
+                        (* 3d0 (exp (* 2d0 std2)))
+                        -3d0))
       (setf mode (exp (- average std2)))))
   distribution)
 
 (defmethod print-object ((obj log-normal-distribution) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": AVERAGE = ~a, STD = ~a"
-	    (average obj) (std obj))))
+            (average obj) (std obj))))
 
 (defun log-normal-distribution (average std)
   "- Parameters: expected-value, deviation
 - Estimators: log-normal-distribution-estimate-unbiased,
     log-normal-distribution-estimate-maximum-likelihood"
   (assert (realp average) (average)
-	  "AVERAGE should be a real number.")
+          "AVERAGE should be a real number.")
   (assert (and (realp std) (> std 0)) (std)
-	  "STD should be a positive real number.")
+          "STD should be a positive real number.")
   (make-instance 'log-normal-distribution
-		 :average average :std std))
+                 :average average :std std))
 
 (defmethod cdf ((distribution log-normal-distribution) x)
   (+ (* (erf (/ (- (log x) (average distribution))
-		(* (sqrt 2.0d0) (std distribution))))
-	0.5d0)
+                (* (sqrt 2.0d0) (std distribution))))
+        0.5d0)
      0.5d0))
 
 (defmethod density ((distribution log-normal-distribution) x)
   (let ((std (std distribution)))
     (/ (exp (/ (sqr (- (log x) (average distribution)))
-	       (* -2.0d0 (sqr std))))
+               (* -2.0d0 (sqr std))))
        (* x std (sqrt (* 2.0d0 pi))))))
 
 (defmethod quantile ((distribution log-normal-distribution) p)
   (exp (+ (average distribution)
-	  (* (std distribution) (sqrt 2.0d0)
-	     (let ((x (1- (* 2.0d0 p))))
-	       (cond ((= x -1.0d0)
-		      #.(erf-inverse (1- double-float-epsilon)))
-		     ((= x 1.0d0)
-		      #.(erf-inverse (- 1.0d0 double-float-epsilon)))
-		     (t (erf-inverse x))))))))
+          (* (std distribution) (sqrt 2.0d0)
+             (let ((x (1- (* 2.0d0 p))))
+               (cond ((= x -1.0d0)
+                      #.(erf-inverse (1- double-float-epsilon)))
+                     ((= x 1.0d0)
+                      #.(erf-inverse (- 1.0d0 double-float-epsilon)))
+                     (t (erf-inverse x))))))))
 
 (defmethod rand ((distribution log-normal-distribution))
   (exp (normal-random (average distribution) (std distribution))))
 
 (defun log-normal-distribution-estimate-unbiased (lst)
   (let* ((n (length lst))
-	 (mu (/ (loop for x in lst sum (log x)) n))
-	 (sigma2 (/ (loop for x in lst sum (sqr (- (log x) mu))) (1- n))))
+         (mu (/ (loop for x in lst sum (log x)) n))
+         (sigma2 (/ (loop for x in lst sum (sqr (- (log x) mu))) (1- n))))
     (log-normal-distribution (exp mu) (sqrt sigma2))))
 
 (defun log-normal-distribution-estimate-maximum-likelihood (lst)
   (let* ((n (length lst))
-	 (mu (/ (loop for x in lst sum (log x)) n))
-	 (sigma2 (/ (loop for x in lst sum (sqr (- (log x) mu))) n)))
+         (mu (/ (loop for x in lst sum (log x)) n))
+         (sigma2 (/ (loop for x in lst sum (sqr (- (log x) mu))) n)))
     (log-normal-distribution (exp mu) (sqrt sigma2))))
 
 ;;; 3. Uniform Distribution
@@ -463,7 +463,7 @@
     uniform-distribution-estimate-maximum-likelihood
 - (Variant: standard-uniform-distribution)"
   (assert (and (realp from) (realp to) (> to from)) (from to)
-	  "FROM and TO should be real numbers such that TO > FROM.")
+          "FROM and TO should be real numbers such that TO > FROM.")
   (make-instance 'uniform-distribution :from from :to to))
 
 (let ((standard (make-instance 'uniform-distribution :from 0.0d0 :to 1.0d0)))
@@ -472,9 +472,9 @@
 
 (defmethod cdf ((distribution uniform-distribution) x)
   (cond ((< x (uniform-from distribution)) 0)
-	((< x (uniform-to distribution))
-	 (* (- x (uniform-from distribution)) (uniform-denom distribution)))
-	(t 1)))
+        ((< x (uniform-to distribution))
+         (* (- x (uniform-from distribution)) (uniform-denom distribution)))
+        (t 1)))
 
 (defmethod density ((distribution uniform-distribution) x)
   (if (<= (uniform-from distribution) x (uniform-to distribution))
@@ -491,7 +491,7 @@
 
 (defun uniform-distribution-estimate-moments (sequence)
   (let ((mu (mean sequence))
-	(s3 (sqrt (* 3.0d0 (variance sequence)))))
+        (s3 (sqrt (* 3.0d0 (variance sequence)))))
     (uniform-distribution (- mu s3) (+ mu s3))))
 
 (defun uniform-distribution-estimate-maximum-likelihood (sequence)
@@ -525,7 +525,7 @@
 
 (defun erlang-distribution (scale shape)
   (assert (and (realp scale) (> scale 0)) (scale)
-	  "SCALE should be a positive real number.")
+          "SCALE should be a positive real number.")
   (assert (real-integer-p shape) (shape) "SHAPE must be an integer.")
   (if (= shape 1)
       (exponential-distribution scale nil)
@@ -533,11 +533,11 @@
 
 (defmethod cdf ((distribution erlang-distribution) x)
   (let ((scale (scale distribution))
-	(shape (shape distribution)))
+        (shape (shape distribution)))
     (- 1.0d0
        (* (exp (/ (- x) scale))
-	  (loop for i from 0 below shape
-	     sum (/ (expt (/ x scale) i) (gamma (1+ i))))))))
+          (loop for i from 0 below shape
+             sum (/ (expt (/ x scale) i) (gamma (1+ i))))))))
 
 (defmethod rand ((distribution erlang-distribution))
   (erlang-random (shape distribution) (scale distribution) (include-zero distribution)))
@@ -571,9 +571,9 @@
 (defun exponential-distribution (scale-or-hazard &optional (hazardp t))
   "\(EXPONENTIAL-DISTRIBUTION SCALE T) or \(EXPONENTIAL-DISTRIBUTION HAZARD)."
   (assert (and (realp scale-or-hazard) (> scale-or-hazard 0)) (scale-or-hazard)
-	  "~:[SCALE~;HAZARD~] should be a positive real number." hazardp)
+          "~:[SCALE~;HAZARD~] should be a positive real number." hazardp)
   (make-instance 'exponential-distribution
-		 :hazard (if hazardp scale-or-hazard (/ scale-or-hazard))))
+                 :hazard (if hazardp scale-or-hazard (/ scale-or-hazard))))
 
 (defmethod cdf ((distribution exponential-distribution) x)
   (- 1.0d0 (exp (* (- x) (hazard distribution)))))
@@ -601,9 +601,9 @@
     (setf gamma-factor (gamma shape))
     (setf shape-inv (/ shape))
     (cond ((> shape 1d0)
-	   (setf d (- shape #.(dfloat 1/3))))
-	  ((< shape 1d0)
-	   (setf d (- (+ shape 1d0) #.(dfloat 1/3)))))
+           (setf d (- shape #.(dfloat 1/3))))
+          ((< shape 1d0)
+           (setf d (- (+ shape 1d0) #.(dfloat 1/3)))))
     (unless (= shape 1d0)
       (setf c (/ (sqrt (* 9d0 d)))))
     )
@@ -629,22 +629,22 @@
   ILI is abbreviation of the numerical calculation method of Inverse-Linear-Interpolation.\\
   However this is slower than Newton-Raphson(for QUANTILE)."
   (assert (and (realp scale) (> scale 0)) (scale)
-	  "SCALE should be a positive real number.")
+          "SCALE should be a positive real number.")
   (assert (and (realp shape) (> shape 0)) (shape)
-	  "SHAPE should be a positive real number.")
+          "SHAPE should be a positive real number.")
   (make-instance 'gamma-distribution :scale scale :shape shape))
 
 (defmethod cdf ((distribution gamma-distribution) x)
   (let ((scale (scale distribution))
-	(shape (shape distribution)))
+        (shape (shape distribution)))
     (/ (lower-incomplete-gamma shape (/ x scale))
        (gamma-factor distribution))))
 
 (defmethod density ((distribution gamma-distribution) x)
   (let ((scale (scale distribution))
-	(shape (shape distribution)))
+        (shape (shape distribution)))
     (/ (* (expt (/ x scale) (1- shape)) ;; cache enable
-	  (exp (/ (- x) scale)))
+          (exp (/ (- x) scale)))
        (* scale (gamma-factor distribution)))))
 
 (defmethod quantile ((distribution gamma-like-distribution) p)
@@ -661,10 +661,10 @@ Kite:  KT = ZT + \(ZT^2 - 1) * G/6 + 1/3 * \(ZT^3 - 6 * ZT) * \(G/6)^2
          (kt (* (/ 2.0d0 g)
                 (1- (expt (1+ (* (/ g 6.0d0) (- zt (/ g 6.0d0)))) 3))))
          ;; Kite
-         ;; 	 (kt (+ zt (* (1- (sqr zt)) (/ g 6.0d0))
-         ;; 		(* 1/3 zt (- (sqr zt) 6.0d0) (sqr (/ g 6.0d0)))
-         ;; 		(- (* (1- (sqr zt)) (expt (/ g 6.0d0) 3)))
-         ;; 		(* zt (expt (/ g 6.0d0) 4)) (* 1/3 (expt (/ g 6.0d0) 5))))
+         ;;      (kt (+ zt (* (1- (sqr zt)) (/ g 6.0d0))
+         ;;             (* 1/3 zt (- (sqr zt) 6.0d0) (sqr (/ g 6.0d0)))
+         ;;             (- (* (1- (sqr zt)) (expt (/ g 6.0d0) 3)))
+         ;;             (* zt (expt (/ g 6.0d0) 4)) (* 1/3 (expt (/ g 6.0d0) 5))))
          (guess (* scale (+ shape (* (sqrt shape) kt)))))
     (newton-raphson (lambda (x) (- (cdf distribution x) p))
                     (lambda (x) (density distribution x))
@@ -673,10 +673,10 @@ Kite:  KT = ZT + \(ZT^2 - 1) * G/6 + 1/3 * \(ZT^3 - 6 * ZT) * \(G/6)^2
 (defgeneric quantile-ili (distribution p))
 (defmethod quantile-ili ((distribution gamma-like-distribution) p)
   "Use the method of inverse-linear-interpolation for numerical calculation.
-If there is a numerical problem with quantile of gamma-like-distribution, 
+If there is a numerical problem with quantile of gamma-like-distribution,
 this method would be solve it. However this is slower than Newton-Raphson."
   (assert (< 0d0 p 1d0))
-  (loop with cdf-p = (lambda (x) 
+  (loop with cdf-p = (lambda (x)
                         (- (gammp (shape distribution) (/ x (scale distribution))) p))
       with lower = *inv-lin-interp-precision*
       with upper = 1d0
@@ -695,13 +695,13 @@ this method would be solve it. However this is slower than Newton-Raphson."
   (with-slots (scale shape d c shape-inv) distribution
     (* scale
        (the double-float
-	 (cond ((> shape 1d0) (gamma-compression-shape-big-cached shape d c))
-	       ((= shape 1d0) (exp-random 1d0))
-	       (t (gamma-compression-shape-small-cached shape shape-inv d c)))))))
+         (cond ((> shape 1d0) (gamma-compression-shape-big-cached shape d c))
+               ((= shape 1d0) (exp-random 1d0))
+               (t (gamma-compression-shape-small-cached shape shape-inv d c)))))))
 
 (defun gamma-like-distribution-estimate (sequence)
   (let ((mu (mean sequence))
-	(s2 (variance sequence)))
+        (s2 (variance sequence)))
     (list (/ s2 mu) (/ (sqr mu) s2))))
 
 (defun gamma-distribution-estimate (sequence)
@@ -731,7 +731,7 @@ this method would be solve it. However this is slower than Newton-Raphson."
     (setf skewness (slot-value eq-gamma 'skewness))
     (setf kurtosis (slot-value eq-gamma 'kurtosis))
     (if (slot-boundp eq-gamma 'mode)
-	(setf mode (slot-value eq-gamma 'mode))
+        (setf mode (slot-value eq-gamma 'mode))
       (slot-makunbound distribution 'mode)))
   distribution)
 
@@ -739,7 +739,7 @@ this method would be solve it. However this is slower than Newton-Raphson."
   "- Parameters: degree
 - Estimators: [none]"
   (assert (and (real-integer-p freedom) (> freedom 0)) (freedom)
-	  "FREEDOM should be a positive integer.")
+          "FREEDOM should be a positive integer.")
   (make-instance 'chi-square-distribution :freedom freedom))
 
 (defmethod cdf ((distribution chi-square-distribution) x)
@@ -754,8 +754,8 @@ this method would be solve it. However this is slower than Newton-Raphson."
 (defmethod rand ((distribution chi-square-distribution))
   (case (freedom distribution)
     (1 (let ((u (half-normal-random 1d0)))
-	 (declare (type double-float u))
-	 (* u u)))
+         (declare (type double-float u))
+         (* u u)))
     (2 (exp-random 2d0 nil))
     (t (rand (eq-gamma distribution)))))
 
@@ -794,40 +794,40 @@ freedom than the one precalculated."
       (setf t-precalc (make-array (floor k 2)))
       (setf (elt t-precalc 0) 1)
       (loop
-	 for j from 1 below (floor k 2)
-	 do (setf (elt t-precalc j)
-		  (* (elt t-precalc (1- j))
-		     (if (evenp k)
-			 (/ (1- (* 2 j)) (* 2 j))
-		       (/ (* 2 j) (1+ (* 2 j)))))))))
+         for j from 1 below (floor k 2)
+         do (setf (elt t-precalc j)
+                  (* (elt t-precalc (1- j))
+                     (if (evenp k)
+                         (/ (1- (* 2 j)) (* 2 j))
+                       (/ (* 2 j) (1+ (* 2 j)))))))))
   (with-slots (freedom r b c a d k w s p q t1 t2 v1 v2) distribution
     (when (> freedom 2)
       (setf r (dfloat freedom))
       (setf b (case freedom
-		(3 3.142d0)
-		(4 2.968d0)
-		(5 2.868d0)
-		(6 2.783d0)
-		(7 2.756d0)
-		(8 2.724d0)
-		(t
-		 (assert (> freedom 8))
-		 (+ 2.5074d0 (expt (* 1.876d0 r) -1.042d0)))))
+                (3 3.142d0)
+                (4 2.968d0)
+                (5 2.868d0)
+                (6 2.783d0)
+                (7 2.756d0)
+                (8 2.724d0)
+                (t
+                 (assert (> freedom 8))
+                 (+ 2.5074d0 (expt (* 1.876d0 r) -1.042d0)))))
       (setf c (multiple-value-bind (quotient remainder) (floor freedom 2)
-		(declare (type fixnum quotient remainder))
-		(if (= remainder 0)
-		    ;;; even
-		    (/ (loop with ans = 1d0
-			   for i fixnum from 1 below quotient do
-			     (setf ans (* ans (+ (/ (* 2d0 i)) 1d0)))
-			   finally (return ans))
-		       (* 2d0 (the double-float (sqrt r))))
-		  ;;; odd
-		  (/ (loop with ans = 1d0
-			 for i fixnum from 1 upto quotient do
-			   (setf ans (* ans (+ (/ (- (* 2d0 i) 1d0)) 1d0)))
-			 finally (return ans))
-		     (* pi (the double-float (sqrt r)))))))
+                (declare (type fixnum quotient remainder))
+                (if (= remainder 0)
+                    ;;; even
+                    (/ (loop with ans = 1d0
+                           for i fixnum from 1 below quotient do
+                             (setf ans (* ans (+ (/ (* 2d0 i)) 1d0)))
+                           finally (return ans))
+                       (* 2d0 (the double-float (sqrt r))))
+                  ;;; odd
+                  (/ (loop with ans = 1d0
+                         for i fixnum from 1 upto quotient do
+                           (setf ans (* ans (+ (/ (- (* 2d0 i) 1d0)) 1d0)))
+                         finally (return ans))
+                     (* pi (the double-float (sqrt r)))))))
       (setf a (sqrt (* r (- (expt (* 2 b c) (/ 2 (+ freedom 1))) 1d0))))
       (setf d (/ (* b (- (expt 2 (floor +bit-operation-m+ 2)) 2))))
       (setf k (floor (/ (* a (- (expt 2 (floor +bit-operation-m+ 2)) 1)) b)))
@@ -841,48 +841,48 @@ freedom than the one precalculated."
       (setf v2 (/ 2d0 (- r 1d0)))))
   (with-slots (freedom r  variance skewness kurtosis mode) distribution
     (declare (type fixnum freedom)
-	     (type double-float r))
+             (type double-float r))
     (cond ((> freedom 1)
            (setf (slot-value distribution 'mean) 0d0 mode 0d0))
-	  (t
-	   (slot-makunbound distribution 'mean)
-	   (slot-makunbound distribution 'mode)))
+          (t
+           (slot-makunbound distribution 'mean)
+           (slot-makunbound distribution 'mode)))
     (cond ((> freedom 2)
-	   (setf variance (/ r (- r 2d0))))
-	  (t
-	   (slot-makunbound distribution 'variance)))
+           (setf variance (/ r (- r 2d0))))
+          (t
+           (slot-makunbound distribution 'variance)))
     (cond ((> freedom 3)
-	   (setf skewness 0d0))
-	  (t
-	   (slot-makunbound distribution 'skewness)))
+           (setf skewness 0d0))
+          (t
+           (slot-makunbound distribution 'skewness)))
     (cond ((> freedom 4)
-	   (setf kurtosis (/ (* 3d0 (- r 2d0))
-			     (- r 4d0))))
-	  (t
-	   (slot-makunbound distribution 'kurtosis)))))
+           (setf kurtosis (/ (* 3d0 (- r 2d0))
+                             (- r 4d0))))
+          (t
+           (slot-makunbound distribution 'kurtosis)))))
 
 (defun t-distribution (freedom)
   "- Parameters: degree
 - Estimators: [none]"
   (assert (and (real-integer-p freedom) (> freedom 0)) (freedom)
-	  "FREEDOM should be a positive integer.")
+          "FREEDOM should be a positive integer.")
   (make-instance 't-distribution :freedom freedom))
 
 (defmethod cdf ((distribution t-distribution) x)
   (let* ((k (freedom distribution))
-	 (v (t-precalc distribution)))
+         (v (t-precalc distribution)))
     (if (evenp k)
-	(+ 0.5d0
-	   (* (/ x (* 2.0d0 (sqrt (+ k (sqr x)))))
-	      (loop
-		 for j from 0 below (floor k 2)
-		 sum (/ (elt v j) (expt (1+ (/ (sqr x) k)) j)))))
-	(+ 0.5d0
-	   (/ (atan (/ x (sqrt (coerce k 'double-float)))) pi)
-	   (* (/ (* x (sqrt (coerce k 'double-float))) (* pi (+ k (sqr x))))
-	      (loop
-		 for j from 0 below (floor k 2)
-		 sum (/ (elt v j) (expt (1+ (/ (sqr x) k)) j))))))))
+        (+ 0.5d0
+           (* (/ x (* 2.0d0 (sqrt (+ k (sqr x)))))
+              (loop
+                 for j from 0 below (floor k 2)
+                 sum (/ (elt v j) (expt (1+ (/ (sqr x) k)) j)))))
+        (+ 0.5d0
+           (/ (atan (/ x (sqrt (coerce k 'double-float)))) pi)
+           (* (/ (* x (sqrt (coerce k 'double-float))) (* pi (+ k (sqr x))))
+              (loop
+                 for j from 0 below (floor k 2)
+                 sum (/ (elt v j) (expt (1+ (/ (sqr x) k)) j))))))))
 
 (defmethod density ((distribution t-distribution) x)
   (let ((k (freedom distribution)))
@@ -898,31 +898,31 @@ freedom than the one precalculated."
 integration twice, since the inverse of the incomplete beta function also
 uses it."
   (let* ((n (freedom distribution))
-	 (x (* 2.0d0 (if (< p 0.5d0) p (- 1.0d0 p))))
-	 (guess (* (if (< p 0.5d0) -1.0d0 1.0d0)
-		   (sqrt (* n (1- (/ (incomplete-beta-inverse
-				      (/ n 2.0d0) 0.5d0 x))))))))
+         (x (* 2.0d0 (if (< p 0.5d0) p (- 1.0d0 p))))
+         (guess (* (if (< p 0.5d0) -1.0d0 1.0d0)
+                   (sqrt (* n (1- (/ (incomplete-beta-inverse
+                                      (/ n 2.0d0) 0.5d0 x))))))))
     (newton-raphson (lambda (x) (- (cdf distribution x) p))
-		    (lambda (x) (density distribution x))
-		    :initial-guess guess)))
+                    (lambda (x) (density distribution x))
+                    :initial-guess guess)))
 
 (defmethod rand ((distribution t-distribution))
   (with-slots (freedom r b c a d k w s p q t1 t2 v1 v2) distribution
     (case freedom
       (1 (cauchy-random 0d0 1d0))
       (2 (/ (the double-float (normal-random 0d0 1d0))
-	    (the double-float (sqrt (exp-random 1d0)))))
+            (the double-float (sqrt (exp-random 1d0)))))
       (t (t-monty-python-bit-cached freedom r b c a d k w s p q t1 t2 v1 v2)))))
 
 (defmethod mean ((distribution t-distribution))
   (assert (> (freedom distribution) 1) ()
-	  "MEAN is undefined when FREEDOM is 1.")
+          "MEAN is undefined when FREEDOM is 1.")
   0)
 
 (defmethod variance ((distribution t-distribution))
   (let ((freedom (freedom distribution)))
     (assert (> (freedom distribution) 2) ()
-	    "VARIANCE is undefined when FREEDOM is less than 3.")
+            "VARIANCE is undefined when FREEDOM is less than 3.")
     (/ freedom (- freedom 2))))
 
 ;;; 9. Beta Distribution
@@ -948,24 +948,24 @@ uses it."
     (setf (shape alpha-gamma) shape1)
     (setf (shape beta-gamma)  shape2)
     (let ((sum (+ shape1 shape2))
-	  (prod (* shape1 shape2)))
+          (prod (* shape1 shape2)))
       (setf (slot-value distribution 'mean) (/ shape1 sum))
       (setf variance (/ prod (* sum sum (+ sum 1d0))))
       (setf skewness (/ (* 2d0 (- shape2 shape1) (sqrt (+ sum 1d0)))
-			(* (+ sum 2d0) (sqrt prod))))
+                        (* (+ sum 2d0) (sqrt prod))))
       (setf kurtosis (/ (* 3d0 (+ sum 1d0) (+ (* prod (- sum 6d0)) (* 2d0 sum sum)))
-			(* prod (+ sum 2d0) (+ sum 3d0))))
+                        (* prod (+ sum 2d0) (+ sum 3d0))))
       (if (and (> shape1 1d0) (> shape2 1d0))
-	  (setf mode (/ (- shape1 1d0) (- sum 2d0)))
-	(slot-makunbound distribution 'mode))))
+          (setf mode (/ (- shape1 1d0) (- sum 2d0)))
+        (slot-makunbound distribution 'mode))))
   distribution)
 
 (defun beta-distribution (shape1 shape2)
   "- Parameters: shape1 shape2"
   (assert (and (realp shape1) (> shape1 0)) (shape1)
-	  "SHAPE1 should be a positive real number.")
+          "SHAPE1 should be a positive real number.")
   (assert (and (realp shape2) (> shape2 0)) (shape2)
-	  "SHAPE2 should be a positive real number.")
+          "SHAPE2 should be a positive real number.")
   (make-instance 'beta-distribution :shape1 shape1 :shape2 shape2))
 
 (defmethod cdf ((distribution beta-distribution) x)
@@ -973,47 +973,47 @@ uses it."
 
 (defmethod density ((distribution beta-distribution) x)
   (let ((shape1 (shape1 distribution))
-	(shape2 (shape2 distribution)))
+        (shape2 (shape2 distribution)))
     (/ (* (expt x (1- shape1))
-	  (expt (- 1.0 x) (1- shape2)))
+          (expt (- 1.0 x) (1- shape2)))
        (beta shape1 shape2))))
 
 (defmethod quantile ((distribution beta-distribution) p)
   (let* ((n (shape1 distribution))
-	 (o (shape2 distribution))
-	 (guess (cornish-fisher-guess-with-moments-around-origin
-		 (lambda (r) (/ (beta (+ n r) o) (beta n o))) p)))
+         (o (shape2 distribution))
+         (guess (cornish-fisher-guess-with-moments-around-origin
+                 (lambda (r) (/ (beta (+ n r) o) (beta n o))) p)))
     (if (< 0 guess 1)
-	(newton-raphson (lambda (x) (- (cdf distribution x) p))
-			(lambda (x) (density distribution x))
-			:initial-guess guess)
-	(newton-raphson (lambda (x) (- (cdf distribution x) p))
-			(lambda (x) (density distribution x))
-			:range '(0.0d0 1.0d0)))))
+        (newton-raphson (lambda (x) (- (cdf distribution x) p))
+                        (lambda (x) (density distribution x))
+                        :initial-guess guess)
+        (newton-raphson (lambda (x) (- (cdf distribution x) p))
+                        (lambda (x) (density distribution x))
+                        :range '(0.0d0 1.0d0)))))
 
 (defmethod rand ((distribution beta-distribution))
   (let ((alpha (shape1 distribution))
-	(beta (shape2 distribution)))
+        (beta (shape2 distribution)))
     (cond ((= alpha beta 1d0)
-	   (unit-random))
-	  ((= alpha beta 0.5d0)
-	   (arcsine-random))
-	  ((= beta 1d0)
-	   (if (= alpha 2d0)
-	       (right-triangular-random 0d0 1d0)
-	     (power-function-random alpha 0d0 1d0)))
-	  ((= alpha 1d0)
-	   (if (= beta 2d0)
-	       (left-triangular-random 0d0 1d0)
-	     (let ((y (power-function-random beta 0d0 1d0)))
-	       (declare (type double-float y))
-	       (- 1d0 y))))
-	  (t
-	   (with-slots (alpha-gamma beta-gamma) distribution
-	     (let ((y1 (rand alpha-gamma))
-		   (y2 (rand beta-gamma)))
-	       (declare (type double-float y1 y2))
-	       (/ y1 (+ y1 y2))))))))
+           (unit-random))
+          ((= alpha beta 0.5d0)
+           (arcsine-random))
+          ((= beta 1d0)
+           (if (= alpha 2d0)
+               (right-triangular-random 0d0 1d0)
+             (power-function-random alpha 0d0 1d0)))
+          ((= alpha 1d0)
+           (if (= beta 2d0)
+               (left-triangular-random 0d0 1d0)
+             (let ((y (power-function-random beta 0d0 1d0)))
+               (declare (type double-float y))
+               (- 1d0 y))))
+          (t
+           (with-slots (alpha-gamma beta-gamma) distribution
+             (let ((y1 (rand alpha-gamma))
+                   (y2 (rand beta-gamma)))
+               (declare (type double-float y1 y2))
+               (/ y1 (+ y1 y2))))))))
 
 (defmethod mean ((distribution beta-distribution))
   (/ (shape1 distribution)
@@ -1021,15 +1021,15 @@ uses it."
 
 (defmethod variance ((distribution beta-distribution))
   (let ((n (shape1 distribution))
-	(o (shape2 distribution)))
+        (o (shape2 distribution)))
     (/ (* n o) (* (sqr (+ n o)) (+ n o 1)))))
 
 (defun beta-distribution-estimate (sequence)
   "Estimates by matching moments."
   (let ((mu (mean sequence))
-	(s2 (variance sequence)))
+        (s2 (variance sequence)))
     (beta-distribution (* mu (- (/ (* mu (- 1.0d0 mu)) s2) 1.0d0))
-		       (* (- 1.0d0 mu) (- (/ (* mu (- 1.0d0 mu)) s2) 1.0d0)))))
+                       (* (- 1.0d0 mu) (- (/ (* mu (- 1.0d0 mu)) s2) 1.0d0)))))
 
 ;;; 10. F Distribution
 (eval-when (:compile-toplevel :load-toplevel)
@@ -1049,7 +1049,7 @@ uses it."
 (defmethod update-distribution ((distribution f-distribution))
   (with-slots (freedom1 freedom2 chi1 chi2 f) distribution
     (assert (and (real-integer-p freedom1) (> freedom1 0)) (freedom1)
-	  "FREEDOM1 should be a positive integer.")
+          "FREEDOM1 should be a positive integer.")
     (assert (and (real-integer-p freedom2) (> freedom2 0)) (freedom2)
       "FREEDOM2 should be a positive integer.")
     (setf (freedom chi1) freedom1)
@@ -1058,79 +1058,79 @@ uses it."
   (with-slots (freedom1 freedom2 chi1 chi2 variance skewness kurtosis mode) distribution
     (declare (type fixnum freedom1 freedom2))
     (let* ((r1 (slot-value chi1 'r))
-	   (r2 (slot-value chi2 'r))
-	   (sum (+ r1 r2)))
+           (r2 (slot-value chi2 'r))
+           (sum (+ r1 r2)))
       (cond ((> freedom2 2)
              (setf (slot-value distribution 'mean) (/ r2 (- r2 2d0))))
-	    (t
-	     (slot-makunbound distribution 'mean)))
+            (t
+             (slot-makunbound distribution 'mean)))
       (cond ((> freedom1 2)
-      	     (setf mode (/ (* r2 (- r1 2d0))
-			   (* r1 (+ r2 2d0)))))
-	    (t
-	     (slot-makunbound distribution 'mode)))
+             (setf mode (/ (* r2 (- r1 2d0))
+                           (* r1 (+ r2 2d0)))))
+            (t
+             (slot-makunbound distribution 'mode)))
       (cond ((> freedom2 4)
-	     (setf variance (/ (* 2d0 r2 r2 (- sum 2d0))
-			       (* r1 (sqr (- r2 2d0)) (- r2 4d0)))))
-	    (t
-	     (slot-makunbound distribution 'variance)))
+             (setf variance (/ (* 2d0 r2 r2 (- sum 2d0))
+                               (* r1 (sqr (- r2 2d0)) (- r2 4d0)))))
+            (t
+             (slot-makunbound distribution 'variance)))
       (cond ((> freedom2 6)
-	     (setf skewness (/ (* (+ (* 2d0 r1) r2 -2d0) (sqrt (* 8d0 (- r2 4d0))))
-			       (* (- r2 6d0) (sqrt (* r1 (- sum 2d0)))))))
-	    (t
-	     (slot-makunbound distribution 'skewness)))
+             (setf skewness (/ (* (+ (* 2d0 r1) r2 -2d0) (sqrt (* 8d0 (- r2 4d0))))
+                               (* (- r2 6d0) (sqrt (* r1 (- sum 2d0)))))))
+            (t
+             (slot-makunbound distribution 'skewness)))
       (cond ((> freedom2 8)
-	     (setf kurtosis (/ (* 3d0 (- r2 4d0)
-				  (+ (* 10d0 r1 (- r1 2d0))
-				     (* 4d0 (sqr (- r2 2d0)))
-				     (* r1 r2 (+ sum 8d0))))
-			       (* r1 (- r2 6d0) (- r2 8d0) (- sum 2d0)))))
-	    (t
-	     (slot-makunbound distribution 'kurtosis)))))
+             (setf kurtosis (/ (* 3d0 (- r2 4d0)
+                                  (+ (* 10d0 r1 (- r1 2d0))
+                                     (* 4d0 (sqr (- r2 2d0)))
+                                     (* r1 r2 (+ sum 8d0))))
+                               (* r1 (- r2 6d0) (- r2 8d0) (- sum 2d0)))))
+            (t
+             (slot-makunbound distribution 'kurtosis)))))
   distribution)
 
 (defun f-distribution (freedom1 freedom2)
   "- Parameters: degree1 degree2
 - Estimators: [none]"
   (assert (and (real-integer-p freedom1) (> freedom1 0)) (freedom1)
-	  "FREEDOM1 should be a positive integer.")
+          "FREEDOM1 should be a positive integer.")
   (assert (and (real-integer-p freedom2) (> freedom2 0)) (freedom2)
-	  "FREEDOM2 should be a positive integer.")
+          "FREEDOM2 should be a positive integer.")
   (make-instance 'f-distribution :freedom1 freedom1 :freedom2 freedom2))
 
 (defmethod cdf ((distribution f-distribution) x)
   (let ((d1 (freedom1 distribution))
-	(d2 (freedom2 distribution)))
+        (d2 (freedom2 distribution)))
     (regularized-incomplete-beta (/ d1 2) (/ d2 2)
-				 (/ (* d1 x) (+ (* d1 x) d2)))))
+                                 (/ (* d1 x) (+ (* d1 x) d2)))))
 
 (defmethod density ((distribution f-distribution) x)
   (if (<= x 0)
       0
       (with-slots (freedom1 freedom2 f) distribution
-	(/ (* (half-integer-power f (/ freedom1 2))
-	      (half-integer-power x (1- (/ freedom2 2))))
-	   (* (half-integer-power (1+ (* (/ freedom1 freedom2) x)) (/ (+ freedom1 freedom2) 2))
-	      (beta-half freedom1 freedom2))))))
+        (/ (* (half-integer-power f (/ freedom1 2))
+              (half-integer-power x (1- (/ freedom2 2))))
+           (* (half-integer-power (1+ (* (/ freedom1 freedom2) x)) (/ (+ freedom1 freedom2) 2))
+              (beta-half freedom1 freedom2))))))
 
 ;;; The regularized incomplete beta inverse is too unstable for this.
 ;; (defmethod quantile ((distribution f-distribution) p)
 ;;   (let* ((d1 (freedom1 distribution))
-;; 	 (d2 (freedom2 distribution))
-;; 	 (x (regularized-incomplete-beta-inverse (/ d1 2) (/ d2 2) p)))
+;;       (d2 (freedom2 distribution))
+;;       (x (regularized-incomplete-beta-inverse (/ d1 2) (/ d2 2) p)))
 ;;     (/ (* d2 x) (* (- 1.0d0 x) d1))))
 
 (defmethod quantile ((distribution f-distribution) p)
   "If one freedom is large, it uses the chi-square quantile,
 otherwise it uses the beta distribution quantile."
   (let* ((d1 (freedom1 distribution))
-	 (d2 (freedom2 distribution)))
+         (d2 (freedom2 distribution)))
     (cond ((and (<= d1 d2) (> d2 400000))
-	   (/ (quantile (chi-square-distribution d1) p) d1))
-	  ((> d1 400000)
-	   (/ d2 (quantile (chi-square-distribution d2) (- 1.0 p))))
-	  (t (let ((y (quantile (beta-distribution (/ d1 2) (/ d2 2)) p)))
-	       (/ (* d2 y) (* (- 1.0d0 y) d1)))))))
+           (/ (quantile (chi-square-distribution d1) p) d1))
+          ((> d1 400000)
+           (/ d2 (quantile (chi-square-distribution d2) (- 1.0 p))))
+          (t (let ((y (quantile (beta-distribution (/ d1 2) (/ d2 2)) p)))
+               (/ (* d2 y) (* (- 1.0d0 y) d1)))))))
 
 (defmethod rand ((distribution f-distribution))
   (with-slots (chi1 chi2 f) distribution
@@ -1144,7 +1144,7 @@ otherwise it uses the beta distribution quantile."
 
 (defmethod variance ((distribution f-distribution))
   (let ((d1 (freedom1 distribution))
-	(d2 (freedom2 distribution)))
+        (d2 (freedom2 distribution)))
     (assert (> d2 4) () "VARIANCE is undefined when FREEDOM2 <= 4.")
     (/ (* 2 d2 d2 (+ d1 d2 -2))
        (* d1 (sqr (- d2 2)) (- d2 4)))))
@@ -1178,7 +1178,7 @@ otherwise it uses the beta distribution quantile."
 (defmethod print-object ((obj binomial-distribution) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": SIZE = ~d, PROBABILITY = ~a"
-	    (size obj) (probability obj))))
+            (size obj) (probability obj))))
 
 (defmethod update-distribution ((distribution binomial-distribution))
   (call-next-method)
@@ -1192,12 +1192,12 @@ otherwise it uses the beta distribution quantile."
         (setf variance (* (slot-value distribution 'mean) (- 1d0 probability)))
       (slot-makunbound distribution 'variance))
     (if (> size 2)
-	(setf skewness (/ (- 1d0 (* 2d0 probability))
-			  (sqrt variance)))
+        (setf skewness (/ (- 1d0 (* 2d0 probability))
+                          (sqrt variance)))
       (slot-makunbound distribution 'skewness))
     (if (> size 3)
-	(setf kurtosis (/ (+ 1d0 (* 3d0 (- size 2d0) probability (- 1d0 probability)))
-			  variance))
+        (setf kurtosis (/ (+ 1d0 (* 3d0 (- size 2d0) probability (- 1d0 probability)))
+                          variance))
       (slot-makunbound distribution 'kurtosis))
     (setf mode (floor (* probability (+ size 1)))))
   distribution)
@@ -1205,20 +1205,20 @@ otherwise it uses the beta distribution quantile."
 (defun binomial-distribution (size probability)
   "- Parameters: size, probability"
   (assert (and (real-integer-p size) (>= size 0)) (size)
-	  "SIZE should be a nonnegative integer.")
+          "SIZE should be a nonnegative integer.")
   (assert (and (realp probability) (<= 0 probability 1)) (probability)
-	  "PROBABILITY should be a real number between 0 and 1.")
+          "PROBABILITY should be a real number between 0 and 1.")
   (make-instance 'binomial-distribution
-		 :size size :probability probability))
+                 :size size :probability probability))
 
 (defmethod cdf ((distribution binomial-distribution) k)
   (regularized-incomplete-beta (+ (- (size distribution) k) 0.0d0)
-			       (+ k 1.0d0)
-			       (- 1.0d0 (probability distribution))))
+                               (+ k 1.0d0)
+                               (- 1.0d0 (probability distribution))))
 
 (defmethod mass ((distribution binomial-distribution) k)
   (let ((n (size distribution))
-	(p (probability distribution)))
+        (p (probability distribution)))
     (* (binomial n k) (expt p k) (expt (- 1 p) (- n k)))))
 
 ;;; As in R:
@@ -1236,16 +1236,16 @@ otherwise it uses the beta distribution quantile."
 (defmethod quantile ((distribution binomial-distribution) p)
   "TODO: The search part could be more efficient."
   (cond ((= p 0.0d0) 0)
-	((= p 1.0d0) (size distribution))
-	(t (let* ((n (size distribution))
-		  (pr (probability distribution))
-		  (mu (* n pr))
-		  (sigma (sqrt (* n pr (- 1.0d0 pr))))
-		  (k3 (/ (- 1.0d0 (* 2.0d0 pr)) sigma))
-		  (z (quantile (standard-normal-distribution) p))
-		  (x (+ z (/ (* k3 (1- (sqr z))) 6.0d0)))
-		  (guess (min (max (round (+ mu (* sigma x))) 0) n)))
-	     (search-for-quantile distribution p guess :min 0 :max n)))))
+        ((= p 1.0d0) (size distribution))
+        (t (let* ((n (size distribution))
+                  (pr (probability distribution))
+                  (mu (* n pr))
+                  (sigma (sqrt (* n pr (- 1.0d0 pr))))
+                  (k3 (/ (- 1.0d0 (* 2.0d0 pr)) sigma))
+                  (z (quantile (standard-normal-distribution) p))
+                  (x (+ z (/ (* k3 (1- (sqr z))) 6.0d0)))
+                  (guess (min (max (round (+ mu (* sigma x))) 0) n)))
+             (search-for-quantile distribution p guess :min 0 :max n)))))
 
 (defmethod rand ((distribution binomial-distribution))
   (with-slots (table ki vi b k w nsq) distribution
@@ -1303,7 +1303,7 @@ otherwise it uses the beta distribution quantile."
   "- Parameters: probability
 - (Supported on k = 1, 2, ... (the # of trials until a success, inclusive))"
   (assert (and (realp probability) (< 0 probability) (<= probability 1))
-	  (probability) "PROBABILITY should be a positive real number <= 1.")
+          (probability) "PROBABILITY should be a positive real number <= 1.")
   (make-instance 'geometric-distribution :probability probability))
 
 (defmethod cdf ((distribution geometric-distribution) k)
@@ -1355,7 +1355,7 @@ otherwise it uses the beta distribution quantile."
 (defmethod print-object ((obj hypergeometric-distribution) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": N = ~a, m = ~a, n = ~a"
-	    (elements obj) (successes obj) (samples obj))))
+            (elements obj) (successes obj) (samples obj))))
 
 (defmethod update-distribution ((distribution hypergeometric-distribution))
   (with-slots (elements successes samples table ki vi b k w nsq a1) distribution
@@ -1368,58 +1368,58 @@ otherwise it uses the beta distribution quantile."
     (multiple-value-setq (table ki vi b k w nsq a1) (hypergeometric-table-histogram elements successes samples)))
   (with-slots (elements successes samples variance skewness kurtosis mode) distribution
     (let ((enu (dfloat elements))
-	  (m (dfloat successes))
-	  (n (dfloat samples)))
+          (m (dfloat successes))
+          (n (dfloat samples)))
       (setf (slot-value distribution 'mean) (/ (* n m) enu))
       (setf variance (/ (* n m (- enu n) (- enu m))
-			(* enu enu (- enu 1d0))))
+                        (* enu enu (- enu 1d0))))
       (setf skewness (* (/ (* (- enu (* 2 n)) (- enu (* 2 m)))
-			   (- enu 2d0))
-			(sqrt (/ (- enu 1d0)
-				 (* n m (- enu n) (- enu m))))))
+                           (- enu 2d0))
+                        (sqrt (/ (- enu 1d0)
+                                 (* n m (- enu n) (- enu m))))))
       (setf kurtosis (/ (* (- enu 1d0)
-			   (+ (- (* enu enu enu (+ enu 1d0))
-				 (* 6d0 enu enu n (- enu n))
-				 (* 6d0 enu enu m (- enu m)))
-			      (* 3d0 n m (- enu n) (- enu m) (- (* enu enu) (* 4d0 enu) -12d0))))
-			(* n m (- enu n) (- enu m) (- enu 2d0) (- enu 3d0))))
+                           (+ (- (* enu enu enu (+ enu 1d0))
+                                 (* 6d0 enu enu n (- enu n))
+                                 (* 6d0 enu enu m (- enu m)))
+                              (* 3d0 n m (- enu n) (- enu m) (- (* enu enu) (* 4d0 enu) -12d0))))
+                        (* n m (- enu n) (- enu m) (- enu 2d0) (- enu 3d0))))
       (setf mode (floor (/ (* (+ m 1) (+ n 1))
-			   (+ enu 2))))))
+                           (+ enu 2))))))
   distribution)
 
 (defun hypergeometric-distribution (elements successes samples)
   (assert (and (real-integer-p elements) (>= elements 0)) (elements)
-	  "ELEMENTS should be a nonnegative integer.")
+          "ELEMENTS should be a nonnegative integer.")
   (assert (and (real-integer-p successes) (>= successes 0)) (successes)
-	  "SUCCESSES should be a nonnegative integer.")
+          "SUCCESSES should be a nonnegative integer.")
   (assert (and (real-integer-p samples) (>= samples 0)) (samples)
-	  "SAMPLES should be a nonnegative integer.")
+          "SAMPLES should be a nonnegative integer.")
   (make-instance 'hypergeometric-distribution
-		 :elements elements :successes successes :samples samples))
+                 :elements elements :successes successes :samples samples))
 
 (defmethod cdf ((distribution hypergeometric-distribution) k)
   "TODO: Trivial implementation - ineffective and there may be cancellation."
   (let ((all (elements distribution))
-	(m (successes distribution))
-	(n (samples distribution)))
+        (m (successes distribution))
+        (n (samples distribution)))
     (if (>= k (min m n))
-	1
-	(loop for i from (max 0 (- (+ n m) all)) to k
-	   sum (mass distribution i)))))
+        1
+        (loop for i from (max 0 (- (+ n m) all)) to k
+           sum (mass distribution i)))))
 
 (defmethod mass ((distribution hypergeometric-distribution) k)
   (let ((all (elements distribution))
-	(m (successes distribution))
-	(n (samples distribution)))
+        (m (successes distribution))
+        (n (samples distribution)))
     (/ (* (binomial m k) (binomial (- all m) (- n k))) (binomial all n))))
 
 (defmethod quantile ((distribution hypergeometric-distribution) p)
   "TODO: Trivial implementation - ineffective."
   (let ((all (elements distribution))
-	(m (successes distribution))
-	(n (samples distribution)))
+        (m (successes distribution))
+        (n (samples distribution)))
     (binary-search p (lambda (k) (cdf distribution k))
-		   (max 0 (- (+ n m) all)) (min m n))))
+                   (max 0 (- (+ n m) all)) (min m n))))
 
 (defmethod rand ((distribution hypergeometric-distribution))
   (with-slots (table ki vi b k w nsq a1) distribution
@@ -1431,29 +1431,29 @@ otherwise it uses the beta distribution quantile."
 
 (defmethod variance ((distribution hypergeometric-distribution))
   (let ((all (elements distribution))
-	(m (successes distribution))
-	(n (samples distribution)))
+        (m (successes distribution))
+        (n (samples distribution)))
     (/ (* (/ (* n m) all) (- 1 (/ m all)) (- all n)) (1- all))))
 
 (defun hypergeometric-distribution-estimate-successes-unbiased
     (elements samples sample-successes)
   (hypergeometric-distribution elements
-			       (round (/ (* elements sample-successes) samples))
-			       samples))
+                               (round (/ (* elements sample-successes) samples))
+                               samples))
 
 (defun hypergeometric-distribution-estimate-successes-maximum-likelihood
     (elements samples sample-successes)
   (hypergeometric-distribution elements
-			       (floor (/ (* (1+ elements) sample-successes)
-					 samples))
-			       samples))
+                               (floor (/ (* (1+ elements) sample-successes)
+                                         samples))
+                               samples))
 
 (defun hypergeometric-distribution-estimate-elements
     (successes samples sample-successes)
   "Maximum likelihood estimation."
   (hypergeometric-distribution (floor (/ (* samples successes)
-					 sample-successes))
-			       successes samples))
+                                         sample-successes))
+                               successes samples))
 
 ;;; 14. Cauchy Distribution
 
@@ -1480,7 +1480,7 @@ otherwise it uses the beta distribution quantile."
   "- Parameters: location, scale"
   (assert (realp location) (location) "LOCATION should be a real number.")
   (assert (and (realp scale) (> scale 0)) (scale)
-	  "SCALE should be a positive real number.")
+          "SCALE should be a positive real number.")
   (make-instance 'cauchy-distribution :location location :scale scale))
 
 (defmethod cdf ((distribution cauchy-distribution) x)
@@ -1488,13 +1488,13 @@ otherwise it uses the beta distribution quantile."
 
 (defmethod density ((distribution cauchy-distribution) x)
   (let ((location (location distribution))
-	(scale (scale distribution)))
+        (scale (scale distribution)))
     (/ (* pi scale (1+ (sqr (/ (- x location) scale)))))))
 
 (defmethod quantile ((distribution cauchy-distribution) p)
   (+ (location distribution)
      (* (scale distribution)
-	(tan (* pi (- p 0.5d0))))))
+        (tan (* pi (- p 0.5d0))))))
 
 (defmethod rand ((distribution cauchy-distribution))
   (cauchy-random (location distribution) (scale distribution)))
@@ -1538,12 +1538,12 @@ otherwise it uses the beta distribution quantile."
     (setf variance (/ (sqr (* location scale)) 3d0))
     (setf mode location))
   distribution)
-    
+
 (defun logistic-distribution (location scale)
   "- Parameters: location, scale"
   (assert (realp location) (location) "LOCATION should be a real number.")
   (assert (and (realp scale) (> scale 0)) (scale)
-	  "SCALE should be a positive real number.")
+          "SCALE should be a positive real number.")
   (make-instance 'logistic-distribution :location location :scale scale))
 
 (defmethod cdf ((distribution logistic-distribution) x)
@@ -1570,17 +1570,17 @@ otherwise it uses the beta distribution quantile."
 ;;; logistic distribution parameters: Comparative study,
 ;;; Statistical Methodology (2008), doi: 10.1016/j.stamet.2008.10.001
 (defun logistic-distribution-estimate (sequence &optional (iteration 100)
-				       (tolerance 1.0d-10))
+                                       (tolerance 1.0d-10))
   "Maximal likelihood estimate."
   (let ((mu (mean sequence))
-	(n (length sequence)))
+        (n (length sequence)))
     (loop repeat iteration
        for last = 0.0d0 then s
        for s = 1.0d0 then
        (/ (loop for xi in sequence
-	     for di = (exp (/ (- mu xi) s))
-	     sum (/ (* xi (- 1.0d0 di)) (+ 1.0d0 di)))
-	  n)
+             for di = (exp (/ (- mu xi) s))
+             sum (/ (* xi (- 1.0d0 di)) (+ 1.0d0 di)))
+          n)
        while (> (abs (- last s)) tolerance)
        finally (return (logistic-distribution mu s)))))
 
@@ -1611,7 +1611,7 @@ otherwise it uses the beta distribution quantile."
 (defmethod print-object ((obj negative-binomial-distribution) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": SUCCESS-R = ~a, PROBABILITY = ~a~%"
-	    (success-r obj) (probability obj))))
+            (success-r obj) (probability obj))))
 
 (defmethod update-distribution ((distribution negative-binomial-distribution))
   (call-next-method)
@@ -1628,7 +1628,7 @@ otherwise it uses the beta distribution quantile."
       (setf skewness (/ (- 2d0 probability) (sqrt (* fail success-r))))
       (setf kurtosis (+ 3d0 (/ 6d0 success-r) (/ variance)))
       (setf mode (if (> success-r 1d0)
-		     (floor (/ (* (1- success-r) fail) probability))
+                     (floor (/ (* (1- success-r) fail) probability))
              0d0))))
 
   distribution)
@@ -1649,56 +1649,56 @@ extended to real numbers.
 If FAILURESP is NIL, we look at the number of all trials, not just the
 failures."
   (assert (and (realp successes) (> successes 0)) (successes)
-	  "SUCCESSES should be a positive real number.")
+          "SUCCESSES should be a positive real number.")
   (assert (and (realp probability) (< 0 probability 1)) (probability)
-	  "PROBABILITY should be a real number between 0 and 1.")
+          "PROBABILITY should be a real number between 0 and 1.")
   (make-instance 'negative-binomial-distribution
-		 :success-r successes :probability probability))
+                 :success-r successes :probability probability))
 
 (defmethod cdf ((distribution negative-binomial-distribution) k)
   (if (< k 0)
       0
     (regularized-incomplete-beta (success-r distribution)
-				 (+ k 1.0d0)
-				 (probability distribution))))
+                                 (+ k 1.0d0)
+                                 (probability distribution))))
 
 (defmethod mass ((distribution negative-binomial-distribution) k)
   (let ((s (success-r distribution))
-	(p (probability distribution)))
+        (p (probability distribution)))
     (if (< k 0)
-	0
+        0
       (* (/ (gamma (+ s k)) (* (gamma (+ k 1.0d0)) (gamma s)))
-	 (expt p s) (int-power (- 1.0d0 p) k)))))
+         (expt p s) (int-power (- 1.0d0 p) k)))))
 
 ;;; Compute a guess by the 2nd-order Cornish-Fisher expansion.
 ;;; See the notes at the binomial distribution quantile.
 (defmethod quantile ((distribution negative-binomial-distribution) p)
   (let* ((prob (probability distribution))
-	 (q (- 1.0d0 prob))
-	 (s (success-r distribution))
-	 (mean (/ (* s q) prob))
-	 (sigma (sqrt (/ (* s q) (sqr prob))))
-	 (z (quantile (standard-normal-distribution) p))
-	 (k3 (/ (* s q (1+ q)) (expt (* sigma prob) 3)))
-	 (guess (round (+ mean
-			  (* sigma (+ z (* k3 (/ (1- (* z z)) 6.0d0))))))))
+         (q (- 1.0d0 prob))
+         (s (success-r distribution))
+         (mean (/ (* s q) prob))
+         (sigma (sqrt (/ (* s q) (sqr prob))))
+         (z (quantile (standard-normal-distribution) p))
+         (k3 (/ (* s q (1+ q)) (expt (* sigma prob) 3)))
+         (guess (round (+ mean
+                          (* sigma (+ z (* k3 (/ (1- (* z z)) 6.0d0))))))))
     (search-for-quantile distribution p guess :min s)))
 
 #+ignore
 (defun negative-binomial-rand-integer (distribution)
   (let ((p (probability distribution)))
     (- (if (> p 0.5d0)
-	   ;; by rejection (faster for large p)
-	   (let ((s (successes distribution))
-		 (success 0))
-	     (loop for n upfrom 0
-		   while (< success s)
-		   for r = (unit-random)
-		   do (when (< r p) (incf success))
-		   finally (return n)))
-	 ;; by geometric distribution
-	 (let ((d (geometric-distribution (probability distribution))))
-	   (loop repeat (successes distribution) sum (rand d))))
+           ;; by rejection (faster for large p)
+           (let ((s (successes distribution))
+                 (success 0))
+             (loop for n upfrom 0
+                   while (< success s)
+                   for r = (unit-random)
+                   do (when (< r p) (incf success))
+                   finally (return n)))
+         ;; by geometric distribution
+         (let ((d (geometric-distribution (probability distribution))))
+           (loop repeat (successes distribution) sum (rand d))))
        (if (failuresp distribution) (successes distribution) 0))))
 
 ;;; As in S. H. Ong, Wen-Jau Lee:
@@ -1713,28 +1713,28 @@ failures."
 For other cases, it may be faster to use Poisson and gamma distributions.
 Also see the speedup part in the paper."
   (let* ((q (probability distribution))
-	 (p (- 1.0d0 q))
-	 (alpha (successes distribution))
-	 (m (truncate alpha))
-	 (theta (- alpha m))
-	 (a (- (/ p) 1.0d0))
-	 (phi (/ (+ 1.0d0 (/ (* a m) alpha))))
-	 (e #.(exp 1.0d0))
-	 (s (negative-binomial-distribution m (- 1.0d0 phi))))
+         (p (- 1.0d0 q))
+         (alpha (successes distribution))
+         (m (truncate alpha))
+         (theta (- alpha m))
+         (a (- (/ p) 1.0d0))
+         (phi (/ (+ 1.0d0 (/ (* a m) alpha))))
+         (e #.(exp 1.0d0))
+         (s (negative-binomial-distribution m (- 1.0d0 phi))))
     (flet ((T1 (x) (* (expt (* (/ (- 1.0d0 p) alpha) e) theta)
-		      (expt (/ p phi) (+ m x))
-		      (expt (+ m x) theta)
-		      (+ 1.0d0 (/ (* theta (- theta 1.0d0))
-				  (* 2.0d0 (+ m x))))))
-	   (LB (x) (* (/ (* q e (+ (* 2 (+ m x)) (* theta (- theta 1.0d0))))
-			 (- (* 2.0d0 alpha theta)
-			    (* 2.0d0 q e (+ m x) (- theta 1.0d0))))
-		      (expt (/ p phi) (+ m x)))))
+                      (expt (/ p phi) (+ m x))
+                      (expt (+ m x) theta)
+                      (+ 1.0d0 (/ (* theta (- theta 1.0d0))
+                                  (* 2.0d0 (+ m x))))))
+           (LB (x) (* (/ (* q e (+ (* 2 (+ m x)) (* theta (- theta 1.0d0))))
+                         (- (* 2.0d0 alpha theta)
+                            (* 2.0d0 q e (+ m x) (- theta 1.0d0))))
+                      (expt (/ p phi) (+ m x)))))
       (+ (loop for u = (unit-random)
-	       for x = (negative-binomial-rand-integer s)
-	       while (and (>= u (LB x)) (> u (T1 x)))
-	       finally (return x))
-	 (if (failuresp distribution) 0 alpha)))))
+               for x = (negative-binomial-rand-integer s)
+               while (and (>= u (LB x)) (> u (T1 x)))
+               finally (return x))
+         (if (failuresp distribution) 0 alpha)))))
 
 (defmethod rand ((distribution negative-binomial-distribution))
   (with-slots (table ki vi b k w nsq psq q r xl xu pl pu que s tee) distribution
@@ -1805,16 +1805,16 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   (setf (slot-value distribution 'skewness) (/ (sqrt (slot-value distribution 'rate))))
   (setf (slot-value distribution 'kurtosis) (+ (/ (slot-value distribution 'rate)) 3d0))
   (setf (slot-value distribution 'mode) (floor (slot-value distribution 'rate)))
-  
+
   distribution)
 
-    
-  
+
+
 
 (defun poisson-distribution (rate)
   "- Parameters: rate"
   (assert (and (realp rate) (> rate 0)) (rate)
-	  "RATE should be a positive real number.")
+          "RATE should be a positive real number.")
   (make-instance 'poisson-distribution :rate rate))
 
 (defmethod cdf ((distribution poisson-distribution) k)
@@ -1827,11 +1827,11 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
 ;;; Compute a guess by the 2nd-order Cornish-Fisher expansion.
 ;;; See the notes at the binomial distribution quantile.
 (defmethod quantile ((distribution poisson-distribution) p)
-  (let* ((l (rate distribution))	; = mean
-	 (variance (sqrt l))
-	 (k3 (/ variance))
-	 (z (quantile (standard-normal-distribution) p))
-	 (guess (round (+ l (* variance (+ z (* k3 (/ (1- (* z z)) 6.0d0))))))))
+  (let* ((l (rate distribution))        ; = mean
+         (variance (sqrt l))
+         (k3 (/ variance))
+         (z (quantile (standard-normal-distribution) p))
+         (guess (round (+ l (* variance (+ z (* k3 (/ (1- (* z z)) 6.0d0))))))))
     (print guess)
     (search-for-quantile distribution p guess :min 0)))
 
@@ -1874,25 +1874,25 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   (with-slots (shape scale mean variance skewness kurtosis mode) distribution
     (setf mean (* scale (gamma (+ (/ shape) 1d0))))
     (setf variance (* scale scale
-		      (- (gamma (+ (/ 2d0 shape) 1d0))
-			 (sqr (gamma (+ (/ shape) 1d0))))))
+                      (- (gamma (+ (/ 2d0 shape) 1d0))
+                         (sqr (gamma (+ (/ shape) 1d0))))))
     (setf skewness (/ (+ (gamma (+ (/ 3d0 shape) 1d0))
-			 (- (* 3d0 (gamma (+ (/ 2d0 shape) 1d0))
-			       (gamma (+ (/ shape) 1d0))))
-			 (* 2d0 (int-power (gamma (+ (/ shape) 1d0)) 3)))
-		      (half-integer-power (- (gamma (+ (/ 2d0 shape) 1d0))
-					     (sqr (gamma (+ (/ shape) 1d0))))
-					  3/2)))
+                         (- (* 3d0 (gamma (+ (/ 2d0 shape) 1d0))
+                               (gamma (+ (/ shape) 1d0))))
+                         (* 2d0 (int-power (gamma (+ (/ shape) 1d0)) 3)))
+                      (half-integer-power (- (gamma (+ (/ 2d0 shape) 1d0))
+                                             (sqr (gamma (+ (/ shape) 1d0))))
+                                          3/2)))
     (setf kurtosis (/ (+ (gamma (+ (/ 4d0 shape) 1d0))
-			 (- (* 4d0 (gamma (+ (/ 3d0 shape) 1d0))
-			       (gamma (+ (/ shape) 1d0))))
-			 (* 6d0 (gamma (+ (/ 2d0 shape) 1d0))
-			    (sqr (gamma (+ (/ shape) 1d0))))
-			 (- (* 3d0 (int-power (gamma (+ (/ shape) 1d0)) 4))))
-		      (sqr (- (gamma (+ (/ 2d0 shape) 1d0))
+                         (- (* 4d0 (gamma (+ (/ 3d0 shape) 1d0))
+                               (gamma (+ (/ shape) 1d0))))
+                         (* 6d0 (gamma (+ (/ 2d0 shape) 1d0))
+                            (sqr (gamma (+ (/ shape) 1d0))))
+                         (- (* 3d0 (int-power (gamma (+ (/ shape) 1d0)) 4))))
+                      (sqr (- (gamma (+ (/ 2d0 shape) 1d0))
                       (sqr (gamma (+ (/ shape) 1d0))))))))
   #+sbcl
-   
+
   (let ((t-shape (slot-value distribution 'shape))
         (t-scale (slot-value distribution 'scale))
         )
@@ -1915,16 +1915,16 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
                                                      (- (* 3d0 (int-power (gamma (+ (/ t-shape) 1d0)) 4))))
                                                   (sqr (- (gamma (+ (/ 2d0 t-shape) 1d0))
                                                           (sqr (gamma (+ (/ t-shape) 1d0)))))))
-    
+
     )
   distribution)
 
 (defun weibull-distribution (scale shape)
   "- Parameters: scale, shape"
   (assert (and (realp scale) (> scale 0)) (scale)
-	  "SCALE should be a positive real number.")
+          "SCALE should be a positive real number.")
   (assert (and (realp shape) (> shape 0)) (shape)
-	  "SHAPE should be a positive real number.")
+          "SHAPE should be a positive real number.")
   (make-instance 'weibull-distribution :scale scale :shape shape))
 
 (defmethod cdf ((distribution weibull-distribution) x)
@@ -1934,8 +1934,8 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   (if (< x 0)
       0
       (let ((l (scale distribution))
-	    (k (shape distribution)))
-	(* (/ k l) (expt (/ x l) (1- k)) (exp (- (expt (/ x l) k)))))))
+            (k (shape distribution)))
+        (* (/ k l) (expt (/ x l) (1- k)) (exp (- (expt (/ x l) k)))))))
 
 (defmethod quantile ((distribution weibull-distribution) p)
   (* (expt (- (log (- 1.0d0 p))) (/ (shape distribution)))
@@ -1954,25 +1954,25 @@ FAILURESP works as in NEGATIVE-BINOMIAL-DISTRIBUTION."
   (let ((shape (shape distribution)))
     (* (sqr (scale distribution))
        (- (gamma (/ (+ shape 2.0d0) shape))
-	  (sqr (gamma (/ (+ shape 1.0d0) shape)))))))
+          (sqr (gamma (/ (+ shape 1.0d0) shape)))))))
 
 ;;; Simple binary search implementation.
 (defun weibull-distribution-estimate (sequence)
   "Maximum likelihood estimate."
   (flet ((sumx (beta &optional lnxp)
-	   (loop for xi in sequence
-	      sum (if lnxp
-		      (* (expt xi beta) (log xi))
-		      (expt xi beta)))))
+           (loop for xi in sequence
+              sum (if lnxp
+                      (* (expt xi beta) (log xi))
+                      (expt xi beta)))))
     (let* ((n (length sequence))
-	   (r (/ (sumx 0 t) n)))
+           (r (/ (sumx 0 t) n)))
       (flet ((fn (beta) (- (/ (sumx beta t) (sumx beta)) (/ beta) r)))
-	(let* ((min (loop for x = 1.0d0 then (/ x 2.0d0)
-		       while (> (fn x) 0) finally (return x)))
-	       (max (loop for x = 1.0d0 then (* x 2.0d0)
-		       while (< (fn x) 0) finally (return x)))
-	       (shape (real-binary-search #'fn min max)))
-	  (weibull-distribution (expt (/ (sumx shape) n) (/ shape)) shape))))))
+        (let* ((min (loop for x = 1.0d0 then (/ x 2.0d0)
+                       while (> (fn x) 0) finally (return x)))
+               (max (loop for x = 1.0d0 then (* x 2.0d0)
+                       while (< (fn x) 0) finally (return x)))
+               (shape (real-binary-search #'fn min max)))
+          (weibull-distribution (expt (/ (sumx shape) n) (/ shape)) shape))))))
 
 ;;; debug utility
 
@@ -2005,7 +2005,7 @@ length of seq must be more than 4"
   (assert (> 1 alpha 0))
   (assert (every #'numberp seq))
   (if (>= (length seq) 4)
-      (let* ((target (case type 
+      (let* ((target (case type
                        (:max (reduce #'max seq))
                        (:min (reduce #'min seq))))
              (target-pos (position target seq :test #'=)))
@@ -2020,8 +2020,8 @@ length of seq must be more than 4"
                                      alpha :type type :recursive recursive
                                      :sig-p-hash sig-p-hash)
                    (values %seq
-                           (if removed-poss 
-                               (cons target-pos 
+                           (if removed-poss
+                               (cons target-pos
                                      (mapcar (lambda (pos) (if (>= pos target-pos) (1+ pos) pos))
                                              removed-poss))
                              `(,target-pos)))))
@@ -2054,7 +2054,7 @@ length of seq must be more than 4"
 
 (defun get-sig-p (n alpha)
   (let* ((dist (t-distribution (- n 2)))
-         (t_alpha^2 (expt 
+         (t_alpha^2 (expt
                      (quantile
                       dist
                       (- 1 (/ (/ (* 100 alpha) n)
@@ -2067,20 +2067,20 @@ length of seq must be more than 4"
   (assert (>= n 4))
   (let ((hash (make-hash-table :test #'eql)))
     (loop for i from 4 to n
-        do (setf (gethash i hash) 
+        do (setf (gethash i hash)
              `(,(cons alpha (get-sig-p i alpha))))
         finally (return hash))))
 
 (defun covariance (seq1 seq2)
   "Returns the covariance of SEQ1 and SEQ2."
   (let ((mean1 (mean seq1))
-	(mean2 (mean seq2))
-	(n1 (length seq1))
-	(n2 (length seq2)))
+        (mean2 (mean seq2))
+        (n1 (length seq1))
+        (n2 (length seq2)))
     (assert (= n1 n2) (seq1 seq2)
-	    "The two sequences must have the same length.")
+            "The two sequences must have the same length.")
     (/ (apply #'+ (map 'list (lambda (x y) (* (- x mean1) (- y mean2)))
-		       seq1 seq2))
+                       seq1 seq2))
        (1- n1))))
 
 
@@ -2094,4 +2094,4 @@ length of seq must be more than 4"
 covariance / (standard-deviation1 * standard-deviation2)."
   (/ (covariance seq1 seq2)
      (* (standard-deviation seq1)
-	(standard-deviation seq2))))
+        (standard-deviation seq2))))

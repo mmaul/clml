@@ -10,7 +10,7 @@
 (declaim (type fixnum *num-of-trials* *max-iteration*))
 
 (defstruct distance-function
-  name 
+  name
   v.v
   m.v
   m.m)
@@ -30,8 +30,8 @@ rest-iteration not defined
           #+ignore
           st-iteration))
      until (stop-p))
-  
-#+ignore 
+
+#+ignore
 (defun k-means ()
   "TODO: update-best-trial not defined"
   (loop repeat *num-of-trials*

@@ -9,7 +9,7 @@
    (kurtosis)
    (mode)))
 
-  
+
   (defclass discrete-distribution (distribution) ())
   (defclass continuous-distribution (distribution) ()))
 
@@ -21,7 +21,7 @@
 (defgeneric mass (discrete-distribution k)
   (:documentation "Probability mass function of DISTRIBUTION at X.")
   (:method (distribution k)
-	   (- (cdf distribution k) (cdf distribution (1- k)))))
+           (- (cdf distribution k) (cdf distribution (1- k)))))
 (defgeneric quantile (distribution p)
   (:documentation "Quantile of P according to DISTRIBUTION."))
 (defgeneric rand (distribution)

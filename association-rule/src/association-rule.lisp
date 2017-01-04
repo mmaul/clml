@@ -67,7 +67,7 @@ Format is:
 
      (<rule length> (<support> <confidence> <lift> <confiction>))
     #(<header>
-    #(<premise> <conclusion> <support> <confidence> <lift> <confiction>)) 
+    #(<premise> <conclusion> <support> <confidence> <lift> <confiction>))
 
 -arguments:
   - r : assoc-result-dataset
@@ -130,7 +130,7 @@ Format is:
                  as num = (gethash itemset itemset-hash)
                  if (and (numberp num) (>= num count-threshold))
                  collect itemset
-                 else 
+                 else
                  do (remhash itemset itemset-hash))))
       ;; first step, generate 1-itemsets
       (loop for trans being the hash-value in transactions
@@ -142,12 +142,12 @@ Format is:
           as itemsets =
             (if (= k 2)
                 (gen-next-itemsets
-                 (sort 
+                 (sort
                   (loop for itemset being the hash-key in itemset-hash
                       for num being the hash-value in itemset-hash
                       if (>= num count-threshold)
                       collect itemset
-                      else 
+                      else
                       do (remhash itemset itemset-hash))
                   #'< :key #'(lambda (itemset)
                                (gethash (car itemset) item-order))))
@@ -179,13 +179,13 @@ Format is:
 (defun gen-next-itemsets (pre-itemsets)
   (let (next-itemsets)
     (do ((itemsets pre-itemsets (cdr itemsets)))
-	((null (cdr itemsets)) (nreverse next-itemsets))
+        ((null (cdr itemsets)) (nreverse next-itemsets))
       (loop for itemset in (cdr itemsets)
           as last-i = (car (last itemset))
           with target = (car itemsets)
           with last-t = (car (last target))
           when (and (not (equal last-i last-t))
-		    (match-except-tail itemset target :test #'equal))
+                    (match-except-tail itemset target :test #'equal))
           do (push `(,@target ,last-i) next-itemsets)))))
 
 ;; fcn. for obtaining the transactions and the order of items
@@ -216,22 +216,22 @@ Format is:
 ;; pass fn such that push rule into some variable to this ap-maprule
 ;; count-lookup-fn: lookup itemset count
 (defun ap-maprule (fn parent-itemset itemset-length count-lookup-fn max-precount
-		   &optional (set-of-itemsets (mapcar #'(lambda (x) (list x)) parent-itemset))
-			     (set-of-itemsets-length 1))
+                   &optional (set-of-itemsets (mapcar #'(lambda (x) (list x)) parent-itemset))
+                             (set-of-itemsets-length 1))
   (dolist (conc set-of-itemsets)
     (let ((pre (ordered-set-difference parent-itemset conc)))
       (if (<= (funcall count-lookup-fn pre) max-precount)
-	  (funcall fn conc pre)
-	(setf set-of-itemsets (delete conc set-of-itemsets)))))
+          (funcall fn conc pre)
+        (setf set-of-itemsets (delete conc set-of-itemsets)))))
   (when (and (> itemset-length (1+ set-of-itemsets-length)) set-of-itemsets)
     (ap-maprule fn parent-itemset itemset-length count-lookup-fn max-precount
-		(gen-next-itemsets set-of-itemsets) (1+ set-of-itemsets-length))))
+                (gen-next-itemsets set-of-itemsets) (1+ set-of-itemsets-length))))
 
 (defun ordered-set-difference (sorted-item1 sorted-item2 &key (test #'equal))
   (loop for item in sorted-item1
       as search-result = (member item sorted-item2 :test test)
       unless search-result
-	     collect item))
+             collect item))
 
 ;; if confident == 0, then max-count is most-positive-fixnum
 (defun confident->max-precount (rule-count confident)
@@ -240,7 +240,7 @@ Format is:
     (* (/ rule-count confident) 100.0)))
 
 (defun %association-analyze-ap-genrule (unsp-dataset target-variables key-variable rule-length
-					&key (support 0) (confident 0) (lift 0) (conviction 0))
+                                        &key (support 0) (confident 0) (lift 0) (conviction 0))
   "association analyze with ap-genrule algorithm.
 - return: assoc-result-dataset
 - arguments:
@@ -260,46 +260,46 @@ Format is:
     (let ((rule-occur (apriori-itemset-counting
                        transactions item-order support rule-length)))
       (let ((ans nil)
-	    (count (hash-table-count transactions)))
-	(maphash #'(lambda (rule rule-count)
-		     (let ((rule-length (length rule)))
-		       (when (> rule-length 1)
-			 (ap-maprule
-			  #'(lambda (conc pre)
-			      (multiple-value-bind (sup conf lif conv) (rule-indexes conc pre rule
-										 rule-occur count)
-				(when (and (>= sup support) (>= conf confident) (>= lif lift) (>= conv conviction))
-				  (push (make-rule conc pre
-						   sup conf lif conv) ans))))
-			  rule (length rule)
-			  #'(lambda (itemset) (gethash itemset rule-occur))
-			  (confident->max-precount rule-count confident)))))
-		 rule-occur)
-        (make-assoc-result ans support confident 
-			   lift conviction rule-length)))))
+            (count (hash-table-count transactions)))
+        (maphash #'(lambda (rule rule-count)
+                     (let ((rule-length (length rule)))
+                       (when (> rule-length 1)
+                         (ap-maprule
+                          #'(lambda (conc pre)
+                              (multiple-value-bind (sup conf lif conv) (rule-indexes conc pre rule
+                                                                                 rule-occur count)
+                                (when (and (>= sup support) (>= conf confident) (>= lif lift) (>= conv conviction))
+                                  (push (make-rule conc pre
+                                                   sup conf lif conv) ans))))
+                          rule (length rule)
+                          #'(lambda (itemset) (gethash itemset rule-occur))
+                          (confident->max-precount rule-count confident)))))
+                 rule-occur)
+        (make-assoc-result ans support confident
+                           lift conviction rule-length)))))
 
 (defun gen-next-itemset-trie (pre-itemsets)
   (let ((next-trie (cons nil nil)))
     (do ((itemsets pre-itemsets (cdr itemsets)))
-	((null (cdr itemsets)) next-trie)
+        ((null (cdr itemsets)) next-trie)
       (loop for itemset in (cdr itemsets)
-	  as last-i = (car (last itemset))
-	  with target = (car itemsets)
-	  with last-t = (car (last target))
-	  when (and (not (equal last-i last-t))
-		    (match-except-tail itemset target :test #'equal))
-	  do (assign-trie target last-i next-trie)))))
+          as last-i = (car (last itemset))
+          with target = (car itemsets)
+          with last-t = (car (last target))
+          when (and (not (equal last-i last-t))
+                    (match-except-tail itemset target :test #'equal))
+          do (assign-trie target last-i next-trie)))))
 
 ;; apriori counting trie has leaf at only last-i
 (defun assign-trie (target last-i root)
   (loop for i in target do
-	(setf root (let ((found (find
-				 i (cdr root) :key #'car :test #'equal)))
-		     (if found
-			 found
-		       (let ((new (cons i nil)))
-			 (push new (cdr root))
-			 new)))))
+        (setf root (let ((found (find
+                                 i (cdr root) :key #'car :test #'equal)))
+                     (if found
+                         found
+                       (let ((new (cons i nil)))
+                         (push new (cdr root))
+                         new)))))
   ;; never found last-i in last-leaf
   (push (cons last-i 0) (cdr root)))
 
@@ -307,59 +307,59 @@ Format is:
   (let ((remain (member (car trie) transaction :test #'equal)))
     (when remain
       (if (consp (cdr trie))
-	  (loop for branch in (cdr trie) do
-		(update-trie-count-apriori branch remain))
-	(incf (cdr trie))))))
+          (loop for branch in (cdr trie) do
+                (update-trie-count-apriori branch remain))
+        (incf (cdr trie))))))
 
 ;; push itemset into some variable by fn
 ;; reversed twice (1: building counting-trie, 2: accumrating by fn)
 ;; so order of itemsets is protected as a result.
 (defun dump-itemset-hash (trie itemset-hash minimum-count fn
-			  &optional (passed nil))
+                          &optional (passed nil))
   (if (consp (cdr trie))
       (loop for branch in (cdr trie) do
-	    (dump-itemset-hash branch itemset-hash minimum-count fn
-			       (cons (car trie) passed)))
+            (dump-itemset-hash branch itemset-hash minimum-count fn
+                               (cons (car trie) passed)))
     (let ((count (cdr trie)))
       (when (>= count minimum-count)
-	(let ((new-itemset (reverse (cons (car trie) passed))))
-	  (funcall fn new-itemset)
-	  (setf (gethash new-itemset itemset-hash) count))))))
+        (let ((new-itemset (reverse (cons (car trie) passed))))
+          (funcall fn new-itemset)
+          (setf (gethash new-itemset itemset-hash) count))))))
 
 (defun apriori-itemset-counting-trie (transactions item-order support rule-length)
   (let* ((itemset-hash (make-hash-table :test #'equal))
-	 (total-transaction (hash-table-count transactions))
-	 (count-threshold (max 1 (* total-transaction (/ support 100)))))
+         (total-transaction (hash-table-count transactions))
+         (count-threshold (max 1 (* total-transaction (/ support 100)))))
     ;; first setp, generate 1-itemsets
     (loop for trans being the hash-value in transactions
-	do (loop for item in trans
-	       as itemset = (list item)
-	       do (incf (gethash itemset itemset-hash 0))))
+        do (loop for item in trans
+               as itemset = (list item)
+               do (incf (gethash itemset itemset-hash 0))))
     ;; frequent itemset generation loop
     (let ((itemsets (sort
-		     (loop for itemset being the hash-key in itemset-hash
-			 for num being the hash-value in itemset-hash
-			 if (>= num count-threshold)
-			 collect itemset
-			 else
-			 do (remhash itemset itemset-hash))
-		     #'< :key #'(lambda (itemset)
-				  (gethash (car itemset) item-order)))))
+                     (loop for itemset being the hash-key in itemset-hash
+                         for num being the hash-value in itemset-hash
+                         if (>= num count-threshold)
+                         collect itemset
+                         else
+                         do (remhash itemset itemset-hash))
+                     #'< :key #'(lambda (itemset)
+                                  (gethash (car itemset) item-order)))))
       (loop for k from 2 to rule-length
-	  as counting-trie = (gen-next-itemset-trie itemsets)
-	  do
-	    (loop for trans being the hash-value in transactions do
-		  (loop for branch in (cdr counting-trie) do
-			(update-trie-count-apriori branch trans)))
-	    (setf itemsets nil)
-	    (loop for branch in (cdr counting-trie) do
-		  (dump-itemset-hash branch itemset-hash count-threshold
-				     #'(lambda (itemset)
-					 (push itemset itemsets))))
-	  finally (return itemset-hash)))))
+          as counting-trie = (gen-next-itemset-trie itemsets)
+          do
+            (loop for trans being the hash-value in transactions do
+                  (loop for branch in (cdr counting-trie) do
+                        (update-trie-count-apriori branch trans)))
+            (setf itemsets nil)
+            (loop for branch in (cdr counting-trie) do
+                  (dump-itemset-hash branch itemset-hash count-threshold
+                                     #'(lambda (itemset)
+                                         (push itemset itemsets))))
+          finally (return itemset-hash)))))
 
 (defun %association-analyze-apriori (unsp-dataset target-variables key-variable rule-length
-				     &key (support 0) (confident 0) (lift 0) (conviction 0))
+                                     &key (support 0) (confident 0) (lift 0) (conviction 0))
   "association analyze with apriori algorithm.
 - return: assoc-result-dataset
 - arguments:
@@ -394,7 +394,7 @@ Format is:
                           #'(lambda (itemset) (gethash itemset rule-occur))
                           (confident->max-precount rule-count confident)))))
                  rule-occur)
-        (make-assoc-result ans support confident 
+        (make-assoc-result ans support confident
                            lift conviction rule-length)))))
 
 
@@ -427,7 +427,7 @@ In the above example the 'id' column would be the key-varable and 'item' would b
   (assert (member algorithm `(:apriori :da :fp-growth :eclat :lcm)))
   (case algorithm
             (:apriori
-             (%association-analyze-apriori 
+             (%association-analyze-apriori
               unsp-dataset
               target-variables key-variable rule-length
               :support support :confident confident :lift lift :conviction conviction))

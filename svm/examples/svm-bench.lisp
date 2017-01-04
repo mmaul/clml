@@ -41,22 +41,22 @@
 (defun data-converter (data-vector pathname)
   "for classification"
   (let ((label-index (1- (length (svref data-vector 0))))
-	(path (make-pathname :name pathname)))
+        (path (make-pathname :name pathname)))
     (with-open-file (stream path :direction :output
                             :if-exists :supersede)
       (loop
         for row across data-vector
         as label = (if (plusp (aref row label-index))
                        1
-		       -1)
+                       -1)
         do (progn (format stream "~@,0D " label)
-                  (loop 
+                  (loop
                     for i below label-index
                     as value = (aref row i)
                     do (format stream "~A:~A " (1+ i) value)
                     finally (format stream "~%")))))))
 
-$ time svm-train -s 0 -t 2 -g 0.5 -c 10 -m 0.00001 -h 0 svm-benchmark-train 
+$ time svm-train -s 0 -t 2 -g 0.5 -c 10 -m 0.00001 -h 0 svm-benchmark-train
 
 |#
 

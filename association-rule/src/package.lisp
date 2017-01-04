@@ -1,5 +1,5 @@
 (defpackage :clml.association-rule
-  
+
   (:use :cl
         :clml.hjs.vector
         :clml.hjs.read-data)

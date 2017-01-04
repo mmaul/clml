@@ -68,7 +68,7 @@ Recurrence follows when (i, j) and the LD levenshtein distance between the subst
                 (min (the (integer 0 #.most-positive-fixnum) (1+ (aref d i nj)))
                      (the (integer 0 #.most-positive-fixnum) (1+ (aref d ni j)))
                      (the (integer 0 #.most-positive-fixnum) (+ (aref d i j) c)))))))
-      
+
         #+ignore
         (loop for i from 1 to (1- len1)
             do (loop for j from 1 to (1- len2)
@@ -80,7 +80,7 @@ Recurrence follows when (i, j) and the LD levenshtein distance between the subst
                           (min (1+ (aref d (1- i) j))
                                (1+ (aref d i (1- j)))
                                (+ (aref d (1- i) (1- j)) c))))))
-      
+
         (aref d strlen1 strlen2)
         ))))
 
@@ -162,11 +162,11 @@ finally (return table)))
 (label-index (1- (length (svref data-vector 0))))
 (a-array)
 (b-array))
-    
+
     (loop
 for i of-type fixnum below n
 do (setf (gethash (svref string-array i) string-index-table) i))
-    
+
     (multiple-value-setq (a-array b-array)
       (loop
 for row across data-vector
@@ -177,7 +177,7 @@ if (= 1.0 label)
 collect (gethash (svref row 1) string-index-table) into b-list
 finally (return (values (coerce a-list 'vector)
 (coerce b-list 'vector)))))
-    
+
     (loop
 for i of-type fixnum below (length a-array)
 as j = (svref a-array i)

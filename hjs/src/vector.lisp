@@ -25,12 +25,12 @@
 ;;@  - type means the type of var (element in the vector)
 ;;@  - if return specified, return the expression, otherwise return nil (like dolist)
 (defmacro do-vec ((var vector &key (type t) (start 0) end from-end setf-var index-var return)
-		  &body body &environment env)
+                  &body body &environment env)
   "Iterate on array that is a kind of simple-array.
 e.g.
 \(defun distance-to-origin (x)
   (declare (type dvec x)
-	   #+allegro (:faslmode :immediate))
+           #+allegro (:faslmode :immediate))
   (let ((result 0.0))
     (declare (type (double-float 0.0) result))
     (do-vec (ex x :type double-float)
@@ -40,41 +40,41 @@ e.g.
   (check-type setf-var symbol)
   (check-type index-var symbol)
   (let ((vec-var (gensym "VEC-"))
-	(index (or index-var (gensym "INDEX-"))))
+        (index (or index-var (gensym "INDEX-"))))
     (labels ((build-index-var-clause ()
-	       (if (not from-end)
-		   `(for ,index of-type array-index from ,start below (or ,end (length ,vec-var)))
-		   `(for ,index of-type array-index from (1- (or ,end (length ,vec-var))) downto ,start)))
-	     (build-data-var-clause ()
-	       `(for ,var of-type ,type = (aref ,vec-var ,index)))
-	     (build-setf-var-clause ()
-	       (and setf-var `((,setf-var (aref ,vec-var ,index)))))
-	     (build-decl-clause ()
-	       `(declare 
-		 ,@(let ((vector-type-decl
-			  (or (second
-			       (assoc 'type
-                      #+ (or sbcl ccl) 
+               (if (not from-end)
+                   `(for ,index of-type array-index from ,start below (or ,end (length ,vec-var)))
+                   `(for ,index of-type array-index from (1- (or ,end (length ,vec-var))) downto ,start)))
+             (build-data-var-clause ()
+               `(for ,var of-type ,type = (aref ,vec-var ,index)))
+             (build-setf-var-clause ()
+               (and setf-var `((,setf-var (aref ,vec-var ,index)))))
+             (build-decl-clause ()
+               `(declare
+                 ,@(let ((vector-type-decl
+                          (or (second
+                               (assoc 'type
+                      #+ (or sbcl ccl)
                       (nth-value 3 (introspect-environment:variable-information vector env))
                       #+allegro
                       (nth-value 2 (sys:variable-information vector env))
                       #+lispworks
                       (nth-value 3 (cl::variable-information vector env))
                                       ))
-			      (when type
-				`(simple-array ,type (*)))
-			      `(simple-array T (*)))))
-			`((type ,vector-type-decl ,vec-var)
-			  ,@(when (symbolp vector)
-				  `((type ,vector-type-decl ,vector))))))))
+                              (when type
+                                `(simple-array ,type (*)))
+                              `(simple-array T (*)))))
+                        `((type ,vector-type-decl ,vec-var)
+                          ,@(when (symbolp vector)
+                                  `((type ,vector-type-decl ,vector))))))))
       `(let ((,vec-var ,vector))
-	 (locally ,(build-decl-clause)
-	   (loop
-	      ,@(build-index-var-clause)
-	      ,@(build-data-var-clause)
-	      do (symbol-macrolet ,(build-setf-var-clause)
-		   ,@body)
-	      finally (return ,return)))))))
+         (locally ,(build-decl-clause)
+           (loop
+              ,@(build-index-var-clause)
+              ,@(build-data-var-clause)
+              do (symbol-macrolet ,(build-setf-var-clause)
+                   ,@body)
+              finally (return ,return)))))))
 
 #+future
 (defun next-end (total-size n-processors start)
@@ -121,82 +121,82 @@ e.g.
 e.g.
 \(defun euclid-distance (x y)
   (declare (type dvec x y)
-	   #+allegro (:faslmode :immediate))
+           #+allegro (:faslmode :immediate))
   (assert (= (length x) (length y)))
   (let ((result 0.0))
     (declare (type (double-float 0.0) result))
     (do-vecs ((ex x :type double-float)
-	      (ey y :type double-float))
+              (ey y :type double-float))
       (let ((diff (- ex ey)))
-	(incf result (* diff diff))))
+        (incf result (* diff diff))))
     (sqrt result)))"
   (labels ((build-loop-clause (var vector &key (type t) (start 0) end
-				   from-end setf-var ((:index-var index-var-outer) nil))
-	     (check-type var symbol)
-	     (check-type setf-var symbol)
-	     (check-type index-var-outer symbol)
-	     (let ((vec-var (gensym "VEC-"))
-		   (index-var (or index-var-outer (gensym "INDEX-"))))
-	       (labels ((build-index-var-clause ()
-			  (when (or index-var-outer from-end)
-			    (if (not from-end)
-				`(for ,index-var of-type array-index from ,start below (or ,end (length ,vec-var)))
-				`(for ,index-var of-type array-index
-				      from (1- (or ,end (length ,vec-var))) downto ,start))))
-			(build-data-var-clause ()
-			  `(for ,var of-type ,type = (aref ,vec-var ,index-var)))
-			(build-setf-var-clause ()
-			  (and setf-var `((,setf-var (aref ,vec-var ,index-var)))))
-			(build-declaration-clause ()
-			  (when (symbolp vector)
-			    (let ((vector-type-decl
-				   (second
-				    (assoc 'type
-                       #+ (or sbcl ccl) 
+                                   from-end setf-var ((:index-var index-var-outer) nil))
+             (check-type var symbol)
+             (check-type setf-var symbol)
+             (check-type index-var-outer symbol)
+             (let ((vec-var (gensym "VEC-"))
+                   (index-var (or index-var-outer (gensym "INDEX-"))))
+               (labels ((build-index-var-clause ()
+                          (when (or index-var-outer from-end)
+                            (if (not from-end)
+                                `(for ,index-var of-type array-index from ,start below (or ,end (length ,vec-var)))
+                                `(for ,index-var of-type array-index
+                                      from (1- (or ,end (length ,vec-var))) downto ,start))))
+                        (build-data-var-clause ()
+                          `(for ,var of-type ,type = (aref ,vec-var ,index-var)))
+                        (build-setf-var-clause ()
+                          (and setf-var `((,setf-var (aref ,vec-var ,index-var)))))
+                        (build-declaration-clause ()
+                          (when (symbolp vector)
+                            (let ((vector-type-decl
+                                   (second
+                                    (assoc 'type
+                       #+ (or sbcl ccl)
                        (nth-value 3 (introspect-environment:variable-information vector env))
                        #+allegro
                        (nth-value 2 (sys:variable-information vector env))
                        #+lispworks
                        (nth-value 3 (cl::variable-information vector env))
                                            ))))
-			      (when vector-type-decl
-				`((type ,vector-type-decl ,vec-var)))))))
-		 (list :vec-var vec-var
-		       :index-var index-var
-		       :declaration-clause (build-declaration-clause)
-		       :index-var-clause (build-index-var-clause)
-		       :data-var-clause (build-data-var-clause)
-		       :setf-var-clause (build-setf-var-clause)
-		       :orig-vec vector
-		       )))))
+                              (when vector-type-decl
+                                `((type ,vector-type-decl ,vec-var)))))))
+                 (list :vec-var vec-var
+                       :index-var index-var
+                       :declaration-clause (build-declaration-clause)
+                       :index-var-clause (build-index-var-clause)
+                       :data-var-clause (build-data-var-clause)
+                       :setf-var-clause (build-setf-var-clause)
+                       :orig-vec vector
+                       )))))
     (let* ((building-blocks (mapcar (lambda (c) (apply #'build-loop-clause c)) binding-clauses))
-	   (main-index-var (gensym "INDEX-"))
-	   (has-index-var-clause-p
-	    (dolist (b building-blocks)
-	      (when (getf b :index-var-clause)
-		(return t)))))
+           (main-index-var (gensym "INDEX-"))
+           (has-index-var-clause-p
+            (dolist (b building-blocks)
+              (when (getf b :index-var-clause)
+                (return t)))))
       `(let (,@(mapcar (lambda (b) (list (getf b :vec-var) (getf b :orig-vec))) building-blocks))
-	 (locally
-	     (declare ,@(mapcan (lambda (b) (getf b :declaration-clause)) building-blocks))
-	   (loop
-	      ,@(if has-index-var-clause-p
-		    `(for ,main-index-var of-type array-index from 0)
-		    `(for ,main-index-var of-type array-index
-			  from 0 below (length ,(getf (first building-blocks) :vec-var))))
-	      ,@(mapcan
-		 (lambda (b)
-		   (append (getf b :index-var-clause)
-			   (subst main-index-var
-				  (getf b :index-var)
-				  (getf b :data-var-clause))))
-		 building-blocks)
-	      do (symbol-macrolet ,(mapcan (lambda (b)
-					     (subst main-index-var
-						    (getf b :index-var)
-						    (getf b :setf-var-clause)))
-					   building-blocks)
-		   #-sbcl (declare (ignorable _ __ ___ ____))
-		   ,@body)))))))
+         (locally
+             (declare ,@(mapcan (lambda (b) (getf b :declaration-clause)) building-blocks))
+           (loop
+              ,@(if has-index-var-clause-p
+                    `(for ,main-index-var of-type array-index from 0)
+                    `(for ,main-index-var of-type array-index
+                          from 0 below (length ,(getf (first building-blocks) :vec-var))))
+              ,@(mapcan
+                 (lambda (b)
+                   (append (getf b :index-var-clause)
+                           (subst main-index-var
+                                  (getf b :index-var)
+                                  (getf b :data-var-clause))))
+                 building-blocks)
+              do (symbol-macrolet ,(mapcan (lambda (b)
+                                             (subst main-index-var
+                                                    (getf b :index-var)
+                                                    (getf b :setf-var-clause)))
+                                           building-blocks)
+                   #-sbcl (declare (ignorable _ __ ___ ____))
+                   ,@body)))))))
 
 
 ;;@ function-type: dvec -> &optional dvec -> dvec
@@ -211,7 +211,7 @@ e.g.
 ;;@ function-type: dvec -> double-float -> dvec
 (defun fill-vec (vec default)
   (declare (double-float default)
-	   (type dvec vec))
+           (type dvec vec))
   (do-vec (ev vec :type double-float :index-var iv :return vec)
     #-sbcl
     (declare (ignorable ev))
@@ -226,7 +226,7 @@ e.g.
   (declare (type dvec x y result))
   (assert (= (length x) (length y) (length result)))
   (do-vecs ((ex x :type double-float)
-	    (ey y :type double-float)
+            (ey y :type double-float)
             (_ result :type double-float :setf-var sr))
     #+ccl (declare (ignorable _))
     (setf sr (+ ex ey)))
@@ -242,8 +242,8 @@ e.g.
   (declare (type dvec x y result))
   (assert (= (length x) (length y) (length result)))
   (do-vecs ((ex x :type double-float)
-	    (ey y :type double-float)
-	    (_ result :type double-float :setf-var sr))
+            (ey y :type double-float)
+            (_ result :type double-float :setf-var sr))
     (setf sr (- ex ey)))
   result)
 
@@ -254,10 +254,10 @@ e.g.
 (declaim (ftype (function (dvec double-float dvec) dvec) v-scale))
 (defun v-scale (vec n result)
   (declare (double-float n)
-	   (type dvec vec result))
+           (type dvec vec result))
   (assert (= (length vec) (length result)))
   (do-vecs ((ev vec :type double-float)
-	    (_ result :type double-float :setf-var sr))
+            (_ result :type double-float :setf-var sr))
     (setf sr (* n ev)))
   result)
 
@@ -268,10 +268,10 @@ e.g.
 (declaim (ftype (function (dvec double-float dvec) dvec) v-scale))
 (defun v-scale-fn (vec fn result)
   (declare ((function (double-float) double-float))
-	   (type dvec vec result))
+           (type dvec vec result))
   (assert (= (length vec) (length result)))
   (do-vecs ((ev vec :type double-float)
-	    (_ result :type double-float :setf-var sr))
+            (_ result :type double-float :setf-var sr))
     (setf sr (funcall fn ev)))
   result)
 
@@ -284,17 +284,17 @@ e.g.
   ;; avoid unboxing in the return value
   ;; non-official
   (setf (get 'inner-product 'sys::immed-args-call)
-	'((:lisp :lisp) double-float)))
+        '((:lisp :lisp) double-float)))
 
 (declaim (ftype (function (dvec dvec) double-float) inner-product))
 (defun inner-product (x y)
   #-sbcl (declare (type dvec x y)
-	   #+allegro (:faslmode :immediate))
+           #+allegro (:faslmode :immediate))
   (assert (= (length x) (length y)))
   (let ((result 0.0d0))
     (declare (type double-float result))
     (do-vecs ((ex x :type double-float)
-	      (ey y :type double-float))
+              (ey y :type double-float))
       (incf result (* ex ey)))
     result))
 
@@ -307,17 +307,17 @@ e.g.
   ;; avoid unboxing in the return value
   ;; non-official
   (setf (get 'inner-product-unsafe 'sys::immed-args-call)
-	'((:lisp :lisp) double-float)))
+        '((:lisp :lisp) double-float)))
 
 (declaim (ftype (function (dvec dvec) double-float) inner-product-unsafe))
 (defun inner-product-unsafe (x y)
   (declare #-sbcl (type dvec x y)
-	   (optimize (safety 0))
-	   #+allegro (:faslmode :immediate))
+           (optimize (safety 0))
+           #+allegro (:faslmode :immediate))
   (let ((result 0.0d0))
     (declare (type double-float result))
     (do-vecs ((ex x :type double-float)
-	      (ey y :type double-float))
+              (ey y :type double-float))
       (incf result (* ex ey)))
     result))
 
@@ -328,7 +328,7 @@ e.g.
   ;; avoid unboxing in the return value
   ;; non-official
   (setf (get 'distance-to-origin 'sys::immed-args-call)
-	'((:lisp) double-float)))
+        '((:lisp) double-float)))
 
 (declaim (ftype (function (dvec) double-float) distance-to-origin))
 (defun distance-to-origin (x)
@@ -352,7 +352,7 @@ e.g.
     (when (zerop distance)
       (error "Cannot scale a zero vector to unit vector."))
     (do-vecs ((ev vec :type double-float)
-	      (_ result :type double-float :setf-var sr))
+              (_ result :type double-float :setf-var sr))
       (setf sr (/ ev distance)))
     result))
 
@@ -364,21 +364,21 @@ e.g.
   ;; avoid unboxing in the return value
   ;; non-official
   (setf (get 'euclid-distance 'sys::immed-args-call)
-	'((:lisp :lisp) double-float)))
+        '((:lisp :lisp) double-float)))
 
 #- (or ccl sbcl)
 (declaim (ftype (function (dvec dvec) (double-float 0.0)) euclid-distance))
 (defun euclid-distance (x y)
   #- (or sbcl ccl) (declare (type dvec x y)
-	   #+allegro (:faslmode :immediate))
+           #+allegro (:faslmode :immediate))
   (assert (= (length x) (length y)))
   (let ((result 0.0))
     #-ccl (declare (type double-float result))
     ;(declare (type (double-float 0.0) result))
     (do-vecs ((ex x :type double-float)
-	      (ey y :type double-float))
+              (ey y :type double-float))
       (let ((diff (- ex ey)))
-	(incf result (* diff diff))))
+        (incf result (* diff diff))))
     (sqrt result)))
 
 ;;@ function-type: dvec -> dvec -> double-float
@@ -389,19 +389,19 @@ e.g.
   ;; avoid unboxing in the return value
   ;; non-official
   (setf (get 'manhattan-distance 'sys::immed-args-call)
-	'((:lisp :lisp) double-float)))
+        '((:lisp :lisp) double-float)))
 
 #- (or ccl sbcl)
 (declaim (ftype (function (dvec dvec) (double-float 0.0)) manhattan-distance))
 (defun manhattan-distance (x y)
   (declare (optimize speed (safety 0) (debug 0))
            (type dvec x y)
-	   #+allegro (:faslmode :immediate))
+           #+allegro (:faslmode :immediate))
   (assert (= (length x) (length y)))
   (let ((result 0.0d0))
     (declare (type double-float result))
     (do-vecs ((ex x :type double-float)
-	      (ey y :type double-float))
+              (ey y :type double-float))
       (incf result (abs (- ex ey))))
     result))
 
@@ -413,22 +413,22 @@ e.g.
   ;; avoid unboxing in the return value
   ;; non-official
   (setf (get 'cosine-distance 'sys::immed-args-call)
-	'((:lisp :lisp) double-float)))
+        '((:lisp :lisp) double-float)))
 
 #- (or ccl sbcl)
 (declaim (ftype (function (dvec dvec) (double-float 0.0)) cosine-distance))
 (defun cosine-distance (x y)
   (declare (optimize speed (safety 0) (debug 0))
            (type dvec x y)
-	   #+allegro (:faslmode :immediate))
+           #+allegro (:faslmode :immediate))
   (assert (= (length x) (length y)))
   (let ((a (* (distance-to-origin x)
-	      (distance-to-origin y))))
+              (distance-to-origin y))))
     (when (zerop a)
       (error "Cannot determine the cosine distance of a zero vector."))
     (- 1.0d0
        (/ (inner-product x y)
-	  a))))
+          a))))
 
 ;;@ function-type: (points points) -> double-float
 ;;@ precondition: points in xpts and ypts are of same length
@@ -440,13 +440,13 @@ e.g.
                   maximize (loop for v2 across pts2
                                minimize (funcall norm v1 v2)))))
     (max (h-d xpts ypts) (h-d ypts xpts))))
-  
+
 ;;@ function-type: vector -> (simple-array fixnum (*)) -> vector
 ;;@ precondition: length of vector is the same as length of indices and result
 ;;@ postcondition: return type is the same as input type
 (defun reorder-vec (vector indices &optional (result (copy-seq vector)))
   (declare (type vector vector result)
-	   (type (simple-array fixnum (*)) indices))
+           (type (simple-array fixnum (*)) indices))
   (assert (= (length vector) (length indices) (length result)))
   (do-vec (v indices :type fixnum :index-var i :return result)
     (setf (aref result i) (aref vector v))))
@@ -456,7 +456,7 @@ e.g.
 ;;@ postcondition: return type is the same as input type
 (defun reorder-dvec (vector indices &optional (result (copy-seq vector)))
   (declare (type dvec vector result)
-	   (type (simple-array fixnum (*)) indices))
+           (type (simple-array fixnum (*)) indices))
   (assert (= (length vector) (length indices) (length result)))
   (do-vec (v indices :type fixnum :index-var i :return result)
     (setf (aref result i) (aref vector v))))
@@ -478,9 +478,9 @@ e.g.
   (declare (type (vector dvec) points))
   (assert (> (length points) 0))
   (let* ((size (length (aref points 0)))
-	 (scale (the double-float (/ 1.0d0 (length points)))))
+         (scale (the double-float (/ 1.0d0 (length points)))))
     (assert (or (null result)
-		(= (length result) size)))
+                (= (length result) size)))
     (setf result
       (if result
           (fill-vec result 0.0d0)

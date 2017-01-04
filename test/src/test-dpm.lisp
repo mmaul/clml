@@ -1,7 +1,7 @@
 
 (in-package :clml.test)
 
-(define-test test-sample-dpm 
+(define-test test-sample-dpm
     (let ((dataset (pick-and-specialize-data
                     (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/k5-gaussian.sexp"))
                     :data-types (make-list 5 :initial-element :numeric))))

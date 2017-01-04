@@ -4,7 +4,7 @@
 ;; (declaim (optimize (speed 0) (safety 3) (debug 3)))
 (declaim (optimize (speed 3) (safety 1) (debug 1)))
 
-(deftype dmat () `(simple-array double-float (* *))) 
+(deftype dmat () `(simple-array double-float (* *)))
 
 (defmacro make-dmat (a b)
   `(make-array (list ,a ,b) :element-type 'double-float))
@@ -27,40 +27,40 @@
 ;;; do-matrix
 ;;; TODO: I have a better idea, currently not used, so temporarily disable it.
 (defmacro do-mat ((var matrix &key
-		       (type 'double-float)
-		       (start ''(0 0))
-		       steps
-		       (delta ''(0 1))
-		       (delta-when-overflow ''(0 0))
-		       setf-var
-		       return)
-		  &body body)
+                       (type 'double-float)
+                       (start ''(0 0))
+                       steps
+                       (delta ''(0 1))
+                       (delta-when-overflow ''(0 0))
+                       setf-var
+                       return)
+                  &body body)
   (check-type var symbol)
   (check-type setf-var symbol)
   (once-only (matrix start steps delta delta-when-overflow)
     (with-unique-names (rows cols total-size start-pos next-offset next-offset-when-overflow step i)
       `(let* ((,rows (array-dimension ,matrix 0))
-	      (,cols (array-dimension ,matrix 1))
-	      (,total-size (* ,rows ,cols)) 
-	      (,start-pos (apply #'* ,start))
-	      (,next-offset (+ (* (first ,delta) ,cols) (second ,delta)))
-	      (,next-offset-when-overflow (+ (* (first ,delta-when-overflow) ,cols) (second ,delta-when-overflow))))
-	 (declare (type fixnum ,rows ,cols ,total-size ,start-pos ,next-offset ,next-offset-when-overflow)
-		  (type (simple-array ,type (* *)) ,matrix))
-	 (assert (and (< -1 ,start-pos ,total-size)
-		      (< (- ,total-size) ,next-offset ,total-size)
-		      (< (- ,total-size) ,next-offset-when-overflow ,total-size)))
-	 (loop for ,step of-type array-index below (or ,steps ,total-size)
-	       for ,i of-type array-index = ,start-pos then (+ ,i ,next-offset)
-	       with ,var of-type ,type = (row-major-aref ,matrix ,i)
-	       do (progn
-		    (when (>= ,i ,total-size)
-		      (setf ,i (+ ,next-offset-when-overflow (- ,i ,total-size))))
-		    (when (< ,i 0)
-		      (setf ,i (+ ,next-offset-when-overflow (+ ,i ,total-size))))
-		    (setf ,var (row-major-aref ,matrix ,i))
-		    (locally ,@body))
-	       finally (return ,return))))))
+              (,cols (array-dimension ,matrix 1))
+              (,total-size (* ,rows ,cols))
+              (,start-pos (apply #'* ,start))
+              (,next-offset (+ (* (first ,delta) ,cols) (second ,delta)))
+              (,next-offset-when-overflow (+ (* (first ,delta-when-overflow) ,cols) (second ,delta-when-overflow))))
+         (declare (type fixnum ,rows ,cols ,total-size ,start-pos ,next-offset ,next-offset-when-overflow)
+                  (type (simple-array ,type (* *)) ,matrix))
+         (assert (and (< -1 ,start-pos ,total-size)
+                      (< (- ,total-size) ,next-offset ,total-size)
+                      (< (- ,total-size) ,next-offset-when-overflow ,total-size)))
+         (loop for ,step of-type array-index below (or ,steps ,total-size)
+               for ,i of-type array-index = ,start-pos then (+ ,i ,next-offset)
+               with ,var of-type ,type = (row-major-aref ,matrix ,i)
+               do (progn
+                    (when (>= ,i ,total-size)
+                      (setf ,i (+ ,next-offset-when-overflow (- ,i ,total-size))))
+                    (when (< ,i 0)
+                      (setf ,i (+ ,next-offset-when-overflow (+ ,i ,total-size))))
+                    (setf ,var (row-major-aref ,matrix ,i))
+                    (locally ,@body))
+               finally (return ,return))))))
 
 
 ;;@ note: from ABE, modified by huangjs
@@ -76,13 +76,13 @@
                     (array-dimension a 1)))))
   (let ((new (or target (make-array (array-dimensions a)
                                  :element-type 'double-float))))
-    (declare (type dmat new)) 
+    (declare (type dmat new))
     (destructuring-bind (imax jmax)
         (array-dimensions a)
       (declare (type fixnum imax jmax))
       (loop for i fixnum from 0 below imax
-	    do (loop for j fixnum from 0 below jmax
-		     do (setf (aref new i j) (aref a i j)))))
+            do (loop for j fixnum from 0 below jmax
+                     do (setf (aref new i j) (aref a i j)))))
     new))
 
 
@@ -91,44 +91,44 @@
 ;;@ note: initial is ignored if :by is :cell
 (defun sum-mat (matrix &key (by :row) initial)
   (declare (type dmat matrix)
-	   (optimize (safety 0)))
+           (optimize (safety 0)))
   (check-type initial (or null dvec))
   (let* ((nrow (nrow matrix))
-	 (ncol (ncol matrix)))
+         (ncol (ncol matrix)))
     (declare (fixnum nrow ncol))
     (ecase by
       (:row
        (let ((result (or initial (make-dvec ncol 0.0))))
-	 (declare (type dvec result))
-	 (assert (>= (length result) ncol))
-	 (loop
-	    for i of-type array-index below nrow
-	    do (loop
-		  for j of-type array-index below ncol
-		  do (incf (aref result j)
-			   (aref matrix i j))))
-	 result))
+         (declare (type dvec result))
+         (assert (>= (length result) ncol))
+         (loop
+            for i of-type array-index below nrow
+            do (loop
+                  for j of-type array-index below ncol
+                  do (incf (aref result j)
+                           (aref matrix i j))))
+         result))
       (:column
        (let ((result (or initial (make-dvec nrow 0.0))))
-	 (declare (type dvec result))
-	 (assert (>= (length result) nrow))
-	 (loop
-	    for j of-type array-index below ncol
-	    do (loop
-		  for i of-type array-index below nrow
-		  do (incf (aref result i)
-			   (aref matrix i j))))
-	 result))
+         (declare (type dvec result))
+         (assert (>= (length result) nrow))
+         (loop
+            for j of-type array-index below ncol
+            do (loop
+                  for i of-type array-index below nrow
+                  do (incf (aref result i)
+                           (aref matrix i j))))
+         result))
       (:cell
-       (let ((result 0.0))		; initial is ignored
-	 (declare (double-float result))
-	 (loop
-	    for i of-type array-index below nrow
-	    do (loop
-		  for j of-type array-index below ncol
-		  do (incf result
-			   (aref matrix i j))))
-	 result)))))
+       (let ((result 0.0))              ; initial is ignored
+         (declare (double-float result))
+         (loop
+            for i of-type array-index below nrow
+            do (loop
+                  for j of-type array-index below ncol
+                  do (incf result
+                           (aref matrix i j))))
+         result)))))
 
 
 (defun transpose-self (mat)
@@ -174,19 +174,19 @@
   (declare (type (simple-array dvec (*)) Vmatrix))
   (check-type Vmatrix (simple-array dvec (*)))
   (let* ((nrow (length Vmatrix))
-	 (ncol (length (aref Vmatrix 0))))
+         (ncol (length (aref Vmatrix 0))))
     (declare (fixnum nrow ncol))
     (coerce
      (loop
-	for i of-type array-index below ncol
-	for vec of-type dvec = (make-dvec nrow)
-	do (do-vec (v Vmatrix :type dvec :index-var iv)
-	     (setf (aref vec iv)
-		   (aref v i)))
-	collect vec)
+        for i of-type array-index below ncol
+        for vec of-type dvec = (make-dvec nrow)
+        do (do-vec (v Vmatrix :type dvec :index-var iv)
+             (setf (aref vec iv)
+                   (aref v i)))
+        collect vec)
      'vector)))
 
-;;@ function-type: vector -> vector 
+;;@ function-type: vector -> vector
 (defun trans (Vmatrix &key (element-type t))
   (let* ((nrow (length Vmatrix))
          (ncol (length (aref Vmatrix 0))))
@@ -205,22 +205,22 @@
 (defun specialize-mat (array &key check)
   (declare (type (array t (* *)) array))
   (when check
-    (assert 
+    (assert
      (eq 'ok
-	 (block check
-	   (loop for i of-type array-index below (array-dimension array 0)
-	      do (loop for j of-type array-index below (array-dimension array 1)
-		    do (when (not (typep (aref array i j) 'double-float))
-			 (return-from check nil)))
-	      finally (return 'ok))))))
+         (block check
+           (loop for i of-type array-index below (array-dimension array 0)
+              do (loop for j of-type array-index below (array-dimension array 1)
+                    do (when (not (typep (aref array i j) 'double-float))
+                         (return-from check nil)))
+              finally (return 'ok))))))
   (let* ((nrow (array-dimension array 0))
-	 (ncol (array-dimension array 1))
-	 (result (make-array (list nrow ncol) :element-type 'double-float)))
+         (ncol (array-dimension array 1))
+         (result (make-array (list nrow ncol) :element-type 'double-float)))
     (declare (type dmat result))
     (loop for i of-type array-index below nrow
        do (loop for j of-type array-index below ncol
-	     do (setf (aref result i j)
-		      (coerce (aref array i j) 'double-float))))
+             do (setf (aref result i j)
+                      (coerce (aref array i j) 'double-float))))
     result))
 
 ;; function: make diagonal-matrix (dmat)
@@ -228,12 +228,12 @@
   (declare (type double-float val))
   (check-type val double-float)
   (make-array `(,dim ,dim)
-              :initial-contents 
+              :initial-contents
               (loop for i of-type fixnum below dim
                   collect (let ((l (make-list dim :initial-element 0.0d0)))
                             (setf (nth i l) val) l))
               :element-type 'double-float))
-              
+
 
 ;;; matrix calculation with blas and lapack
 
@@ -245,7 +245,7 @@
   (assert (eq 'double-float (array-element-type (aref vecs 0))))
   (assert (or (null mat) (typep mat 'dmat)))
   (let* ((nrow (length vecs))
-         (ncol (length (aref vecs 0))) 
+         (ncol (length (aref vecs 0)))
          (mat (or mat (make-array (list nrow ncol) :element-type 'double-float))))
     (declare (optimize speed (safety 0))
              (type array-index nrow ncol)
@@ -262,7 +262,7 @@
   (assert (eq 'double-float (array-element-type (aref vecs 0))))
   (assert (or (null flatmat) (typep flatmat 'dvec)))
   (let* ((nrow (length vecs))
-         (ncol (length (aref vecs 0))) 
+         (ncol (length (aref vecs 0)))
          (flatmat (or flatmat (make-array (* nrow ncol) :element-type 'double-float))))
     (declare (optimize speed (safety 0))
              (type array-index nrow ncol)
@@ -276,7 +276,7 @@
     flatmat))
 
 (defun mat2vecs (mat &optional vecs)
-  (declare (type dmat mat)) 
+  (declare (type dmat mat))
   (assert (typep mat 'dmat))
   (assert (eq 'double-float (array-element-type mat)))
   (assert (or (null vecs) (typep vecs 'simple-vector)))
@@ -298,7 +298,7 @@
     vecs))
 
 (defun flatmat2vecs (flatmat nrow &optional vecs)
-  (declare (type dvec flatmat)) 
+  (declare (type dvec flatmat))
   (assert (typep flatmat 'dvec))
   (assert (eq 'double-float (array-element-type flatmat)))
   (assert (or (null vecs) (typep vecs 'simple-vector)))
@@ -316,7 +316,7 @@
         (do-vec (_ v :type double-float :setf-var e)
           #-sbcl (declare (ignorable _))
           (setf e (aref flatmat i))
-          (incf i)))) 
+          (incf i))))
     vecs))
 
 (defun row-aref (mat nrow &optional row-vec)
@@ -328,7 +328,7 @@
       (setf sv (aref mat nrow iv)))
     row-vec))
 
-;;; matrix -> 1d array 
+;;; matrix -> 1d array
 ;;; for blas and lapack calculation
 (defun mat2array (mat &optional array)
   (declare (type dmat mat))
@@ -339,7 +339,7 @@
     (declare (type array-index nrow ncol)
              (type dvec array flatmat))
     (loop for i of-type array-index below (* nrow ncol)
-       do 
+       do
          (setf (aref array i) (aref flatmat i)))
     array))
 
@@ -379,7 +379,7 @@
   (declare (type dmat A B))
   (assert (equal (array-dimensions A) (array-dimensions B)))
   (make-array (array-dimensions A)
-              :initial-contents 
+              :initial-contents
               (loop for row below (array-dimension A 0)
                   collect (loop for col below (array-dimension B 1)
                               collect (funcall c
@@ -401,9 +401,9 @@
     (assert (eql (length rv) (array-dimension m 0)))
     (do-vec (_ rv :type double-float :setf-var sf :index-var row :return rv)
       #-sbcl (declare (ignore _))
-      (setf s 0d0 
+      (setf s 0d0
             sf (do-vec (val v :type double-float :index-var col :return s)
-                 (incf s (* (the double-float (aref m row col)) 
+                 (incf s (* (the double-float (aref m row col))
                             (the double-float val))))))))
 #+mkl
 (defun m*v (mat vec &optional result (major :row))
@@ -412,7 +412,7 @@
   (let* ((trans (ecase major (:row t) (:col nil)))
          (m (array-dimension mat 1))
          (n (array-dimension mat 0))
-         (y (if result result 
+         (y (if result result
               (make-array (if trans n m) :initial-element 0.0d0
                           :element-type 'double-float))))
     (assert (if trans (= (length vec) m) (= (length vec) n)))
@@ -437,7 +437,7 @@
           (setf B (cond (transpose-self-p
                          (transpose-self B))
                         (t
-                         (transpose B)))) 
+                         (transpose B))))
           (loop for r of-type fixnum below row do
                 (loop for c of-type fixnum below col do
                       (setf (aref rm r c)
@@ -502,7 +502,7 @@
        ;(format t "IPIV DATA ~a ~% IPIV OFFSET ~a ~%" ipiv-%data%
        ;ipiv-%offset%)
       )
-    (setq info 
+    (setq info
       (car (last
             (multiple-value-list
              (clml.lapack::dgetrf m n Ar lda
@@ -519,7 +519,7 @@
                                   #-ccl ipiv
                                   work lwork info)))))
     (assert (= 0 info))
-    
+
     (array2mat Ar n)))
 #+mkl
 (defun m^-1 (A)
@@ -533,7 +533,7 @@
          (work (make-array lwork :element-type 'double-float))
          (info 0))
     (assert (= m n))
-    (setq info 
+    (setq info
       (car (last
             (multiple-value-list
              (mkl.lapack::dgetrf m n Ar lda ipiv info)))))
@@ -562,7 +562,7 @@
                            #+ (or ccl sbcl) '(signed-byte 32)
                            #+allegro 'fixnum
                            ))
-         
+
          (info 0)
          (det 1.0d0))
     (assert (= m n))
@@ -571,12 +571,12 @@
                            (clml.lapack::dgetrf m n A lda ipiv info)))))
     (cond ((= info 0)
            ;; multiplication of diagonal elements of matrix U
-           (progn (loop for i across ipiv 
+           (progn (loop for i across ipiv
                       for j from 1
                       unless (= i j)
                       do (setq det (* det -1)))
                   (* det (apply
-                          #'* 
+                          #'*
                           (loop for i below n
                               collect (aref A (+ i (* n i))))))))
           ((> info 0) 0.0d0)
@@ -598,7 +598,7 @@
                            (mkl.lapack::dgetrf m n A lda ipiv info)))))
     (cond ((= info 0)
            ;; multiplication of diagonal elements of matrix U
-           (progn (loop for i across ipiv 
+           (progn (loop for i across ipiv
                       for j from 1
                       unless (= i j)
                       do (setq det (* det -1)))
@@ -631,7 +631,7 @@
 ;;    (0 B)
 (defun append-mat (A B &key (direction :diagonal)) ; :horizontal | :vertical | :diagonal
   (declare (type dmat A B))
-  (check-type A dmat) 
+  (check-type A dmat)
   (check-type B dmat)
   (let ((a-row (array-dimension A 0))
         (b-row (array-dimension B 0))
@@ -687,7 +687,7 @@
          (d (make-array n :initial-element 0.0d0
                         :element-type 'double-float))
          (tol 1.0d-60) f g h)
-    (tagbody 
+    (tagbody
       (do ((ii 1 (1+ ii)))
           ((= ii (1+ k)))
         (setq h 0.0d0)
@@ -717,7 +717,7 @@
           (setq s (/ s h))
           (do ((i ii (1+ i)))
               ((= i (1+ n)))
-            (setf (aref x (1- i) (1- j)) 
+            (setf (aref x (1- i) (1- j))
               (- (aref x (1- i) (1- j)) (* (aref d (1- i)) s)))))
        tag100
         (setf (aref x (1- ii) (1- ii)) g)))
@@ -750,33 +750,33 @@
 (defun correlation-matrix (trials &optional result)
   (declare (type (simple-array dvec (*)) trials))
   (assert (or (null result)
-	      (= (length trials) 0)
-	      (and (= (array-rank result) 2)
-		   (= (array-dimension result 0)
-		      (array-dimension result 1)
-		      (length (aref trials 0))))))
+              (= (length trials) 0)
+              (and (= (array-rank result) 2)
+                   (= (array-dimension result 0)
+                      (array-dimension result 1)
+                      (length (aref trials 0))))))
   (let* ((dim (length (aref trials 0)))
-	 (covariance (covariance-matrix trials))
-	 (sds (standard-deviations-from-covariance covariance))
-	 (result (or result (make-array (list dim dim) :element-type 'double-float))))
+         (covariance (covariance-matrix trials))
+         (sds (standard-deviations-from-covariance covariance))
+         (result (or result (make-array (list dim dim) :element-type 'double-float))))
     (declare (type dvec sds)
-	     (type dmat result covariance))
+             (type dmat result covariance))
     (loop for i of-type array-index below dim
        do (loop for j of-type array-index below dim
-	     do (setf (aref result i j)
-		      (/ (aref covariance i j)
-			 (aref sds i)
-			 (aref sds j)))))
+             do (setf (aref result i j)
+                      (/ (aref covariance i j)
+                         (aref sds i)
+                         (aref sds j)))))
     result))
 
 ;;@ function-type: dmat -> dvec
 (defun standard-deviations-from-covariance (covariance &optional result)
   #-ccl (declare (type dmat covariance))
   (assert (and (= (array-rank covariance) 2)
-	       (= (array-dimension covariance 0)
-		  (array-dimension covariance 1))))
+               (= (array-dimension covariance 0)
+                  (array-dimension covariance 1))))
   (let* ((dim (array-dimension covariance 0))
-	 (result (or result (make-dvec dim))))
+         (result (or result (make-dvec dim))))
     #-ccl (declare(type dvec result))
     (do-vec (_ result :type double-float :setf-var sr :index-var ir)
       #- (or ccl sbcl) (declare (ignorable _))
@@ -787,8 +787,8 @@
 ;;@ function-type: (simple-array dvec) -> dvec
 (defun standard-deviations (trials &optional result)
   (assert (or (null result)
-	      (= (length result)
-		 (length (aref trials 0)))))
+              (= (length result)
+                 (length (aref trials 0)))))
   (let ((covariance (covariance-matrix trials)))
     (standard-deviations-from-covariance covariance result)))
 
@@ -796,16 +796,16 @@
 (defun standardize (trials)
   (declare (type (simple-array dvec (*)) trials))
   (let ((mean (mean-points trials))
-	(sds (standard-deviations trials))
-	(points (map 'vector #'copy-seq trials)))
+        (sds (standard-deviations trials))
+        (points (map 'vector #'copy-seq trials)))
     (declare (type dvec mean sds)
-	     (type (simple-array dvec (*)) points))
+             (type (simple-array dvec (*)) points))
     (do-vec (p points :type dvec)
       (do-vec (x p :type double-float :setf-var sx :index-var ix)
-	(setf sx (/ (- x (aref mean ix)) (aref sds ix)))))
+        (setf sx (/ (- x (aref mean ix)) (aref sds ix)))))
     (values points
-	    mean
-	    sds)))
+            mean
+            sds)))
 
 ;; Regularization for covariance matrix
 ;; ref: M.Sato et.al. "On-line EM Algorithm for the Normalized Gaussian Network"
@@ -837,9 +837,9 @@
     (labels ((%sweep-out (pivot target)
                (loop with a = (aref mat target pivot)
                    for col below d do
-                     (setf (aref mat target col) 
+                     (setf (aref mat target col)
                        (-fl (aref mat target col) (*fl a (aref mat pivot col)))
-                       (aref mat^-1 target col) 
+                       (aref mat^-1 target col)
                        (-fl (aref mat^-1 target col) (*fl a (aref mat^-1 pivot col))))))
              (sweep-out (pivot)
                (loop with a = (aref mat pivot pivot)

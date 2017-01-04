@@ -1,8 +1,8 @@
 (in-package :clml.statistics.rand)
 (defmacro dfloat (x)
     `(the double-float (coerce ,x 'double-float)))
-  
-  
+
+
 (declaim (ftype (function (&optional symbol) (double-float 0d0 1d0)) unit-random))
 (defun unit-random (&optional mode)
   "A random number in the range [0, 1\), \(0, 1], [0, 1] or \(0, 1\)."
@@ -113,7 +113,7 @@
 
   (declaim (ftype (function (double-float integer) double-float) int-power))
   (defun int-power (double integer_a)
-    
+
     (declare
      #-sbcl (optimize (speed 3) (safety 0) (debug 0))
              (type double-float double)

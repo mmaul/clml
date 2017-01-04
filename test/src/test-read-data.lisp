@@ -169,7 +169,7 @@
 
       (assert (setf n-pts (dataset-numeric-points dataset)))
       (assert-true (typep n-pts 'vector))
-      (loop for pts across n-pts 
+      (loop for pts across n-pts
           for count from 1
          do ;(assert-true (typep pts 'dvec))
            (assert-eql 4 (length pts))
@@ -179,20 +179,20 @@
 
       (assert (setf c-pts (dataset-category-points dataset)))
       (assert-true (typep c-pts 'vector))
-      (loop for pts across c-pts 
+      (loop for pts across c-pts
           for count from 1
           do (assert-true (typep pts 'vector))
              (assert-eql 3 (length pts))
              (loop for val across pts
                  do (assert (or (c-nan-p val) (integerp val))))
           finally (assert-eql 153 count))
-      
+
       (assert
-       (setf dataset 
-         (dataset-cleaning dataset 
+       (setf dataset
+         (dataset-cleaning dataset
                            :interp-types-alist (pairlis '("Ozone" "Solar.R" "Wind" "Temp" "Month" "Day")
                                                         '(:spline :min :max :median :mode :mode))
-                           :outlier-types-alist (pairlis '("Ozone" "Solar.R" "Wind" "Month" "Day") 
+                           :outlier-types-alist (pairlis '("Ozone" "Solar.R" "Wind" "Month" "Day")
                                                          '(:std-dev :mean-dev :smirnov-grubbs :user :freq))
                            :outlier-values-alist (pairlis '(:std-dev :mean-dev :smirnov-grubbs :user)
                                                           '(2d0 2d0 0.05d0 5)))))
@@ -201,7 +201,7 @@
       (assert (setf c-pts (dataset-category-points dataset)))
       (assert-points-equal expected-pts3 c-pts :test #'=)
 
-      
+
       (let (d1 d2)
         (assert (multiple-value-setq (d1 d2)
                        (divide-dataset dataset :divide-ratio '(3 2) :except '(2 3 4))))
@@ -213,7 +213,7 @@
                        '(0 1 5 6))))
           (assert-dimensions-equal e-dim (dataset-dimensions d1))
           (assert-dimensions-equal e-dim (dataset-dimensions d2))))
-      
+
       (let (choice)
         (assert (setq choice (choice-dimensions '("Day" "Month" "Temp" "Wind") dataset)))
         (let* ((dims (dataset-dimensions dataset))
@@ -227,7 +227,7 @@
           (assert (setq choice (choice-a-dimension "Ozone" dataset)))
           (assert-a-point-equal (map 'vector (lambda (vec) (aref vec ozone-pos)) (dataset-points dataset))
                                 choice :test #'=)))
-      
+
       (let (samples)
         (assert (setq samples (make-bootstrap-sample-datasets dataset :number-of-datasets 3)))
         (assert-eql 3 (length samples))

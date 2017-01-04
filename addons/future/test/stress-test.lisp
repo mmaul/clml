@@ -58,7 +58,7 @@
           do
        (progn
          (kill-all-futures)
-         (assert-no-futures) 
+         (assert-no-futures)
          (let ((futures (loop repeat 100
                               collect
                            (future (sleep 0.01) (+ 1 1)))))

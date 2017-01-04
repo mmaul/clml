@@ -5,7 +5,7 @@
         :clml.hjs.read-data
         :clml.hjs.matrix
         :clml.hjs.meta)
-  (:import-from :clml.clustering.hc 
+  (:import-from :clml.clustering.hc
                 #:i-thvector
                 #:square-sum
                 #:product-sum
@@ -38,9 +38,9 @@
         :clml.hjs.matrix))
 
 (defpackage :clml.classifiers.nbayes
-  
+
   (:use :cl
-	:clml.hjs.read-data)
+        :clml.hjs.read-data)
   (:export
    :mbnb-learn
    :make-mbnb-learner

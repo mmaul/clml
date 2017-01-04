@@ -1,5 +1,5 @@
 #||
-CL-USER> (best-double-exp-parameters 
+CL-USER> (best-double-exp-parameters
           (let ((a (make-array 100)))
             (loop for i below (length a) do (setf (aref a i) i))
             a)
@@ -22,7 +22,7 @@ CL-USER> (best-double-exp-parameters
              :initform nil)
    (3-params :initarg :3-params
              :accessor 3-params
-             :type list 
+             :type list
              :initform '(0 0 0))
    (err-info :initarg :err-info
              :accessor err-info
@@ -45,11 +45,11 @@ CL-USER> (best-double-exp-parameters
                    (exp-type exp-type)
                    ) model
     (print-unreadable-object (model stream :type t :identity nil))
-    (case exp-type 
+    (case exp-type
       (:single
        (format stream "~&alpha: ~D~%"
                (first params)))
-      (:double 
+      (:double
        (format stream "~&alpha: ~D, beta: ~D~%"
                (first params) (second params)))
       (:triple
@@ -75,7 +75,7 @@ CL-USER> (best-double-exp-parameters
     (/
      (loop for time below n
          summing
-           (let* ((a (v a time)) 
+           (let* ((a (v a time))
                   (f (v f time))
                   (denom (if symmetric
                              (/ (+ a f) 2)
@@ -96,7 +96,7 @@ CL-USER> (best-double-exp-parameters
 ; relative absolute error
 (defun rae (a f)
   (let* ((n (n a))
-         (numerator 
+         (numerator
           (loop for time below n summing
                 (let ((a (v a time)) (f (v f time)))
                   (abs (- a f)))))
@@ -155,7 +155,7 @@ CL-USER> (best-double-exp-parameters
           ;; length of polar coordinate system
           (sqrt (+ (^2 (realpart value)) (^2 (imagpart value))))
         value))))
-             
+
 
 (defun make-exp-forecaster (&key (alpha 1/2) s)
   (lambda (x)
@@ -173,7 +173,7 @@ CL-USER> (best-double-exp-parameters
                 b (- (aref init2 1) (aref init2 0))
                 s (+ a b)))
         (let ((a_-1 a))
-          (setf 
+          (setf
               a (+ (* alpha x) (* (- 1 alpha) s))
               b (+ (* beta (- a a_-1)) (* (- 1 beta) b))
               s (+ a b))))))))
@@ -181,7 +181,7 @@ CL-USER> (best-double-exp-parameters
 (defun forecast-sequence (forecaster sequence)
   (map 'vector forecaster sequence))
 
-(defun make-triple-exp-forecaster (&key (alpha 1/2) (beta 1/2) (gamma 1/2) 
+(defun make-triple-exp-forecaster (&key (alpha 1/2) (beta 1/2) (gamma 1/2)
                                         frequency (seasonal :additive) l)
   (declare (ignorable l))
   (assert (>= frequency 2))
@@ -189,16 +189,16 @@ CL-USER> (best-double-exp-parameters
     (lambda (Y &optional (steps-ahead 1))
       (setf n (mod (1+ n) frequency))
       (let ((s_-p (aref s n)))
-        (cond 
+        (cond
          (s_-p
           (if (and a b)
               (flet ((scale (parameter with without)
                        (+ (* parameter with) (* (- 1 parameter) without))))
-                (let* ((a_+1 (scale alpha 
+                (let* ((a_+1 (scale alpha
                                     (case seasonal (:additive (- Y s_-p))
                                           (:multiplicative (/ Y s_-p)))
                                     (+ a b)))
-                       (s_+1 (scale gamma 
+                       (s_+1 (scale gamma
                                     (case seasonal (:additive (- Y a_+1))
                                           (:multiplicative (/ Y a_+1)))
                                     s_-p))
@@ -217,14 +217,14 @@ CL-USER> (best-double-exp-parameters
           (when (zerop n)
             (case seasonal
               (:additive
-               (loop 
+               (loop
                    for old-y = nil then y
                    for y across s
                    for i from 0
                    when old-y
                    summing (- y old-y) into m
                    summing y into total
-                   finally 
+                   finally
                      (setf b (/ m frequency)
                            a (/ total frequency)))
                (loop for i below frequency do
@@ -245,10 +245,10 @@ CL-USER> (best-double-exp-parameters
 
 (defun simple-forecaster-quality (forecaster seq &key (measure 'mse))
   (funcall measure seq
-	   (lambda (time) 
-	     (if (zerop time)
-		 (v seq time)
-		 (funcall forecaster (v seq (1- time)))))))
+           (lambda (time)
+             (if (zerop time)
+                 (v seq time)
+                 (funcall forecaster (v seq (1- time)))))))
 
 (defun brute-optimize-parameters (function parameters &key (step 1/10))
   (let ((parameters (copy-seq parameters)) (n (length parameters)))
@@ -271,9 +271,9 @@ CL-USER> (best-double-exp-parameters
 
 (defun best-single-exp-parameters (sequence &key (step 0.01d0)
                                                  (measure 'mse))
-  (brute-optimize-parameters 
+  (brute-optimize-parameters
    (lambda (parameters)
-     (simple-forecaster-quality (make-exp-forecaster 
+     (simple-forecaster-quality (make-exp-forecaster
                                  :alpha (elt parameters 0))
                                 sequence
                                 :measure measure
@@ -283,9 +283,9 @@ CL-USER> (best-double-exp-parameters
 
 (defun best-double-exp-parameters (sequence &key (step 0.01d0)
                                                  (measure 'mse))
-  (brute-optimize-parameters 
+  (brute-optimize-parameters
    (lambda (parameters)
-     (simple-forecaster-quality (make-double-exp-forecaster 
+     (simple-forecaster-quality (make-double-exp-forecaster
                                  :alpha (elt parameters 0)
                                  :beta (elt parameters 1))
                                 sequence
@@ -299,7 +299,7 @@ CL-USER> (best-double-exp-parameters
                                                  (measure 'mse)
                                                  (seasonal :additive)
                                                  l)
-  (brute-optimize-parameters 
+  (brute-optimize-parameters
    (lambda (parameters)
      (simple-forecaster-quality (make-triple-exp-forecaster
                                  :alpha (elt parameters 0)
@@ -325,8 +325,8 @@ CL-USER> (best-double-exp-parameters
   when alpha, beta and gamma are nil, optimize those parameters by /optim-step/ and /err-measure/.\\
   Minimize the value of /err-measure/ to choose alpha, beta and gamma with optimization step specified by /optim-step/.\\
   Accordinglly, for example, /optim-step/ = 0.001d0 takes a long time."))
-(defmethod holtwinters ((d time-series-dataset) &key alpha beta gamma 
-                                                     (err-measure 'mse) 
+(defmethod holtwinters ((d time-series-dataset) &key alpha beta gamma
+                                                     (err-measure 'mse)
                                                      (optim-step 0.1d0)
                                                      (seasonal :additive))
   (with-accessors ((start ts-start)
@@ -389,24 +389,24 @@ CL-USER> (best-double-exp-parameters
     (let* ((learn-seq (map 'vector
                         #'(lambda (p) (aref (ts-p-pos p) 0))
                         (ts-points ts)))
-           (forecaster 
+           (forecaster
             (case exp-type
               (:single (make-exp-forecaster :alpha (elt best-score 0)))
               (:double (make-double-exp-forecaster
                         :alpha (elt best-score 0) :beta (elt best-score 1)))
               (:triple (make-triple-exp-forecaster
-                        :alpha (elt best-score 0) :beta (elt best-score 1) 
+                        :alpha (elt best-score 0) :beta (elt best-score 1)
                         :gamma (elt best-score 2) :frequency (ts-freq ts)
-                        :seasonal seasonal 
+                        :seasonal seasonal
                         :l (round (length (ts-points ts)) (ts-freq ts))))))
            (est-start (tf-incl (ts-start ts) 1 :freq (ts-freq ts)))
            (ested-seq (if (plusp n-ahead)
-                          (coerce 
+                          (coerce
                            (loop with len = (length learn-seq)
                                with last-val
                                for i from 0 below (1- (+ len n-ahead))
                                collect (if (< i len)
-                                           (setq last-val 
+                                           (setq last-val
                                              (funcall forecaster (aref learn-seq i)))
                                          (setq last-val
                                            (funcall forecaster last-val))))
@@ -437,10 +437,10 @@ CL-USER> (best-double-exp-parameters
 (defmethod holtwinters-prediction ((d time-series-dataset)
                                    &key alpha beta gamma
                                         (seasonal :additive)
-                                        (err-measure 'mse) 
+                                        (err-measure 'mse)
                                         (optim-step 0.1d0)
                                         n-learning
-                                        (n-ahead 0) 
+                                        (n-ahead 0)
                                         target-col)
   (with-accessors ((start ts-start)
                    (end ts-end)
@@ -455,7 +455,7 @@ CL-USER> (best-double-exp-parameters
                   (let ((pos (position target-col (dataset-dimensions d)
                                        :test #'string-equal
                                        :key #'dimension-name)))
-                    (if pos (sub-ts d :range `(,pos) 
+                    (if pos (sub-ts d :range `(,pos)
                                     :end (tf-incl start n-learning :freq freq))
                       (error "Does not exist column ~A" target-col)))
                 (progn (assert (= 1 (length (dataset-dimensions d)))) d)))
@@ -466,4 +466,4 @@ CL-USER> (best-double-exp-parameters
       (values pred model))))
 
 
-  
+

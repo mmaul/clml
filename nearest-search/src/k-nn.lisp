@@ -138,7 +138,7 @@
                             1))
                   (t (calc-classify-category-distance x y p #'abs)))))
     ans))
-    
+
 (defun knn-double-manhattan (x-vec y-vec profiles)
   (declare (optimize speed (safety 0) (debug 0))
            (type (simple-array t (*)) x-vec y-vec)
@@ -183,17 +183,17 @@
 (defmethod make-load-form ((self k-nn-estimator) &optional environment)
   (declare (ignorable environment))
   `(make-instance ',(class-name (class-of self))
-		  :vecs ',(vecs self)
-		  :vec-labels ',(vec-labels self)
-		  :vec-profiles ',(vec-profiles self)
-		  :vec-weight ',(vec-weight self)
-		  :mins ',(mins self)
-		  :maxs ',(maxs self)
+                  :vecs ',(vecs self)
+                  :vec-labels ',(vec-labels self)
+                  :vec-profiles ',(vec-profiles self)
+                  :vec-weight ',(vec-weight self)
+                  :mins ',(mins self)
+                  :maxs ',(maxs self)
                   :target ',(target self)
-		  :teachers ',(teachers self)
+                  :teachers ',(teachers self)
                   :esttype ',(esttype self)
-		  :k ',(k self)
-		  :distance ',(distance self)))
+                  :k ',(k self)
+                  :distance ',(distance self)))
 (defun dump-knn-est (est outdir)
   (make-dir outdir)
   (let ((*loading-est* est)
@@ -201,7 +201,7 @@
         (outfile (format nil "~A/estimator" outdir)))
     (with-open-file (out outfile :direction :output :if-exists :supersede)
       (with-standard-io-syntax
-	(format out "~&(setf *loading-est* ~s)~%" (make-load-form est))))))
+        (format out "~&(setf *loading-est* ~s)~%" (make-load-form est))))))
 (defun load-dumped-est (indir)
   (let ((*loading-est* nil)
         (*package* (find-package :learn.k-nn)))
@@ -367,11 +367,11 @@
                   (unless (string-equal org-id (ested ested-vec))
                     (incf count)))
                 count)))
-    (make-instance 'k-nn-estimator 
+    (make-instance 'k-nn-estimator
       :k k :distance distance :target target
       :vecs vecs :vec-weight vec-weight :vec-labels explanatories
       :vec-profiles vec-profiles :teachers teachers :esttype esttype :mins mins :maxs maxs)))
-#+ignore    
+#+ignore
 (make-unspecialized-dataset
  (append (map 'list #'dimension-name
               (dataset-dimensions learning-data))
@@ -409,7 +409,7 @@
     (do-vecs ((v target-vecs))
       (estimate v est-type vecs teachers vec-weight k distance vec-profiles))
     (make-unspecialized-dataset
-     (append 
+     (append
       `(,(format nil "estimated-~A" (target estimator)))
       (map 'list #'dimension-name
            (dataset-dimensions in-data)))
@@ -427,12 +427,12 @@
           (external-format :default) (csv-type-spec '(string double-float)))
   (multiple-value-bind (est outdata)
       (k-nn-analyze (read-data-from-file
-                     infile 
+                     infile
                      :type file-type :csv-type-spec csv-type-spec
                      :csv-header-p t :external-format external-format)
                     k target explanatories
                     :distance distance
-                    :use-weight use-weight :weight-init weight-init 
+                    :use-weight use-weight :weight-init weight-init
                     :normalize normalize)
     (dump-knn-est est outfileest)
     (labeled-data-out outdata outfilesummary :external-format external-format)
@@ -444,4 +444,4 @@
                   (read-data-from-file in-data-file :external-format external-format))
    outfile :external-format external-format))
 
-  
+

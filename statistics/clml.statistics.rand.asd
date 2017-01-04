@@ -13,18 +13,18 @@
   :licence "LLGPL"
   :description "CLML Probability distribution random number generation method Library"
   :serial t
-  :around-compile call-with-environment  
-  :components 
+  :around-compile call-with-environment
+  :components
   ((:module
-    
+
     :clml.statistics.rand
             :pathname #p "src/rand"
-            :components 
+            :components
             ((:file "rand/package" )
              (:file "rand/utilities" :depends-on ("rand/package"))
              (:file "rand/rand" :depends-on ("rand/utilities"))
              )
             )
    ;(:static-file "src/rand/README.md")
-   
+
    ))

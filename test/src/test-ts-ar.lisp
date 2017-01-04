@@ -4,7 +4,7 @@
 (define-test test-sample-ts-ar
     (let (model traffic pred std-err ukgas)
       (assert
-       (setq ukgas 
+       (setq ukgas
            (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
                              :range '(1) :time-label 0
                              :start 1960 :frequency 4)))
@@ -17,8 +17,8 @@
         (assert-equality #'epsilon> 1231.505368951319d0 s2)
         (assert-eq :burg method)
         (assert-eql 9 (car coefs))
-        (assert-true 
-         (set-equal 
+        (assert-true
+         (set-equal
           '(0.17438913366790465d0 -0.20966263354643136d0 0.459202505071864d0 1.0144694385486095d0
             0.2871426375860843d0 -0.09273505423571009d0 -0.13087574744684466d0
             -0.34467398543738703d0 -0.1765456124104221d0)
@@ -49,10 +49,10 @@
           54.80459423968943d0 56.842223276645484d0 56.887059327654924d0 59.51296740330941d0)
         (map 'list (lambda (p) (aref (ts-p-pos p) 0)) (subseq (ts-points std-err) 99))
         :test #'epsilon>))
-      
+
       (assert (setq pred (ar-prediction ukgas :method :burg :n-learning 80 :n-ahead 12)))
       (assert-true
-       (set-equal 
+       (set-equal
         '(130.45676936346104d0 87.60635293229583d0 122.88786839248075d0 178.94011319531705d0
           156.84147856236507d0 102.84671815160169d0 137.22718174882334d0 196.06745641722725d0
           161.21300979672128d0 98.3371415342315d0 122.99204535051106d0 174.9135542815775d0
@@ -76,7 +76,7 @@
           588.6667393873022d0 252.30662988389d0 486.787425955227d0 814.0313284232438d0)
         (map 'list (lambda (p) (aref (ts-p-pos p) 0)) (ts-points pred))
         :test #'epsilon>))
-      
+
       (assert
        (setq traffic (time-series-data
                       (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/mawi-traffic/pointF-20090330-0402.sexp"))

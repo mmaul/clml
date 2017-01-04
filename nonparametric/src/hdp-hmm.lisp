@@ -33,7 +33,7 @@
 (defmethod density-to-cluster ((dpm hdp-hmm) (cluster hidden-state) data &rest args &key franchise)
   #+sbcl (declare (ignorable args))
   (let ((v (vocabulary dpm))
-	(k (dpm-k dpm)))
+        (k (dpm-k dpm)))
     (* (trans-prob franchise cluster :k k)
        (emission-prob cluster data :v v))))
 
@@ -68,36 +68,36 @@
 
 (defmethod base-distribution ((dpm hdp-hmm) (dist state-uniform) data &rest args)
   (declare (optimize (speed 3) (safety 0) (debug 0))
-	   (ignore data args))
+           (ignore data args))
   (/ 1d0 (the fixnum (+ (the fixnum (dpm-k dpm)) 1))))
 
 (defmethod initialize ((dpm hdp-hmm))
   (when (estimate-base? dpm)
     (let ((memo (make-hash-table :test #'equal)))
       (loop for d across (dpm-data dpm) do
-	    (setf (gethash (point-data d) memo) t))
+            (setf (gethash (point-data d) memo) t))
       (setf (vocabulary dpm) (hash-table-count memo))))
   (setf (estimate-base? dpm) nil) ;; safety
   (let ((data (dpm-data dpm)))
     (loop for i from 0 below (length data)
-	for before = (if (zerop i) (hdp-hmm-eos dpm) (point-cluster (aref data (1- i)))) do
-	  (add-customer dpm (aref data i) 1 :franchise before)))
+        for before = (if (zerop i) (hdp-hmm-eos dpm) (point-cluster (aref data (1- i)))) do
+          (add-customer dpm (aref data i) 1 :franchise before)))
   (parameters-sampling dpm)
   (hypers-sampling dpm))
 
 (defmethod seatings-sampling ((dpm hdp-hmm))
-  (declare (optimize (speed 3) (safety 0) (debug 0)))  
+  (declare (optimize (speed 3) (safety 0) (debug 0)))
   (let ((data (dpm-data dpm))
-	(old-before (hdp-hmm-eos dpm))
-	(new-before (hdp-hmm-eos dpm)))
+        (old-before (hdp-hmm-eos dpm))
+        (new-before (hdp-hmm-eos dpm)))
     (declare (type vector data))
     (loop for i fixnum from 0 below (the fixnum (length data))
-	for d = (aref data i)
-	for old-state = (point-cluster d)
-	for new-state = (add-customer dpm d
-				      (remove-customer dpm d :franchise old-before)
-				      :franchise new-before) do
-	  (setf new-before new-state old-before old-state))))
+        for d = (aref data i)
+        for old-state = (point-cluster d)
+        for new-state = (add-customer dpm d
+                                      (remove-customer dpm d :franchise old-before)
+                                      :franchise new-before) do
+          (setf new-before new-state old-before old-state))))
 
 ;;; util for test
 (defun make-repeat-pattern (pattern times)

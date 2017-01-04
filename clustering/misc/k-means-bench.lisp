@@ -1,5 +1,5 @@
 (setf dataset
-      (pick-and-specialize-data 
+      (pick-and-specialize-data
        (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/norm-interp-feature.csv")
                             :csv-type-spec (cons 'string (make-list 19 :initial-element 'double-float))
                             :type :csv)

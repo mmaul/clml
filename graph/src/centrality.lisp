@@ -37,7 +37,7 @@
   - graph: return value of #'make-simple-graph
   - mode: :in | :out
   - standardize: t | nil, standardize centrality or not"))
-(defmethod degree-centrality ((gr simple-graph) 
+(defmethod degree-centrality ((gr simple-graph)
                               &key (mode :in) ;; :in | :out
                                    (standardize nil))
   (let* ((n (length (nodes gr)))
@@ -109,8 +109,8 @@ The parameter for adjusting the weight, the weight decreases as large, the trans
   (let* ((n (length (nodes gr)))
          (tp-mat (transition-probability-matrix (adjacency-matrix gr)))
          (strongly-connected-mat
-          (loop for col below n do 
-                (loop for row below n 
+          (loop for col below n do
+                (loop for row below n
                     as val = (aref tp-mat col row) do
                       (setf (aref tp-mat col row)
                         (+fl (*fl c val) (/fl (-fl 1d0 c) n))))

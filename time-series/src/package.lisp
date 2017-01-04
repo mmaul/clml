@@ -2,8 +2,8 @@
 
 (defpackage :clml.time-series.read-data
   (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.hjs.vars :clml.hjs.read-data :clml.hjs.missing-value)
-  
-  (:export 
+
+  (:export
    #:time-series-dataset
    #:time-series-data
    #:make-constant-time-series-data
@@ -43,10 +43,10 @@ package for reading time series data
 
     Regarding external program invocation, work needs to be done, nameley converting alisp
     specific calls to uiop. Also external program invocation is used to spawn R for
-    graph generation. Would be better to use 
+    graph generation. Would be better to use
   ")
-  (:use :cl 
-        
+  (:use :cl
+
         :clml.hjs.read-data :clml.hjs.meta :clml.hjs.vector
         :clml.hjs.matrix :clml.statistics
         :clml.time-series.read-data)
@@ -54,7 +54,7 @@ package for reading time series data
   (:import-from :UIOP/RUN-PROGRAM #:RUN-PROGRAM)
   #+allegro
   (:use :excl)
-  
+
   (:export #:ts-to-sta
            #:timeseries-model
            #:sub-ts
@@ -79,7 +79,7 @@ package for reading time series data
         :clml.time-series.read-data
         :clml.time-series.util
         :clml.numeric.fast-fourier-transform)
-  
+
   (:export
    #:lag
    #:diff
@@ -114,15 +114,15 @@ Classes and methods for representing various time series model.
 Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
 
 *** sample usage
-#+INCLUDE: \"../sample/state-space-model.org\" example lisp 
+#+INCLUDE: \"../sample/state-space-model.org\" example lisp
 ")
   (:use :cl :clml.hjs.read-data :clml.hjs.meta :clml.hjs.vector :clml.hjs.matrix
    :clml.statistics :clml.time-series.util :clml.time-series.statistics
         :clml.time-series.read-data
         :clml.hjs.missing-value)
-  
-  
-  (:export 
+
+
+  (:export
    #:trend #:trend-prediction
    #:seasonal #:seasonal-adj
    #:state-space-model
@@ -142,7 +142,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.time-series.read-data
         :clml.time-series.state-space)
   ;(:shadow :predict)
-  
+
   (:export
    #:ar #:ar-prediction
    #:parcor #:parcor-filtering
@@ -165,7 +165,7 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
         :clml.hjs.missing-value
         )
   (:shadow :predict)
-  
+
   (:export :init-changefinder
            :update-changefinder)
   (:documentation "ChangeFinder
@@ -176,14 +176,14 @@ Package for "ChangeFinder"
   for the stability of the inverse matrix calculation.
   User can edit this value by the special variable named *stabilizer*.
 **** Reference
-- J. Takeuchi, K. Yamanishi\"A Unifying framework for detecting outliers and change points from time series\" 
+- J. Takeuchi, K. Yamanishi\"A Unifying framework for detecting outliers and change points from time series\"
 - K. Yamanishi "データマイニングによる異常検知" p.45-58
 ")
   )
 
 
 (defpackage :clml.time-series.anomaly-detection
-  (:use :cl 
+  (:use :cl
         :clml.hjs.read-data
         :clml.hjs.meta
         :clml.hjs.vector
@@ -227,7 +227,7 @@ Package for "ChangeFinder"
         :clml.hjs.vars
         :clml.hjs.read-data
         :clml.time-series.read-data)
-  
+
   (:export
    #:best-single-exp-parameters
    #:best-double-exp-parameters
@@ -241,7 +241,7 @@ Package for "ChangeFinder"
 (defpackage :clml.time-series.burst-detection
   (:use :cl :clml.hjs.read-data :clml.hjs.missing-value
         :clml.time-series.util :clml.time-series.statistics :clml.time-series.read-data)
-  
+
   (:export
    #:continuous-kleinberg
    #:print-burst-indices

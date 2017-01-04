@@ -15,10 +15,10 @@
 
 (defparameter *topol-list*
     (list `(,+topol-data+ "data" nil)
-	  `(,+topol-lvq+ "lvq" nil)
-	  `(,+topol-hexa+ "hexa" nil)
-	  `(,+topol-rect+ "rect" nil)
-	  `(,+topol-unknown+ "" nil)))
+          `(,+topol-lvq+ "lvq" nil)
+          `(,+topol-hexa+ "hexa" nil)
+          `(,+topol-rect+ "rect" nil)
+          `(,+topol-unknown+ "" nil)))
 
 ;; neighborhood types
 (defconstant +neigh-unknown+ 0)
@@ -27,8 +27,8 @@
 
 (defparameter *neigh-list*
     (list `(,+neigh-bubble+ "bubble" nil)
-	  `(,+neigh-gaussian+ "gaussian" nil)
-	  `(,+neigh-unknown+ "" nil)))
+          `(,+neigh-gaussian+ "gaussian" nil)
+          `(,+neigh-unknown+ "" nil)))
 
 ;; alpha function types
 (defconstant +alpha-unknown+ 0)
@@ -38,8 +38,8 @@
 ;; alpha functions
 (defparameter *alpha-list*
     (list `(,+alpha-linear+ "linear" (function linear-alpha))
-	  `(,+alpha-inverse-t+ "inverse_t" (function inverse-t-alpha))
-	  `(,+alpha-unknown+ "" nil)))
+          `(,+alpha-inverse-t+ "inverse_t" (function inverse-t-alpha))
+          `(,+alpha-unknown+ "" nil)))
 
 ;; initialize
 (defparameter *it-unknown* 0)

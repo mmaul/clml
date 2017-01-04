@@ -1,5 +1,5 @@
 (defpackage :clml.pca
-  
+
   (:use :cl
         :clml.hjs.meta
         :clml.hjs.matrix
@@ -9,8 +9,8 @@
         :clml.statistics
         :clml.hjs.vars
         :clml.hjs.missing-value)
-  
-  (:export 
+
+  (:export
    #:pca-result
    #:princomp
    #:princomp-projection
@@ -26,7 +26,7 @@
    )
   (:documentation "*** Note
 - when using princomp and sub-princomp, if there exists two columns
-  that are of same value, the result for :correlation 
+  that are of same value, the result for :correlation
   method will not be converged. Therefore pick-and-specialize-data or
   divide-dataset must be used to remove one column.
 

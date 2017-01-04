@@ -3,8 +3,8 @@
 
 (define-test test-sample-pca
     (let (dataset proj-vecs pca-result pca-model for-learn for-estimate)
-      (assert (setf dataset 
-                     (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") 
+      (assert (setf dataset
+                     (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp")
                                           :external-format #+allegro :932 #+(and (not ccl) (not allegro)) :sjis  #+ccl :Windows-31j)))
       (assert (setf dataset (pick-and-specialize-data
                                   dataset :range '(2 3) :data-types '(:numeric :numeric))))
@@ -30,7 +30,7 @@
                              #(0.7071067811865478d0 0.7071067811865472d0))
                            (clml.pca:loading-factors pca-model)
                            :test (lambda (v1 v2) (epsilon> (abs v1) (abs v2))))
-      
+
       (assert-a-point-equal #(1.2262030207235688d0 185.75242109488684d0)
                             (clml.pca:centroid pca-result)
                             )
@@ -38,13 +38,13 @@
       (print "----")
       (assert-a-point-equal #(1.2262030207235688d0 185.75242109488684d0)
                             (clml.pca:centroid pca-model))
-      
+
       (assert-eq :correlation (clml.pca:pca-method pca-result))
       (assert-eq :correlation (clml.pca:pca-method pca-model))
-      
+
       (assert (setf proj-vecs (clml.pca:princomp-projection dataset pca-model)))
       (assert-points-equal (clml.pca:components pca-result) proj-vecs :test #'=)
-      
+
       (let ((eyes (pick-and-specialize-data
                    (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/eyes200.sexp"))
                    :except '(0)
@@ -58,20 +58,20 @@
         (loop with estimator = (clml.pca:make-face-estimator for-learn :dimension-thld 5 :method :eigenface
                                                     :pca-result pca-result :pca-model pca-model)
             for vec across (dataset-numeric-points for-estimate)
-            for expected in 
-              '("arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" 
+            for expected in
+              '("arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur"
                 "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur"
                 "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur"
                 "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur"
-                "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "scott" "max" "arthur" "arthur" 
-                "arthur" "arthur" "max" "kevin" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" 
+                "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "scott" "max" "arthur" "arthur"
+                "arthur" "arthur" "max" "kevin" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur"
                 "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur"
-                "igor" "kevin" "kevin" "kevin" "kevin" "kevin" "kevin" "kevin" "kevin" "kevin" "arthur" 
-                "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" 
+                "igor" "kevin" "kevin" "kevin" "kevin" "kevin" "kevin" "kevin" "kevin" "kevin" "arthur"
+                "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur"
                 "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur" "arthur")
             as ested = (funcall estimator vec)
             do (assert-equality #'string= expected ested))
-        
+
         ;; with random
         (multiple-value-setq (for-learn for-estimate)
           (divide-dataset eyes :divide-ratio '(1 1) :random t)))

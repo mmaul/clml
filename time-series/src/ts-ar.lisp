@@ -47,16 +47,16 @@
       :sigma^2 s^2 :aic aic :demean demean :ar-method method
       :F-matrices
       (if (= k 0) (make-array '(0 0) :element-type 'double-float)
-        (transpose 
+        (transpose
          (make-array `(,k ,k)
                      :initial-contents
                      `(,ar-list
                        ,@(loop for i below (1- k)
-                             collect 
+                             collect
                                (let ((list (make-list k :initial-element 0d0)))
                                  (setf (nth i list) 1d0) list)))
                      :element-type 'double-float)))
-      :G-matrices 
+      :G-matrices
       (if (= k 0) (make-array '(0 1) :element-type 'double-float)
         (make-array `(,k 1)
                     :initial-contents
@@ -91,7 +91,7 @@
 - comments:
   when /aic/ is t, minimize aic to choose the order (max is /order-max/) of model.
   when /aic/ is nil, /order-max/ is the order of model."))
-(defmethod ar ((d time-series-dataset) 
+(defmethod ar ((d time-series-dataset)
                &key order-max
                     (demean t)
                     (method :burg) ; :yule-walker | :burg
@@ -123,7 +123,7 @@
     (with-accessors ((dims dataset-dimensions)
                      (ps ts-points)) d-demean
       (assert (and (= 1 (length dims)) (> (length ps) order-max)))
-      (loop 
+      (loop
           with num-of-data = (length ps)
           with val-vec = (map 'vector #'(lambda (p) (aref (ts-p-pos p) 0)) ps)
           with sigma^2-list = (cons (/ (loop for val across val-vec sum (^2 val)) num-of-data)
@@ -131,29 +131,29 @@
           with aic-list = (cons (calc-aic (first sigma^2-list) 0.0d0 num-of-data)
                                 (make-list order-max))
           with coef-list = (cons '() (loop for i from 1 to order-max collect (make-list i)))
-          with v-list = (cons (coerce val-vec 'list) 
+          with v-list = (cons (coerce val-vec 'list)
                               (loop for i from 1 to order-max collect (make-list num-of-data)))
           with w-list = (cons (coerce val-vec 'list)
                               (loop for i from 1 to order-max collect (make-list num-of-data)))
           for m from 1 to order-max
           as m-1 = (1- m)
-          as parcor = (setf (nth m-1 (nth m coef-list)) 
-                        (* 2 
+          as parcor = (setf (nth m-1 (nth m coef-list))
+                        (* 2
                            (loop for n from (1+ m) to num-of-data
                                sum (* (nth (1- n) (nth m-1 v-list)) (nth (- n m 1) (nth m-1 w-list))
-                                      (/ (+ (loop for n from (1+ m) to num-of-data 
+                                      (/ (+ (loop for n from (1+ m) to num-of-data
                                                 sum (^2 (nth (- n m 1) (nth m-1 w-list))))
-                                            (loop for n from (1+ m) to num-of-data 
+                                            (loop for n from (1+ m) to num-of-data
                                                 sum (^2 (nth (1- n) (nth m-1 v-list))))))))))
           do (loop for i from 1 to m-1
                  as j = (1- i)
                  do (setf (nth j (nth m coef-list))
-                      (- (nth j (nth m-1 coef-list)) 
+                      (- (nth j (nth m-1 coef-list))
                          (* parcor (nth (1- (- m i)) (nth m-1 coef-list))))))
              (loop for n from (1+ m) to num-of-data
-                 do (setf (nth (1- n) (nth m v-list)) 
+                 do (setf (nth (1- n) (nth m v-list))
                       (- (nth (1- n) (nth m-1 v-list))
-                         (* parcor (nth (1- (- n m)) (nth m-1 w-list))))))                 
+                         (* parcor (nth (1- (- n m)) (nth m-1 w-list))))))
              (loop for n from (1+ m) to num-of-data
                  do (setf (nth (1- (- n m)) (nth m w-list))
                       (- (nth (1- (- n m)) (nth m-1 w-list))
@@ -162,8 +162,8 @@
                                              0d0)
                    (nth m aic-list) (calc-aic (nth m sigma^2-list) m num-of-data))
           finally
-            (return 
-              (let ((pos (if aic 
+            (return
+              (let ((pos (if aic
                              (position (apply #'min aic-list) aic-list :test #'=)
                            order-max)))
                 (make-ar-model d-demean (cons pos coef-list) (nth pos sigma^2-list)
@@ -173,14 +173,14 @@
 ;;; return: (values coef-list sigma^2-list aic-list)
 (defun levinson-algorithm (num-of-data cov-list order-max)
   (assert (and (>= order-max 1) (> (length cov-list) order-max)))
-  (loop 
+  (loop
       with sigma^2-list = (cons (first cov-list) (make-list order-max))
       with aic-list = (cons (calc-aic (first cov-list) 0.0d0 num-of-data)
                             (make-list order-max))
       with coef-list = (cons '() (make-list order-max))
       for m from 1 to order-max
-      do 
-    (setf (nth m coef-list) 
+      do
+    (setf (nth m coef-list)
       (loop for i from 1 to (- m 1)
           with amm = (/ (- (nth m cov-list)
                            (loop for j from 0 to (- m 2)
@@ -192,7 +192,7 @@
                (- (nth (1- i) (nth (1- m) coef-list))
                   (* amm (nth (1- (- m i)) (nth (1- m) coef-list)))))
           finally (return coefs))
-      (nth m sigma^2-list) (* (nth (1- m) sigma^2-list) 
+      (nth m sigma^2-list) (* (nth (1- m) sigma^2-list)
                               (- 1 (expt (nth (1- m) (nth m coef-list)) 2)))
       (nth m aic-list) (calc-aic (nth m sigma^2-list) m num-of-data))
       finally
@@ -209,16 +209,16 @@
                             (aref (ts-covariance d :k m :demean demean) 0 0))))
         (multiple-value-bind (coef-list sigma^2-list aic-list)
             (levinson-algorithm num-of-data cov-list order-max)
-          (let ((pos (if aic 
+          (let ((pos (if aic
                          (position (apply #'min aic-list) aic-list :test #'=)
                        order-max)))
-            (make-ar-model d-demean (cons pos coef-list) 
-                           (* (nth pos sigma^2-list) 
+            (make-ar-model d-demean (cons pos coef-list)
+                           (* (nth pos sigma^2-list)
                               (/ num-of-data (- num-of-data (1+ (length (nth pos coef-list))))))
           ;;; consideration for freedom
                            aic-list (when demean (ts-mean d)) :yule-walker)))))))
 #|(defgeneric predict (timeseries-model &key n-ahead)
-  (:documentation 
+  (:documentation
    "Calculate the value based on the timeseries-model for the observed timeseries data.
 - return: (values <time-series-dataset> <time-series-dataset>)
   - first value is a prediction by model, second is a standard error of the model.
@@ -230,11 +230,11 @@
 |#
 (defmethod predict ((model ar-model) &key (n-ahead 0))
   (assert (not (minusp n-ahead)))
-  (with-accessors ((ts clml.time-series.state-space::observed-ts) (demean demean) 
+  (with-accessors ((ts clml.time-series.state-space::observed-ts) (demean demean)
                    (ar-c ar-coefficients)) model
     (let* ((n (length (ts-points ts)))
            (pos-list (make-list (+ n n-ahead)
-                      :initial-element 
+                      :initial-element
                       (if demean (make-dvec (length (dataset-dimensions ts)) 0d0)
                         (ts-mean ts))))
            (se-list (make-list (+ n n-ahead)
@@ -249,10 +249,10 @@
       (let* ((start (tf-incl (ts-start ts) (car ar-c) :freq (ts-freq ts)))
              (end (tf-incl (ts-end ts) n-ahead :freq (ts-freq ts)))
              (time-labels
-              (subseq 
+              (subseq
                (concatenate 'vector
                  (map 'vector #'ts-p-label (ts-points ts))
-                 (make-array n-ahead :initial-element "predicted" 
+                 (make-array n-ahead :initial-element "predicted"
                              :element-type 'string))
                (car ar-c)))
              (pos-list (subseq pos-list (car ar-c)))
@@ -260,7 +260,7 @@
         (values
          (make-constant-time-series-data
           (map 'list #'dimension-name (dataset-dimensions ts))
-          (if demean 
+          (if demean
               (map 'vector #'(lambda (v)
                                (vcv v demean)) pos-list)
             (coerce pos-list 'vector))
@@ -286,7 +286,7 @@
   - n-ahead   : <non-negative integer>
   - n-learning : nil | <positive integer>, number of points for learning
   - target-col : nil | <string>, name of target parameter"))
-(defmethod ar-prediction ((d time-series-dataset) &key 
+(defmethod ar-prediction ((d time-series-dataset) &key
                                                   (method :yule-walker) ; :ols :burg
                                                   (aic t) order-max
                                                   n-learning
@@ -301,10 +301,10 @@
                 (let ((pos (position target-col (dataset-dimensions d)
                                      :test #'string-equal
                                      :key #'dimension-name)))
-                  (if pos (sub-ts d :range `(,pos) 
+                  (if pos (sub-ts d :range `(,pos)
                                   :end (tf-incl (ts-start d) n-learning :freq (ts-freq d)))
                     (error "Does not exist column ~A" target-col)))
-              (progn (assert (= 1 (length (dataset-dimensions d)))) 
+              (progn (assert (= 1 (length (dataset-dimensions d))))
                      (sub-ts d :end (tf-incl (ts-start d) n-learning :freq (ts-freq d))))))
          (model (ar d :order-max order-max :demean demean :aic aic :method method)))
     (multiple-value-bind (pred se)
@@ -315,31 +315,31 @@
 (defmethod parcor ((ts time-series-dataset) &key (order 1) (method :burg)
                                                  ppm-file)
   (assert (integerp order))
-  (loop 
+  (loop
       with hash = (make-hash-table :test #'equal)
       with colnames = (map 'vector #'dimension-name (dataset-dimensions ts))
       for colname across colnames
       for i from 0
       as subts = (sub-ts ts :range `(,i))
       as model = (ar subts :order-max order :aic nil :method method)
-      do 
+      do
     (with-accessors ((coefs ar-coefficients)) model
-      (let ((parcor-list 
+      (let ((parcor-list
              (map 'list #'(lambda (list) (car (last list))) (cdr coefs))))
-        (setf (gethash colname hash) 
+        (setf (gethash colname hash)
           (or (nth order parcor-list) (nth 0 parcor-list)))))
-      finally (return 
+      finally (return
                 (progn (when ppm-file
                          (draw-ppm `(,(loop for colname across colnames
                                           collect (gethash colname hash)))
                                    ppm-file))
                        hash))))
 
-(defun parcor-stat (tss &key (parcor-order 1) (ar-method :burg) 
+(defun parcor-stat (tss &key (parcor-order 1) (ar-method :burg)
                     (print-stat nil) (ppm-file nil) (ppm-height-unit 10))
-  (loop 
+  (loop
       with hash = (make-hash-table :test #'equal)
-      with colnames = 
+      with colnames =
         (coerce (loop with colnames
          for ts across (coerce tss 'vector)
          as cols = (map 'list #'dimension-name (dataset-dimensions ts))
@@ -357,7 +357,7 @@
         (maphash #'(lambda (colname vals)
           (let* ((vals (remove nil vals))
                  (mn (when vals (/ (apply #'+ vals) (length vals))))
-                 (std (when vals (sqrt (/ (apply #'+ 
+                 (std (when vals (sqrt (/ (apply #'+
                                                  (map 'list #'(lambda (val) (expt (- val mn) 2)) vals))
                                           (coerce (length vals) 'double-float))))))
 
@@ -373,7 +373,7 @@
         (when ppm-file
           (draw-ppm (loop with val-list = (mapcar #'cdr data)
                         for i below (length (car val-list))
-                        collect (mapcar #'(lambda (lis) 
+                        collect (mapcar #'(lambda (lis)
                                  (let ((val (nth i lis)))
                                    (if val (abs val) val))) val-list))
                     ppm-file :height-unit ppm-height-unit))
@@ -391,12 +391,12 @@
   Refer section 3.2.1 of paper http://www.neurosci.aist.go.jp/~kurita/lecture/statimage.pdf \\
   Divide time series data by /divide-length/. And make 'parcor picture' for each range."))
 (defmethod parcor-filtering ((ts time-series-dataset)
-                             &key (divide-length 15) 
+                             &key (divide-length 15)
                                   (parcor-order 1)
                                   (n-ahead 10)
                                   ppm-fname)
   (assert (and (< parcor-order divide-length) (<= divide-length (length (ts-points ts)))))
-  (let* ((sub-tss 
+  (let* ((sub-tss
           (loop for i from 1
               as start = (tf-incl (ts-start ts) (* (1- i) divide-length) :freq (ts-freq ts))
               as end = (tf-incl (ts-start ts) (1- (* i divide-length)) :freq (ts-freq ts))
@@ -407,7 +407,7 @@
          (wide-stat
           (parcor-stat sub-tss :parcor-order parcor-order :ar-method :burg))
          (wide-parcor
-          (make-constant-time-series-data 
+          (make-constant-time-series-data
            (mapcar #'car wide-stat)
            (transposeV (coerce
                         (loop for data in (mapcar #'cdr wide-stat)
@@ -416,7 +416,7 @@
            :time-labels
            (coerce (loop for ts in sub-tss
                        as ps = (ts-points ts)
-                       collect (format nil "~A - ~A" 
+                       collect (format nil "~A - ~A"
                                        (ts-p-label (svref ps 0))
                                        (ts-p-label (svref ps (1- (length ps))))))
                    'vector)
@@ -441,7 +441,7 @@
         (when ppm-fname
           (draw-ppm
            (map 'list #'(lambda (v) (coerce v 'list)) data) ppm-fname))
-        (make-constant-time-series-data 
+        (make-constant-time-series-data
          (mapcar #'car wide-stat) data
          :time-labels (concatenate 'vector (map 'vector #'ts-p-label (ts-points wide-parcor))
                                    (make-array n-ahead :initial-element "prediction"
@@ -466,7 +466,7 @@
            (optimize speed))
   (assert (< 0.0d0 r 1.0d0))
   (assert (= (length xt) (length meu)))
-  (loop 
+  (loop
       with 1-r = (- 1.0d0 r)
       for i below (length meu)
       do (setf (aref meu i)
@@ -633,7 +633,7 @@
              (cond ((>= 0 d-cov) clml.hjs.missing-value:+nan+)
                    ((and (minusp d-cov) (> (abs d-cov) *epsilon*))
                     (error "Covariance must be positive-definite matrix ~A" cov))
-                   
+
                    (t (+ (* n (+ (* d (log (* 2 pi))) (log d-cov) d))
                          (* d (1+ d))
                          (* 2 (* d d m))))
@@ -651,7 +651,7 @@
                          with alpha = 1d-2
                          for i below (array-dimension mat 0)
                          as val = (aref %mat i i)
-                         do (setf (aref %mat i i) 
+                         do (setf (aref %mat i i)
                               (if (minusp val) (- val alpha) (+ val alpha)))
                          finally (return %mat))
                      mat))))
@@ -660,7 +660,7 @@
            (obj (make-instance 'levinson-obj
                   :v (aref cj-vec 0)    ;c0
                   :u (aref cj-vec 0)    ;c0
-                  :aic (when calc-aic 
+                  :aic (when calc-aic
                              (calc-aic (aref cj-vec 0) d 0)))))
       (loop for m from 1 to p do
            (setf (lev-w obj)
@@ -673,36 +673,36 @@
                          (loop for i from 1 to (- m 1)
                              collect (m*m (gethash (make-key i (- m 1)) (lev-a obj))
                                           (aref cj-vec (- m i))))))))
-           
+
                                         ; A_m^m = W_m inv(U_{m-1})
             (setf (gethash (make-key m m) (lev-a obj))
               (m*m (lev-w obj)
                    (%m^-1 (lev-u obj))))
                                         ; B_m^m = transpose(W_m) inv(V_{m-1})
-           
+
             (setf (gethash (make-key m m) (lev-b obj))
               (m*m (transpose (lev-w obj))
                    (%m^-1 (lev-v obj))))
-           
+
             (loop for i from 1 to (- m 1)
                 do                      ; A_i^m = A_i^{m-1} - A_m^m B_{m-i}^{m-1}
                   (setf (gethash (make-key i m) (lev-a obj))
-                    (dmat-subtract 
+                    (dmat-subtract
                      (gethash (make-key i (1- m)) (lev-a obj))
                      (m*m (gethash (make-key m m) (lev-a obj))
                           (gethash (make-key (- m i) (- m 1))
                                    (lev-b obj)))))
                                         ; B_i^m = B_i^{m-1} - B_m^m A_{m-i}^{m-1}
                   (setf (gethash (make-key i m) (lev-b obj))
-                    (dmat-subtract 
+                    (dmat-subtract
                      (gethash (make-key i (1- m)) (lev-b obj))
                      (m*m (gethash (make-key m m) (lev-b obj))
                           (gethash (make-key (- m i) (- m 1))
                                    (lev-a obj))))))
                                         ; V_m = C_0- \sigma_{i=1}^m A_i^m transpose(C_i)
-           
+
            (setf (lev-v obj)
-              (dmat-subtract 
+              (dmat-subtract
                (aref cj-vec 0)
                (reduce #'dmat-sum
                        (loop for i from 1 to m
@@ -710,7 +710,7 @@
                                         (transpose (aref cj-vec i)))))))
                                         ; U_m = C_0- \sigma_{i=1}^m B_i^m C_i
            (setf (lev-u obj)
-              (dmat-subtract 
+              (dmat-subtract
                (aref cj-vec 0)
                (reduce #'dmat-sum
                        (loop for i from 1 to m
@@ -719,10 +719,10 @@
                                         ; AIC_m = N(dlog2pi+log|V_m|+k) + k(k+1) + 2K^2m
             (setf (lev-aic obj) (when calc-aic (calc-aic (lev-v obj) d m))))
                                         ; A_i^p(i = 1,...,p)がYule-Walker方程式の答え
-      
+
       (values
        #- sbcl
-       (coerce 
+       (coerce
         (loop for i from 1 to p
             collect (gethash (make-key i p) (lev-a obj)))
         'array)
@@ -766,7 +766,7 @@
                                              new-xt
                                              (aref old-xt-array (- k j)))
                                          r))))
-            
+
             #+sbcl
             (let* ((cj-list-len (length cj-list))
                    (cj-array1 (make-array cj-list-len)))
@@ -774,7 +774,7 @@
                  do
                    (setf (aref cj-array1 i) (elt cj-list i)))
               cj-array1)
-            #-sbcl(coerce 
+            #-sbcl(coerce
              cj-list
              'array)))
          (w-vec (multivariate-levinsion new-cj-array n :calc-aic nil)) ; k個のdxdの行列からなる配列
@@ -784,7 +784,7 @@
     (loop for i from 0 to (- k 2)
         do (setf (aref old-xt-array i)
              (aref old-xt-array (1+ i)))
-        finally (setf (aref old-xt-array (1- k)) new-xt)) 
+        finally (setf (aref old-xt-array (1- k)) new-xt))
     (list xhatt
           meu
           new-cj-array
@@ -814,7 +814,7 @@
 
 (defgeneric init-sdar (ts
                       &key ar-k))
-(defmethod init-sdar ((ts time-series-dataset) 
+(defmethod init-sdar ((ts time-series-dataset)
                       &key (ar-k nil)) ;; AR次数、nilならAICによる自動選択
   (with-accessors ((dims dataset-dimensions)
                    (ps ts-points)) ts
@@ -823,17 +823,17 @@
       (if (numberp ar-k)
           (let ((cj-list (loop for %k to ar-k collect (ts-covariance ts :k %k))))
             (let ((cj-vec
-                   
+
                    (coerce cj-list 'vector)))
               (multiple-value-bind (coef-vec lev-obj) (multivariate-levinsion cj-vec len)
                 (let (( inst (make-instance 'sdar
                                             :coef-vec coef-vec :n len
                                             :mu mu :sigma (lev-v lev-obj) :cj-array cj-vec
                                             :xt-array (map 'vector #'ts-p-pos (subseq ps (- len ar-k))))))
-                  
+
                   inst))))
           (progn
-            
+
             (setq ar-k (cond ((>= 5 len) (error "Data is too short to estimate VAR."))
                              ((>= 10 len) 3)
                              (t (round (* 10 (log len 10))))))
@@ -841,7 +841,7 @@
                with cj-array = nil
                with coef-vec = nil
                with cov = nil
-               with all-cj-vec = 
+               with all-cj-vec =
                  (coerce (loop for %k to ar-k collect (ts-covariance ts :k %k)) 'vector)
                for k from 1 to ar-k
                as cj-vec = (subseq all-cj-vec 0 (1+ k))
@@ -854,17 +854,17 @@
                        coef-vec %coef-vec
                        cov (lev-v lev-obj)
                        cj-array cj-vec)
-               finally (return 
+               finally (return
                          (make-instance 'sdar
                                         :coef-vec coef-vec :mu mu :sigma cov :cj-array cj-array
-                                        :xt-array (map 'vector #'ts-p-pos 
+                                        :xt-array (map 'vector #'ts-p-pos
                                                        (subseq ps (- len (length coef-vec))))
                                         :n len))))
           ))))
 
 (defgeneric update-sdar (sdar new-xt &key discount))
 (defmethod update-sdar ((sdar sdar) new-xt &key (discount 0.01d0))
-  
+
   (destructuring-bind (xhatt meu new-cj-array new-sigma xt-array w-vec)
       (1step-sdar (mu sdar) (cj-array sdar) (sigma sdar) (xt-array sdar) new-xt discount (n sdar))
     (setf (mu sdar) meu

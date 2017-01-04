@@ -30,7 +30,7 @@
                    (code code-of)) f
     (print-unreadable-object (f stream :type t :identity t)
       (format stream "PID: ~A, CODE: ~A, EXIT-STATUS: ~A, RESULT: ~A"
-	      pid code exit-status result))))
+              pid code exit-status result))))
 
 (defun initialize-environment (&key kill-current-futures-p force-p)
   (when kill-current-futures-p
@@ -75,13 +75,13 @@ Return the future started or nil for process pool is full."
                       (*trace-output* out)
                       (*terminal-io* tw)
                       (*debug-io* tw)
-                      (*query-io* tw)) 
+                      (*query-io* tw))
                  (let* ((output-pathname (format nil *future-result-file-template* (getpid))))
-                   (handler-case 
+                   (handler-case
                        (progn
                          (mapc #'funcall *after-fork-hooks*)
                          (let ((result (funcall (lambda-of next-future))))
-                           (cl-store:store (list (get-output-stream-string out) result) output-pathname) 
+                           (cl-store:store (list (get-output-stream-string out) result) output-pathname)
                            (close tw)
                            (close in)
                            (close out)
@@ -112,7 +112,7 @@ Return the result when finished."
             (when (and output (> (length output) 0))
               (format t "~&Child of PID ~a says ~a.~%" pid output))
             (setf result stored-result)
-            (delete-file (probe-file path))))) 
+            (delete-file (probe-file path)))))
     result))
 
 (defun check-exit-status-or-raise-error (future)
@@ -137,9 +137,9 @@ Return the result when finished."
         (cond ((> maybe-pid 0)
                (let ((future (gethash maybe-pid *running-futures*)))
                  (when future
-                   (unwind-protect 
-                        (read-result future status) 
-                     (remhash maybe-pid *running-futures*)) 
+                   (unwind-protect
+                        (read-result future status)
+                     (remhash maybe-pid *running-futures*))
                    future)))
               ((< maybe-pid 0)
                (when error-p
@@ -156,7 +156,7 @@ Return the result when finished."
                   (> (hash-table-count *running-futures*) 0))
         do (wait-for-any-future)))
 
-(defmethod kill-future ((future future) &optional force) 
+(defmethod kill-future ((future future) &optional force)
   (let* ((pid (pid-of future))
          (file (format nil *future-result-file-template* pid)))
     (if pid

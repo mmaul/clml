@@ -77,7 +77,7 @@
 
 (defparameter *all-tests* (append *statistics-tests* *decision-tree-tests* *clustering-tests*
                                   *time-series-tests* *svm-tests* *classifiers-tests*
-                                  ; *association-rule-tests* error result key is cons not string 
+                                  ; *association-rule-tests* error result key is cons not string
                                   *som-tests* *text-tests*
                                   ; *pca-tests* takes too long
                                   *hjs-tests*

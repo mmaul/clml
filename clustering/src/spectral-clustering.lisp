@@ -42,14 +42,14 @@
    The keyword argument EIGEN-TOLERANCE is a positive doulbe-float value
    or nil which controls accuracy of eigen computation checker
    described below.
-  
+
    This function returns two values as a multiple-values.
    The first is the clustering result as a list of list of nodes.
    The second is the status symbol of the result as follows.
-  
-  
+
+
    Status           Meaning
-  
+
    :success         The result is correct.
    :questionable    The result may be questionable because a set of
                     eigen values and their vectors returned by
@@ -57,9 +57,9 @@
                     with an error value, by a measure, greater than
                     specified EIGEN-TOLERANCE.
                     This check is skipped if EIGEN-TOLERANCE is nil.
-  
+
    - the following cases are fatal and nil is returned as the first value -
-  
+
    :input-error     Given arguments does not hold the above conditions.
    :fatal-error     This situation arise in the following cases:
                      1. An eigen computation failed, or
@@ -73,7 +73,7 @@
  2. A Min-max Cut Algorithm for Graph Partitioning and Data Clustering
     Chris H. Q. Ding, Xiaofeng He, Hongyuan Zha, Ming Gu, Horst D. Simon
     First IEEE International Conference on Data Mining (ICDM'01), 2001.
-" 
+"
   (assert (and (typep w '(array * (* *)))
                (apply #'= (array-dimensions w))
                (typep ncls '(integer 1 *))))

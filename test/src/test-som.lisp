@@ -34,7 +34,7 @@
                         (with-output-to-string (*standard-output*)  (do-som-by-filename (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/som/animal.dat") "hexa" "gaussian"
                                                    24 16 123 10000 5 2400 10
                                                    '(:absolute #+unix "tmp" #+mswindows "temp")))))
-  
+
   (multiple-value-bind (out-pathname ps-pathname)
         (do-som-by-filename (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/som/animal.dat") "hexa" "gaussian"
                             24 16 123 10000 5 2400 10

@@ -113,7 +113,7 @@
 (defgeneric filtering (stsp x v observed-pt n))
 (defmethod filtering ((stsp gaussian-stsp-model) x v observed-pt n)
   (declare (type dvec x))
-  (declare (type dmat v))  
+  (declare (type dmat v))
   (let ((nanp (find-if #'nan-p observed-pt)))
     (if nanp (values x v)
       (let ((kalman-gain
@@ -142,7 +142,7 @@
   (:documentation "Forecast observation value"))
 (defmethod forecast ((stsp gaussian-stsp-model) n-ahead
                      &key (smoothing nil))
-  
+
   (assert (>= n-ahead 0))
   (flet ((map-mat (mat fcn)
            (loop for i below (array-dimension mat 0)
@@ -166,7 +166,7 @@
                x-list v-list)
           (when (> n-ahead 0)
             (multiple-value-setq (x-list v-list)
-              (long-step-forecast 
+              (long-step-forecast
                stsp (car (last x)) (car (last v)) (1- len) n-ahead)))
           (loop for i below result-len
               do (if (< i len)
@@ -174,9 +174,9 @@
                            (nth i ret-v) (fore-d i (nth i smthed-v)))
                    (setf (nth i ret-x) (fore-y i (nth (- i len) x-list))
                          (nth i ret-v) (fore-d i (nth (- i len) v-list))))
-              finally 
-                (return 
-                  (values ret-x (map 'list #'(lambda (mat) 
+              finally
+                (return
+                  (values ret-x (map 'list #'(lambda (mat)
                                                (map-mat mat #'(lambda (v)
                                                                 (dfloat (sqrt (/ v len))))))
                                      ret-v)))))))))
@@ -195,7 +195,7 @@
           with smthed-x = `(,(nth (1- N) x))
           with smthed-v = `(,(nth (1- N) v))
           with An-list
-          as (%smthed-x %smthed-v An) = 
+          as (%smthed-x %smthed-v An) =
             (multiple-value-list (one-step-smoothing stsp (car smthed-x) (car smthed-v)
                                                      (nth (1+ i) x-1) (nth (1+ i) v-1)
                                                      (nth i x) (nth i v) i))
@@ -211,13 +211,13 @@
             (mcm v (m*m (m*m An (mcm smthed-v pred-v :c #'-)) (transpose An)))
             An)))
 
-(defgeneric log-likelihood (stsp 
+(defgeneric log-likelihood (stsp
                            &key with-s^2 smoothing))
-(defmethod log-likelihood ((stsp gaussian-stsp-model) 
+(defmethod log-likelihood ((stsp gaussian-stsp-model)
                            &key (with-s^2 t) (smoothing nil))
   (let ((org-r (if with-s^2 (kalman-filter stsp)
                  (prog1 (slot-value stsp 'R-matrices)
-                   (setf (slot-value stsp 'R-matrices) 
+                   (setf (slot-value stsp 'R-matrices)
                      (diag (array-dimension (R stsp 0) 0) 1.0d0))
                    (kalman-filter stsp)))))
     (with-accessors ((x x-nn-1) (v v-nn-1) (ts observed-ts)) stsp
@@ -241,12 +241,12 @@
                         for y across (map 'vector #'ts-p-pos (ts-points ts))
                         as dy = (vcv y y-i :c #'-)
                         sum (vdotv dy (m*v (m^-1 d-i) dy)))))
-            (progn 
+            (progn
               (assert (= 1 (length (dataset-dimensions ts))))
               (let* ((d-n (loop for d in d-n
                               with cov = (aref (ts-covariance ts) 0 0)
                               collect (/ (aref d 0 0) cov)))
-                     (s^2 
+                     (s^2
                       (* (/ n)
                          (loop for i from 1 to n
                              for y across (map 'vector #'ts-p-pos (ts-points ts))
@@ -291,7 +291,7 @@
      )))
 #|
 (defgeneric predict (timeseries-model &key n-ahead)
-  (:documentation 
+  (:documentation
    "Calculate the value based on the timeseries-model for the observed timeseries data.
 - return: (values <time-series-dataset> <time-series-dataset>)
   - first value is a prediction by model, second is a standard error of the model.
@@ -314,7 +314,7 @@
       (make-ts-by-forecast pos-list se-list ts :n-ahead n-ahead))))
 
 #||
-(progn 
+(progn
   (setq x
     (make-instance 'gaussian-stsp-model
       :F-matrices (make-array '(9 9)
@@ -380,13 +380,13 @@
 
 (defun make-trend-F (diff-k)
   (declare (type fixnum diff-k))
-  (make-array 
+  (make-array
    `(,diff-k ,diff-k)
-   :initial-contents 
+   :initial-contents
    `(,(loop for i from 1 to diff-k
           collect (coerce (c_i diff-k i) 'double-float))
       ,@(loop for i below (1- diff-k)
-            collect 
+            collect
               (let ((list (make-list diff-k :initial-element 0d0)))
                 (setf (nth i list) 1d0) list)))
    :element-type 'double-float))
@@ -456,7 +456,7 @@
 
 (defgeneric x-00 (model))
 (defmethod x-00 ((model trend-model))
-  (let* ((seq-without-nan (remove-if #'nan-p (map 'dvec (lambda (pt) (aref (ts-p-pos pt) 0)) 
+  (let* ((seq-without-nan (remove-if #'nan-p (map 'dvec (lambda (pt) (aref (ts-p-pos pt) 0))
                                                   (ts-points (observed-ts model)))))
          (mean (mean seq-without-nan))
          ;; (aref (ts-p-pos (aref (ts-points (observed-ts model)) 0)) 0)
@@ -466,7 +466,7 @@
 
 (defgeneric v-00 (model))
 (defmethod v-00 ((model trend-model))
-  (let* ((seq-without-nan (remove-if #'nan-p (map 'dvec (lambda (pt) (aref (ts-p-pos pt) 0)) 
+  (let* ((seq-without-nan (remove-if #'nan-p (map 'dvec (lambda (pt) (aref (ts-p-pos pt) 0))
                                                   (ts-points (observed-ts model)))))
          (1st-mom 0d0)
          (2nd-mom 0d0)
@@ -478,10 +478,10 @@
       (incf 2nd-mom (d-expt val 2d0)))
     (diag (diff-k model) (- (/ 2nd-mom n) (d-expt (/ 1st-mom n) 2d0)))))
 
-(defgeneric trend-prediction (d 
+(defgeneric trend-prediction (d
                              &key k t^2 n-ahead
                                   delta search-width))
-(defmethod trend-prediction ((d time-series-dataset) 
+(defmethod trend-prediction ((d time-series-dataset)
                              &key (k 1) (t^2 0.1) (n-ahead 0)
                                   (delta 0.1d0) (search-width 10))
   (predict (trend d :k k :t^2 t^2 :delta delta :search-width search-width)
@@ -505,7 +505,7 @@
   (declare (type fixnum i deg freq))
   (flet ((poly-multiplication (coef-ar1 coef-ar2)
            (declare (type (simple-array fixnum (*)) coef-ar1 coef-ar2))
-           (make-array 
+           (make-array
             (* (length coef-ar1) (length coef-ar2))
             :element-type 'fixnum
             :initial-contents
@@ -513,7 +513,7 @@
                 append (loop for coef2 of-type fixnum across coef-ar2
                            collect (the fixnum (+ coef1 coef2)))))))
     (let ((ar1 (make-array freq :element-type 'fixnum
-                           :initial-contents 
+                           :initial-contents
                            (loop for i of-type fixnum below freq collect i))))
       (if (eql deg 1) -1
         (loop with ar = ar1
@@ -524,18 +524,18 @@
 (defun seasonal-mat-size (s-deg s-freq)
   (declare (type fixnum s-deg s-freq))
   (* s-deg (1- s-freq)))
-  
+
 (defun make-seasonal-F (s-deg s-freq)
   (declare (type fixnum s-deg s-freq))
   (let ((size (seasonal-mat-size s-deg s-freq)))
     (declare (type fixnum size))
     (make-array
      `(,size ,size)
-     :initial-contents 
+     :initial-contents
      `(,(loop for i from 1 to size
             collect (dfloat (d_i i s-deg s-freq)))
         ,@(loop for i below (1- size)
-              collect 
+              collect
                 (let ((list (make-list size :initial-element 0d0)))
                   (setf (nth i list) 1d0) list)))
      :element-type 'double-float)))
@@ -700,4 +700,4 @@
     (append-mat (v-00 tr1) (append-mat (v-00 tr2) (v-00 sea)))))
 
 
-  
+

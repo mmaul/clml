@@ -1,24 +1,24 @@
 (defpackage :clml.hjs.meta
   (:use :cl)
-  
+
   (:export #:with-unique-names
-	   #:once-only
+           #:once-only
        #:defun-speedy
        #:defdoublefunc
        #:gethash-or-set
        #:dmat
-	   #:dvec
-	   #:cvec
-	   #:make-dvec
+           #:dvec
+           #:cvec
+           #:make-dvec
        #:v2dvec
-	   #:array-index
+           #:array-index
        #:dfloat
-	   #:+fl
-	   #:-fl
-	   #:*fl
-	   #:/fl
+           #:+fl
+           #:-fl
+           #:*fl
+           #:/fl
        #:safe-/
-	   #:batch-elt
+           #:batch-elt
        #:split-seq-odd-even
        #:d-expt
        #:d-exp
@@ -27,10 +27,10 @@
        #:vecs2flatmat
        #:mat2vecs
        #:flatmat2vecs
-	   ))
+           ))
 (defpackage :clml.hjs.vars
   (:use :cl)
-  
+
   (:import-from :alexandria #:define-constant)
   (:export #:*epsilon*
            #:*workers*
@@ -41,8 +41,8 @@
 
 (defpackage :clml.hjs.vector
   (:use :cl
-	:clml.hjs.meta)
-  
+        :clml.hjs.meta)
+
   (:export #:make-dvec
            #:fill-vec
            #:do-vec
@@ -69,16 +69,16 @@
 ;; --
 (defpackage :clml.hjs.matrix
   (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.blas :clml.lapack)
-  
+
   (:export #:sum-mat
-	   #:copy-mat
-	   #:nrow
-	   #:ncol
-	   #:transpose
-	   #:transposeV
+           #:copy-mat
+           #:nrow
+           #:ncol
+           #:transpose
+           #:transposeV
        #:trans
-	   #:dmat
-	   #:specialize-mat
+           #:dmat
+           #:specialize-mat
        #:diag
        #:vcv
        #:mcm
@@ -106,12 +106,12 @@
        #:c*mat
        #:array2mat
        #:mat2array
-	   ))
+           ))
 
 (defpackage :clml.hjs.missing-value
   (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.statistics :clml.hjs.meta)
   (:import-from :alexandria #:define-constant)
-  
+
   (:export
    #:+missing-values+ #:missing-value-p
    #:+na+ #:+nan+ #:+c-nan+ #:++inf+ #:+-inf+
@@ -125,13 +125,13 @@
         :clml.hjs.missing-value
         ;handling-missing-value
         )
-  
+
   (:import-from #:clml.hjs.missing-value
                 ;:handling-missing-value
                 #:interpolate
                 )
   (:import-from :alexandria #:define-constant)
-  (:export 
+  (:export
    #:read-data-from-file
    #:read-data-from-stream
    #:pick-and-specialize-data
@@ -181,9 +181,9 @@
 
 (defpackage :clml.hjs.k-means
   (:use :cl :clml.hjs.vector :clml.hjs.meta :clml.hjs.read-data
-	:clml.statistics :clml.hjs.matrix :iterate
-	:clml.hjs.vars)
-  
+        :clml.statistics :clml.hjs.matrix :iterate
+        :clml.hjs.vars)
+
   (:export
    #:k-means
    #:make-cluster
@@ -200,7 +200,7 @@
    #:owner
    #:pw-points
    #:pw-clusters
-   #:make-random-state-with-seed 
+   #:make-random-state-with-seed
    #:p-pos
    #:p-owner
    #:point
@@ -217,7 +217,7 @@
         :clml.hjs.matrix
         :clml.blas
         :clml.lapack)
-  
+
   (:export
    #:jacobi
    #:eigsrt

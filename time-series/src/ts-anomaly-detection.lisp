@@ -1,6 +1,6 @@
 ;-*- coding: utf-8 -*-
 (in-package :clml.time-series.anomaly-detection)
- 
+
 ;; make Direction-based anomaly detector
 ;; ref: T.Ide and H.Kashima "Eigenspace-based Anomaly Detection in Computer Systems" sec.5
 (defgeneric make-db-detector (ts &key)
@@ -23,12 +23,12 @@
                              &key beta (typical :svd) (pc 0.005d0) (normalize t))
   (assert (< 0d0 pc 1d0) (pc))
   (let* ((dim (length (dataset-dimensions ts)))
-         
+
          (vecs (map 'list
-                 (lambda (p) (let ((vec (ts-p-pos p))) 
+                 (lambda (p) (let ((vec (ts-p-pos p)))
                                (if normalize (normalize-vec vec (copy-seq vec)) vec)))
                  (ts-points ts)))
-         
+
          (moments (get-initial-moments vecs :typical-method typical)))
     (unless beta (setf beta (dfloat (/ (length vecs)))))
     (lambda (new-dvec)
@@ -36,10 +36,10 @@
       (let* ((vec (if normalize (normalize-vec new-dvec (copy-seq new-dvec)) new-dvec))
              (typ (calc-typical-pattern vecs :method typical))
              (score (dissimilarity typ vec)))
-        
+
         (setf moments (next-moments score moments beta)
               vecs (append (cdr vecs) (list vec)))
-        
+
         (values score (multiple-value-bind (n-1 sigma)
                           (estimate-vmf-parameters moments)
                         (vmf-threshold n-1 sigma pc))
@@ -130,7 +130,7 @@
         collect (cons name (e-score target-i ref-i target-model ref-model)))))
 
 ;; EEC
-;; ref: 
+;; ref:
 ;; - S.Hirose, K.Yamanishi, T.Nakata, R.Fujimaki
 ;;   "Network Anomaly Detection based on Eigen Equation Compression"
 ;; - Gupta and Nagar "Matrix Variate Distributions"
@@ -146,7 +146,7 @@
 - return of <Closure>: plist (:score for anomaly score, :local-scores for local anomaly scores)
 - descriptions:
   - reference:
-    S.Hirose, et.al \"Network Anomaly Detection based on Eigen Equation Compression\" 
+    S.Hirose, et.al \"Network Anomaly Detection based on Eigen Equation Compression\"
   - Correlation-based anomaly detection"))
 (defmethod make-eec-detector ((ts time-series-dataset) window-size &key (xi 0.8d0) (global-m 3))
   (let ((pts (map 'vector #'ts-p-pos (ts-points ts)))
@@ -156,25 +156,25 @@
       "For initialization, number of points must be more than window-size + 1.")
     (assert (>= dim global-m) (global-m) "global-m must be less than number of dimesion(~A)." dim)
     (assert (< 0d0 xi 1d0) (xi) "xi must be 0 < xi < 1.")
-    (loop for start from 0 
+    (loop for start from 0
         for end from window-size to (length pts)
-          
+
           as %window = (subseq pts start end)
           as (global locals) = (multiple-value-list (calc-eec-features %window dim xi global-m))
           collect global into globals
-        collect locals into locals-list finally 
+        collect locals into locals-list finally
           (setf window %window
                 global-cov (init-covariance (coerce globals 'vector) (coerce globals 'vector))
                 local-covs (loop for i below dim
                                as locals = (map 'vector (lambda (l) (nth i l)) locals-list)
                                collect (init-matrix-covariance locals))))
-    (loop for start from 0 
+    (loop for start from 0
         for end from window-size to (length pts)
-          
+
           as %window = (subseq pts start end)
           as (global locals) = (multiple-value-list (calc-eec-features %window dim xi global-m))
           collect global into globals
-        collect locals into locals-list finally 
+        collect locals into locals-list finally
           (setf window %window
                 global-cov (init-covariance (coerce globals 'vector) (coerce globals 'vector))
                 local-covs (loop for i below dim
@@ -183,11 +183,11 @@
 
     (lambda (new-dvec)
       (setf window (concatenate 'vector (subseq window 1) (list new-dvec)))
-      (multiple-value-bind (global locals cor-str-mat cls)          
+      (multiple-value-bind (global locals cor-str-mat cls)
           (calc-eec-features window dim xi global-m)
         (declare (ignorable cor-str-mat cls))
-        
-        (prog1 (list :score (global-anomaly-score global 
+
+        (prog1 (list :score (global-anomaly-score global
                                                   (x-mean-vec global-cov)
                                                   (get-covariance global-cov))
                      :local-scores
@@ -196,9 +196,9 @@
                          for mu in (mapcar #'mean-mat local-covs)
                          as score = (local-anomaly-score local mu cov)
                          collect score))
-          
+
           (update-covariance global-cov global global)
-          
+
           (mapc (lambda (local cov-obj)
                   (update-matrix-covariance cov-obj local))
                 locals local-covs))))))
@@ -207,13 +207,13 @@
 ; routines for eec ;
 ;;;;;;;;;;;;;;;;;;;;
 (defun calc-eec-features (window dim xi global-m)
-  
+
   (let ((aij (correlation-with-constant (coerce window 'vector) :absolute t)))
-    
+
     (multiple-value-bind (global-feature princ-eigen-vec)
-        
+
         (calc-global-feature aij global-m)
-      
+
       (multiple-value-bind (local-features clusterings)
           (calc-local-features dim princ-eigen-vec aij xi)
         (values global-feature local-features aij clusterings)))))
@@ -221,29 +221,29 @@
 (defun calc-global-feature (cor-mat global-m &optional (abstol 1d-12))
   (let (
         #-mkl (e-mat (copy-mat cor-mat)))
-    (multiple-value-bind (eigen-vals eigen-mat) 
+    (multiple-value-bind (eigen-vals eigen-mat)
         #+mkl (symat-ev (copy-mat cor-mat) :eigen-thld global-m :abstol abstol)
         #-mkl (eigen-by-power e-mat :eigen-thld global-m :precision abstol)
-      
+
       (let ((principal (make-dvec (array-dimension cor-mat 0))))
-        
+
         (do-vec (_ principal :type double-float :index-var i :setf-var sf)
           #-sbcl (declare (ignore _))
-          
+
           (setf sf (aref
                     #+mkl eigen-mat
                     #-mkl e-mat
                     0 i))
           ) ;; section 3.3
-        
+
         (values eigen-vals principal)))))
 
 (defun calc-local-features (dim psi-vec cor-strength-mat xi &key clusters-list)
   (assert (equal `(,dim ,dim) (array-dimensions cor-strength-mat)))
   (loop for i below dim
       as %clusters = (when clusters-list (nth i clusters-list))
-      as (mat clusters) = 
-        (multiple-value-list (calc-local-feature i dim cor-strength-mat psi-vec 
+      as (mat clusters) =
+        (multiple-value-list (calc-local-feature i dim cor-strength-mat psi-vec
                                                  :xi xi :clusters %clusters))
       collect mat into mats
       collect clusters into clusterings
@@ -326,7 +326,7 @@
 
 (defun global-anomaly-score (target mu sigma)
   (let ((density (clml.time-series.changefinder::multivariate-normal-density mu sigma target)))
-    (- (log 
+    (- (log
         (cond ((>= 0d0 density) least-positive-double-float)
               ((= #.++inf+
                   ;*INFINITY-DOUBLE*
@@ -340,7 +340,7 @@
     (assert (= (length mu-vec) (length target-vec)
                (first dims) (second dims)))
     (let ((density (clml.time-series.changefinder::multivariate-normal-density mu-vec sigma target-vec)))
-      (- (log 
+      (- (log
           (cond ((>= 0d0 density) least-positive-double-float)
                 ((= #.++inf+
                                         ;*INFINITY-DOUBLE*
@@ -391,7 +391,7 @@
   (let* ((dims (array-dimensions (xy-mat-expec cov)))
          (cov-mat (make-array dims :element-type 'double-float))
          (n/n-1 (dfloat (/ (n cov) (1- (n cov))))))
-    (with-accessors ((xy xy-mat-expec) 
+    (with-accessors ((xy xy-mat-expec)
                      (x-mu x-mean-vec)
                      (y-mu y-mean-vec)) cov
       (loop for col below (first dims)
@@ -441,7 +441,7 @@
         do (loop for row below x-row
                as row-x-rows = (get-row-series row row-series-hash)
                do (setf (aref covs col row) (init-covariance row-x-rows col-x-rows))))
-    (make-instance 'matrix-covariance 
+    (make-instance 'matrix-covariance
       :covs covs :x-col x-col :x-row x-row :mean-mat mu :n (length mats))))
 
 (defun make-row-series-hash (mats)
@@ -526,7 +526,7 @@
   (loop for col below (array-dimension expec-mat 0)
       do (loop for row below (array-dimension expec-mat 1)
              do (setf (aref expec-mat col row)
-                  (update-expectation (aref expec-mat col row) old-n 
+                  (update-expectation (aref expec-mat col row) old-n
                                       (aref new-sample col row))))
       finally (return expec-mat)))
 
@@ -562,7 +562,7 @@
          (info 0)
          (pattern (make-dvec m))
          result)
-    
+
     (setq result
           #+mkl
           (third (multiple-value-list
@@ -591,7 +591,7 @@
          (size (length act-vecs))
          (pattern (make-dvec dim 0d0)))
     (declare (type integer dim size))
-    
+
     (loop for act-vec in act-vecs
         do (do-vecs ((_ pattern :type double-float :setf-var sf)
                      (val act-vec :type double-float))
@@ -621,10 +621,10 @@
 ;; moment の初期値を求める
 (defun get-initial-moments (act-vecs &key (typical-method :svd))
   (let* ((window-size (length act-vecs))
-         
+
          (typ-vec (calc-typical-pattern (subseq act-vecs 0 (1- window-size))
                                         :method typical-method))
-         
+
          (act-vec (nth (1- window-size) act-vecs))
          (dissim (dissimilarity typ-vec act-vec)))
     (cons dissim (expt dissim 2))))
@@ -642,7 +642,7 @@
 ;; Z_th を求める
 (defun vmf-threshold (n-1 sigma pc)
   (let* ((scale (* 2 sigma))
-         (shape (/ n-1 2))         
+         (shape (/ n-1 2))
          (1-pc (- 1 pc)))
     (if (and (< 0 scale ++inf+)
              (< 0 shape ++inf+))
@@ -657,7 +657,7 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;
 (defun init-period-window (period dim vec-list &key (var 0.01d0) (r 0.5d0))
   (assert (<= period (length vec-list)))
-  (let ((pwindow (loop repeat period 
+  (let ((pwindow (loop repeat period
                      for init-mu in vec-list
                      collect (list :mu init-mu :cov (diag dim var)))))
     (loop for i from period below (length vec-list)
@@ -690,7 +690,7 @@
                do (setf (aref cov i j) val (aref cov j i) val)))))
 
 (defun score-by-mahalanobis (dvec pwindow  &key (beta 1d-2))
-  (destructuring-bind (&key mu cov &allow-other-keys) (first pwindow)              
+  (destructuring-bind (&key mu cov &allow-other-keys) (first pwindow)
     (declare #-sbcl (type dvec dvec mu)
              #-sbcl (type dmat cov)
              )
@@ -727,7 +727,7 @@
                  as cij double-float = (aref cor i j)
                  as aij double-float = (cond ((zerop cij) (kronecker-delta i j))
                                              (t cij))
-                 as d double-float = 
+                 as d double-float =
                    (cond ((almost= aij 0d0) ++inf+)
                          ;; infinite dissimilarity
                          ((almost= aij 1d0) 0d0)

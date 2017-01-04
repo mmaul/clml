@@ -40,7 +40,7 @@ Output:
                       (remove nid (node-links nd) :key #'link-node1 :test-not #'eql)
                     (node-links nd))
       as w = (link-weight link)
-      as adj = (clml.graph.read-graph::get-node gr 
+      as adj = (clml.graph.read-graph::get-node gr
                                      (cond ((eql (link-node1 link) nid) (link-node2 link))
                                            ((eql (link-node2 link) nid) (link-node1 link))
                                            (t (error "illegal graph structure: ~A is a link of ~A" link nd))))
@@ -72,7 +72,7 @@ Output:
   (let ((node-buffs (mapcar (lambda (node) (prog1 (node-buff node) (setf (node-buff node) nil)))
                             (nodes gr))))
     (labels ((visited-p (node) (node-buff node))
-             (visit (node) 
+             (visit (node)
                (setf (node-buff node) t)
                (cons node (loop for adj in (mapcar #'car (adjacency node gr))
                               unless (visited-p adj)

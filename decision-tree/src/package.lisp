@@ -1,9 +1,9 @@
 (defpackage :clml.decision-tree.decision-tree
-  
+
   (:use :cl
-	:clml.hjs.read-data
-	:clml.hjs.matrix)
-  (:export  
+        :clml.hjs.read-data
+        :clml.hjs.matrix)
+  (:export
    #:make-decision-tree
    #:make-regression-tree
    #:print-decision-tree
@@ -30,27 +30,27 @@
   (:documentation "decision tree package"))
 
 (defpackage :clml.decision-tree.random-forest
-  
+
   (:use :cl
-	:clml.hjs.read-data
-	:clml.decision-tree.decision-tree)
-  (:import-from :clml.decision-tree.decision-tree 
-		#:make-variable-index-hash
-		#:sum-up
-		#:column-name->column-number
-		#:total
-		#:make-split-predicate
-		#:sum-up-results
-		#:gini-index
-		#:entropy
-		#:mean
-		#:variance
-		#:whole-row-numbers-list
-		#:split
-		#:delta-gini
-		#:delta-entropy
-		#:delta-variance)
-  (:export  
+        :clml.hjs.read-data
+        :clml.decision-tree.decision-tree)
+  (:import-from :clml.decision-tree.decision-tree
+                #:make-variable-index-hash
+                #:sum-up
+                #:column-name->column-number
+                #:total
+                #:make-split-predicate
+                #:sum-up-results
+                #:gini-index
+                #:entropy
+                #:mean
+                #:variance
+                #:whole-row-numbers-list
+                #:split
+                #:delta-gini
+                #:delta-entropy
+                #:delta-variance)
+  (:export
    #:make-random-forest
    #:make-regression-forest
    #:predict-forest

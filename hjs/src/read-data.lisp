@@ -61,9 +61,9 @@
 (defmethod initialize-instance :after ((d dimension) &key &allow-other-keys)
   (when (not (find (dimension-type d) +known-data-type+))
     (error 'dimension-unknown-type-error
-	   :format-control "Type of dimension(~s) is unknown, it must be one of ~s"
-	   :format-arguments (list (dimension-type d) +known-data-type+)
-	   :dimension d)))
+           :format-control "Type of dimension(~s) is unknown, it must be one of ~s"
+           :format-arguments (list (dimension-type d) +known-data-type+)
+           :dimension d)))
 
 (defun make-dimension (name type index &key metadata)
   (check-type name string)
@@ -71,10 +71,10 @@
   (check-type index fixnum)
   (check-type metadata list)
   (make-instance 'dimension
-		 :name name
-		 :type type
-		 :index index
-		 :metadata metadata))
+                 :name name
+                 :type type
+                 :index index
+                 :metadata metadata))
 
 (defgeneric copy-dimension (dimension))
 (defmethod copy-dimension ((dimension dimension))
@@ -85,11 +85,11 @@
 
 (defmethod print-object ((d dimension) stream)
   (with-accessors ((name dimension-name)
-		   (type dimension-type)
-		   (index dimension-index)) d
+                   (type dimension-type)
+                   (index dimension-index)) d
     (print-unreadable-object (d stream :type t :identity nil)
       (format stream "NAME: ~A, TYPE: ~A, INDEX: ~A."
-	      name type index))))
+              name type index))))
 
 (defclass dataset ()
   ((dimensions
@@ -100,7 +100,7 @@
   (:documentation
    "The base class."))
 
-(defmethod print-object ((d dataset) stream)    
+(defmethod print-object ((d dataset) stream)
   (with-accessors ((dim dataset-dimensions)) d
     (let ((*print-length* (or *print-length* 10))
           (names (map 'list #'dimension-name dim))
@@ -132,7 +132,7 @@
 ;;@  - length of data > 0
 ;;@  - length of all-column-names > 0, zero dimension is meaningless
 ;;@  - dimensions of all-column-names = dimensions of a point
-(defun make-unspecialized-dataset (all-column-names data 
+(defun make-unspecialized-dataset (all-column-names data
                                    &key (missing-value-check t)
                                         missing-values-list
                                         (missing-value-test #'equalp))
@@ -142,7 +142,7 @@
                    (declare (type fixnum n))
                    (lambda (p) (= n (the fixnum (length p))))) data))
   ;; create dimensions
-  
+
   (let ((dimensions
          (loop
              for n in all-column-names
@@ -150,21 +150,21 @@
              collect (make-dimension n :unknown i) into result
              finally (return (coerce result 'vector)))))
     ;; make dataset
-    
+
     (make-instance 'unspecialized-dataset
       :dimensions dimensions
       :points (if missing-value-check
                   (let (
-                        (test-fcn 
+                        (test-fcn
                          (if missing-values-list
-                             #'(lambda (val) (missing-value-p 
-                                              val 
+                             #'(lambda (val) (missing-value-p
+                                              val
                                               :missing-values-list missing-values-list
                                               :test missing-value-test))
                              #'(lambda (val)
-                                 
+
                                (missing-value-p val :test missing-value-test)))))
-                    (do-vec (vec data :setf-var sf :return data) 
+                    (do-vec (vec data :setf-var sf :return data)
                       (setf sf (fill-na vec test-fcn))))
                 data))))
 
@@ -184,7 +184,7 @@
 
 (defmethod choice-dimensions (names (unsp-data unspecialized-dataset))
   (let* ((dims (dataset-dimensions unsp-data))
-         (poses (mapcar 
+         (poses (mapcar
                  #'(lambda (x)
                      (dimension-index
                       (find x dims
@@ -272,7 +272,7 @@
   (assert (> (length specialized-data) 0))
   (assert (> (length all-column-names) 0))
   (assert (= (length all-column-names)
-	     (length (aref specialized-data 0))))
+             (length (aref specialized-data 0))))
   (check-type specialized-data simple-vector)
   (check-type (aref specialized-data 0) simple-array)
   (let ((dimensions (make-array (length all-column-names))))
@@ -281,24 +281,24 @@
        for i from 0
        for table = (make-hash-table :test 'equal #+allegro :values #+allegro nil)
        for d = (make-dimension n :category i
-			       :metadata `((:table . ,table)))
+                               :metadata `((:table . ,table)))
        do (setf (aref dimensions i) d))
     ;; compact category values
     (loop
        for d across dimensions
        do (loop
-	     with i = (dimension-index d)
-	     with table = (cdr (assoc :table (dimension-metadata d)))
-	     for p across specialized-data
-	     for c = (aref p i)
-	     do (multiple-value-bind (val exist-p)
-		    (gethash c table)
-		  (if exist-p
-		      (setf (aref p i) val)
-		      (setf (gethash c table) #+allegro t #-allegro c)))))
+             with i = (dimension-index d)
+             with table = (cdr (assoc :table (dimension-metadata d)))
+             for p across specialized-data
+             for c = (aref p i)
+             do (multiple-value-bind (val exist-p)
+                    (gethash c table)
+                  (if exist-p
+                      (setf (aref p i) val)
+                      (setf (gethash c table) #+allegro t #-allegro c)))))
     (make-instance 'category-dataset
-		   :dimensions dimensions
-		   :category-points specialized-data)))
+                   :dimensions dimensions
+                   :category-points specialized-data)))
 
 (defclass numeric-and-category-dataset (numeric-dataset category-dataset)
   ()
@@ -384,7 +384,7 @@
   (assert (> (length all-column-names) 0))
   (assert (= (length all-column-names)
              (array-dimension specialized-matrix-data 1)))
-  (check-type specialized-matrix-data dmat) 
+  (check-type specialized-matrix-data dmat)
   (let ((dimensions (make-array (length all-column-names))))
     (loop
       for n in all-column-names
@@ -417,7 +417,7 @@
   (assert (= (length all-column-names)
              (+ (length numeric-indices)
                 (length category-indices))))
-  (check-type numeric-data dmat) 
+  (check-type numeric-data dmat)
   (check-type category-data simple-vector)
   (check-type (aref category-data 0) simple-vector)
   (let ((dimensions
@@ -465,7 +465,7 @@
          (coerce
           (loop for row below (length c-ps)
                 as vec = (make-array (length dims) :element-type t)
-                collect 
+                collect
              (loop for dim across dims
                    for col from 0
                    as type = (dimension-type dim)
@@ -474,14 +474,14 @@
                             (aref (svref (ecase type (:numeric n-ps) (:category c-ps)) row) index))
                    finally (return vec)))
           'vector)))
-    (numeric-dataset (dataset-numeric-points dataset)) 
+    (numeric-dataset (dataset-numeric-points dataset))
     (category-dataset (dataset-category-points dataset))
     ((numeric-matrix-dataset numeric-matrix-and-category-dataset)
        (error "It's fairly inefficient to do that, better keep the original unspecialized dataset."))))
 
 
 
-    
+
 ;;;; read and process data
 ;;@ function-type: string -> unspecialized-dataset
 (defun read-data-from-file (filename &key
@@ -494,16 +494,16 @@
   "Reads CSV data from file. The normal convention is first line is column name.
 However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the column names"
   (assert (member type '(:sexp :csv)))
-  
+
   (ecase type
     ((:sexp nil)
      (let (tmp)
        (with-open-file (f filename :external-format external-format)
-         (with-standard-io-syntax 
+         (with-standard-io-syntax
            (let ((*read-eval* nil)
                  (*read-default-float-format* 'double-float))
              (setf tmp (read f)))))
-       
+
        (make-unspecialized-dataset
         (first tmp)
         (map 'vector
@@ -683,26 +683,26 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 (defmethod divide-dataset ((unsp-d unspecialized-dataset)
                            &key divide-ratio
                                 random
-                                (range :all) 
+                                (range :all)
                                 except)
   (unless divide-ratio (setq divide-ratio '(1 0)))
   (assert (every (lambda (r) (and (numberp r) (integerp r) (not (minusp r)))) divide-ratio))
   (let* ((dimensions (dataset-dimensions unsp-d))
          (dim (length dimensions))
-         (row-indexes 
+         (row-indexes
           (loop with total-size = (length (dataset-points unsp-d))
               with row-list = (loop for i below total-size collect i)
               with total-r = (apply #'+ divide-ratio)
               for r in divide-ratio
               as c = (floor (* total-size (/ r total-r)))
-              collect (loop repeat c 
+              collect (loop repeat c
                           as pos = (if random (random (length row-list)) 0)
                           as val = (nth pos row-list)
-                          collect (progn (setf row-list 
-                                           (remove val row-list :test #'eql 
+                          collect (progn (setf row-list
+                                           (remove val row-list :test #'eql
                                                    :start pos :end (1+ pos)))
                                          val)) into row-indexes
-              finally (return 
+              finally (return
                         (progn (when row-list
                                  (mapcar (lambda (i) (push i (car (last row-indexes))))
                                          row-list))
@@ -721,30 +721,30 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                  as points = (map 'vector
                                (let ((pts (dataset-points unsp-d)))
                                  (lambda (row)
-                                   (map 'vector 
+                                   (map 'vector
                                      (lambda (i)
                                        (let ((pt (svref pts row)))
                                          (declare (type (simple-array t (*)) pt))
                                          (svref pt i))) range)))
                                (sort rows #'<))
                  when (plusp (length points))
-                 collect (make-unspecialized-dataset 
+                 collect (make-unspecialized-dataset
                           all-column-names points :missing-value-check nil))))))
-                           
+
 (defmethod divide-dataset ((specialized-d specialized-dataset)
                            &key divide-ratio
                            random
-                           (range :all) 
+                           (range :all)
                            except)
   (unless divide-ratio (setq divide-ratio '(1 0)))
-  
-  (assert (every (lambda (r) 
+
+  (assert (every (lambda (r)
                    (and (numberp r) (integerp r) (not (minusp r)))) divide-ratio))
   (let* ((dimensions (dataset-dimensions specialized-d))
          (dim (length dimensions))
-         
-         (row-indexes 
-          (loop with total-size = 
+
+         (row-indexes
+          (loop with total-size =
                                 (length (etypecase specialized-d
                                           (category-dataset (dataset-category-points specialized-d))
                                           (numeric-dataset (dataset-numeric-points specialized-d))
@@ -753,14 +753,14 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                 with total-r = (apply #'+ divide-ratio)
                 for r in divide-ratio
                 as c = (floor (* total-size (/ r total-r)))
-                collect (loop repeat c 
+                collect (loop repeat c
                               as pos = (if random (random (length row-list)) 0)
                               as val = (nth pos row-list)
-                              collect (progn (setf row-list 
-                                                   (remove val row-list :test #'eql 
+                              collect (progn (setf row-list
+                                                   (remove val row-list :test #'eql
                                                            :start pos :end (1+ pos)))
                                              val)) into row-indexes
-                finally (return 
+                finally (return
                           (progn (when row-list
                                    (mapcar (lambda (i) (push i (car (last row-indexes))))
                                            row-list))
@@ -805,8 +805,8 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                     ((null category-indices-new)
                      (let* ((size (length numeric-indices-new))
                             (data
-                             (map 'vector 
-                                  (lambda (p) 
+                             (map 'vector
+                                  (lambda (p)
                                     (let* ((sp (make-dvec size)))
                                       (declare (type dvec sp))
                                       (loop
@@ -872,7 +872,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 (defgeneric copy-dataset (data))
 (defmethod copy-dataset ((dataset dataset))
   (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
-         (copy-pts (pts) (map 'vector #'copy-seq pts))) 
+         (copy-pts (pts) (map 'vector #'copy-seq pts)))
     (etypecase dataset
       (numeric-and-category-dataset
          (make-instance 'numeric-and-category-dataset
@@ -904,7 +904,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 (defmethod choice-dimensions (names (data specialized-dataset))
   (with-accessors ((dims dataset-dimensions)
                    (pts dataset-points)) data
-    (let* ((poses (loop for name in names 
+    (let* ((poses (loop for name in names
                       collect (position name dims :key #'dimension-name :test #'string=)))
            (types (mapcar (lambda (pos) (dimension-type (aref dims pos))) poses))
            (type (cond ((every (lambda (ty) (eq ty :numeric)) types) :numeric)
@@ -913,7 +913,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
       (when poses
         (loop for pt across pts
             as new-pt = (mapcar (lambda (pos) (aref pt pos)) poses)
-            collect (case type 
+            collect (case type
                       (:numeric (coerce new-pt 'dvec))
                       (:category (coerce new-pt 'vector)) ;;
                       (t (coerce new-pt 'vector))) into result
@@ -925,10 +925,10 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
           for dim across (dataset-dimensions data)
           when (string= (dimension-name dim) name)
           return (values pos (dimension-type dim)))
-    (when pos 
+    (when pos
       (loop for vec across (dataset-points data)
           collect (aref vec pos) into result
-          finally (return (ecase type 
+          finally (return (ecase type
                             (:numeric (coerce result 'dvec))
                             (:category (coerce result 'vector)) ;;
                             ))))))
@@ -949,7 +949,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
          (new-data-pts (make-array n :element-type t)))
     (declare (type vector data-pts new-data-pts) (type fixnum n))
     (loop for i of-type fixnum below n
-        do (setf (svref new-data-pts i) 
+        do (setf (svref new-data-pts i)
              (copy-seq (svref data-pts (the fixnum (random n))))))
     new-data-pts))
 
@@ -960,19 +960,19 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
          (pick-up-poses (arry poses) (mapcar (lambda (pos) (aref arry pos)) poses)))
     (loop repeat number-of-datasets
         as pts = (make-bootstrap-sample dataset)
-        collect 
+        collect
           (etypecase dataset
             (numeric-and-category-dataset
              (make-instance 'numeric-and-category-dataset
                :dimensions (copy-dims dataset)
-               :numeric-points 
-               (map 'vector 
+               :numeric-points
+               (map 'vector
                  (let ((poses (loop for pos from 0
                                   for dim across (dataset-dimensions dataset)
                                   when (eq :numeric (dimension-type dim)) collect pos)))
                    (lambda (pt) (coerce (pick-up-poses pt poses) 'dvec))) pts)
-               :category-points 
-               (map 'vector 
+               :category-points
+               (map 'vector
                  (let ((poses (loop for pos from 0
                                   for dim across (dataset-dimensions dataset)
                                   when (eq :category (dimension-type dim)) collect pos)))
@@ -993,15 +993,15 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
  ; dataset cleaning (outlier + interpolate) ;
  ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (define-constant +known-outlier-types+
-    '(:numeric (:std-dev :mean-dev :user :smirnov-grubbs) 
+    '(:numeric (:std-dev :mean-dev :user :smirnov-grubbs)
       :category (:user :freq)) :test #'equal)
 (define-constant +known-interp-types+
-    '(:numeric (:zero :min :max :mean :median :spline) 
+    '(:numeric (:zero :min :max :mean :median :spline)
       :category (:mode)) :test #'equal)
 
 (defmacro outlier-points (points outlier-types outlier-values &key (type :numeric))
   (let (tr-fcn vec-type)
-    (case type 
+    (case type
       (:numeric (setq tr-fcn 'transposeV vec-type 'dvec))
       (:category (setq tr-fcn 'trans vec-type 'vector))
       (t (error "invalid type | ~A" type)))
@@ -1013,7 +1013,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                      (make-list (length ,tr-data-t) :initial-element nil)))
                (,outlier-values-t (if ,outlier-values ,outlier-values
                                       (make-list (length ,tr-data-t) :initial-element nil))))
-           (assert (every (lambda (val) 
+           (assert (every (lambda (val)
                             (or (null val) (member val (getf +known-outlier-types+ ,type))))
                           ,outlier-types-t))
            (assert (= (length ,tr-data-t) (length ,outlier-types-t) (length ,outlier-values-t)))
@@ -1022,19 +1022,19 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                       (let ((outlier-type (elt ,outlier-types-t i))
                             (value (elt ,outlier-values-t i)))
                         (when outlier-type
-                          (setf sf (outlier-verification 
+                          (setf sf (outlier-verification
                                     vec :type outlier-type :outlier-value value :seq-type ,type)))))))))))
 
 (defmacro interp-points (points interp-types &key (type :numeric))
   (let ((interp-types-t (gensym))
         tr-fcn vec-type)
-    (case type 
+    (case type
       (:numeric (setq tr-fcn 'transposeV vec-type 'dvec))
       (:category (setq tr-fcn 'trans vec-type 'vector))
       (t (error "invalid type | ~A" type)))
     `(let ((tr-data (funcall ',tr-fcn ,points)))
        (let ((,interp-types-t (if ,interp-types ,interp-types (make-list (length tr-data) :initial-element nil))))
-         (assert (every (lambda (val) 
+         (assert (every (lambda (val)
                           (or (null val) (member val (getf +known-interp-types+ ,type))))
                         ,interp-types-t))
          (assert (= (length tr-data) (length ,interp-types-t)))
@@ -1069,12 +1069,12 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
   - outlier-types-alist  : a-list (key: column name, datum: outlier-verification(:std-dev :mean-dev :user :smirnov-grubbs :freq)) | nil\\
   - outlier-values-alist : a-list (key: outlier-verification datum: the value according to outlier-verification) | nil
 - example:
-#+BEGIN_SRC 
+#+BEGIN_SRC
 (clml.hjs.read-data:dataset-cleaning (dataset-points dataset)
                                      :outlier-types-alist '((\"hits\" . :std-dev))
                                      :outlier-values-alist '((:std-dev . 1))
                                      :interp-types-alist '((\"hits\" . :max)))
-#+END_SRC 
+#+END_SRC
 "))
 
 (defmethod dataset-cleaning ((d numeric-dataset)
@@ -1134,7 +1134,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
           collect (elt outlier-values i) into cate-out-vals and
           collect i into cate-indices
           finally
-            (return 
+            (return
               (make-numeric-and-category-dataset names
                                                  (clean-points (dataset-numeric-points d)
                                                                num-interp
@@ -1184,9 +1184,9 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 (defgeneric add-dim (d name type &key points initial-value metadata))
 (defmethod add-dim ((dataset category-dataset) name type &key points initial-value metadata)
   (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
-         (copy-pts (pts) (map 'vector #'copy-seq pts))) 
+         (copy-pts (pts) (map 'vector #'copy-seq pts)))
     (let ((new-points (if points points (make-array (list (length (dataset-points dataset))) :initial-element initial-value))))
-      
+
       (ecase type
         (:category
          (let ((new-dim (make-dimension name type (length (dataset-dimensions dataset)) :metadata metadata)))
@@ -1204,17 +1204,17 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
            (make-instance 'numeric-and-category-dataset
                           :category-points (copy-pts (dataset-points dataset))
                           :numeric-points (map 'vector #'vector new-points)
-                          
-                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim)) 
-                                                                                                                             
+
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim))
+
                                                                                                                              ))))
       )))
 
 (defmethod add-dim ((dataset numeric-dataset) name type &key points initial-value metadata)
   (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
-         (copy-pts (pts) (map 'vector #'copy-seq pts))) 
+         (copy-pts (pts) (map 'vector #'copy-seq pts)))
     (let ((new-points (if points points (make-array (list (length (dataset-points dataset))) :initial-element initial-value))))
-      
+
       (ecase type
         (:numeric
          (let ((new-dim (make-dimension name type (length (dataset-dimensions dataset)) :metadata metadata)))
@@ -1232,17 +1232,17 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
            (make-instance 'numeric-and-category-dataset
                           :numeric-points (copy-pts (dataset-points dataset))
                           :category-points (map 'vector #'vector new-points)
-                          
-                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim)) 
-                                                                                                                             
+
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim))
+
                                                                                                                              ))))
       )))
 
 (defmethod add-dim ((dataset numeric-and-category-dataset) name type &key points initial-value metadata)
   (flet ((copy-dims (d) (map 'vector #'copy-dimension (dataset-dimensions d)))
-         (copy-pts (pts) (map 'vector #'copy-seq pts))) 
+         (copy-pts (pts) (map 'vector #'copy-seq pts)))
     (let ((new-points (if points points (make-array (list (length (dataset-points dataset))) :initial-element initial-value))))
-      
+
       (ecase type
         (:numeric
          (let ((new-dim (make-dimension name type (length (elt (dataset-numeric-points dataset) 0)) :metadata metadata)))
@@ -1265,12 +1265,12 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                               collect (concatenate 'vector vec (vector val) ) into result
                                               finally (return (coerce result 'vector))
                                                 )
-                          
-                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim)) 
-                                                                                                                             
+
+                          :dimensions (concatenate 'vector (copy-dims dataset) (vector new-dim))
+
                                                                                                                              ))))
       )))
- 
+
 
 (defgeneric concatenate-datasets (left right))
 (defmethod concatenate-datasets ((left dataset) (right dataset))
@@ -1278,11 +1278,11 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
            (copy-pts (pts) (map 'vector #'copy-seq pts))
            (merge-dims (l r) (merge 'vector (copy-dims l) (copy-dims r) #'eql))
            (merge-pts (l r) (merge 'vector (copy-pts l) (copy-pts r) #'eql)))
-    
+
     ;; ensure datasets are same type dimension tpes match
     (assert (eql (type-of left) (type-of right)))
     (assert (every #'identity (map 'list (lambda (x y) (eql (dimension-type  x) (dimension-type y))) (dataset-dimensions left) (dataset-dimensions right))))
-    
+
     (etypecase left
       (numeric-and-category-dataset
        (progn ;(break "numeric-and-category-dataset")
@@ -1302,7 +1302,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
        (error "numeric-matrix-and-category-dataset not supported yet")
        )
       (numeric-dataset
-       (progn 
+       (progn
               (make-instance 'numeric-dataset
                              :dimensions (copy-dims left)
                              :numeric-points (merge-pts (dataset-numeric-points left)
@@ -1313,17 +1313,17 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                         ;               :numeric-points (copy-mat
                                         ;               (dataset-numeric-points dataset))))
       (unspecialized-dataset
-       (progn 
+       (progn
               (make-instance 'unspecialized-dataset
                                          :dimensions (copy-dims left)
                                          :points (merge-pts (dataset-points left)
                                                             (dataset-points right))
                                          ))
-       
+
 
        )
       (category-dataset
-       (progn 
+       (progn
          (make-instance 'category-dataset
                         :dimensions (copy-dims left)
                         :category-points (merge-pts (dataset-category-points left)
@@ -1338,7 +1338,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
   (let* ((points  (dataset-points dataset))
         (num-points (length points)))
     (subseq points
-            0 (if (> n num-points) num-points n)))) 
+            0 (if (> n num-points) num-points n))))
 
 (defgeneric tail-points (dataset &optional n))
 (defmethod tail-points ((dataset dataset) &optional (n 5))
@@ -1429,12 +1429,12 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 
 (defmethod filter! ((dataset-in numeric-and-category-dataset) dim-name test)
   (let* ((dataset (copy-dataset dataset-in)))
-    (multiple-value-bind (cpoints npoints) 
+    (multiple-value-bind (cpoints npoints)
         (loop
            with dim = (find dim-name (dataset-dimensions dataset)
                             :test #'string=
                             :key #'dimension-name)
-           
+
            with dim-type = (dimension-type dim)
            with dim-idx = (dimension-index dim)
 
@@ -1448,7 +1448,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
            when do-collect
              collect np into npoints
            finally (return (values cpoints npoints))
-             
+
              )
       (setf (dataset-category-points dataset) (make-array (list (length cpoints)) :element-type '(simple-array cvec (*)) :initial-contents cpoints ))
       (setf (dataset-numeric-points dataset) (make-array (list (length npoints)) :element-type '(simple-array cvec (*)) :initial-contents npoints))
@@ -1470,18 +1470,18 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
             for dim across (dataset-dimensions data)
             when (string= (dimension-name dim) name)
             return (values pos (dimension-type dim)))))
-    (when pos 
+    (when pos
       (loop for vec across (dataset-points data)
            when (funcall selector data vec)
           collect (aref vec pos) into result
-          finally (return (coerce result 'vector)  
+          finally (return (coerce result 'vector)
                           )))))
-                          
+
 (defmethod write-dataset ((dataset clml.hjs.read-data::dataset) filename &key (external-format clml.utility.csv::*csv-default-external-format*))
   " Write dataset to csv formated file"
   (with-open-file (f filename :direction :output
-		     :if-does-not-exist :create
-		     :if-exists :supersede
-		     :external-format external-format)
+                     :if-does-not-exist :create
+                     :if-exists :supersede
+                     :external-format external-format)
     (clml.utility.csv:write-csv-stream f (vector (map '(vector string) #'dimension-name (dataset-dimensions dataset))))
     (clml.utility.csv:write-csv-stream f (dataset-points dataset))))

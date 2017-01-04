@@ -28,18 +28,18 @@
                        (pick-and-specialize-data
                         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
                                              :type :csv
-                                             :csv-type-spec 
+                                             :csv-type-spec
                                              (make-list 10 :initial-element 'double-float))
                         :data-types (make-list 10 :initial-element :numeric))))
-    
+
     (assert (setf svm-bc-test
                        (pick-and-specialize-data
                         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
                                              :type :csv
-                                             :csv-type-spec 
+                                             :csv-type-spec
                                              (make-list 10 :initial-element 'double-float))
                         :data-types (make-list 10 :initial-element :numeric))))
-    
+
     (assert (setf training-vector (dataset-points svm-bc-train)))
     (assert (setf test-vector (dataset-points svm-bc-test)))
     (assert (setf linear-svm (clml.svm.smo::make-svm-learner training-vector #'clml.svm.smo::linear-kernel 1)))

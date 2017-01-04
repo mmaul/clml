@@ -9,7 +9,7 @@
            #:kill-future
            #:kill-all-futures
            #:*before-start-hooks*
-           #:*after-finish-hooks* 
+           #:*after-finish-hooks*
            #:future-max-threads
            #:initialize-environment
            #:with-new-environment

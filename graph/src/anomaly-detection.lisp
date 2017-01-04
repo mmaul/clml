@@ -2,7 +2,7 @@
 (in-package :clml.graph.graph-anomaly-detection)
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;; benchmark tools 
+;; benchmark tools
 (defparameter *comment-interval* 288)
 (defclass benchmark ()
   ((results :initform nil :initarg :results :accessor results)))
@@ -75,7 +75,7 @@
    (ar-default-var :initform nil :initarg :ar-default-var :accessor ar-default-var)
    (param-names :initform nil :initarg :param-names :accessor param-names)))
 
-;; input: input, 入力データファイル名, Dependency matrix (対角成分に α によるノイズは入っていない) の系列データ, 
+;; input: input, 入力データファイル名, Dependency matrix (対角成分に α によるノイズは入っていない) の系列データ,
 ;;               データ記述形式は read-graph-series に準ずる
 ;;        output, 出力データファイル名
 ;;        window-size, ウィンドウサイズ
@@ -109,7 +109,7 @@
                                     :format file-format
                                     :directed nil
                                     :start 0 :end window-size))
-         (detector 
+         (detector
           (progn (when print-status (format t "Initialize detector...~%"))
                  (init-anomaly-detector-eb window
                                            :beta beta
@@ -148,7 +148,7 @@
                                           pagerank-c
                                           localizep
                                           ar-conf-coef
-                                          ar-default-var))           
+                                          ar-default-var))
 (defmethod init-anomaly-detector-eb ((gr-series simple-graph-series)
                                      &key (beta nil)
                                           (pc 0.05d0)
@@ -160,14 +160,14 @@
                                           (ar-conf-coef 0.99d0)
                                           (ar-default-var *epsilon*))
   (let* ((graph-series-list (graphs gr-series))
-         (param-names 
+         (param-names
           (mapcar #'node-name (sort (copy-seq (nodes (car (graphs gr-series)))) #'< :key #'node-id)))
          (window-size (length graph-series-list)))
     (unless beta (setf beta (dfloat (/ window-size))))
     (assert (< 0 beta 1))
     (assert (< 0 pc 1))
     (assert (< 0 ar-conf-coef 1))
-    (let* ((detector (make-instance 'anomaly-detector-eb 
+    (let* ((detector (make-instance 'anomaly-detector-eb
                        :beta beta :pc pc :alpha-order alpha-order
                        :activity-method activity-method
                        :typical-method typical-method
@@ -178,7 +178,7 @@
                        :ar-default-var ar-default-var
                        :param-names param-names))
            (act-vecs (loop for gr in graph-series-list
-                         collect (extract-activity-vector gr 
+                         collect (extract-activity-vector gr
                                                           :alpha alpha-order
                                                           :method activity-method
                                                           :pagerank-c pagerank-c)))
@@ -194,7 +194,7 @@
                                            :pagerank-c (pagerank-c detector)))
          (typ-vec (calc-typical-pattern (window detector) :method (typical-method detector)))
          (zt (dissimilarity typ-vec act-vec))
-         (local-scores (calc-local-scores detector act-vec 
+         (local-scores (calc-local-scores detector act-vec
                                           :ar-default-var (ar-default-var detector)))
          (moments (next-moments zt (moments detector) (beta detector)))
          (thld
@@ -243,13 +243,13 @@
          (info 0)
          (pattern (make-dvec m))
          result)
-    (setq result 
+    (setq result
       (third (multiple-value-list
               #+mkl
               (mkl.lapack:dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info)
-              #-mkl           
+              #-mkl
               (clml.lapack::dgesvd "S" "N" m n cmat lda s u ldu vt ldvt work lwork info))))
-    (assert (= info 0))    
+    (assert (= info 0))
     (do-vec (_ pattern :type double-float :setf-var sf :index-var i)
       #-sbcl (declare (ignore _))
       (let ((val (abs (aref result 0 i)))) (setf sf (if (> *epsilon* val) 0d0 val))))
@@ -303,7 +303,7 @@
 ;; Z_th を求める
 (defun vmf-threshold (n-1 sigma pc)
   (let* ((scale (* 2 sigma))
-         (shape (/ n-1 2))         
+         (shape (/ n-1 2))
          (1-pc (- 1 pc)))
     (if (and (< 0 scale ++inf+)
              (< 0 shape ++inf+))
@@ -317,15 +317,15 @@
 ;; trial to localize anomaly by using AutoRegressive time-series-model
 ;;
 ;; 局所異常スコア
-(defgeneric calc-local-scores (detector target 
+(defgeneric calc-local-scores (detector target
                               &key ar-default-var)
   (:documentation "AR on activity-vector:
  trial to localize anomaly by using AutoRegressive time-series-model"))
-(defmethod calc-local-scores ((detector anomaly-detector-eb) target 
+(defmethod calc-local-scores ((detector anomaly-detector-eb) target
                               &key (ar-default-var *epsilon*))
   (declare (type dvec target))
   (when (localizep detector)
-    (let* ((local-scores 
+    (let* ((local-scores
             (local-anomaly-score-by-ar (window detector) target
                                        :confidence-coefficient (ar-conf-coef detector)
                                        :default-var ar-default-var))
@@ -361,7 +361,7 @@
                                                       (aref (nth j window) i))
                                                   finally (return buff)))
       as gaussian = (predict-gaussian-by-ar ts :default-var default-var :order-max ar-order-max)
-      as d = (degree-of-outrange gaussian val 
+      as d = (degree-of-outrange gaussian val
                                  :confidence-coefficient confidence-coefficient)
      collect d))
 
@@ -369,7 +369,7 @@
 (defmethod range-by-confidence ((dist normal-distribution) confidence-coefficient)
   (let* ((alpha (/ (- 1 confidence-coefficient) 2.0d0))
          (lower-confident-limit (quantile dist alpha))
-         (upper-confident-limit 
+         (upper-confident-limit
           (- (* 2 (clml.statistics::average dist)) lower-confident-limit)
           #+ignore (quantile dist (- 1.0d0 alpha))))
     (cons lower-confident-limit upper-confident-limit)))
@@ -397,7 +397,7 @@
   (check-type vec dvec)
   (let ((data (map 'vector (lambda (val) (make-dvec 1 val)) vec)))
     (make-constant-time-series-data '("activity") data)))
-;; ARモデルを生成し、その予測値のガウス分布を求める。 
+;; ARモデルを生成し、その予測値のガウス分布を求める。
 (defgeneric predict-gaussian-by-ar (ts &key default-var
                                         order-max)
   (:documentation "Seek a Gaussian distribution of the predicted value"))
@@ -414,7 +414,7 @@
           (let* ((last-pos (1- (length (ts-points pred))))
                  (pred-val (aref (ts-p-pos (aref (ts-points pred) last-pos)) 0))
                  (std-err-val (aref (ts-p-pos (aref (ts-points std-err) last-pos)) 0))
-                 (gaussian 
+                 (gaussian
                   (normal-distribution
                    pred-val (max std-err-val default-var))))
             (values gaussian model)))))))
@@ -434,7 +434,7 @@
    (ar-conf-coef :initform nil :initarg :ar-conf-coef :accessor ar-conf-coef)
    (ar-default-var :initform nil :initarg :ar-default-var :accessor ar-default-var)
    (param-names :initform nil :initarg :param-names :accessor param-names)))
-;; input: input, 入力データファイル名, Dependency matrix (対角成分に α によるノイズは入っていない) の系列データ, 
+;; input: input, 入力データファイル名, Dependency matrix (対角成分に α によるノイズは入っていない) の系列データ,
 ;;               データ記述形式は read-graph-series に準ずる
 ;;        output, 出力データファイル名
 ;;        file-format, :csv | :sexp | :edgelist 入力データファイルの形式
@@ -461,7 +461,7 @@
                                           (ar-conf-coef 0.99d0)
                                           (ar-default-var *epsilon*)
                                           (print-status t)
-                                          (external-format :default))  
+                                          (external-format :default))
   (let* ((grs (read-graph-series input
                                  :format file-format
                                  :directed nil
@@ -524,12 +524,12 @@
   (assert (< 0 discount 1))
   (assert (< 0 threshold))
   (assert (< 0 ar-conf-coef 1))
-  (let* ((param-names 
+  (let* ((param-names
           (mapcar #'node-name (sort (copy-seq (nodes (car (graphs gr-series))))
-                                    #'< :key #'node-id)))         
+                                    #'< :key #'node-id)))
          (ts (loop for gr in (graphs gr-series) collect
                    (extract-activity-vector gr
-                                            :method activity-method 
+                                            :method activity-method
                                             :alpha alpha-order
                                             :pagerank-c pagerank-c) into actvecs
                  finally (return (make-constant-time-series-data param-names
@@ -556,12 +556,12 @@
   (let ((act-vec (extract-activity-vector gr :alpha (alpha-order detector)
                                           :method (activity-method detector)
                                           :pagerank-c (pagerank-c detector))))
-    (multiple-value-bind (pre-mu pre-v d state)        
+    (multiple-value-bind (pre-mu pre-v d state)
         (update-sdar-as-detector (sdar detector) act-vec
                                  :discount (discount detector)
                                  :threshold (threshold detector))
       (declare (ignore state))
-      (let ((local-scores 
+      (let ((local-scores
              (when (localizep detector)
                (loop for name in (param-names detector)
                    for i from 0
@@ -574,8 +574,8 @@
                                                   :confidence-coefficient
                                                   (ar-conf-coef detector))
                    collect `(:name ,name :score ,score)))))
-        (values `(:score ,d 
-                         :activity-vector ,act-vec 
+        (values `(:score ,d
+                         :activity-vector ,act-vec
                          :predicted-vector ,pre-mu
                          :local-scores ,(if local-scores local-scores +na+))
                 detector)))))
@@ -659,10 +659,10 @@
                (typep reference-runs '(cons numeric-dataset))))
   (let* ((bench-obj (when benchmarkp (init-snn-benchmark)))
          (names (map 'list #'dimension-name (dataset-dimensions target-run)))
-         (test-model 
-          (progn 
+         (test-model
+          (progn
             (when print-status (format t "Analyzing SNN structure for target run...~%"))
-            (make-snn-model target-run 
+            (make-snn-model target-run
                             :k k :sigma-list sigma-list
                             :independent-pairs independent-pairs
                             :smoothing smoothing
@@ -673,9 +673,9 @@
     (when print-status )
     (loop with cum-e-scores = (make-list (length names) :initial-element 0d0)
         for i from 1
-        for ref-d in reference-runs        
-        as ref-model = (progn (assert (every #'string= names 
-                                             (map 'list #'dimension-name 
+        for ref-d in reference-runs
+        as ref-model = (progn (assert (every #'string= names
+                                             (map 'list #'dimension-name
                                                   (dataset-dimensions ref-d))))
                               (when print-status
                                 (format t "Analyzing SNN structure for reference run ~A...~%" i))
@@ -719,22 +719,22 @@
                                                    (external-format :default)
                                                    (print-status t))
   (when print-status (format t "Reading runs...~%"))
-  (let* ((reference-fname (format nil "~A.~A" *reference-fname* 
+  (let* ((reference-fname (format nil "~A.~A" *reference-fname*
                                   (ecase format (:csv "csv") (:sexp "sexp"))))
          (target-fname (format nil "~A.~A" *target-fname*
                                (ecase format (:csv "csv") (:sexp "sexp"))))
          (refs (loop for i from 1
                    as fname = (merge-pathnames (format nil reference-fname i)
                                                (pathname-as-directory data-dir))
-                   while (probe-file fname) collect 
+                   while (probe-file fname) collect
                      (read-run-file fname :format format :external-format external-format)))
          (target (read-run-file (merge-pathnames target-fname
                                                  (pathname-as-directory data-dir))
                                 :format format :external-format external-format)))
-    (assert (not (zerop (length refs))) () 
+    (assert (not (zerop (length refs))) ()
       "No reference run file. Reference run filename format must be ~A ." *reference-fname*)
     (assert target () "Unable to find target run file. It must be named ~A ." *target-fname*)
-    (multiple-value-bind (result test-model ref-models) 
+    (multiple-value-bind (result test-model ref-models)
         (e-scores target refs :k k :sigma-list sigma-list :benchmarkp nil
                   :cor-alpha nil :smoothing nil :print-status print-status)
       (when print-status (format t "Writing results...~%"))
@@ -761,7 +761,7 @@
                      (:csv (clml.utility.csv::parse-csv-string (read-line in nil nil nil)))))
            (n (length params))
            (csv-type-spec (make-list n :initial-element 'double-float))
-           (data 
+           (data
             (ecase format
               (:sexp (loop for sexp = (read in nil nil nil) while sexp collect
                            (map 'vector (lambda (v) (dfloat v)) sexp)))
@@ -773,7 +773,7 @@
                         &key (external-format :default))
   (loop for ref-model in ref-models
       for i from 1
-      as fname = (merge-pathnames (concatenate 'string 
+      as fname = (merge-pathnames (concatenate 'string
                                     (format nil *reference-fname* i) ".sexp")
                                   (pathname-as-directory output-dir))
       do (%output-knn-info fname ref-model :external-format external-format))
@@ -787,7 +787,7 @@
       (write (loop for snn in (snns model)
                  as name = (aref names (cnode snn))
                  as nbrs = (nbrs snn) collect
-                   `(:name ,name :neighbors 
+                   `(:name ,name :neighbors
                            ,(mapcar (lambda (nbr)
                                       (let ((name (aref names (car nbr)))
                                             (cp (getf (cdr nbr) :cp))
@@ -834,7 +834,7 @@
                                smoothing-args
                                cor-alpha
                                cor-hash))
-(defmethod make-snn-model ((d numeric-dataset) &key (k nil) 
+(defmethod make-snn-model ((d numeric-dataset) &key (k nil)
                                                     (independent-pairs nil)
                                                     (sigma-list nil)
                                                     (bench nil)
@@ -843,7 +843,7 @@
                                                     (cor-alpha nil)
                                                     (cor-hash nil))
   (assert (and (numberp k)))
-  (let* ((wmat (bench-snn bench :w-mat 
+  (let* ((wmat (bench-snn bench :w-mat
                           (dissimilarity-matrix d :smoothing smoothing
                                                 :smoothing-args smoothing-args
                                                 :independent-pairs independent-pairs
@@ -875,7 +875,7 @@
                                                   (position (cdr pair) names :test #'string=)))
                                           independent-pairs))
          (pts (dataset-numeric-points d))
-         (cor (correlation-with-constant pts 
+         (cor (correlation-with-constant pts
                                          :absolute nil
                                          :alpha cor-alpha
                                          :smoothing smoothing
@@ -891,7 +891,7 @@
                  as aij double-float = (cond ((zerop cij) (kronecker-delta i j))
                                              (t cij))
                  as d double-float = (cond
-                                      ((and independent-pairs 
+                                      ((and independent-pairs
                                             (or (find (cons i j) independent-index-pairs
                                                       :test #'equal)
                                                 (find (cons j i) independent-index-pairs
@@ -953,7 +953,7 @@
     (max (abs (- (coupling-tightness test-nbrs test-cp-alist)
                  (coupling-tightness test-nbrs ref-cp-alist)))
          (abs (- (coupling-tightness ref-nbrs test-cp-alist)
-                 (coupling-tightness ref-nbrs ref-cp-alist))))))                                     
+                 (coupling-tightness ref-nbrs ref-cp-alist))))))
 
 (defgeneric %e-scores (test-model ref-model))
 (defmethod %e-scores ((test-model snn-model) (ref-model snn-model))
@@ -961,7 +961,7 @@
         (ref-d (dataset ref-model)))
     (assert (loop for n1 in (map 'list #'dimension-name (dataset-dimensions test-d))
                 for n2 in (map 'list #'dimension-name (dataset-dimensions ref-d))
-                always (equalp n1 n2)))      
+                always (equalp n1 n2)))
     (loop for i below (length (dataset-dimensions test-d))
         collect (e-score i test-model ref-model))))
 
@@ -1032,7 +1032,7 @@
         (setq params (coerce params 'list))
         (unless time-pos (error "Unable to find time label: ~A" time-label-name))
         (let ((cor-out (when cor-output
-                         (open cor-output 
+                         (open cor-output
                                :direction :output :external-format external-format
                                :if-exists :supersede)))
               (local-out (when local-output
@@ -1044,14 +1044,14 @@
               (dim (length params))
               detector)
           (unwind-protect
-              (progn 
+              (progn
                 (when (streamp local-out) (setf (getf local-output :file) local-out))
                 (setq detector
                   (loop repeat (1+ window-size)
                       as vec = (read-value-part in time-pos dim :format format)
                       initially (when print-status (format t "Initialize detector...~%"))
                       collect vec into vecs
-                      finally (return (init-anomaly-detector-eec 
+                      finally (return (init-anomaly-detector-eec
                                        (coerce vecs 'vector)
                                        params
                                        window-size
@@ -1077,7 +1077,7 @@
                     initially (format out "(")
                     while vec
                     as (result cor-str-mat lfs cls stats)
-                    = (multiple-value-list 
+                    = (multiple-value-list
                        (update-anomaly-detector-eec detector vec :local-params local-params))
                     do (write `(:time ,time-label ,@result) :stream out)
                        (terpri out)
@@ -1087,7 +1087,7 @@
                                 :stream cor-out)
                          (terpri cor-out))
                        (when (streamp local-out)
-                         (write `(:time ,time-label 
+                         (write `(:time ,time-label
                                         :local-features ,lfs
                                         :clustering ,cls
                                         :lf-stats ,stats)
@@ -1173,7 +1173,7 @@
       for start from 0
       for end from window-size to (length points)
       as window = (subseq points start end)
-      as (global locals) = 
+      as (global locals) =
         (progn (setf (window detector) window)
                (multiple-value-list
                 (calc-eec-features detector :bench bench)))
@@ -1185,7 +1185,7 @@
                                   (if initial-global-cov initial-global-cov
                                     (init-covariance (coerce globals 'vector)
                                                      (coerce globals 'vector))))
-                                 (local-covs 
+                                 (local-covs
                                   (if initial-local-covs initial-local-covs
                                     (loop for i below (length params)
                                         as locals = (mapcar (lambda (lis) (nth i lis)) locals-list)
@@ -1220,7 +1220,7 @@
     (multiple-value-bind (global locals cor-str-mat cls)
         (calc-eec-features detector :bench bench)
       (bench-eec bench :scoring t
-                 (let* ((g-score (global-anomaly-score global 
+                 (let* ((g-score (global-anomaly-score global
                                                        (x-mean-vec global-cov)
                                                        (get-covariance global-cov)))
                         (l-scores (loop for local in locals
@@ -1228,13 +1228,13 @@
                                       for mu in (mapcar #'mean-mat local-covs)
                                       as score = (local-anomaly-score local mu cov :type scoring)
                                       collect score))
-                        (local-poss 
+                        (local-poss
                          (mapcar (lambda (param) (position param %params :test #'equal))
                                  local-params))
                         (g-thld (update-global-moments detector g-score))
                         (l-thlds (update-local-moments detector l-scores)))
                    (multiple-value-prog1
-                       (values 
+                       (values
                         `(:global-score ,g-score :global-threshold ,g-thld
                                         :locals
                                         ,(loop for i from 0
@@ -1279,13 +1279,13 @@
                                  (length (new-params detector))
                                  (length new-param-pos-alist)
                                  (- (length removed-params)))))
-  (when removed-params (remove-params detector removed-params new-param-pos-alist))  
+  (when removed-params (remove-params detector removed-params new-param-pos-alist))
   (new-params-to-params detector)
   (add-new-params detector point new-param-pos-alist))
 
 (defgeneric remove-params (detector target-params new-param-pos-alist))
 (defmethod remove-params ((detector anomaly-detector-eec) target-params new-param-pos-alist)
-  (setf (new-params detector) 
+  (setf (new-params detector)
     (loop with new-poss = (mapcar #'cdr new-param-pos-alist)
         with removed-poss = (mapcar (lambda (param) (position param (params detector) :test #'equal))
                                     target-params)
@@ -1294,7 +1294,7 @@
         as pos = (getf plis :pos)
         unless (member new-param target-params :test #'equal)
         collect (let ((new-pos pos))
-                  (setf new-pos (- new-pos (count-if (lambda (rpos) (< rpos new-pos)) 
+                  (setf new-pos (- new-pos (count-if (lambda (rpos) (< rpos new-pos))
                                                      removed-poss ))
                         new-pos (- new-pos (count-if (lambda (npos) (<= npos new-pos))
                                                      new-poss )))
@@ -1316,7 +1316,7 @@
 
 (defgeneric add-new-params (detector point new-param-pos-alist))
 (defmethod add-new-params ((detector anomaly-detector-eec) point new-param-pos-alist)
-  (declare (type dvec point))  
+  (declare (type dvec point))
   (loop for plis in (new-params detector)
       as pos = (getf plis :pos)
       as val = (aref point pos)
@@ -1370,8 +1370,8 @@
           as end = (+ start w)
           as %new-vecs = (mapcar (lambda (vec) (subseq vec start end)) new-vecs)
           as new-window = (transposev (coerce
-                                       (insert-values (coerce (transposev 
-                                                               (if (eql start 0) last-window 
+                                       (insert-values (coerce (transposev
+                                                               (if (eql start 0) last-window
                                                                  current-window))
                                                               'list)
                                                       %new-vecs
@@ -1426,7 +1426,7 @@
 ;;         clustering 結果
 (defgeneric calc-eec-features (detector &key bench)
   (:documentation "
-Feature quantity calculation 
+Feature quantity calculation
 
  Output: global feature value (vector)
    List of local feature value (3x3matrix) ( order corresponding to the column name of the input d)
@@ -1440,7 +1440,7 @@ Feature quantity calculation
                    (hash sig-hash)) detector
     (let* ((dim (length params))
            (weight-mat (bench-eec bench :cor nil (get-weight-mat detector)))
-           (aij (bench-eec bench :cor t 
+           (aij (bench-eec bench :cor t
                            (correlation-with-constant pts
                                                       :absolute t
                                                       :weight-mat weight-mat
@@ -1462,9 +1462,9 @@ Feature quantity calculation
                              aij
                              clusterings)))))))
 (defun calc-global-feature (cor-mat &key (global-m 3) (bench nil) (principal nil) (abstol 1d-12))
-  (multiple-value-bind (eigen-vals eigen-mat) 
-      (bench-eec bench :eigen t 
-                 #+mkl 
+  (multiple-value-bind (eigen-vals eigen-mat)
+      (bench-eec bench :eigen t
+                 #+mkl
                  (symat-ev (copy-mat cor-mat) :eigen-thld global-m :abstol abstol)
                  #-mkl
                  (eigen-by-power (copy-mat cor-mat) :eigen-thld global-m :precision abstol))
@@ -1480,12 +1480,12 @@ Feature quantity calculation
   (assert (equal `(,dim ,dim) (array-dimensions cor-strength-mat)))
   (loop for i below dim
       as %clusters = (when clusters-list (nth i clusters-list))
-      as (mat clusters) = (multiple-value-list (calc-local-feature i dim cor-strength-mat psi-vec 
+      as (mat clusters) = (multiple-value-list (calc-local-feature i dim cor-strength-mat psi-vec
                                                                    :xi xi :clusters %clusters))
       collect mat into mats
       collect clusters into clusterings
       finally (return (values mats clusterings))))
-(defun calc-local-feature (index dim cor-str-mat psi 
+(defun calc-local-feature (index dim cor-str-mat psi
                            &key (xi 0.8d0) (clusters nil))
   (declare (type dmat cor-str-mat) (type dvec psi))
   (check-type psi dvec)
@@ -1590,7 +1590,7 @@ Feature quantity calculation
   (ecase type
     (:mahalanobis (mahalanobis-distance target mu sigma))
     (:mnd (let ((density (multivariate-normal-density mu sigma target)))
-            (- (log 
+            (- (log
                 (cond ((zerop density) least-positive-double-float)
                       ((= #.++inf+ density) most-positive-double-float)
                       (t density))))))))
@@ -1603,7 +1603,7 @@ Feature quantity calculation
     (ecase type
       (:mahalanobis (mahalanobis-distance target-vec mu-vec sigma))
       (:mnd (let ((density (multivariate-normal-density mu-vec sigma target-vec)))
-              (- (log 
+              (- (log
                   (cond ((zerop density) least-positive-double-float)
                         ((= #.++inf+ density) most-positive-double-float)
                         (t density)))))))))
@@ -1689,7 +1689,7 @@ Feature quantity calculation
   (let* ((dims (array-dimensions (xy-mat-expec cov)))
          (cov-mat (make-array dims :element-type 'double-float))
          (n/n-1 (dfloat (/ (n cov) (1- (n cov))))))
-    (with-accessors ((xy xy-mat-expec) 
+    (with-accessors ((xy xy-mat-expec)
                      (x-mu x-mean-vec)
                      (y-mu y-mean-vec)) cov
       (loop for col below (first dims)
@@ -1746,7 +1746,7 @@ Variance-covariance matrix calculation class of  matrix value data
         do (loop for row below x-row
                as row-x-rows = (get-row-series row row-series-hash)
                do (setf (aref covs col row) (init-covariance row-x-rows col-x-rows))))
-    (make-instance 'matrix-covariance 
+    (make-instance 'matrix-covariance
       :covs covs :x-col x-col :x-row x-row :mean-mat mu :n (length mats))))
 (defun make-row-series-hash (mats)
   (declare (type (vector dmat) mats))
@@ -1811,7 +1811,7 @@ Variance-covariance matrix calculation class of  matrix value data
   (loop for col below (array-dimension expec-mat 0)
       do (loop for row below (array-dimension expec-mat 1)
              do (setf (aref expec-mat col row)
-                  (update-expectation (aref expec-mat col row) old-n 
+                  (update-expectation (aref expec-mat col row) old-n
                                       (aref new-sample col row))))
       finally (return expec-mat)))
 
@@ -1826,8 +1826,8 @@ Variance-covariance matrix calculation class of  matrix value data
   (declare (type (vector dvec) pts))
   (check-type pts (vector dvec))
   (if (or smoothing alpha)
-      (correlation-with-constant-and-cleaning pts 
-                                              :absolute absolute 
+      (correlation-with-constant-and-cleaning pts
+                                              :absolute absolute
                                               :smoothing smoothing
                                               :smoothing-args smoothing-args
                                               :alpha alpha
@@ -1866,9 +1866,9 @@ Variance-covariance matrix calculation class of  matrix value data
          (result (make-array (list dim dim) :element-type 'double-float))
          (weight-mat (if (arrayp weight-mat) weight-mat
                        (make-array `(,dim ,dim) :element-type 'double-float :initial-element 1d0))))
-    (loop for i below dim 
+    (loop for i below dim
         as v1 = (aref tr-window i) do
-          (loop for j to i 
+          (loop for j to i
               as v2 = (aref tr-window j)
               as cor = (if (eql i j) 1d0 (correlation-with-nan v1 v2)) do
                 (when absolute (setf cor (abs cor)))
@@ -1891,7 +1891,7 @@ Variance-covariance matrix calculation class of  matrix value data
   (check-type window (vector dvec))
   (let ((tr-window (transposev window)))
     (when (and (numberp alpha) (plusp alpha))
-      (setf tr-window 
+      (setf tr-window
         (map 'vector (lambda (dvec) (sweep-outlier dvec :alpha alpha :sig-p-hash sig-p-hash))
              tr-window)))
     (if smoothing
@@ -1900,7 +1900,7 @@ Variance-covariance matrix calculation class of  matrix value data
 (defun correlation-with-nan (v1 v2)
   (declare (type dvec v1 v2) (optimize speed))
   (labels ((noise-cut (val) (if (> *epsilon* (abs val)) 0d0 val))
-           (calc-cov (xy x y n-1) 
+           (calc-cov (xy x y n-1)
              (noise-cut (- (the double-float (/ (the double-float xy) n-1))
                            (the double-float (/ (the double-float (* x y))
                                                 (the fixnum (* (+ 1 n-1) n-1))))))))
@@ -2062,9 +2062,9 @@ Variance-covariance matrix calculation class of  matrix value data
     (declare (type double-float coef in-exp))
     (* coef
        (handler-case  (exp in-exp)
-         (floating-point-underflow (c) (declare (ignore c)) 
+         (floating-point-underflow (c) (declare (ignore c))
            (warn "MND underflow: in-exp:~A" in-exp) least-positive-double-float)
-         (floating-point-overflow (c) (declare (ignore c)) 
+         (floating-point-overflow (c) (declare (ignore c))
            (warn "MND overflow: in-exp:~A" in-exp) most-positive-double-float)))))
 (defun calc-in-exp (inv-sigma mu vec)
   (let* ((dim (length mu))
@@ -2076,12 +2076,12 @@ Variance-covariance matrix calculation class of  matrix value data
         do (loop for row below dim
                as val = (* val1 (aref x-m row))
                do (setf (aref x-mx-m col row) val)))
-    #+mkl 
+    #+mkl
     (mkl.blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
-    #-mkl        
+    #-mkl
     (clml.blas:dgemm "N" "N" dim dim dim -0.5d0 inv-sigma dim x-mx-m dim 0d0 res dim)
     (tr res)))
-;; マハラノビス距離 
+;; マハラノビス距離
 (defun mahalanobis-distance (x y sigma)
   (declare (type dvec x y) (type dmat sigma))
   (check-type x dvec)
@@ -2092,7 +2092,7 @@ Variance-covariance matrix calculation class of  matrix value data
         ;; -> 無いと以下の内積結果が負になったりするなど、不安定
         )
     (setf sigma (mcm sigma d :c #'+))
-    (let* ((inv-sigma (m^-1 sigma))) 
+    (let* ((inv-sigma (m^-1 sigma)))
       (%mahalanobis-distance x y inv-sigma))))
 (defun %mahalanobis-distance (x mu inv-sigma)
   (declare (type dvec x mu)
@@ -2128,7 +2128,7 @@ Variance-covariance matrix calculation class of  matrix value data
                                 (do-vec (val dvec :type double-float :index-var i :return pos)
                                   (when (< val min) (setf min val pos i))))))
     (if (>= (length dvec) 4)
-        (let ((target-pos (ecase type 
+        (let ((target-pos (ecase type
                             (:max (dvec-max-pos dvec))
                             (:min (dvec-min-pos dvec)))))
           (declare (type fixnum target-pos))
@@ -2146,8 +2146,8 @@ Variance-covariance matrix calculation class of  matrix value data
                                            :type type :recursive recursive
                                            :sig-p-hash sig-p-hash)
                        (values %dvec
-                               (if removed-poss 
-                                   (cons target-pos 
+                               (if removed-poss
+                                   (cons target-pos
                                          (mapcar (lambda (pos) (if (>= pos target-pos) (1+ pos) pos))
                                                  removed-poss))
                                  `(,target-pos))))))
@@ -2167,7 +2167,7 @@ Variance-covariance matrix calculation class of  matrix value data
       (let* ((target (aref dvec position))
              (n (length dvec))
              (m (/ (dvec-sumup dvec) n))
-             (u-dev (sqrt                     
+             (u-dev (sqrt
                      (/ (let ((res 0d0)) (declare (type double-float res))
                              (do-vec (val dvec :type double-float :return res)
                                (incf res (expt (- val (the double-float m)) 2))))

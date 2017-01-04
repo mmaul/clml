@@ -1,7 +1,7 @@
 ;;; -*- Mode: Lisp; Syntax: Common-Lisp; Coding:iso-2022-jp -*-
 ;;;
-;;; References 
-;;; [D] http://www.w3.org/TR/NOTE-datetime  
+;;; References
+;;; [D] http://www.w3.org/TR/NOTE-datetime
 
 
 (in-package :clml.time-series.util)
@@ -13,7 +13,7 @@
 
 
 (defgeneric predict (timeseries-model &key n-ahead)
-  (:documentation 
+  (:documentation
    "Calculate the value based on the timeseries-model for the observed timeseries data.
 - return: (values <time-series-dataset> <time-series-dataset>)
   - first value is a prediction by model, second is a standard error of the model.
@@ -23,7 +23,7 @@
   - In the case of trend model, the trend of last point of observed data continue to future.
 "))
 (defgeneric ts-to-sta (d f-name &key external-format fit))
-(defmethod ts-to-sta ((d time-series-dataset) f-name 
+(defmethod ts-to-sta ((d time-series-dataset) f-name
                       &key (external-format :default) (fit t))
   (with-accessors ((dims dataset-dimensions)
                    (label time-label-name)
@@ -40,7 +40,7 @@
 ~T:chart-drawicons nil)"
                    (pathname-name f-name)
                    (cons (if label (format nil "\"~A\"" label) "\"Time\"")
-                         (map 'list 
+                         (map 'list
                            #'(lambda (dim) (format nil "\"~A\"" (dimension-name dim)))
                            dims))
                    (if label "(car data)" "nth")
@@ -56,7 +56,7 @@
            )))))
 
 (defgeneric sub-ts (d &key start end range except))
-(defmethod sub-ts ((d time-series-dataset) 
+(defmethod sub-ts ((d time-series-dataset)
                    &key start end (range :all) except)
   (assert (notevery #'null (list start end range except)))
   (with-accessors ((d-start ts-start)
@@ -78,7 +78,7 @@
            (range1 (if (eq range :all)
                        (loop for i below total-size collect i)
                      (loop for i in range collect
-                           (if (stringp i) 
+                           (if (stringp i)
                                (position i dims :test #'string-equal :key #'dimension-name) i))))
            (range (sort (set-difference range1 except) #'<)))
       (assert (every #'(lambda (pos) (> total-size pos)) range))
@@ -100,7 +100,7 @@
                                          (let ((vec (make-dvec (length range))))
                                            (loop for i in range
                                                for j from 0
-                                               as val = (coerce 
+                                               as val = (coerce
                                                          (aref (ts-p-pos point) i)
                                                          'double-float)
                                                do (setf (aref vec j) val))
@@ -138,7 +138,7 @@
                                                 (time-label-name sub-d2))
                               (time-label-name sub-d1)))
            (time-labels (when time-label-name (map 'vector #'ts-p-label (ts-points sub-d1))))
-           (pts (coerce 
+           (pts (coerce
                  (loop for point-1 across (map 'vector #'ts-p-pos (ts-points sub-d1))
                      for point-2 across (map 'vector #'ts-p-pos (ts-points sub-d2))
                      as point = (concatenate 'vector point-1 point-2)
@@ -148,7 +148,7 @@
                                    do (setf (aref vec i) (coerce val 'double-float)))
                                vec))
                  'vector)))
-      (make-constant-time-series-data 
+      (make-constant-time-series-data
        dims pts :time-label-name time-label-name :time-labels time-labels
        :start start :end end :freq (ts-freq d1)))))
 
@@ -167,14 +167,14 @@
          time-labels)
     (assert (every #'(lambda (pos) (> total-size pos)) range))
     (let ((data
-           (map 'vector #'(lambda (p) 
+           (map 'vector #'(lambda (p)
                             (progn (push (ts-p-label p) time-labels)
                             (make-dvec 1 (apply composer (loop for i in range
                                                              with vec = (ts-p-pos p)
                                                              collect (aref vec i))))))
                 pts)))
       (make-constant-time-series-data
-       `(,column-name) data :time-label-name label 
+       `(,column-name) data :time-label-name label
        :time-labels (coerce (reverse time-labels) 'vector)
        :start (ts-start d) :end (ts-end d) :freq (ts-freq d))))))
 
@@ -210,14 +210,14 @@
 
 (defun draw-ppm (data-list fname &key (width-unit 10) (height-unit 10))
   (with-open-file (out fname :direction :output :if-exists :supersede)
-    (format out "P3~%~d ~d~%255~%" 
+    (format out "P3~%~d ~d~%255~%"
             (* width-unit (length (car data-list))) ;width
             (* height-unit (length data-list))) ;height
     (loop for data in data-list
         do (loop repeat height-unit
                with str-list
                = (loop for val in data
-                     append (if val 
+                     append (if val
                  (make-list width-unit :initial-element
                             (let ((val (min 255 (max 0 (round (* val 255))))))
                               (unless (or (zerop val) (plusp val))
@@ -225,7 +225,7 @@
                               (format nil "~D ~D ~D~%" val val val)))
                  (make-list width-unit :initial-element (format nil "0 255 255~%"))))
                do (format out "~{~A~}" str-list)))))
-    
+
 (defun statvis (ts &key (external-format :default)
                      (fname "temp"))
   (let* ((stafile (format nil "statvis/~A.sta" fname)))
@@ -246,7 +246,7 @@
 ;;;;; for R input/output
 ;; probably should use RCL instead more full featured
 #+lispworks
-(defparameter *r-path* 
+(defparameter *r-path*
   #+unix "R"
   #+mswindows
   "C:/Program Files/R/R-2.4.1/bin/R.exe") ; Pathname to "R.exe"
@@ -267,7 +267,7 @@
           :interactive read-new-value
         (setq *r-path* new-path))))
   (multiple-value-bind (shell-stream err pid)
-      (run-shell-command (format nil "~A --no-save" *r-path*) 
+      (run-shell-command (format nil "~A --no-save" *r-path*)
                          :wait nil :input :stream :output :stream :show-window :hide)
     (declare (ignore err pid))
     (setf *r-stream* shell-stream)))
@@ -281,11 +281,11 @@
 #+lispworks
 (defmacro with-r (&rest body)
   `(unwind-protect
-       (progn 
+       (progn
          (start-r)
          ,@body)
      (close-cmd-stream *r-stream*)))
-  
+
 
 (defun get-from-shell (stream)
   (do ((ch (read-char-no-hang stream)
@@ -314,7 +314,7 @@
         (let ((id-list
                (loop for d in ts-datasets
                    for id from 1
-                   collect 
+                   collect
                      (progn
                        (with-accessors ((start ts-start)
                                         (end ts-end)
@@ -338,7 +338,7 @@
 
 #+lispworks
 (defmethod draw-exp-smoothing-by-R ((d time-series-dataset)
-                                    &key 
+                                    &key
                                     (learn-end (tf-incl (ts-end d) -1 :freq (ts-freq d))))
   (with-accessors ((start ts-start)
                    (end ts-end)
@@ -388,10 +388,10 @@
          #+allegro
          (util.date-time:date-time-to-ut date-time)
          #-allegro
-         (labels ((to-YYYY-MM-DD-list (str) 
+         (labels ((to-YYYY-MM-DD-list (str)
                     (let* ((list-split-by-hyphen (split "-" str))
                            (list-split-by-hyphen-size (length list-split-by-hyphen)))
-                      (case list-split-by-hyphen-size 
+                      (case list-split-by-hyphen-size
                         (1 (append (mapcar #'parse-integer list-split-by-hyphen) (list 1 1)))
                         (2 (append (mapcar #'parse-integer list-split-by-hyphen) (list 1)))
                         (3 (mapcar #'parse-integer list-split-by-hyphen))
@@ -440,10 +440,10 @@
                              (list hh mm ss)))
                         (3 (mapcar #'parse-integer list-split-by-colon))
                         (t (error "data-time-to-ut: Argument does not match the format of ISO8691.")))))
-                  (my-encode-universal-time 
+                  (my-encode-universal-time
                       (&key year month day hour minute second time-zone)
                     (if (null time-zone) (+ (encode-universal-time 0 minute hour day month year) second)
-                      (+ (encode-universal-time 0 0 hour day month year time-zone) 
+                      (+ (encode-universal-time 0 0 hour day month year time-zone)
                          (* minute 60)
                          second))))
            (let* ((list-split-by-T (split "T" date-time))
@@ -451,7 +451,7 @@
                   (list-hh-mm-ss-and-timezone (split-hh-mm-ss-and-timezone (pop list-split-by-T)))
                   (hh-mm-ss-queue (to-hh-mm-ss-list (pop list-hh-mm-ss-and-timezone)))
                   (time-zone (pop list-hh-mm-ss-and-timezone)))
-             (my-encode-universal-time 
+             (my-encode-universal-time
               :year (pop YYYY-MM-DD-queue) :month (pop YYYY-MM-DD-queue)
               :day (pop YYYY-MM-DD-queue) :hour (pop hh-mm-ss-queue)
               :minute (pop hh-mm-ss-queue) :second (pop hh-mm-ss-queue) :time-zone time-zone)))))
@@ -470,7 +470,7 @@
       (decode-universal-time ut)
     (declare (ignore day))
     (declare (ignore daylight-p))
-    (let* ((zone-sign 
+    (let* ((zone-sign
             (if (<= zone 0) "+" "-"))
            (zone (abs zone)))
       (format nil "~d-~2,'0d-~2,'0dT~2,'0d:~2,'0d:~2,'0d~a~2,'0d:00"

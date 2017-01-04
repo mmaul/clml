@@ -59,14 +59,14 @@
                :discount discount
                :score-wsize score-wsize
                :ts-wsize ts-wsize)))
-    
+
     (flet ((smoothing (data-list wsize)
              (loop for i from wsize to (length data-list)
                  as window = (subseq data-list (- i wsize) i)
                  collect (mean window))))
-      
+
       (let* ((train-for-score-model
-              (smoothing (map 'list (lambda (p) 
+              (smoothing (map 'list (lambda (p)
                                       (update-ts-score cf (coerce (ts-p-pos p) '(simple-array double-float (*)))) )
                               (subseq (ts-points ts) sdar-k))
                          score-wsize))
@@ -80,10 +80,10 @@
                   do (clml.time-series.autoregression::update-xt-array score-sdar dvec)
                   finally (return (multiple-value-bind (mu s) (clml.time-series.autoregression::predict-sdar score-sdar)
                                     `(:pt-1 ,(multi-gaussian mu s) :pt nil))))))
-        
+
         (setf (score-model cf) score-sdar
               (last-qt-stats cf) last-qt-stats)
-        (loop for p across (subseq (ts-points ts) sdar-k) do 
+        (loop for p across (subseq (ts-points ts) sdar-k) do
              (update-score cf (ts-p-pos p)))
         cf))))
 
@@ -99,27 +99,27 @@
   (update-ts-score cf new-dvec)
   (update-score cf (make-dvec 1 (mean (pre-score-list cf)))) ;; 1st smoothing
   (values (mean (score-list cf)) ;; 2nd smoothing
-          (car (last (score-list cf)))))        
+          (car (last (score-list cf)))))
 
 (defun score-calculation (pt-stats dvec score-type)
   (declare (type dvec dvec))
   (destructuring-bind (&key pt-1 pt &allow-other-keys) pt-stats
-    
+
     (ecase score-type
       (:log (- (log (density pt-1 dvec))))
       (:hellinger (hellinger-distance pt-1 pt)))))
 
 (macrolet ((update-score (model stats score-list)
-             `(progn 
+             `(progn
                 (multiple-value-bind (new-mu new-sigma)
-                    (clml.time-series.autoregression::update-sdar (,model cf) new-dvec :discount (discount cf)) 
+                    (clml.time-series.autoregression::update-sdar (,model cf) new-dvec :discount (discount cf))
                   (when (eq (score-type cf) :hellinger)
                     (setf (getf (,stats cf) :pt) (multi-gaussian new-mu new-sigma)))
-                  
+
                   (let ((score (score-calculation (,stats cf) new-dvec (score-type cf))))
-                    
+
                     (setf (,score-list cf) (append (cdr (,score-list cf)) (list score)))
-                    
+
                     (multiple-value-bind (new-mu new-sigma) (clml.time-series.autoregression::predict-sdar (,model cf))
                       (setf (getf (,stats cf) :pt-1) (multi-gaussian new-mu new-sigma)))
                     score)))))
@@ -156,19 +156,19 @@
   ;; (noise-on-diag (round-mat sigma) :order *stabilizer*)
   (let* ((dim (array-dimension sigma 0))
          (det (det sigma))
-         (inv (if (>= 0d0 det) 
+         (inv (if (>= 0d0 det)
                   (error "sigma must be positive definite: det = ~A" det) ;; positive definite check
                   (m^-1 sigma)))
-         
+
          (coef (/ (* (expt (* 2d0 pi) (/ (if (numberp m) m dim) 2)) (sqrt det))))
-         
+
          (in-exp (calc-in-exp inv mu vec))
          )
     (declare (type double-float coef in-exp))
     (* coef (handler-case (exp in-exp)
               (floating-point-underflow (c) (declare (ignore c))
                 (warn "MND underflow: in-exp:~A" in-exp) least-positive-double-float)
-              (floating-point-overflow (c) (declare (ignore c)) 
+              (floating-point-overflow (c) (declare (ignore c))
                 (warn "MND overflow: in-exp:~A" in-exp) most-positive-double-float)))))
 
 
@@ -178,7 +178,7 @@
          (x-m (vcv vec mu :c #'-))
          (x-mx-m (make-array `(,dim ,dim) :element-type 'double-float))
          (res (make-array `(,dim ,dim) :element-type 'double-float)))
-    
+
     (loop for col below dim
        as val1 = (aref x-m col)
        do (loop for row below dim
@@ -200,7 +200,7 @@
 (defgeneric hellinger-distance (pt-1 pt))
 (defmethod hellinger-distance ((pt-1 multi-gaussian) (pt multi-gaussian))
   (flet ((safe-exp (d) (declare (type double-float d))
-                   (handler-case (exp d) 
+                   (handler-case (exp d)
                      (FLOATING-POINT-UNDERFLOW (c) (declare (ignore c)) 0d0)))
          (safe-det (mat) (declare (type dmat mat))
                    (let ((val (det mat)))
@@ -215,9 +215,9 @@
                (%s (mcm %%s (diag dim *stabilizer*)))
                (%ss (mcm %%ss (diag dim *stabilizer*)))
                (s (m^-1 %s))
-               (ss (m^-1 %ss)) 
+               (ss (m^-1 %ss))
                (s+ss (mcm s ss :c #'+))
-               (sm (m*v s m)) 
+               (sm (m*v s m))
                (ssmm (m*v ss mm)))
           (- 2d0 (safe-exp
                   (+ (+ (log 2d0) (* -0.5d0 (safe-log (safe-det (c*mat 0.5d0 (copy-mat s+ss))))))

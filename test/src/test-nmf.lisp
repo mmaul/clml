@@ -26,19 +26,19 @@
       (assert-true (<= 0.0 (rho-k matrix 2) 1.0))
       (assert-true (<= 0.0 (rho-k matrix 2 :cost-fn :kl) 1.0))
       (setf matrix (sample-matrix 100 200))
-      
+
       (assert-false (nmf-analysis matrix 5))
       (assert-false (nmf-analysis matrix 3 :type :column :results 5))
       (setf sports-corpus
-	(read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/sports-corpus-data") :external-format :utf-8))
+        (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/sports-corpus-data") :external-format :utf-8))
       (assert-false (nmf-corpus-analysis sports-corpus 4 :results 5))
       (assert-true (< 20.974 (c^3m-cluster-number sports-corpus) 20.975))
       (setf politics-corpus
-	(read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/politics-corpus-data") :external-format :utf-8))
+        (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/politics-corpus-data") :external-format :utf-8))
       (assert-true (< 15.29 (c^3m-cluster-number politics-corpus) 15.291))
       (assert-false (nmf-search matrix 113 :type :column))
       (assert-false (nmf-corpus-search sports-corpus "西武" :type :term :results 5))
-      (assert-false 
+      (assert-false
        (nmf-corpus-search sports-corpus "00267800" :type :document :results 5))
       (assert-false
        (nmf-corpus-search politics-corpus "クリントン" :type :term :results 5))
@@ -57,39 +57,39 @@ TEST(11): (loop
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS (:OVERFLOW :DIVIDE-BY-ZERO) :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS
- (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL) 
+ (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL)
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS (:OVERFLOW :DIVIDE-BY-ZERO) :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS
- (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL) 
+ (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL)
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS (:OVERFLOW :DIVIDE-BY-ZERO) :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS
- (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL) 
+ (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL)
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS (:OVERFLOW :DIVIDE-BY-ZERO) :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS
- (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL) 
+ (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL)
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS (:OVERFLOW :DIVIDE-BY-ZERO) :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS
- (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL) 
+ (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL)
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS (:OVERFLOW :DIVIDE-BY-ZERO) :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS
- (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL) 
+ (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL)
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS (:OVERFLOW :DIVIDE-BY-ZERO) :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS
- (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL) 
+ (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL)
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS (:OVERFLOW :DIVIDE-BY-ZERO) :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS
- (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL) 
+ (:UNDERFLOW :INEXACT) :ACCRUED-EXCEPTIONS (:UNDERFLOW :INEXACT) :FAST-MODE NIL)
 .......
 TEST-SAMPLE-NMF: 30 assertions passed, 0 failed.
 (:TRAPS NIL :ROUNDING-MODE :NEAREST :CURRENT-EXCEPTIONS (:INEXACT)
- :ACCRUED-EXCEPTIONS (:INEXACT) :FAST-MODE NIL) 
+ :ACCRUED-EXCEPTIONS (:INEXACT) :FAST-MODE NIL)
 NIL
 TEST(12): (lisp-implementation-version)
 

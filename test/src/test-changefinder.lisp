@@ -1,12 +1,12 @@
-		
+
 (in-package :clml.test)
 
 (define-test test-changefinder
     (let (ts cf)
       (assert
-       (setf ts (time-series-data 
+       (setf ts (time-series-data
                  (read-data-from-file
-                  (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv") 
+                  (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv")
                   :type :csv
                   :csv-type-spec (cons 'string
                                        (make-list 6 :initial-element 'double-float)))

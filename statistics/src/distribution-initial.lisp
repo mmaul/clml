@@ -26,7 +26,7 @@
 (defmacro defdistribution (name direct-supers direct-slots &rest options)
   (multiple-value-bind (new-slot-definitions methods) (parse-dist-slots direct-slots name)
     `(prog1 (defclass ,name ,direct-supers ,new-slot-definitions ,@(when options
-								     `(&rest . ,options)))
+                                                                     `(&rest . ,options)))
        ,@methods)))
 
 

@@ -4,7 +4,7 @@
 (in-package :cl-user)
 
 (defpackage :clml.som
-  
+
   (:use
    :common-lisp)
   #+allegro

@@ -10,9 +10,9 @@ are not inherited."
   (let ((p (gensym "P")))
     `(let ((,p ,package))
        (do-all-symbols (,f ,p)
-	 (when (and (fboundp ,f) (not (macro-function ,f))
-		    (eq (symbol-package ,f) ,p))
-	   ,@body)))))
+         (when (and (fboundp ,f) (not (macro-function ,f))
+                    (eq (symbol-package ,f) ,p))
+           ,@body)))))
 
 (defun trace-all-functions ()
   "Trace all functions in the current package."
@@ -26,5 +26,5 @@ are not inherited."
   (do-all-functions (f)
     (let ((doc (documentation f 'function)))
       (when (and doc (search "TODO:" doc))
-	(format t "~a:~%~a~%---~%" (symbol-name f) doc))))
+        (format t "~a:~%~a~%---~%" (symbol-name f) doc))))
   t)

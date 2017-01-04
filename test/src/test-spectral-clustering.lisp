@@ -46,7 +46,7 @@ TOTAL: 507 assertions passed, 0 failed, 0 execution errors.
         as w = (clml.clustering.spectral-clustering::make-random-symmetric-matrix
                 100 0 most-positive-single-float)
         do (loop for c-num from 1 to 10
-               do (assert-equality 
+               do (assert-equality
                    #'=
                    c-num
                    (length (spectral-clustering-mcut w c-num))))))

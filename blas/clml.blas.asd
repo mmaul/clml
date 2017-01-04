@@ -25,7 +25,7 @@
   :maintainer "Mike Maul  <maul.mike@gmail.com>"
   :license "LLGPL"
   :pathname "src/"
-  :around-compile call-with-environment  
+  :around-compile call-with-environment
   :serial t
   :depends-on (:f2cl-lib)
   :components (
@@ -114,7 +114,7 @@
   :license "LLGPL"
   :pathname "src/"
   :serial t
-  :around-compile call-with-environment  
+  :around-compile call-with-environment
   :depends-on (:f2cl-lib)
   :components (
                (:file "blas-package")
@@ -171,7 +171,7 @@
   :license "LLGPL"
   :pathname "src/"
   :serial t
-  :around-compile call-with-environment  
+  :around-compile call-with-environment
   :depends-on (:clml.blas.hompack
                :clml.blas.real
                :clml.blas.complex))

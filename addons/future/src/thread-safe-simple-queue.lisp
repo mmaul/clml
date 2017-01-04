@@ -36,7 +36,7 @@
   (setf (cdr tail) (list '%end%))
   (setf tail (cdr tail))
   item)
- 
+
 (defqfun dequeue (queue)
   (if (queue-empty-p queue)
       (values nil nil)

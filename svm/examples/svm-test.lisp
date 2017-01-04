@@ -16,7 +16,7 @@
                     (reduce #'max negative-data :key #'second)))
          (width (* (+ (- maxx minx) (* 2 border)) scale))
          (height (* (+ (- maxy miny) (* 2 border)) scale)))
-    
+
     (with-open-file;(print (list width height))
 ;(print (list width height))
  (s filename :direction :output :if-exists :supersede)
@@ -26,7 +26,7 @@
                  (< (scalar-product d d) 0.5d0))))
         (dotimes (y (round height))
           (dotimes (x (round width))
-            
+
             (let ((pos (list (- (+ minx (/ x scale)) border)
                              (- (+ miny (/ y scale)) border))))
               (cond ((member pos positive-data :test #'closep)

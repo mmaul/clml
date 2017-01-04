@@ -28,7 +28,7 @@
       (assert-true (tree-equal `(10 194 8.6d0 69 5 10 ,+na+ ,+na+ ,+na+ 3 4.5d0 6 5 5 5)
                                (fill-na *sample*) :test #'equalp))
 
-          
+
       (assert-equalp (length +missing-values+)
                      (loop for val in (clml.hjs.missing-value::na2nan (fill-na *sample*))
                          count (nan-p val)))
@@ -41,8 +41,8 @@
       (assert-true (tree-equal `(10 194 8.6d0 69 5 10 ,+na+ ,+na+ ,+na+ 3 4.5d0 6 5 5 5)
                                (clml.hjs.missing-value::remove-na-nan (fill-na *sample*) :remove-na nil)
                                :test #'equalp))
-      (assert (loop for val in (clml.hjs.missing-value::remove-na-nan 
-                                     (clml.hjs.missing-value::na2nan (fill-na *sample*)) 
+      (assert (loop for val in (clml.hjs.missing-value::remove-na-nan
+                                     (clml.hjs.missing-value::na2nan (fill-na *sample*))
                                      :seq-type :numeric)
                        always (numberp val)))
       (assert (loop for val in (clml.hjs.missing-value::remove-na-nan
@@ -71,24 +71,24 @@
                                      22.92285714285714d0 11.350677915573574d0 3d0 4.5d0
                                      6d0 5d0 5d0 5d0)
                     for val2 across (clml.hjs.missing-value::interpolate numeric-seq
-                                                                         :interp :spline 
+                                                                         :interp :spline
                                                                          :seq-type :numeric)
                     always (> *epsilon* (abs (- val1 val2)))))
-    
+
     (assert (loop for val1 in `(10d0 3d0 ,+nan+ 8.6d0 ,+nan+ 5d0 10d0 3d0 3d0 3d0
                                             ,+nan+ 3d0 4.5d0 6d0 5d0 5d0 5d0)
                     for val2 in (outlier-verification *sample-1* :seq-type :numeric)
                     always (or (= val1 val2) (and (nan-p val1) (nan-p val2)))))
     (assert (loop for val1 in `(10d0 3d0 ,+nan+ 8.6d0 ,+nan+ 5d0 10d0 3d0 3d0 3d0
                                           ,+nan+ 3d0 4.5d0 6d0 5d0 5d0 5d0)
-                    for val2 in (outlier-verification *sample-1* 
+                    for val2 in (outlier-verification *sample-1*
                                                       :type :std-dev
                                                       :outlier-value 0.9
                                                       :seq-type :numeric)
                        always (or (= val1 val2)
                                   (and (nan-p val1) (nan-p val2)))))
     (assert (loop for val1 in `(10 3 ,+c-nan+ ,+c-nan+ 5 10 3 3 3 ,+c-nan+ 3 ,+c-nan+ 5 5 5)
-                    for val2 in (outlier-verification *sample-2* 
+                    for val2 in (outlier-verification *sample-2*
                                                       :type :freq
                                                       :outlier-value 0.075
                                                       :seq-type :category)
@@ -98,7 +98,7 @@
 
 
 (define-test test-spline
-    (prog* ((xa (loop for i below 10 
+    (prog* ((xa (loop for i below 10
                     collect (* pi (coerce (+ 0.05 (* 0.1 i)) 'double-float))))
             (ya (mapcar #'sin xa))
             (yp1 (cos (first xa)))
@@ -119,7 +119,7 @@
       (assert-true (> (+ 7.285997538017952e-4 *epsilon*)
                       (abs (- target
                               (aref (clml.hjs.missing-value::3dim-spline-interp
-                                     ya-dvec :x-dvec xa-dvec) 
+                                     ya-dvec :x-dvec xa-dvec)
                                     target-pos)))))
       (assert-true (loop for val1 across (clml.hjs.missing-value::3dim-spline-interp
                                           ya-dvec :x-dvec xa-dvec)

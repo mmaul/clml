@@ -35,9 +35,9 @@
 (Variant: median-on-sorted (sorted-seq))"
   (let ((n (length sequence)))
     (if (evenp n)
-	(let ((n/2 (/ n 2)))
-	  (/ (+ (elt sequence (1- n/2)) (elt sequence n/2)) 2))
-	(elt sequence (/ (1- n) 2)))))
+        (let ((n/2 (/ n 2)))
+          (/ (+ (elt sequence (1- n/2)) (elt sequence n/2)) 2))
+        (elt sequence (/ (1- n) 2)))))
 
 (def-on-sorted discrete-quantile (sequence cuts)
   "Returns the quantile(s) of SEQ at the given cut point(s). CUTS can be a
@@ -53,14 +53,14 @@ may be better. More on this at http://mathworld.wolfram.com/Quantile.html.
 CUTS is a single number or a list of numbers, each in the interval [0,1]."
   (let ((n (length sequence)))
     (flet ((section (cut)
-	     (multiple-value-bind (q r)
-		 (floor (* (1- n) cut))
-	       (if (zerop r)
-		   (elt sequence q)
-		   (/ (+ (elt sequence q) (elt sequence (1+ q))) 2)))))
+             (multiple-value-bind (q r)
+                 (floor (* (1- n) cut))
+               (if (zerop r)
+                   (elt sequence q)
+                   (/ (+ (elt sequence q) (elt sequence (1+ q))) 2)))))
       (if (listp cuts)
-	  (mapcar #'section cuts)
-	  (section cuts)))))
+          (mapcar #'section cuts)
+          (section cuts)))))
 
 (def-on-sorted five-number-summary (sequence)
   "Returns the \"five number summary\" of SEQ, ie. the discrete quantiles at the
@@ -81,7 +81,7 @@ quantiles at 3/4 and 1/4.
 (defun sum-on-deviation (function sequence)
   (let ((mean (mean sequence)))
     (reduce (lambda (sum x) (+ sum (funcall function (- x mean)))) sequence
-	    :initial-value 0)))
+            :initial-value 0)))
 
 (defun mean-deviation (sequence)
   "Returns the mean deviation of SEQ."
@@ -94,8 +94,8 @@ quantiles at 3/4 and 1/4.
 (defun standard-deviation (sequence &key populationp)
   "Sample standard deviation; or population standard deviation if POPULATIONP."
   (sqrt (coerce (/ (sum-on-deviation #'sqr sequence)
-		   (if populationp (length sequence) (1- (length sequence))))
-		'double-float)))
+                   (if populationp (length sequence) (1- (length sequence))))
+                'double-float)))
 |#
 
 ;;; Functions on two-valued data
@@ -131,7 +131,7 @@ given values."
   (let ((n1 (length seq1))
         (n2 (length seq1)))
     (assert (= n1 n2) (seq1 seq2)
-	    "The two sequences must have the same length.")
+            "The two sequences must have the same length.")
     ;;;  below is edited by naganuma@msi
     ;;;  ref: http://aoki2.si.gunma-u.ac.jp/lecture/Soukan/spearman.html
     (let* ((rank1 (rank-list-with-tie seq1))
@@ -141,7 +141,7 @@ given values."
                      (loop for i in (remove-duplicates rank1 :test #'=)
                          as n = (count i rank1 :test #'=)
                          sum (- (expt n 3) n))) 12))
-           (t2 (/ (- n3-n 
+           (t2 (/ (- n3-n
                      (loop for i in (remove-duplicates rank2 :test #'=)
                          as n = (count i rank2 :test #'=)
                          sum (- (expt n 3) n))) 12))
@@ -156,7 +156,7 @@ given values."
   (let ((n1 (length seq1))
         (n2 (length seq1)))
     (assert (= n1 n2) (seq1 seq2)
-	    "The two sequences must have the same length.")
+            "The two sequences must have the same length.")
     ;;;  below is edited by naganuma@msi
     ;;;  ref: http://aoki2.si.gunma-u.ac.jp/lecture/Soukan/kendall.html
     (let* ((rank1 (rank-list-with-tie seq1))
@@ -169,11 +169,11 @@ given values."
                    as n = (count i rank2 :test #'=)
                    sum (/ (* n (1- n)) 2)))
            (sigma-p (loop for i from 0 below n1
-                        sum 
+                        sum
                           (loop
                               for j from 0 below n1
                               when (/= i j)
-                              sum (if (or 
+                              sum (if (or
                                        (and (> (elt seq1 i) (elt seq1 j))
                                             (> (elt seq2 i) (elt seq2 j)))
                                        (and (< (elt seq1 i) (elt seq1 j))
@@ -181,11 +181,11 @@ given values."
                                       1
                                     0))))
            (sigma-q (loop for i from 0 below n1
-                        sum 
+                        sum
                           (loop
                               for j from 0 below n1
                               when (/= i j)
-                              sum (if (or 
+                              sum (if (or
                                        (and (> (elt seq1 i) (elt seq1 j))
                                             (< (elt seq2 i) (elt seq2 j)))
                                        (and (< (elt seq1 i) (elt seq1 j))

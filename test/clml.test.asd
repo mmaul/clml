@@ -29,7 +29,7 @@
   :around-compile call-with-environment
   :depends-on (:lisp-unit
                :clml)
-  
+
   :components ((:file "package")
                (:file "test-groups")
                (:file "test-utils")
@@ -69,6 +69,6 @@
                (:file "test-svr")
                (:file "test-text-utils")
                (:file "test-read-data")
-              
+
                )
   )
