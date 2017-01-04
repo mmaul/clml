@@ -113,7 +113,7 @@
   (loop
       for p across candidates
       for d = (funcall distance from (funcall key p))
-      when (<= d epsilon) do    
+      when (<= d epsilon) do
         (vector-push-extend p result) ;into res
       finally (return result)))
 
@@ -748,7 +748,7 @@
                                  (rotatef d-max td)
                                  (when (eq node c)
                                    (return)))))))))))))))
-                                
+
 (defun m-nearest-epsilon (node x distance-fn epsilon result
                           &optional (key #'identity) (d-pivot (funcall distance-fn x (m-tree-node-pivot node))))
   (declare (optimize (speed 3) (safety 0) (debug 0))
@@ -1015,7 +1015,7 @@
               (loop for mode across modes do
                     (loop for i from 0 below nModes do
                           (decf (aref mode i))))
-              (let* ((omega0 (map 'dvec #'(lambda (x) (/ pi x)) R))             
+              (let* ((omega0 (map 'dvec #'(lambda (x) (/ pi x)) R))
                      (omegas (map 'vector #'(lambda (x om)
                                               (map 'dvec #'(lambda (z) (* z om)) x)) modes omega0))
                      (eigVal (map 'dvec #'(lambda (x) (reduce #'+ x :key #'(lambda (y) (* y y)))) omegas))

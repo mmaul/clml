@@ -42,7 +42,7 @@
              (error "open-file :: unknown mode ~a" fmode)))
       (setf (file-info-name file-info) filename))
     file-info))
-                
+
 
 (defun close-file (file-info)
   (when (and file-info (streamp (file-info-fp file-info))

@@ -26,7 +26,7 @@
   :license "LLGPL"
   :pathname "src/"
   :serial t
-  :around-compile call-with-environment  
+  :around-compile call-with-environment
   :depends-on (:clml.hjs
                :iterate
                :clml.numeric
@@ -47,5 +47,5 @@
                (:file "ts-burst-detection")
                (:file "exponential-smoothing")
                (:file "finance")
-               
+
                ))

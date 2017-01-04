@@ -31,7 +31,7 @@
     :license "LLGPL"
     :pathname "src/"
     :serial t
-    :around-compile call-with-environment  
+    :around-compile call-with-environment
     :depends-on (:f2cl-lib :clml.blas)
     :components (
                  (:file "package")
@@ -128,7 +128,7 @@
                  (:file "dgesvd")
                  ;; For condition numbers of the singular vectors
                  (:file "ddisna")
-                 
+
                  )
     ))
 (asdf:defsystem :clml.lapack
@@ -149,7 +149,7 @@
   :license "LLGPL"
   :pathname "src/"
                   :serial t
-                  :around-compile call-with-environment  
+                  :around-compile call-with-environment
                   :depends-on (
                                :f2cl-lib
                                :clml.blas

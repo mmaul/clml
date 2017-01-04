@@ -1,4 +1,4 @@
-                
+
 (in-package :clml.test)
 
 (define-test test-changefinder

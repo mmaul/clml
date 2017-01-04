@@ -209,11 +209,11 @@
                  (unless line ; no more data -> loop end
                    (setq data-entry nil)
                    (return nil))
-                
+
                  ;; If data-entry is given, a new entry is loaded on over the old one. If
                  ;; data-entry is nil, room for the new entry is allocated
                  (setq data-entry (init-entry entries data-entry))
-        
+
                  (let ((row (file-info-lineno file-info)))
                    (when (stringp line)
                      (let ((mask)
@@ -238,16 +238,16 @@
                          (when (slot-value (entries-entries_flags entries) 'skip-empty)
                            (setq mask nil)
                            (return-from set-one-line nil)))
-                
+
                        (when mask
                          (setf (data-entry-mask data-entry) mask)
                          (setq mask nil))
-                
+
                        ;; Now the following tokens (if any) are label,
                        ;; weight term and fixed point description.
                        ;; Sometimes label is not needed. Other terms are never
                        ;; needed
-                
+
                        (let ((label-found))
                          (loop for item in (subseq toke-list dim)
                              do (cond ((search "weight=" item)
@@ -270,7 +270,7 @@
                      (return nil)))))))
     data-entry))
 
-                        
+
 
 ;; read-entries - reads data from file to memory. If LOADMODE_ALL is
 ;; used the whole file is loaded into memory at once and the file is
@@ -338,7 +338,7 @@
       (setq lst (reverse lst))
       lst)))
 
-                
+
 
 
 ;; set-teach-params - sets values in teaching parameter structure based

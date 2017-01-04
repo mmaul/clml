@@ -83,7 +83,7 @@
     (dotimes (i n (* 0.5 sum))
       (dotimes (j m)
         (setf sum (+ sum (* (aref matrix i j) (aref matrix i j))))))))
-        
+
 
 (defun nmf2 (x k)
   (do* ((m (array-dimension x 0))
@@ -166,7 +166,7 @@
           (dotimes (j k)
             (setf (aref u i j)
               (* (aref u i j)
-                 (a*b-i-j x v^t i j)    
+                 (a*b-i-j x v^t i j)
                  (/ (a*b-i-j ww v^t i j))))))))
 
     (values u v)))
@@ -229,7 +229,7 @@
     (setf v (sort v #'> :key  #'car))
     (dotimes (j 10)
       (format t "~A    ~A~%" (aref words-vector (car (cdr (nth j v)))) (car (nth j v))))))
-                
+
 (defun pick-up-column (matrix n)
 
   (declare (type dmat matrix))
@@ -238,7 +238,7 @@
          (v (make-array m :element-type 'double-float)))
     (dotimes (i m v)
       (setf (aref v i) (aref matrix i n)))))
-        
+
 (defun pick-up-articles (weight-matrix articles-vector n)
   (let ((v (numbering (coerce (pick-up-column weight-matrix n) 'list))))
     (setf v (sort v #'> :key  #'car))
@@ -277,7 +277,7 @@
       (format t "~A,~A~%" (aref articles-vector (car (cdr (nth j v))))
               (search-area (parse-integer (aref articles-vector (car (cdr (nth j v)))))
                            article-area)))))
-        
+
 (defun result-articles2 (weight-matrix articles-vector article-area)
   (let ((n (array-dimension weight-matrix 1)))
     (dotimes (i n)
@@ -418,7 +418,7 @@
 
     (values (pre-normalize weight) v)))
 
-        
+
 (defun nmf-gamma0 (x k)
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat x))
@@ -444,7 +444,7 @@
           (dotimes (j k)
             (setf (aref u i j)
               (* (aref u i j)
-                 (a*b-i-j x v^t i j)    
+                 (a*b-i-j x v^t i j)
                  (/ (a*b-i-j ww v^t i j))))))))
 
     (normalize u v)))
@@ -468,8 +468,8 @@
 
         (declare (type dmat u^t))
         (declare (type dmat w))
-        
-        
+
+
         (dotimes (i k)
           (dotimes (j n)
             (setf (aref v i j)
@@ -479,15 +479,15 @@
 
       (let* ((v^t (m^t v))
              (ww (m-times-n u v)))
-        
+
         (declare (type dmat v^t))
-        (declare (type dmat ww))        
-        
+        (declare (type dmat ww))
+
         (dotimes (i m)
           (dotimes (j k)
             (setf (aref u i j)
               (* (aref u i j)
-                 (a*b-i-j x v^t i j)    
+                 (a*b-i-j x v^t i j)
                  (/ (a*b-i-j ww v^t i j)))))))
       (print (norm (m- x (m-times-n u v)))))
     ;;(normalize u v)))
@@ -519,7 +519,7 @@
         (dotimes (j k)
           (setf (aref u i j)
             (* (aref u i j)
-               (a*b-i-j x v^t i j)      
+               (a*b-i-j x v^t i j)
                (/ (a*b-i-j ww v^t i j)))))))))
 
 (defun word-clustering-vector (feature-matrix)
@@ -553,7 +553,7 @@
     (dotimes (i (length words-vector))
       (format t "~%~A   ~A   ~A~%"
               (first (nth i v)) (second (nth i v)) (third (nth i v))))))
-        
+
 
 (defun article-clustering-vector (weight-matrix)
   (let* ((m (array-dimension weight-matrix 0))
@@ -657,7 +657,7 @@
           (dotimes (j k)
             (setf (aref u i j)
               (* (aref u i j)
-                 (a*b-i-j x v^t i j)    
+                 (a*b-i-j x v^t i j)
                  (/ (a*b-i-j ww v^t i j)))))))
 
       (multiple-value-setq (u v) (normalize u v)))))
@@ -734,7 +734,7 @@
         (* (aref x i j)
            (/ (aref uv i j))
            (aref v l j))))))
-        
+
 (defun aux-kl-2 (x uv u l j)
   (declare (optimize (speed 3) (debug 0) (safety 0)))
   (declare (type dmat x))
@@ -905,7 +905,7 @@
         (setf (aref new-matrix i j)
           (* (aref matrix i j)
              (log (/ m (dfreq matrix j)))))))))
-                
+
 (defun normalized-tf*idf (matrix)
   (let* ((m (array-dimension matrix 0))
          (n (array-dimension matrix 1))
@@ -937,7 +937,7 @@
         (setf (aref new-matrix i j)
           (* (local-weight matrix i j)
              (global-weight matrix j)))))))
-        
+
 (defun local-weight (matrix i j)
   (if (zerop (aref matrix i j))
       0
@@ -1063,7 +1063,7 @@
 (defun word->id (word)
   (do ((i 0 (+ i 1)))
       ((equal word (dimension-name (aref words i))) i)))
-        
+
 (defun nmf-search (word)
   (let ((theme-weighted-matrix (theme-weighted-matrix tf*idf*cosine-matrix (list (word->id word)))))
     (nmf-analysis theme-weighted-matrix 1)))
@@ -1214,7 +1214,7 @@
   (let ((v (make-array (length a) :element-type 'double-float)))
     (dotimes (i (length a) v)
       (setf (aref v i) (- (aref a i) (aref b i))))))
-        
+
 (defun vector-shift (vector const)
   (let* ((n (length vector))
          (w (make-array n :element-type 'double-float)))
@@ -1271,7 +1271,7 @@
 
 (defun set-s3 (x z s sparseness)
   (let ((c (calculate-c x s z sparseness)))
-        
+
     (dotimes (i (length s) s)
       (if (not (member i z))
           (setf (aref s i) (- (aref s i) c))))))
@@ -1329,8 +1329,8 @@
 
         (declare (type dmat w^t))
         (declare (type dmat w^tw))
-        
-        
+
+
         (dotimes (i k)
           (dotimes (j n)
             (setf (aref h i j)
@@ -1340,15 +1340,15 @@
 
       (let* ((h^t (m^t h))
              (wh (m-times-n w h)))
-        
+
         (declare (type dmat h^t))
-        (declare (type dmat wh))        
-        
+        (declare (type dmat wh))
+
         (dotimes (i m)
           (dotimes (j k)
             (setf (aref w i j)
               (* (aref w i j)
-                 (a*b-i-j v h^t i j)    
+                 (a*b-i-j v h^t i j)
                  (/ (a*b-i-j wh h^t i j))))))))
 
     (values w h)))
@@ -1418,7 +1418,7 @@
 
         (declare (type dmat w^t))
         (declare (type dmat w^tw))
-        
+
         (dotimes (i k)
           (dotimes (j n)
             (setf (aref h i j)

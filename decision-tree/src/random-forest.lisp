@@ -80,7 +80,7 @@
 
   (let* ((v (mapcar #'(lambda (x) (list x (funcall test data-vector variable-index-hash list-of-row-numbers (car x) (cdr x) objective-column-index)))
                     split-criterion-list))
-        
+
          (w (reduce #'(lambda (x y) (if (<= (second x) (second y))
                                         y
                                       x)) v)))
@@ -98,10 +98,10 @@
          (make-split-criterion-list-for-rf data-vector variable-index-hash objective-column-index) objective-column-index :test test :epsilon epsilon)
 
       (let ((result-ratio (sum-up-results data-vector initial-row-numbers-list objective-column-index)))
-                                                                                
+
         (multiple-value-bind (right left) (split data-vector variable-index-hash initial-row-numbers-list
                                                  (car best-split-criterion) (cdr best-split-criterion))
-        
+
           (list (list best-split-criterion split-criterion-list)
                 result-ratio
                 (list right left)
@@ -121,16 +121,16 @@
            data-vector variable-index-hash right-low-numbers-list
            (make-split-criterion-list-for-rf data-vector variable-index-hash objective-column-index)
            objective-column-index :test test :epsilon epsilon)
-        
+
         (let ((result-ratio (sum-up-results data-vector right-low-numbers-list
                                             objective-column-index)))
           (multiple-value-bind (right left) (split data-vector variable-index-hash right-low-numbers-list
                                                    (car best-split-criterion) (cdr best-split-criterion))
-        
+
             (list (list best-split-criterion split-criterion-list)
                   result-ratio
                   (list right left))))))))
-                
+
 (defun make-new-left-node-for-rf (data-vector variable-index-hash objective-column-index tree-node
                             &key (test #'delta-gini) (epsilon 0))
   (if (null (caar tree-node))
@@ -147,7 +147,7 @@
                                                objective-column-index)))
           (multiple-value-bind (right left) (split data-vector variable-index-hash left-low-numbers-list
                                                  (car best-split-criterion) (cdr best-split-criterion))
-        
+
             (list (list best-split-criterion split-criterion-list)
                 result-ratio
                 (list right left))))))))

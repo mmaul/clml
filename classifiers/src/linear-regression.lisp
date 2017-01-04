@@ -62,7 +62,7 @@
       (setf (aref a i)
         (loop for k below n
             sum (* (aref matrix i k) (aref vector k)))))))
-        
+
 (defun make-vector-c (numeric-dataset range)
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (let* ((n (- (length range) 1))
@@ -71,7 +71,7 @@
       (setf (aref c i)
         (s-i-j (i-thvector numeric-dataset (nth i range))
                (i-thvector numeric-dataset (first (last range))))))))
-                        
+
 (defun mlr-intercept (numeric-dataset range)
   (assert (eq (type-of numeric-dataset) 'numeric-dataset))
   (flet ((f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))
@@ -196,7 +196,7 @@
       (if (= i 0)
           (setf (aref t-vector i) (t-value-of-intercept numeric-dataset range))
         (setf (aref t-vector i) (t-value-of-ith-coef numeric-dataset range (- i 1)))))))
-                
+
 (defun r^2 (numeric-dataset range)
   (flet ((f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))'fixnum)) v)))
     (assert (eq (type-of numeric-dataset) 'numeric-dataset))
@@ -241,10 +241,10 @@
   (if (= v 0.5)
         (- 1 (* (/ 2 pi)
                 (atan (sqrt (/ (- 1 x) x)))))
-                                                
+
     (+ (odd-i x (- v 1))
        (/ (odd-u x (- v 1)) (- v 1)))))
-        
+
 (defun odd-u (x v)
   (if (= v 0.5)
       (/ (sqrt (* x (- 1 x))) pi)
@@ -295,7 +295,7 @@
       (- (i-11 x (- m 1) n)
          (/ (u-11 x (- m 1) n)
             (- m 1))))))
-        
+
 (defun u-11 (x m n)
   (if (and (= m 0.5) (= n 0.5))
       (/ (sqrt (* x (- 1 x))) pi)
@@ -319,7 +319,7 @@
       (- (i-10 x (- m 1) n)
          (/ (u-10 x (- m 1) n)
             (- m 1))))))
-        
+
 (defun u-10 (x m n)
   (if (and (= m 0.5) (= n 1.0))
       (* (- 1 x)

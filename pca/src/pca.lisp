@@ -20,7 +20,7 @@ N), where M is the number of ponits and N is the dimension size.
   (:documentation "
 **** pca-result (the result of principle component analysis)
 - accessor:
- - components           :       <vector of datapoints>, principle components、score     
+ - components           :       <vector of datapoints>, principle components、score
  - contributions        :       <vector of double-float>
  - loading-factors      :       <matrix>  (pay attention the representation of the matrix is row major)
  - pca-method           :       :covariance | :correlation")

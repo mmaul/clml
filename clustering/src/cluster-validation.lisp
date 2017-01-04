@@ -176,7 +176,7 @@
       (vml::|%cffi-foreign-function/CBLAS_DNRM2| n tmp 1))))
 
 
-        
+
 
 
 
@@ -343,7 +343,7 @@
     (iter (for p in-sequence (pw-points *workspace*))
           (summing (v-diff-sum^2 (p-pos p) mu)))))
 
-        
+
 
 
 (defun make-zero-dvec ()

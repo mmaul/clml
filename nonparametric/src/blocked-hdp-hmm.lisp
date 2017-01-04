@@ -123,7 +123,7 @@
                    (ref (randomize-choice p sum)))
               (declare (type fixnum ref)
                        (type double-float sum))
-              (setf (point-cluster point) (aref states ref))    
+              (setf (point-cluster point) (aref states ref))
               ))
         ;; backward-sampling loop
         (loop for i fixnum from (1- tail) downto 0 do
@@ -286,7 +286,7 @@
         for j fixnum from 0 below (length states)
         for cluster = (aref states j) do
           (setf (aref ans j)
-            (the double-float           
+            (the double-float
               (log (the double-float (emission-prob cluster data :v (vocabulary dpm)))))))))
 
 #+ignore

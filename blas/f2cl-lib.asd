@@ -15,7 +15,7 @@
   :license "LLGPL"
 
   :pathname "src/"
-  :around-compile call-with-environment  
+  :around-compile call-with-environment
   :serial t
   :components ((:file "package")
                (:file "macro"))

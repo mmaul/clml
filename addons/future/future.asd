@@ -5,7 +5,7 @@
     :author "Jianshi Huang @ Mathematical Systems Inc. (huang@msi.co.jp)"
     :version "0.1.20100317"
     :depends-on (alexandria)
-    :components 
+    :components
     ((:module src
               :components
               ((:file "package")

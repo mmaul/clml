@@ -242,9 +242,9 @@ Find out why tables is not an array of table"
         ;; delete topic
         (decf (the fixnum (topic-count hdp-lda)))))
     (decf (aref (aref (hdp-lda-topics hdp-lda)
-                                        
+
                                                (the fixnum (word-id word)))
-                
+
                        topic);(the (values fixnum &optional) (the (array fixnum (*))) (the (array fixnum (*)) ))
           )
     (decf (the fixnum (aref (the (array fixnum (*)) (hdp-lda-topic-occurs hdp-lda)) topic)))
@@ -342,7 +342,7 @@ TODO:Optimize in SBCL"
 
              (setf (aref topic-p i) new)
              (incf sum new)))
-      #+ignore  
+      #+ignore
       (map-into topic-p #'(lambda (x) (if (not (zerop x))
                                      (safe-exp (+ x max))
                                      0d0))

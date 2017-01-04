@@ -227,7 +227,7 @@
     (declare (type double-float rand))
     (loop
         for i fixnum from 0 upto end
-        for prob double-float = (aref count-array i) do                         
+        for prob double-float = (aref count-array i) do
           (decf rand prob)
           (when (<= rand 0d0)
             (return i))

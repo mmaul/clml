@@ -187,7 +187,7 @@
                     (setf b (* b 2))
                     (return))))
            (let* ((ux (* 2d0 u1))
-                  (sign 1d0))           
+                  (sign 1d0))
              (declare (type double-float ux sign))
              (when (>= ux 1d0)
                (setf sign -1d0)
@@ -324,7 +324,7 @@
         (t
          `(+ ,average (* ,std (the double-float (standard-normal-random)))))))
 
-        
+
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;;                          ;;
 ;; Half Normal distribution ;;
@@ -825,7 +825,7 @@
       (loop named laplace do
            (let* ((u-mbit (random most-positive-fixnum))
                   (i (logand u-mbit #.(- (expt 2 +zuggurat-k+) 1))))
-             (declare (type fixnum u-mbit i))           
+             (declare (type fixnum u-mbit i))
              (setf u-mbit (ash u-mbit #.(- +zuggurat-k+)))
              (let ((sign (if (zerop (logand u-mbit 1))
                              1d0
@@ -1392,7 +1392,7 @@
                                   (t
                                    (let ((y (power-function-random ,sym 0d0 1d0)))
                                      (declare (type double-float y))
-                                     (- 1d0 y))))))             
+                                     (- 1d0 y))))))
                         ((= alpha 0.5d0)
                          `(let ((,sym ,beta))
                             (declare (type double-float ,sym))
@@ -1497,7 +1497,7 @@
          ;; shape is known value => use gamma-random
          (assert (typep shape 'fixnum))
          (if (= shape 1)
-             `(exp-random ,scale ,include-zero) 
+             `(exp-random ,scale ,include-zero)
            (typecase include-zero
              (list
               `(if ,include-zero
@@ -1713,7 +1713,7 @@
                      (setf ans (* ans (+ (/ (* 2d0 i)) 1d0)))
                    finally (return ans))
                (* 2d0 (the double-float (sqrt r))))
-          ;;; odd       
+          ;;; odd
           (/ (loop with ans = 1d0
                  for i fixnum from 1 upto quotient do
                    (setf ans (* ans (+ (/ (- (* 2d0 i) 1d0)) 1d0)))
@@ -1786,7 +1786,7 @@
                       (setf ans (* ans (+ (/ (* 2d0 i)) 1d0)))
                     finally (return ans))
                  (* 2d0 (the double-float (sqrt r))))
-          ;;; odd       
+          ;;; odd
               (/ (loop with ans = 1d0
                     for i fixnum from 1 upto quotient do
                       (setf ans (* ans (+ (/ (- (* 2d0 i) 1d0)) 1d0)))
@@ -2240,7 +2240,7 @@
      (m (floor (* probability (+ size 1))))
      (d (* (the double-float (int-power (- 1d0 probability) size))
            (the double-float
-                (loop with ans double-float = 1d0       
+                (loop with ans double-float = 1d0
                    for i fixnum from 1 to m do
                      (setf ans (* ans (dfloat (/ (+ (- size i) 1) i)) s))
                    finally (return ans))))))
@@ -3385,7 +3385,7 @@
          (v (- successes 1d0))
          (m (if (> successes 1d0)
                 (floor (/ (* s v) probability))
-              0))       
+              0))
          (pnbs (make-array (1+ m) :element-type 'double-float :fill-pointer t :adjustable t :initial-element 0d0))
          (k 7)
          (xu m)

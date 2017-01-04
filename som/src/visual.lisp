@@ -32,13 +32,13 @@
         (setf (entries-file-info fake-data) file-info)
         ;; write header of output file
         (write-header file-info fake-data)
-        
+
         (rewind-entries data)
         #+ignore
         (if (slot-value (entries-entries_flags data) 'totlen-known)
             (setq nod (entries-num-entries data))
           (setq nod 0))
-        
+
         (loop for data-entry in (entries-entries data)
             do (if (not (funcall winner codes data-entry win-info 1))
                    ;; empty sample
@@ -65,13 +65,13 @@
                ))
       (close-file file-info)
       fake-data)))
-        
-                
-                
-                
 
 
-        
+
+
+
+
+
 (defun visual (g-data &key  directory)
   (label-not-needed 1)
 

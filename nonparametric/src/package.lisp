@@ -31,7 +31,7 @@
            :loggamma
            :digamma
            :trigamma
-        
+
            :multivariate-normal-density
            :%multivariate-normal-density
            :multivariate-normal-logged-density
@@ -44,10 +44,10 @@
            :map-matrix-cell!
            :crossproduct
            :cholesky-decomp
-        
+
            :+most-negative-exp-able-float+
            :+most-positive-exp-able-float+
-        
+
            :*randomize-trace*))
 
 
@@ -67,20 +67,20 @@
            :dpm-data
            :dpm-cluster-layers
            :estimate-base?
-        
+
            :logged-dpm
-        
+
            :point
            :make-point
            :point-data
            :point-cluster
-        
+
            :cluster
            :gaussian-cluster
            :cluster-size
            :cluster-center
            :cluster-std
-        
+
            :dp-distribution
            :dp-gaussian
            :cluster-class
@@ -88,29 +88,29 @@
            :std-of-average
            :average-of-std
            :gauss-dpm
-        
+
            :density-to-cluster
            :base-distribution
            :make-new-cluster
            :sample-cluster-parameters
            :sample-distribution
-        
+
            :add-customer
            :remove-customer
            :add-to-cluster
            :remove-from-cluster
-        
+
            :cluster-rotation
-        
+
            :initialize
            :sampling
            :seatings-sampling
            :parameters-sampling
            :hypers-sampling
-        
+
            :make-cluster-result
            :head-clusters
-        
+
            :*hyper-base-a*
            :*hyper-base-b*
 
@@ -125,35 +125,35 @@
            :word
            :document
            :table
-        
+
            :document-id
            :document-words
            :document-thetas
-        
+
            :word-id
-        
+
            :topic-count
            :hdp-lda-data
            :vocabulary
-        
+
            :add-customer
            :remove-customer
            :sample-new-topic
            :hypers-sampling
-        
+
            :initialize
            :sampling
            :assign-theta
            :get-phi
-        
+
            :get-top-n-words
            :revert-word
-        
+
            :*alpha-base-a*
            :*alpha-base-b*
            :*gamma-base-a*
            :*gamma-base-b*
-        
+
            :*default-beta*
 
        )
@@ -171,15 +171,15 @@
            :cluster-latent-table
            :cluster-tmp-table
            :cluster-beta
-        
+
            :hdp
            :hdp-gamma
            :hdp-beta
-        
+
            :sample-latent-table
-        
+
            :hdp-distribution
-        
+
            :sliced-hdp
            ))
 
@@ -219,7 +219,7 @@
   (:export :gaussian-state
            :gauss-hdp-hmm
            :state-gaussian
-        
+
            :make-sticky-test))
 
 (defpackage :clml.nonparametric.sticky-hdp-hmm
@@ -231,9 +231,9 @@
   (:export :sticky-hdp-hmm
            :sticky-hidden-state
            :sticky-state-uniform
-        
+
            :sticky-kappa
-        
+
            :*rho-base-c*
            :*rho-base-d*))
 
@@ -247,13 +247,13 @@
   (:export :blocked-hidden-state
            :blocked-hdp-hmm
            :block-uniform
-        
+
            :point-sequence
            :sequence-data
            :seq-point
-        
+
            :sampling-pi
-        
+
            :sorted-before
            :hdp-hmm-l
            :state-pi))
@@ -282,12 +282,12 @@
   (:export :ftm-topic
            :topic-pi
            :topic-phi
-        
+
            :document
-        
+
            :ftm
-           :ftm-ibp-alpha       
-        
+           :ftm-ibp-alpha
+
            :ftm-uniform
 
            :get-top-n-words
@@ -301,14 +301,14 @@
   (:export :ibp
            :ibp-row
            :ibp-distribution
-        
+
            :lfm
-        
+
            :lfm-row
            :row-weight
-        
+
            :lfm-distribution
-        
+
            ))
 (defpackage :clml.nonparametric.dpm-interface
 

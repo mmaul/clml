@@ -60,7 +60,7 @@
         with sum double-float = 0d0
         for i fixnum from 0 upto limit
         for c = (aref clusters i)
-        for beta double-float = (cluster-beta c)                
+        for beta double-float = (cluster-beta c)
         for den double-float = (* (+ (the fixnum (cluster-size c))
                                      (* alpha beta))
                                   (the double-float (apply #'density-to-cluster dpm c data args)))

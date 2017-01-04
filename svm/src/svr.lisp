@@ -65,7 +65,7 @@
              (declare (type fixnum i j))
          (when (= -1 j)
               (return-from qp-solver *alpha-array*))
-        
+
              (let ((y-i (label i))
                    (y-j (label j)))
 
@@ -79,16 +79,16 @@
 
                  (when (<= a 0.0d0)
                    (setf a tau))
-                
+
                  ;;update alpha
                  (let ((old-a-i (aref alpha-array i))
                        (old-a-j (aref alpha-array j)))
 
                    (declare (type double-float old-a-i old-a-j))
-                
+
                    (incf (aref alpha-array i) (/ (* y-i b) a))
                    (decf (aref alpha-array j) (/ (* y-j b) a))
-                
+
                    ;;clipping
                    (let ((sum (+ (* y-i old-a-i) (* y-j old-a-j))))
 
@@ -99,7 +99,7 @@
 
                      (when (< (aref alpha-array i) 0.0d0)
                        (setf (aref alpha-array i) 0.0d0))
-                
+
                      (setf (aref alpha-array j) (* y-j (- sum (* y-i (aref alpha-array i)))))
 
                      (when (> (aref alpha-array j) c)
@@ -107,9 +107,9 @@
 
                      (when (< (aref alpha-array j) 0.0d0)
                        (setf (aref alpha-array j) 0.0d0))
-                
+
                      (setf (aref alpha-array i) (* y-i (- sum (* y-j (aref alpha-array j)))))
-                
+
                      (update-gradient training-vector kernel-function i j old-a-i old-a-j)))))))))
 
 
@@ -193,7 +193,7 @@
     (declare (type fixnum i training-size)
              (type (simple-array double-float (*)) alpha-array gradient-array)
              (type double-float g-max))
-        
+
     (loop
         for k of-type fixnum below (* 2 training-size)
         as y-k of-type double-float = (label k)
@@ -233,7 +233,7 @@
         as a-k of-type double-float = (aref alpha-array k)
         as g-k of-type double-float = (aref gradient-array k)
         as g-temp of-type double-float = (- (* y-k g-k))
-        with a of-type double-float = 0.0d0     
+        with a of-type double-float = 0.0d0
         with b of-type double-float  = 0.0d0
         if (or (and (= y-k 1.0d0) (> a-k 0.0d0))
                (and (= y-k -1.0d0) (< a-k c)))

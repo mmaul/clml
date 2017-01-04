@@ -31,7 +31,7 @@
 
 ;; assume (point-cluster customer) is adarray
 (defmethod add-customer ((dpm ibp) customer N &rest args &key &allow-other-keys)
-  (let ((k (dpm-k dpm)) 
+  (let ((k (dpm-k dpm))
         (clusters (dpm-clusters dpm))
         (layers (dpm-cluster-layers dpm))
         (data (point-data customer))

@@ -252,7 +252,7 @@
         (declare (type data-entry codes-data-entry))
         (setq ty (floor index xdim))
         (setq tx (rem index xdim))
-        
+
         (funcall dist bx by tx ty dd)
         (setq w (/ (aref dd 0) (aref radius 0)))
         (setq alp (* (aref alpha 0)
@@ -260,7 +260,7 @@
                          (exp (the double-float
                                 (* -0.5d0 w w)))
                        (floating-point-underflow () 0.0d0))))
-        
+
 ;;;     (funcall adapt codes-data-entry sample
 ;;;              dim
 ;;;              alp)
@@ -301,9 +301,9 @@
         (incf index)
         ))))
 
-        
-                                        
-        
+
+
+
 ;; som-training - train a SOM. Radius of the neighborhood decreases
 ;; linearly from the initial value to one and the learning parameter
 ;; decreases linearly from its initial value to zero.
@@ -359,17 +359,17 @@
             (declare (type data-entry sample))
             (let ((weight (data-entry-weight sample)))
               (declare (type double-float weight))
-        
+
               ;; Radius decreases linearly to one
               (setf (aref trad-arr 0)
                 (+ 1.0d0
                    (* (- radius 1.0d0)
                       (/ (coerce (- length le) 'double-float)
                          (coerce length 'double-float)))))
-        
-        
+
+
               (funcall get-alpha le length alpha-arr new-alpha-arr)
-        
+
 
 
               ;; If the sample is weighted, we
@@ -397,12 +397,12 @@
                   (setf byind (floor (winner-info-index win-info) xdim))
                   (setf bxind (rem (winner-info-index win-info) xdim))
                   ))
-        
+
               ;; Adapt the units
               (funcall adapt teach-params sample bxind byind trad-arr new-alpha-arr)
               ;; todo
               ;; save snapshot when needed
-                
+
               (incf index)
               ))))
       (setf (teach-params-end-time teach-params)

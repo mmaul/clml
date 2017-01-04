@@ -6,7 +6,7 @@
 
       (setf z-1 (make-array 4 :element-type 'double-float
                             :initial-contents #(-1.0d0 7.0d0 4.0d0 1.0d0))
-        
+
             z-2 (make-array 4 :element-type 'double-float
                             :initial-contents #(2.0d0 5.0d0 3.0d0 -1.0d0)))
 

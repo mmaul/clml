@@ -15,7 +15,7 @@
     (declare (type dvec x-i)
              (type (simple-array dvec (*)) data))
     (dotimes (k n x-i)
-      (setf (aref x-i k) (aref (aref data k) i)))))             
+      (setf (aref x-i k) (aref (aref data k) i)))))
 
 (defun pick-up-row (matrix n)
   (declare (optimize (speed 3) (debug 0) (safety 0))
@@ -28,7 +28,7 @@
     (declare (type dvec v))
     (dotimes (i m v)
       (setf (aref v i) (aref matrix n i)))))
-                
+
 (defun pick-up-column (matrix n)
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat matrix)
@@ -170,13 +170,13 @@
 
     (cond ((and (< p 1) (< q 1))
            (setf cluster (append cluster (list p q))))
-        
+
            ((and (> p 0) (< q 1))
             (setf cluster (append cluster (cluster-member p merge-matrix) (list q))))
-        
+
            ((and (< p 1) (> q 0))
             (setf cluster (append cluster (list p) (cluster-member q merge-matrix))))
-        
+
            (t
             (setf cluster (append cluster (cluster-member p merge-matrix) (cluster-member q merge-matrix)))))))
 
@@ -206,20 +206,20 @@
          (new-cluster (append p-cluster q-cluster)))
 
     (cond ((and (member (- i) new-cluster) (not (member (- j) new-cluster)))
-        
+
            (/ (+ (* n-p (aref distance-matrix (- (first p-cluster)) j))
                  (* n-q (aref distance-matrix (- (first q-cluster)) j)))
               (+ n-p n-q)))
-        
+
           ((and (not (member (- i) new-cluster)) (member (- j) new-cluster))
-        
+
            (/ (+ (* n-p (aref distance-matrix (- (first p-cluster)) i))
                  (* n-q (aref distance-matrix (- (first q-cluster)) i)))
               (+ n-p n-q)))
-        
+
           ((and (not (member (- i) new-cluster)) (not (member (- j) new-cluster)))
            (aref distance-matrix i j))
-        
+
           (t
            (aref distance-matrix i j)))))
 
@@ -240,16 +240,16 @@
                      (aref distance-matrix (- (first q-cluster)) j)
                      (- (abs (- (aref distance-matrix (- (first p-cluster)) j)
                                 (aref distance-matrix (- (first q-cluster)) j)))))))
-        
+
           ((and (not (member (- i) new-cluster)) (member (- j) new-cluster))
            (* 0.5 (+ (aref distance-matrix (- (first p-cluster)) i)
                      (aref distance-matrix (- (first q-cluster)) i)
                      (- (abs (- (aref distance-matrix (- (first p-cluster)) i)
                                 (aref distance-matrix (- (first q-cluster)) i)))))))
-        
+
           ((and (not (member (- i) new-cluster)) (not (member (- j) new-cluster)))
            (aref distance-matrix i j))
-        
+
           (t
            (aref distance-matrix i j)))))
 
@@ -270,16 +270,16 @@
                      (aref distance-matrix (- (first q-cluster)) j)
                      (+ (abs (- (aref distance-matrix (- (first p-cluster)) j)
                                 (aref distance-matrix (- (first q-cluster)) j)))))))
-        
+
           ((and (not (member (- i) new-cluster)) (member (- j) new-cluster))
            (* 0.5 (+ (aref distance-matrix (- (first p-cluster)) i)
                      (aref distance-matrix (- (first q-cluster)) i)
                      (+ (abs (- (aref distance-matrix (- (first p-cluster)) i)
                                 (aref distance-matrix (- (first q-cluster)) i)))))))
-        
+
           ((and (not (member (- i) new-cluster)) (not (member (- j) new-cluster)))
            (aref distance-matrix i j))
-        
+
           (t
            (aref distance-matrix i j)))))
 
@@ -301,17 +301,17 @@
                  (+ n-p n-q))
               (/ (* n-p n-q (aref distance-matrix (- (first p-cluster))(- (first q-cluster))))
                  (expt (+ n-p n-q) 2))))
-                
+
           ((and (not (member (- i) new-cluster)) (member (- j) new-cluster))
            (- (/ (+ (* n-p (aref distance-matrix (- (first p-cluster)) i))
                     (* n-q (aref distance-matrix (- (first q-cluster)) i)))
                  (+ n-p n-q))
               (/ (* n-p n-q (aref distance-matrix (- (first p-cluster))(- (first q-cluster))))
                  (expt (+ n-p n-q) 2))))
-        
+
           ((and (not (member (- i) new-cluster)) (not (member (- j) new-cluster)))
            (aref distance-matrix i j))
-        
+
           (t
            (aref distance-matrix i j)))))
 
@@ -329,16 +329,16 @@
            (+ (* 0.5 (+ (aref distance-matrix (- (first p-cluster)) j)
                         (aref distance-matrix (- (first q-cluster)) j)))
               (* -0.25 (aref distance-matrix (- (first p-cluster))(- (first q-cluster))))))
-                
-                
+
+
           ((and (not (member (- i) new-cluster)) (member (- j) new-cluster))
            (+ (* 0.5 (+ (aref distance-matrix (- (first p-cluster)) i)
                         (aref distance-matrix (- (first q-cluster)) i)))
               (* -0.25 (aref distance-matrix (- (first p-cluster))(- (first q-cluster))))))
-        
+
           ((and (not (member (- i) new-cluster)) (not (member (- j) new-cluster)))
            (aref distance-matrix i j))
-        
+
           (t
            (aref distance-matrix i j)))))
 
@@ -357,32 +357,32 @@
          (new-cluster (append p-cluster q-cluster)))
 
     (cond ((and (member (- i) new-cluster) (not (member (- j) new-cluster)))
-        
+
            (let ((n-j (if (null (temporary-cluster-number (- j) merge-matrix))
                           1
                         (length (correspond-cluster (temporary-cluster-number (- j) merge-matrix)
                                                     merge-matrix)))))
-        
+
              (/ (+ (* (+ n-p n-j) (aref distance-matrix (- (first p-cluster)) j))
                    (* (+ n-q n-j) (aref distance-matrix (- (first q-cluster)) j))
                    (* -1 n-j (aref distance-matrix (- (first p-cluster))(- (first q-cluster)))))
                 (+ n-p n-q n-j))))
-        
+
           ((and (not (member (- i) new-cluster)) (member (- j) new-cluster))
-        
+
            (let ((n-i (if (null (temporary-cluster-number (- i) merge-matrix))
                           1
                         (length (correspond-cluster (temporary-cluster-number (- i) merge-matrix)
                                                     merge-matrix)))))
-        
+
              (/ (+ (* (+ n-p n-i) (aref distance-matrix (- (first p-cluster)) i))
                    (* (+ n-q n-i) (aref distance-matrix (- (first q-cluster)) i))
                    (* -1 n-i (aref distance-matrix (- (first p-cluster))(- (first q-cluster)))))
                 (+ n-p n-q n-i))))
-        
+
           ((and (not (member (- i) new-cluster)) (not (member (- j) new-cluster)))
            (aref distance-matrix i j))
-        
+
           (t
            (aref distance-matrix i j)))))
 
@@ -427,7 +427,7 @@
     (dotimes (i n)
       (dotimes (j n)
         (setf (aref temporary-d-matrix i j) (aref distance-matrix i j))))
-        
+
     (dotimes (l (- n 1))
 
       (multiple-value-bind (p q) (new-merge-matrix-elements temporary-d-matrix)
@@ -436,17 +436,17 @@
                     (temporary-cluster-number q merge-matrix))
                (setf (aref merge-matrix l 0) (temporary-cluster-number p merge-matrix))
                (setf (aref merge-matrix l 1) (temporary-cluster-number q merge-matrix)))
-        
+
               ((and (temporary-cluster-number p merge-matrix)
                     (not (temporary-cluster-number q merge-matrix)))
                (setf (aref merge-matrix l 0) (temporary-cluster-number p merge-matrix))
                (setf (aref merge-matrix l 1) q))
-        
+
               ((and (not (temporary-cluster-number p merge-matrix))
                     (temporary-cluster-number q merge-matrix))
                (setf (aref merge-matrix l 0) p)
                (setf (aref merge-matrix l 1) (temporary-cluster-number q merge-matrix)))
-        
+
               (t
                (setf (aref merge-matrix l 0) p)
                (setf (aref merge-matrix l 1) q))))
@@ -457,7 +457,7 @@
             (funcall method temporary-d-matrix merge-matrix i j))))
 
       (setf sublst (append (make-sublst temporary-d-matrix merge-matrix) sublst))
-                                
+
       (dotimes (i n)
         (dotimes (j n)
           (setf (aref temporary-d-matrix i j) (aref working-matrix i j))))
@@ -482,7 +482,7 @@
     (/ (product-sum u v)
        (sqrt (* (product-sum u u)
                 (product-sum v v))))))
-                        
+
 (defun mat-to-vector (square-matrix)
   (let ((n (array-dimension square-matrix 0))
         (lst '()))
@@ -520,7 +520,7 @@
      (/ (product-sum x y)
         (sqrt (* (product-sum x x)
                  (product-sum y y))))))
-        
+
 (defun pearson (x y)
   (assert (= (length x) (length y)))
   (- 1.0d0 (pearson-cc x y)))
@@ -561,7 +561,7 @@
       (when (temporary-cluster-number (- i) (old-merge-matrix (- n k -0.5) merge-matrix))
         (setf (aref v i) (temporary-cluster-number (- i) (old-merge-matrix (- n k -0.5)
                                                                            merge-matrix)))))))
-                
+
 (defun proper-cluster-number (p merge-matrix)
   (do ((i 0 (+ i 1)))
       ((member p (cluster-member (+ i 1) merge-matrix)) (+ i 1))))

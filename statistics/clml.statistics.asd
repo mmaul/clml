@@ -17,8 +17,8 @@
   :depends-on (:clml.statistics.rand)
   :serial t
   :around-compile call-with-environment
-  :components 
-  ((:module "statistics" 
+  :components
+  ((:module "statistics"
             :pathname "src/"
             :components
             ((:file "package")
@@ -32,8 +32,8 @@
                                         ;(:file "distribution-test" :depends-on ("distribution"))
              )
             )
-   
-   
+
+
    (:static-file "README.md")
    (:static-file "README.jp")
    (:static-file "TODO")

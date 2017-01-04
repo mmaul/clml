@@ -7,7 +7,7 @@
   :author "Jianshi Huang @ Mathematical Systems Inc. (huang@msi.co.jp)"
   :version "0.3.20100210"
   :depends-on (cl-store cffi)
-  :components 
+  :components
   ((:module src
             :components
             ((:file "package")
@@ -18,6 +18,6 @@
             (asdf:load-op :after (op c)
                           (when (find-package 'swank)
                             (load (merge-pathnames "src/handle-swank.lisp" *fork-future-library-path*)))
-                          ;; 
+                          ;;
                           (pushnew :fork-future *features*)))))
 

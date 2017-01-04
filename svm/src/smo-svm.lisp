@@ -116,7 +116,7 @@ updated)."
     (let ((number-changed 0)
           (examine-all t)
           (upper-bound (- c epsilon)))
-        
+
       (declare (type fixnum number-changed)
                (type double-float upper-bound))
 
@@ -173,7 +173,7 @@ updated)."
                 do (when (>= delta-error max)
                      (setf max delta-error)
                      (setf i1 i)))
-        
+
             (when (take-step i1 i2)
               (return-from examine-example 1))
 
@@ -368,7 +368,7 @@ updated)."
                 (setf clipped t)))
 
             ;;eta:not negative case
-            (let* ((v1 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i1))    
+            (let* ((v1 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i1))
                    (v2 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i2)))
               (declare (type double-float v1 v2))
               (let ((w-const (compute-w-const training-vector alpha-array label-index i1 i2)))

@@ -562,7 +562,7 @@
         as a-k of-type double-float = (aref alpha-array k)
         as g-k of-type double-float = (aref gradient-array k)
         as g-temp of-type double-float = (- (* y-k g-k))
-        with a of-type double-float = 0.0d0     
+        with a of-type double-float = 0.0d0
         with b of-type double-float  = 0.0d0
         if (or (and (= y-k 1.0d0) (> a-k 0.0d0))
                (and (= y-k -1.0d0) (< a-k (* weight c))))
@@ -633,7 +633,7 @@
               as a-k of-type double-float = (aref alpha-array k)
               as g-k of-type double-float = (aref gradient-array k)
               as g-temp of-type double-float = (- (* y-k g-k))
-              with a of-type double-float = 0.0d0       
+              with a of-type double-float = 0.0d0
               with b of-type double-float  = 0.0d0
               if (or (and (= y-k 1.0d0) (> a-k 0.0d0))
                      (and (= y-k -1.0d0) (< a-k (* weight c))))
@@ -676,7 +676,7 @@
         for i of-type fixnum below n
         as alpha-i of-type double-float = (aref alpha-array i)
         as y-i of-type double-float  = (aref (the dvec (svref training-vector i)) label-index)
-        as c-i of-type double-float = (if (plusp y-i) c (* weight c))   
+        as c-i of-type double-float = (if (plusp y-i) c (* weight c))
         with count = 0
         if (< 0.0d0 alpha-i c-i)
           do (incf count 1)

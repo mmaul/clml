@@ -53,7 +53,7 @@
          +label-empty+)
         (t
          (elt (slot-value (data-entry-lab data-entry) 'label-array) i))))
-        
+
 
 (defmacro get-entry-label (e)
   `(get-entry-labels ,e 0))
@@ -173,7 +173,7 @@
         (incf (hitlist-entries hl))))
     (hit-entry-freq he)))
 
-        
+
 ;; find_conv_to_lab - Give the corresponding label; if the index is
 ;; not yet there, return NULL
 (defun find-conv-to-lab (ind gdata)

@@ -83,16 +83,16 @@
 
                (when (<= a 0.0d0)
                  (setf a tau))
-                
+
                ;;update alpha
                (let ((old-a-i (aref alpha-array i))
                      (old-a-j (aref alpha-array j)))
 
                  (declare (type double-float old-a-i old-a-j))
-                
+
                  (incf (aref alpha-array i) (/ b a))
                  (decf (aref alpha-array j) (/ b a))
-                
+
                  ;;clipping
                  (let ((sum (+ old-a-i old-a-j)))
 
@@ -103,7 +103,7 @@
 
                    (when (< (aref alpha-array i) 0.0d0)
                      (setf (aref alpha-array i) 0.0d0))
-                
+
                    (setf (aref alpha-array j) (- sum (aref alpha-array i)))
 
                    (when (> (aref alpha-array j) 1.0d0)
@@ -111,9 +111,9 @@
 
                    (when (< (aref alpha-array j) 0.0d0)
                      (setf (aref alpha-array j) 0.0d0))
-                
+
                    (setf (aref alpha-array i) (- sum (aref alpha-array j)))
-                
+
                    (update-gradient training-vector kernel-function i j old-a-i old-a-j))))))))
 
 
@@ -183,7 +183,7 @@
     (declare (type fixnum i training-size)
              (type (simple-array double-float (*)) alpha-array gradient-array)
              (type double-float g-max))
-        
+
     (loop
         for k of-type fixnum below training-size
         as a-k of-type double-float = (aref alpha-array k)

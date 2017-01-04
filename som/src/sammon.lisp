@@ -103,7 +103,7 @@
                      (nth i codes-entries-list)
                      (nth j codes-entries-list)
                      dim dd mutual)
-        
+
             (when (= (aref dd mutual) 0.0d0)
               (error "Identical entries in codebook"))
             (incf mutual))))
@@ -144,7 +144,7 @@
             (newent)
             (magic *magic*))
         (declare (type double-float e1x e1y e2x e2y xd yd dt dq dpj dr xx yy xj yj w xd2 yd2 magic))
-        
+
         (dotimes (i length)
           (dotimes (j noc)
             (declare (type fixnum i j))
@@ -164,7 +164,7 @@
                       yd2 (* yd yd))
                 (setq dpj
                   (sqrt (the (double-float 0.0d0 *) (+ xd2 yd2))))
-                
+
 
                 ;; Calculate derivatives
                 (if (> k j)
@@ -180,8 +180,8 @@
                                            (* j
                                               (the fixnum (1- j)))) 2)
                                   k)))))
-                
-                
+
+
                 (setq dq (- dt dpj)
                       dr (* dt dpj))
 
@@ -226,7 +226,7 @@
           (when debug                   ; for debug
             (with-open-file (stream "sammon-xxyy.dat" :direction :output :if-exists :append :if-does-not-exist :create)
               (format stream "~d xx=~f yy=~f~%" i xx yy)))
-        
+
           (dotimes (j noc)
             (setf (aref x j) (- (aref xu j) xx))
             (setf (aref y j) (- (aref yu j) yy)))
@@ -242,7 +242,7 @@
         (setf (entries-ydim newent) (entries-ydim codes))
         (setf (entries-topol newent) (entries-topol codes))
         (setf (entries-neigh newent) (entries-neigh codes))
-        
+
         ;; Copy the data to return variable
         (rewind-entries codes)
 
@@ -260,7 +260,7 @@
                                            (nth i (entries-entries codes)))
                         entr1)))
         (setf (entries-num-entries newent) noc)
-        
+
         newent))))
 
 
@@ -353,7 +353,7 @@
                          (aref (data-entry-points data-entry) 0)
                          (aref (data-entry-points data-entry) 1))
 
-                
+
                  ;; multi label output
                  (format stream "(")
                  (loop for i from 0 to (1- (data-entry-num-labs data-entry))
@@ -430,7 +430,7 @@
                  )
           (when ps
             (format stream "showpage~%"))
-        
+
           #+ignore
           (setq gif-label-pos-list (reverse gif-label-pos-list))
           ;; return sammon file path(ps) and gif label positions((pos-list . label) ...)
@@ -527,7 +527,7 @@
                                 (:html
                                  (:head (:title))
                                  (:body ((:img :src (namestring gif-publish-path)
-                                        
+
                                                :alt (namestring gif-pathname)
                                                :usemap "#sommap"
                                                :border "0"
@@ -574,7 +574,7 @@
                                 (:html
                                  (:head (:title))
                                  (:body ((:img :src (namestring gif-publish-path)
-                                        
+
                                                :alt (namestring gif-pathname)
                                                :usemap "#sommap"
                                                :border "0"

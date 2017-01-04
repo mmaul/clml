@@ -309,7 +309,7 @@
       (let* ((HH (+ EE (/ (loop for i from 0 to k summing (* (aref pp i) (aref pp i))) 2)))
              (xx_new (copy-seq xx))
              (gg_new (grad-x xx k clusters)))
-        (loop for i from 0 to k do      
+        (loop for i from 0 to k do
               (decf (aref pp i) (* *hmc-epsilon* (/ (aref gg_new i) 2))))
         (dotimes (leap *hmc-leapfrog*)
           (loop for i from 0 to k do

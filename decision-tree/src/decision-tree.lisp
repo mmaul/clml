@@ -1,6 +1,6 @@
 ;;;
 
-        
+
 (in-package :clml.decision-tree.decision-tree)
 
 (defun make-variable-index-hash (unspecialized-dataset)
@@ -170,11 +170,11 @@
 
   (let* ((v (mapcar #'(lambda (x) (list x (funcall test data-vector variable-index-hash list-of-row-numbers (car x) (cdr x) objective-column-index)))
                      split-criterion-list))
-        
+
          (w (reduce #'(lambda (x y) (if (<= (second x) (second y))
                                         y
                                       x)) v)))
-                                
+
     (if (<= (second w) epsilon)
         (values nil '())
     (values (car w) (remove (car w) split-criterion-list))))) ;:test #'equal)))))
@@ -214,7 +214,7 @@
             (list (list best-split-criterion split-criterion-list)
                   result-ratio
                   (list right left))))))))
-                
+
 (defun make-new-left-node (data-vector variable-index-hash objective-column-index tree-node
                            &key (test #'delta-gini) (epsilon 0))
   (if (null (caar tree-node))
@@ -230,7 +230,7 @@
           (multiple-value-bind (right left)
               (split data-vector variable-index-hash left-low-numbers-list
                      (car best-split-criterion) (cdr best-split-criterion))
-        
+
             (list (list best-split-criterion split-criterion-list)
                   result-ratio
                   (list right left))))))))
@@ -305,7 +305,7 @@
                                  :test test :epsilon epsilon)))
       (make-tree data-vector variable-index-hash objective-column-index root
                  :test test :epsilon epsilon))))
-        
+
 (defun print-regression-tree-node (tree-node &optional stream)
   "- return: NIL
 - arguments:
@@ -354,12 +354,12 @@
                  (if (handler-case (<= (cdaaar tree) #1=(svref query-vector i)) (type-error () (if (eql :NA #1#) (if (= 2 (length (third tree))) t (if (= 2 (length (second tree))) nil (if (<= (cadaar (second tree)) (cadaar (third tree))) nil t))) (error "Don't know how to handle the value ~A. Expected something of type real." #1#))))
                      (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
                      (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
-                
+
                 ((or (stringp (cdaaar tree)) (symbolp (cdaaar tree)))
                  (if (equal (cdaaar tree) (svref query-vector i))
                      (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
                      (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
-                
+
                 (t (error "invalid dataset.")))))))
 
 (defun decision-tree-validation (validation-dataset objective-column-name decision-tree)
@@ -400,13 +400,13 @@
                  (if (handler-case (<= (cdaaar tree) #1=(svref query-vector i)) (type-error () (if (eql :NA #1#) (if (= 2 (length (third tree))) t (if (= 2 (length (second tree))) nil (if (<= (cadaar (second tree)) (cadaar (third tree))) nil t))) (error "Don't know how to handle the value ~A. Expected something of type real." #1#))))
                      (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
                      (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
-                
+
                 ;;((stringp (cdaaar tree))
                 ((or (stringp (cdaaar tree)) (symbolp (cdaaar tree)))
                  (if (equal (cdaaar tree) (svref query-vector i))
                      (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
                      (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
-                
+
                 (t (error "invalid dataset.")))))))
 
 (defun regression-tree-validation (validation-dataset objective-column-name regression-tree)

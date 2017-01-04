@@ -74,7 +74,7 @@
         sum (loop
                 for j below m
                 sum (* (aref matrix i j) (aref matrix i j))) into temp
-        finally (return (sqrt temp))))) 
+        finally (return (sqrt temp)))))
 
 
 (defun m- (a b)
@@ -271,9 +271,9 @@
                  (aux-kl-1 x uv v i l))))))
 
       (let ((old-u (copy-matrix u)))
-        
+
         (declare (type dmat old-u))
-        
+
         (dotimes (i m)
           (dotimes (l k)
             (declare (type fixnum i l))
@@ -300,8 +300,8 @@
       sum (/ (* (aref x i j) (aref v l j))
              (aref uv i j))
       of-type double-float))
-        
-        
+
+
 (defun aux-kl-2 (x uv u l j)
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat x uv u))
@@ -793,7 +793,7 @@
         (loop
             for i below (array-dimension matrix 0)
             sum (aref matrix i j))))))
-        
+
 
 (defun row-power-vector (matrix)
   (let* ((m (array-dimension matrix 0))
@@ -907,24 +907,24 @@
                 (tf*idf*cosine-matrix (make-document-term-matrix corpus-dataset))
                 (row-number (document->row-number term-or-document-name document-index-vector))
                 (matrix (row-theme-weighting tf*idf*cosine-matrix row-number)))
-        
+
            (multiple-value-bind (weight feature) (nmf matrix 1
                                                       :iteration iteration)
              (result-terms feature term-index-vector :results results)
              (result-documents weight document-index-vector :results results))))
-        
+
         ((eq type :term)
          (let* ((term-index-vector (make-term-index corpus-dataset))
                 (document-index-vector (make-document-index corpus-dataset))
                 (tf*idf*cosine-matrix (make-document-term-matrix corpus-dataset))
                 (column-number (term->column-number term-or-document-name term-index-vector))
                 (matrix (column-theme-weighting tf*idf*cosine-matrix column-number)))
-        
+
            (multiple-value-bind (weight feature) (nmf matrix 1
                                                       :iteration iteration)
              (result-terms feature term-index-vector :results results)
              (result-documents weight document-index-vector :results results))))
-        
+
         (t (error "illegal keyword parameter."))))
 
 
@@ -994,7 +994,7 @@
     (declare (type dvec v))
     (dotimes (i (length a) v)
       (setf (aref v i) (- (aref a i) (aref b i))))))
-        
+
 (defun alpha (x s m)
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (ftype (function (simple-array simple-array) double-float) dot)
@@ -1137,7 +1137,7 @@
       (alpha-m (coerce (/ (expt 2 iteration)) 'double-float)
                (m-times-n (m^t w)
                           (m- (m-times-n w h) v)))))
-                
+
 (defun proj-w (w sparseness)
   (declare (optimize (speed 3) (debug 0) (safety 0))
            (type dmat w))
@@ -1191,7 +1191,7 @@
              (w^tw (m-times-n w^t w q)))
 
         (declare (type dmat w^t w^tw))
-        
+
         (dotimes (i k)
           (dotimes (j n)
             (declare (type fixnum i j))
@@ -1222,9 +1222,9 @@
 
       (let* ((h^t (m^t h))
              (wh (m-times-n w h q)))
-        
+
         (declare (type dmat h^t wh))
-        
+
         (dotimes (i m)
           (dotimes (j k)
              (declare (type fixnum i j))
