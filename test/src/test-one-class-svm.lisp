@@ -4,12 +4,12 @@
 (define-test test-one-class-svm
     (let (svm-bc-train data-vector one-class-svm)
        (setf svm-bc-train
-	(pick-and-specialize-data
-	 (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
-			      :type :csv
-			      :csv-type-spec
-			      (make-list 10 :initial-element 'double-float))
-	 :data-types (make-list 10 :initial-element :numeric)))
+        (pick-and-specialize-data
+         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
+                              :type :csv
+                              :csv-type-spec
+                              (make-list 10 :initial-element 'double-float))
+         :data-types (make-list 10 :initial-element :numeric)))
 
        (setf data-vector (dataset-points svm-bc-train))
 

@@ -22,42 +22,42 @@ self analysis is displayed.
 (defpackage :clml.nearest-search.nearest
 
   (:use :cl
-	:clml.hjs.read-data
-	:clml.hjs.vector
-	:clml.hjs.meta
-	:clml.nonparametric.statistics
-	:clml.hjs.matrix
-	:clml.pca
-	:clml.utility.priority-que)
+        :clml.hjs.read-data
+        :clml.hjs.vector
+        :clml.hjs.meta
+        :clml.nonparametric.statistics
+        :clml.hjs.matrix
+        :clml.pca
+        :clml.utility.priority-que)
   (:export :nearest-search
-           	   :find-nearest-epsilon
-	   :exact-nearest-search
-	   :stochastic-nearest-search
-	
-	   :naive-nearest-search
-	
-	   :kd-tree-search
-	
-	   :m-tree-search
-	
-	   :locality-sensitive-hashing
-	   :p-stable-locality-sensitive-hashing
-	   :euclid-locality-sensitive-hashing
-	   :manhattan-locality-sensitive-hashing
-	   :cosine-locality-sensitive-hashing
-	
-	   :nns-input-data
-	   :nns-input-key
-	   :nns-distance
-	
-	   :initialize-search
-	
-	   :find-nearest
-	   :find-nearest-k
+                   :find-nearest-epsilon
+           :exact-nearest-search
+           :stochastic-nearest-search
+        
+           :naive-nearest-search
+        
+           :kd-tree-search
+        
+           :m-tree-search
+        
+           :locality-sensitive-hashing
+           :p-stable-locality-sensitive-hashing
+           :euclid-locality-sensitive-hashing
+           :manhattan-locality-sensitive-hashing
+           :cosine-locality-sensitive-hashing
+        
+           :nns-input-data
+           :nns-input-key
+           :nns-distance
+        
+           :initialize-search
+        
+           :find-nearest
+           :find-nearest-k
 
-	
-	   :stochastic-validation
-	   ))
+        
+           :stochastic-validation
+           ))
 
 (defpackage :clml.nearest-search.k-nn-new
 

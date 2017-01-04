@@ -16,8 +16,8 @@
 
 (defun binomial (n k)
   (cond ((= k 0) 1)
-	((> k n) 0)
-	(t (* (/ n k) (binomial (1- n) (1- k))))))
+        ((> k n) 0)
+        (t (* (/ n k) (binomial (1- n) (1- k))))))
 
 (defun linear-combination (a x b)
   "Gives A when X = 0 and B when X = 1."
@@ -26,9 +26,9 @@
 (defun polynomial (coefficients x)
   "Evaluates a polynomial at X."
   (labels ((rec (lst)
-	     (if (null lst)
-		 0
-		 (+ (* (rec (rest lst)) x) (first lst)))))
+             (if (null lst)
+                 0
+                 (+ (* (rec (rest lst)) x) (first lst)))))
     (rec (reverse coefficients))))
 
 (defun real-integer-p (object)
@@ -43,11 +43,11 @@
   (let ((extended-name (concatenated-symbol name '-on-sorted)))
     `(progn
        (defun ,extended-name (,sequence ,@args)
-	 ,@body)
+         ,@body)
        (defun ,name (,sequence ,@args)
-	 (,extended-name (sort (copy-seq ,sequence) #'<) ,@args))
+         (,extended-name (sort (copy-seq ,sequence) #'<) ,@args))
        (setf (documentation ',name 'function)
-	     (documentation ',extended-name 'function))
+             (documentation ',extended-name 'function))
        '(,name ,extended-name))))
 
 (defun binary-search (x fn from to)
@@ -57,11 +57,11 @@ FN\(K\) is closest to X."
      while (> (- high low) 1)
      for mid = (+ low (floor (- high low) 2))
      do (if (< (funcall fn mid) x)
-	    (setf low mid)
-	    (setf high mid))
+            (setf low mid)
+            (setf high mid))
      finally (return (if (< (- x (funcall fn low)) (- (funcall fn high) x))
-			 low
-			 high))))
+                         low
+                         high))))
 
 (defun real-binary-search (fn from to &optional (tolerance 1.0d-8))
   "Searches for the zero position of FN in the interval [FROM, TO]."
@@ -69,8 +69,8 @@ FN\(K\) is closest to X."
      while (> (- high low) tolerance)
      for mid = (+ low (/ (- high low) 2.0d0))
      do (if (< (funcall fn mid) 0.0d0)
-	    (setf low mid)
-	    (setf high mid))
+            (setf low mid)
+            (setf high mid))
      finally (return mid)))
 
 ;; (defmacro conditional-swap-let (pred fn var-lists &body body)
@@ -81,10 +81,10 @@ FN\(K\) is closest to X."
 ;; Uses code duplication."
 ;;   `(if ,pred
 ;;        (funcall
-;; 	fn (let ,(mapcan (lambda (lst) (list lst (reverse lst))) var-lists)
-;; 	     ,@body))
+;;      fn (let ,(mapcan (lambda (lst) (list lst (reverse lst))) var-lists)
+;;           ,@body))
 ;;        (progn
-;; 	 ,@body)))
+;;       ,@body)))
 
 (defmacro conditional-swap-let (pred fn var-lists &body body)
   "If PRED is true, swap the values of every pair in VAR-LISTS, and execute
@@ -93,34 +93,34 @@ E.g. \(CONDITIONAL-SWAP-LET T #'1+ \(\(A B) \(C D)) ..BODY..) would swap the
 values of A and B, and C and D, and return the result of the body + 1.
 Uses SETF."
   (let ((vars (reduce #'append var-lists))
-	(swapp (gensym "SWAPP"))
-	(result (gensym "RESULT")))
+        (swapp (gensym "SWAPP"))
+        (result (gensym "RESULT")))
     `(let ,(cons (list swapp pred)
-		 (mapcar (lambda (var) (list var var)) vars))
+                 (mapcar (lambda (var) (list var var)) vars))
        (progn
-	 (when ,swapp
-	   ,@(mapcar (lambda (pair) `(rotatef ,@pair)) var-lists))
-	 (let ((,result (progn ,@body)))
-	   (if ,swapp (funcall ,fn ,result) ,result))))))
+         (when ,swapp
+           ,@(mapcar (lambda (pair) `(rotatef ,@pair)) var-lists))
+         (let ((,result (progn ,@body)))
+           (if ,swapp (funcall ,fn ,result) ,result))))))
 
 (defmacro conditional-let* (pred fn var-val-lists &body body)
   "If PRED is true, bind the first, otherwise the second value of every
 value pair in VAR-VAL-LISTS, and execute BODY in this environment. Call FN
 on the result, if PRED was true."
   (let ((firstp (gensym "FIRSTP"))
-	(result (gensym "RESULT")))
+        (result (gensym "RESULT")))
     `(let ,(cons (list firstp pred)
-		 (mapcar #'first var-val-lists))
+                 (mapcar #'first var-val-lists))
        (progn
-	 (if ,firstp
-	     ,(cons 'setf
-		    (mapcan (lambda (pair) (list (first pair) (second pair)))
-			    var-val-lists))
-	     ,(cons 'setf
-		    (mapcan (lambda (pair) (list (first pair) (third pair)))
-			    var-val-lists)))
-	 (let ((,result (progn ,@body)))
-	   (if ,firstp (funcall ,fn ,result) ,result))))))
+         (if ,firstp
+             ,(cons 'setf
+                    (mapcan (lambda (pair) (list (first pair) (second pair)))
+                            var-val-lists))
+             ,(cons 'setf
+                    (mapcan (lambda (pair) (list (first pair) (third pair)))
+                            var-val-lists)))
+         (let ((,result (progn ,@body)))
+           (if ,firstp (funcall ,fn ,result) ,result))))))
 
 (defun count-values (seq &key (test #'equal))
   (let (alist)

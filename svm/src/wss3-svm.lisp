@@ -536,7 +536,7 @@
         as a-k of-type double-float = (aref alpha-array k)
         as g-k of-type double-float = (aref gradient-array k)
         as g-temp of-type double-float = (- (* y-k g-k))
-        with a of-type double-float = 0.0d0	
+        with a of-type double-float = 0.0d0     
         with b of-type double-float  = 0.0d0
         if (or (and (= y-k 1.0d0) (> a-k 0.0d0))
                (and (= y-k -1.0d0) (< a-k (* weight c))))
@@ -607,7 +607,7 @@
               as a-k of-type double-float = (aref alpha-array k)
               as g-k of-type double-float = (aref gradient-array k)
               as g-temp of-type double-float = (- (* y-k g-k))
-              with a of-type double-float = 0.0d0	
+              with a of-type double-float = 0.0d0       
               with b of-type double-float  = 0.0d0
               if (or (and (= y-k 1.0d0) (> a-k 0.0d0))
                      (and (= y-k -1.0d0) (< a-k (* weight c))))
@@ -635,12 +635,12 @@
 (defun compute-b (training-vector kernel-function c weight alpha-array)
   (declare (type simple-vector training-vector)
            (type dvec alpha-array)
-	   (type kernel-function kernel-function)
-	   (type double-float c weight)
+           (type kernel-function kernel-function)
+           (type double-float c weight)
            (ignorable kernel-function))
 
   (let ((label-index (1- (length (aref training-vector 0))))
-	(n (length alpha-array)))
+        (n (length alpha-array)))
 
     (declare (type fixnum label-index n))
 
@@ -650,21 +650,21 @@
         for i of-type fixnum below n
         as alpha-i of-type double-float = (aref alpha-array i)
         as y-i of-type double-float  = (aref (the dvec (svref training-vector i)) label-index)
-        as c-i of-type double-float = (if (plusp y-i) c (* weight c))	
+        as c-i of-type double-float = (if (plusp y-i) c (* weight c))   
         with count = 0
         if (< 0.0d0 alpha-i c-i)
-	  do (incf count 1)
-	     (incf result
-		   (- y-i
-		      (let ((result2 0.0d0))
-			(declare (type double-float result2))
-			(loop
+          do (incf count 1)
+             (incf result
+                   (- y-i
+                      (let ((result2 0.0d0))
+                        (declare (type double-float result2))
+                        (loop
                           for j of-type fixnum below n
                           as alpha-j of-type double-float = (aref alpha-array j)
                           as y-j of-type double-float = (aref (the dvec (svref training-vector j)) label-index)
                           unless (= 0.0d0 alpha-j)
-			    do (incf result2
-				     (* alpha-j y-j
+                            do (incf result2
+                                     (* alpha-j y-j
                                                 (call-kernel-function kernel-function
                                                                       (svref training-vector i)
                                                                       (svref training-vector j))))
@@ -683,13 +683,13 @@
       as y-i = (aref point-i label-index)
       as c-i of-type double-float = (if (plusp y-i) c (* weight c))
       if (< 0.0d0 a-i c-i)
-	do (print (- y-i
-		     (loop
+        do (print (- y-i
+                     (loop
                        for j below (length training-vector)
                        as a-j = (aref alpha-array j)
                        as y-j = (aref (aref training-vector j) label-index)
                        unless (= 0.0d0 a-j)
-			 sum (* a-j y-j
+                         sum (* a-j y-j
                                     (call-kernel-function kernel-function
                                                           (svref training-vector i)
                                                           (svref training-vector j)))))))))
@@ -756,9 +756,9 @@
 
 (defun make-discriminant-function (training-vector kernel-function alpha-array b)
   (declare (type simple-vector training-vector)
-	   (type kernel-function kernel-function)
-	   (type dvec alpha-array)
-	   (type double-float b)
+           (type kernel-function kernel-function)
+           (type dvec alpha-array)
+           (type double-float b)
            (ignorable kernel-function))
 
   (let ((label-index (1- (length (svref training-vector 0)))))
@@ -784,26 +784,26 @@
   (assert (plusp c))
   (assert (plusp weight))
   (let* ((c (coerce c 'double-float))
-	 (weight (coerce weight 'double-float))
-	 (alpha-array (qp-solver training-vector kernel-function c weight (* (or cache-size-in-MB 100) 1024 1024)))
-	 (b (compute-b training-vector kernel-function c weight alpha-array)))
+         (weight (coerce weight 'double-float))
+         (alpha-array (qp-solver training-vector kernel-function c weight (* (or cache-size-in-MB 100) 1024 1024)))
+         (b (compute-b training-vector kernel-function c weight alpha-array)))
     (when (and file-name external-format)
       (with-open-file (out file-name
                            :external-format external-format
                            :direction :output
                            :if-exists :supersede
                            :if-does-not-exist :create)
-	(write (list training-vector alpha-array b) :stream out)))
+        (write (list training-vector alpha-array b) :stream out)))
     (make-discriminant-function training-vector kernel-function alpha-array b)))
 
 
 (defun load-svm-learner (file-name kernel-function &key external-format)
   (let* ((material-list
-	  (with-open-file (in file-name :external-format external-format :direction :input)
-	    (read in)))
-	 (training-vector (first material-list))
-	 (alpha-array (specialize-vec (second material-list)))
-	 (b (third material-list)))
+          (with-open-file (in file-name :external-format external-format :direction :input)
+            (read in)))
+         (training-vector (first material-list))
+         (alpha-array (specialize-vec (second material-list)))
+         (b (third material-list)))
 
     (loop
       for i of-type fixnum below (length training-vector)
@@ -814,9 +814,9 @@
 
 (defun svm-validation (svm-learner test-vector)
   (let* ((n (length test-vector))
-	 (label-index (1- (length (svref test-vector 0))))
-	 (sum-up-list
-	  (sum-up (loop for i of-type fixnum below n
+         (label-index (1- (length (svref test-vector 0))))
+         (sum-up-list
+          (sum-up (loop for i of-type fixnum below n
                         collect (cons (funcall svm-learner (svref test-vector i))
                                       (aref (the dvec (svref test-vector i)) label-index))))))
     (values sum-up-list (accuracy sum-up-list))))

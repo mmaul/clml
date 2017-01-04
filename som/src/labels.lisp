@@ -47,13 +47,13 @@
 ;; get-entry-labels - get i:th label from entry (i starts from 0).
 (defun get-entry-labels (data-entry i)
   (cond ((and (<= (data-entry-num-labs data-entry) 1)
-	      (= i 0))
-	 (slot-value (data-entry-lab data-entry) 'label))
-	((>= i (data-entry-num-labs data-entry))
-	 +label-empty+)
-	(t
-	 (elt (slot-value (data-entry-lab data-entry) 'label-array) i))))
-	
+              (= i 0))
+         (slot-value (data-entry-lab data-entry) 'label))
+        ((>= i (data-entry-num-labs data-entry))
+         +label-empty+)
+        (t
+         (elt (slot-value (data-entry-lab data-entry) 'label-array) i))))
+        
 
 (defmacro get-entry-label (e)
   `(get-entry-labels ,e 0))
@@ -69,29 +69,29 @@
   ;; adding an empty label does nothing
   (unless (= label +label-empty+)
     (if (= (data-entry-num-labs data-entry) 0)
-	;; add first label to entry
-	(progn
-	  (setf (data-entry-num-labs data-entry) 1)
-	  (setf (slot-value (data-entry-lab data-entry) 'label) label))
+        ;; add first label to entry
+        (progn
+          (setf (data-entry-num-labs data-entry) 1)
+          (setf (slot-value (data-entry-lab data-entry) 'label) label))
       ;; if there is already one label, we need to allocate a table for the labels
       (if (= (data-entry-num-labs data-entry) 1)
-	  (let ((atable (make-array *atable-increment* :adjustable t)))
-	    ;;  move old entry to table and add the new label
-	    (incf (data-entry-num-labs data-entry))
-	    (setf (elt atable 0) (slot-value (data-entry-lab data-entry) 'label))
-	    (setf (elt atable 1) label)
-	    (setf (slot-value (data-entry-lab data-entry) 'label-array) atable))
-	(progn
-	  ;;  enlarge label array if needed
-	  (when (= (rem (data-entry-num-labs data-entry) *atable-increment*) 0)
-	    (setf (slot-value (data-entry-lab data-entry) 'label-array)
-	      (adjust-array (slot-value (data-entry-lab data-entry) 'label-array)
-			    (+ (data-entry-num-labs data-entry) *atable-increment*))))
-	  (setf (elt (slot-value (data-entry-lab data-entry) 'label-array)
-		     (data-entry-num-labs data-entry))
-	    label)
-	  (incf (data-entry-num-labs data-entry)))
-	))))
+          (let ((atable (make-array *atable-increment* :adjustable t)))
+            ;;  move old entry to table and add the new label
+            (incf (data-entry-num-labs data-entry))
+            (setf (elt atable 0) (slot-value (data-entry-lab data-entry) 'label))
+            (setf (elt atable 1) label)
+            (setf (slot-value (data-entry-lab data-entry) 'label-array) atable))
+        (progn
+          ;;  enlarge label array if needed
+          (when (= (rem (data-entry-num-labs data-entry) *atable-increment*) 0)
+            (setf (slot-value (data-entry-lab data-entry) 'label-array)
+              (adjust-array (slot-value (data-entry-lab data-entry) 'label-array)
+                            (+ (data-entry-num-labs data-entry) *atable-increment*))))
+          (setf (elt (slot-value (data-entry-lab data-entry) 'label-array)
+                     (data-entry-num-labs data-entry))
+            label)
+          (incf (data-entry-num-labs data-entry)))
+        ))))
 
 
 ;; find-conv-to-ind - Give the corresponding index. If the label is
@@ -99,20 +99,20 @@
 (defun find-conv-to-ind (lab gdata)
   (if (stringp lab)
       (if (string= lab "") ; empty string -> empty label
-	  +label-empty+
-	(let ((label (loop for item across (gdata-labels-array gdata)
-			 for i from 1
-			 when (and (stringp item) (string= lab item))
-			 do (return i))))
-	  (when (not (numberp label))
-	    (setf label (gdata-num-labs gdata))
-	    ;; label not found in array. Add it.
-	    (when (>= (gdata-num-labs gdata) (gdata-lab-array-size gdata))
-	      (enlarge-array gdata))
-	    (setf (elt (gdata-labels-array gdata) (gdata-num-labs gdata)) lab)
-	    (incf (gdata-num-labs gdata)))
-	  (1+ label)))
-    +label-empty+			; no string -> empty label
+          +label-empty+
+        (let ((label (loop for item across (gdata-labels-array gdata)
+                         for i from 1
+                         when (and (stringp item) (string= lab item))
+                         do (return i))))
+          (when (not (numberp label))
+            (setf label (gdata-num-labs gdata))
+            ;; label not found in array. Add it.
+            (when (>= (gdata-num-labs gdata) (gdata-lab-array-size gdata))
+              (enlarge-array gdata))
+            (setf (elt (gdata-labels-array gdata) (gdata-num-labs gdata)) lab)
+            (incf (gdata-num-labs gdata)))
+          (1+ label)))
+    +label-empty+                       ; no string -> empty label
     ))
 
 
@@ -125,15 +125,15 @@
 
 (defclass hitlist ()
   ((lst :accessor hitlist-lst :initform nil
-	:documentation "list of hit-entries")
+        :documentation "list of hit-entries")
    (entries :accessor hitlist-entries :initform 0
-	    :documentation "number of entries")
+            :documentation "number of entries")
    ))
 
 (defclass hit-entry ()
   ((label :accessor hit-entry-label :initarg :label)
    (freq :accessor hit-entry-freq :initarg :freq
-	 :documentation "frequency of this label")))
+         :documentation "frequency of this label")))
 
 ;; initialize a new hitlist
 (defun new-hitlist ()
@@ -143,8 +143,8 @@
 ;; list. Returns nil if there is no entry for the label
 (defun find-hit (hl label)
   (let ((hit-entry (loop for he in (hitlist-lst hl)
-		       do  (when (= label (hit-entry-label he))
-			     (return he)))))
+                       do  (when (= label (hit-entry-label he))
+                             (return he)))))
     hit-entry))
 
 (defgeneric sort-hit-entries (hitlist))
@@ -153,34 +153,34 @@
   (let ((lst (hitlist-lst hitlist)))
     (setf (hitlist-lst hitlist)
       (sort lst #'>
-	    :key #'hit-entry-freq))))
+            :key #'hit-entry-freq))))
 
 ;; add_hit - add a hit in the list for a label
 (defun add-hit (hl label)
   (let ((he (find-hit hl label)))
     (if he
-	(progn
-	  (incf (hit-entry-freq he))
-	  (sort-hit-entries hl))
+        (progn
+          (incf (hit-entry-freq he))
+          (sort-hit-entries hl))
       (progn
-	(setq he
-	  (make-instance 'hit-entry
-	    :label label
-	    :freq 1))
-	;; add to the end of list
-	(setf (hitlist-lst hl)
-	  (append (hitlist-lst hl) (list he)))
-	(incf (hitlist-entries hl))))
+        (setq he
+          (make-instance 'hit-entry
+            :label label
+            :freq 1))
+        ;; add to the end of list
+        (setf (hitlist-lst hl)
+          (append (hitlist-lst hl) (list he)))
+        (incf (hitlist-entries hl))))
     (hit-entry-freq he)))
 
-	
+        
 ;; find_conv_to_lab - Give the corresponding label; if the index is
 ;; not yet there, return NULL
 (defun find-conv-to-lab (ind gdata)
   (cond ((= ind +label-empty+)
-	 nil)
-	((or (> ind (gdata-num-labs gdata))
-	     (< ind 0))
-	 nil)
-	(t
-	 (elt (gdata-labels-array gdata) (1- ind)))))
+         nil)
+        ((or (> ind (gdata-num-labs gdata))
+             (< ind 0))
+         nil)
+        (t
+         (elt (gdata-labels-array gdata) (1- ind)))))

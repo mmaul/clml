@@ -2,8 +2,8 @@
 
 (defun histogram (values n)
   (let ((min (reduce #'min values))
-	(max (reduce #'max values))
-	(len (length values)))
+        (max (reduce #'max values))
+        (len (length values)))
     (loop
        with delta = (/ (- max min) n)
        for lst = values then (set-difference lst current :test #'=)
@@ -14,8 +14,8 @@
 
 (defun discrete-histogram (values)
   (let ((min (reduce #'min values))
-	(max (reduce #'max values))
-	(len (length values)))
+        (max (reduce #'max values))
+        (len (length values)))
     (loop
        for x from min to max
        collect (list x (/ (count x values) len)))))
@@ -34,16 +34,16 @@
 ;;; Usage example:
 #+nil
 (with-open-file (s "/tmp/random-standard-normal.data"
-		   :direction :output :if-exists :supersede)
+                   :direction :output :if-exists :supersede)
   (let ((values (rand-n (standard-normal-distribution) 10000)))
     (format s "~{~{~f ~f~}~%~}" (histogram values 50))))
 
 #+nil
 (with-open-file (s "/tmp/real-standard-normal.data"
-		   :direction :output :if-exists :supersede)
+                   :direction :output :if-exists :supersede)
   (format s "~{~{~f ~f~}~%~}"
-	  (let ((d (standard-normal-distribution)))
-	    (plot-function (lambda (x) (density d x)) -4 4 50))))
+          (let ((d (standard-normal-distribution)))
+            (plot-function (lambda (x) (density d x)) -4 4 50))))
 
 ;;; .. then in GNUPlot:
 
@@ -54,13 +54,13 @@
 ;;; Discrete case:
 #+nil
 (with-open-file (s "/tmp/random-pascal.data"
-		   :direction :output :if-exists :supersede)
-	(let ((values (rand-n (pascal-distribution 10 0.6d0) 10000)))
+                   :direction :output :if-exists :supersede)
+        (let ((values (rand-n (pascal-distribution 10 0.6d0) 10000)))
     (format s "~{~{~f ~f~}~%~}" (discrete-histogram values))))
 
 #+nil
 (with-open-file (s "/tmp/real-pascal.data"
-		   :direction :output :if-exists :supersede)
+                   :direction :output :if-exists :supersede)
   (format s "~{~{~f ~f~}~%~}"
-	  (let ((d (pascal-distribution 10 0.6d0)))
-	    (plot-discrete-function (lambda (x) (mass d x)) 0 20))))
+          (let ((d (pascal-distribution 10 0.6d0)))
+            (plot-discrete-function (lambda (x) (mass d x)) 0 20))))

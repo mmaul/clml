@@ -31,23 +31,23 @@
   (let ((gensyms (loop for n in names collect (gensym))))
     `(let (,@(loop for g in gensyms collect `(,g (gensym))))
        `(let (,,@(loop for g in gensyms for n in names collect ``(,,g ,,n)))
-	  ,(let (,@(loop for n in names for g in gensyms collect `(,n ,g)))
-		,@body)))))
+          ,(let (,@(loop for n in names for g in gensyms collect `(,n ,g)))
+                ,@body)))))
 
 (defmacro defun-speedy (name lambda-list &body body)
   `(progn
      (declaim (inline ,name))
      (defun ,name ,lambda-list
        (declare (optimize speed)
-		#+allegro (:faslmode :immediate))
+                #+allegro (:faslmode :immediate))
        ,@body)
      #+allegro
      (define-compiler-macro ,name ,lambda-list
        `(let (,,@(loop
                    for n in lambda-list
                    collect ``(,',n ,,n)))
-	  (declare (optimize speed))
-	  ,@',body))
+          (declare (optimize speed))
+          ,@',body))
 
      ',name))
 
@@ -57,7 +57,7 @@
      #+allegro
      (eval-when (:compile-toplevel :load-toplevel :execute)
        (setf (get ',name 'sys::immed-args-call)
-	     '(,(mapcar (constantly :lisp) input-arguments) double-float)))))
+             '(,(mapcar (constantly :lisp) input-arguments) double-float)))))
 
 (defmacro gethash-or-set (key table gen-value)
   (with-unique-names (val present)
@@ -73,9 +73,9 @@
 ;;   (let ((keyword (if generate 'generate 'for)))
 ;;     (with-unique-names (idx arr)
 ;;       `(progn
-;; 	 (with ,arr = ,array)
-;; 	 (for ,idx index-of-vector ,array)
-;; 	 (,keyword ,var next (aref ,arr ,idx))))))
+;;       (with ,arr = ,array)
+;;       (for ,idx index-of-vector ,array)
+;;       (,keyword ,var next (aref ,arr ,idx))))))
 
 
 (defmacro +fl (&rest double-floats)
@@ -107,7 +107,7 @@
 (defun batch-elt (seq indexes &key (result-type 'list))
   (assert (typep seq 'sequence))
   (assert (and (listp indexes)
-	       (every (lambda (x) (>= x 0)) indexes)))
+               (every (lambda (x) (>= x 0)) indexes)))
   (loop for i in indexes
      collect (elt seq i) into result
      finally (return (coerce result (if result-type result-type 'list)))))

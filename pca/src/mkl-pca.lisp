@@ -34,12 +34,12 @@ N), where M is the number of ponits and N is the dimension size.
 
 (defun make-pca-result (components contributions loading-factors pca-method centroid orig-data-standard-deviations)
   (make-instance 'pca-result
-		 :components components
-		 :contributions contributions
-		 :loading-factors loading-factors
-		 :pca-method pca-method
-		 :centroid centroid
-		 :orig-data-standard-deviations orig-data-standard-deviations))
+                 :components components
+                 :contributions contributions
+                 :loading-factors loading-factors
+                 :pca-method pca-method
+                 :centroid centroid
+                 :orig-data-standard-deviations orig-data-standard-deviations))
 
 (defclass pca-model ()
   ((loading-factors :initarg :loading-factors :accessor loading-factors)
@@ -49,10 +49,10 @@ N), where M is the number of ponits and N is the dimension size.
 
 (defun make-pca-model (loading-factors pca-method centroid orig-data-standard-deviations)
   (make-instance 'pca-model
-		 :loading-factors loading-factors
-		 :pca-method pca-method
-		 :centroid centroid
-		 :orig-data-standard-deviations orig-data-standard-deviations))
+                 :loading-factors loading-factors
+                 :pca-method pca-method
+                 :centroid centroid
+                 :orig-data-standard-deviations orig-data-standard-deviations))
 
 (defmethod make-cov-or-cor ((dataset numeric-dataset)
                             &key (method :covariance)

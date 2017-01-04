@@ -109,8 +109,8 @@
 (defun decide (k-data)
   (let ((alist nil))
     (loop for p across k-data
-	for l = (k-nn-point-signal p)
-	for w = (or (k-nn-point-weight p) 1) do
+        for l = (k-nn-point-signal p)
+        for w = (or (k-nn-point-weight p) 1) do
       (let ((found (assoc l alist :test #'string=)))
         (if found
             (incf (cdr found) w)
@@ -120,9 +120,9 @@
 (defun average (k-data k)
   (let ((ans 0d0))
     (loop for p across k-data
-	for l = (k-nn-point-signal p)
-	for w = (or (k-nn-point-weight p) 1d0) do
-	  (incf ans (* w (/ l k))))
+        for l = (k-nn-point-signal p)
+        for w = (or (k-nn-point-weight p) 1d0) do
+          (incf ans (* w (/ l k))))
     ans))
 (defun choice-type (teachers)
   (etypecase (svref teachers 0)
@@ -218,17 +218,17 @@
 (defmethod make-load-form ((self k-nn-estimator) &optional environment)
   (declare (ignorable environment))
   `(make-instance ',(class-name (class-of self))
-		  :vecs ',(vecs self)
-		  :vec-labels ',(vec-labels self)
-		  :vec-profiles ',(vec-profiles self)
-		  :vec-weight ',(vec-weight self)
-		  :mins ',(mins self)
-		  :maxs ',(maxs self)
+                  :vecs ',(vecs self)
+                  :vec-labels ',(vec-labels self)
+                  :vec-profiles ',(vec-profiles self)
+                  :vec-weight ',(vec-weight self)
+                  :mins ',(mins self)
+                  :maxs ',(maxs self)
                   :target ',(target self)
-		  :teachers ',(teachers self)
+                  :teachers ',(teachers self)
                   :esttype ',(esttype self)
-		  :k ',(k self)
-		  :distance ',(distance self)))
+                  :k ',(k self)
+                  :distance ',(distance self)))
 (defun dump-knn-est (est outdir)
   (make-dir outdir)
   (let ((*loading-est* est)
@@ -236,7 +236,7 @@
         (outfile (format nil "~A/estimator" outdir)))
     (with-open-file (out outfile :direction :output :if-exists :supersede)
       (with-standard-io-syntax
-	(format out "~&(setf *loading-est* ~s)~%" (make-load-form est))))))
+        (format out "~&(setf *loading-est* ~s)~%" (make-load-form est))))))
 (defun load-dumped-est (indir)
   (let ((*loading-est* nil)
         (*package* (find-package :learn.k-nn)))
@@ -274,7 +274,7 @@
   (let ((k-data (find-nearest-k search (make-k-nn-point :data (vec data)) k k-points k-dis)))
     (setf (ested data) (case est-type
                          (:classify (decide k-data))
-			 (:linear (average k-data k))))))
+                         (:linear (average k-data k))))))
 
 (defun make-class-weight (initarg teachers)
   (assert (and (listp initarg) (every #'consp initarg)))
@@ -393,8 +393,8 @@
                         (:category :classify))
                       (choice-type teachers)))
          (vecs (if (member distance '(:double-euclid :double-manhattan))
-		   (map 'vector #'(lambda (x) (coerce x 'dvec)) (choice-dimensions explanatories learning-data))
-		 (choice-dimensions explanatories learning-data)))
+                   (map 'vector #'(lambda (x) (coerce x 'dvec)) (choice-dimensions explanatories learning-data))
+                 (choice-dimensions explanatories learning-data)))
          (vecs-tmp (map 'vector
                      #'(lambda (vec) (make-instance 'knn-exp :vec vec))
                      vecs))
@@ -414,44 +414,44 @@
          (vec-profiles (make-vector-profile vecs teachers esttype))
          (mins nil)
          (maxs nil)
-	 (k-points (make-array k))
-	 (k-dis (make-dvec k most-positive-double-float)))
+         (k-points (make-array k))
+         (k-dis (make-dvec k most-positive-double-float)))
     (when normalize
       (setf (values mins maxs) (normalize-vecs vecs)))
     ;; initialize nearest-search
     (let* ((input-data (if use-weight
-			   (map 'vector #'(lambda (x s w) (make-k-nn-point :data x :signal s :weight w))
-				vecs teachers vec-weight)
-			 (map 'vector #'(lambda (x s) (make-k-nn-point :data x :signal s)) vecs teachers)))
-	   (nns-class (case nns-type
-			(:naive 'naive-nearest-search)
-			(:kd-tree 'kd-tree-search)
-			(:m-tree  'm-tree-search)
-			(:lsh (ecase distance
-				(:double-euclid 'euclid-locality-sensitive-hashing)
-				(:double-manhattan 'manhattan-locality-sensitive-hashing)))
-			(otherwise
-			 (check-type nns-type symbol)
-			 nns-type)))
-	   (search (apply #'make-instance nns-class :input-data input-data :input-key #'k-nn-point-data
-			  :distance #'(lambda (x y) (funcall disf x y vec-profiles))
-			  nns-args))
-	   (estimator
-	    (make-instance 'k-nn-estimator
-	      :k k :distance distance :target target
-	      :vecs vecs :vec-weight vec-weight :vec-labels explanatories
-	      :vec-profiles vec-profiles :teachers teachers :esttype esttype :mins mins :maxs maxs
-	      :nn-search search :k-points k-points :k-dis k-dis)))
+                           (map 'vector #'(lambda (x s w) (make-k-nn-point :data x :signal s :weight w))
+                                vecs teachers vec-weight)
+                         (map 'vector #'(lambda (x s) (make-k-nn-point :data x :signal s)) vecs teachers)))
+           (nns-class (case nns-type
+                        (:naive 'naive-nearest-search)
+                        (:kd-tree 'kd-tree-search)
+                        (:m-tree  'm-tree-search)
+                        (:lsh (ecase distance
+                                (:double-euclid 'euclid-locality-sensitive-hashing)
+                                (:double-manhattan 'manhattan-locality-sensitive-hashing)))
+                        (otherwise
+                         (check-type nns-type symbol)
+                         nns-type)))
+           (search (apply #'make-instance nns-class :input-data input-data :input-key #'k-nn-point-data
+                          :distance #'(lambda (x y) (funcall disf x y vec-profiles))
+                          nns-args))
+           (estimator
+            (make-instance 'k-nn-estimator
+              :k k :distance distance :target target
+              :vecs vecs :vec-weight vec-weight :vec-labels explanatories
+              :vec-profiles vec-profiles :teachers teachers :esttype esttype :mins mins :maxs maxs
+              :nn-search search :k-points k-points :k-dis k-dis)))
       (do-vecs ((v vecs-tmp))
-	(estimate v esttype search k k-points k-dis))
+        (estimate v esttype search k k-points k-dis))
       (when (eq esttype :classify)
-	(format t "~&Number of self-misjudgement : ~A~%"
-		(let ((count 0))
-		  (do-vecs ((org-id teachers)
-			    (ested-vec vecs-tmp))
-		    (unless (string-equal org-id (ested ested-vec))
-		      (incf count)))
-		  count)))
+        (format t "~&Number of self-misjudgement : ~A~%"
+                (let ((count 0))
+                  (do-vecs ((org-id teachers)
+                            (ested-vec vecs-tmp))
+                    (unless (string-equal org-id (ested ested-vec))
+                      (incf count)))
+                  count)))
       estimator)))
 
 #+ignore
@@ -472,17 +472,17 @@
   - estimator : <k-nn-estimator>
   - in-data :  <unspecialized-dataset> data to be estimated."
   (let* ((est-type (esttype estimator))
-	 (vecs (if (member (distance estimator) '(:double-euclid :double-manhattan))
-		   (map 'vector #'(lambda (x) (coerce x 'dvec)) (choice-dimensions (vec-labels estimator) in-data))
-		 (choice-dimensions (vec-labels estimator) in-data)))
+         (vecs (if (member (distance estimator) '(:double-euclid :double-manhattan))
+                   (map 'vector #'(lambda (x) (coerce x 'dvec)) (choice-dimensions (vec-labels estimator) in-data))
+                 (choice-dimensions (vec-labels estimator) in-data)))
          (target-vecs
           (map 'vector
             #'(lambda (vec) (make-instance 'knn-exp :vec vec))
             vecs))
          (k (k estimator))
-	 (search (k-nn-search estimator))
-	 (k-points (k-points estimator))
-	 (k-dis (k-dis estimator))
+         (search (k-nn-search estimator))
+         (k-points (k-points estimator))
+         (k-dis (k-dis estimator))
          (mins (mins estimator))
          (maxs (maxs estimator)))
     (when (and mins maxs)

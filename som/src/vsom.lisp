@@ -12,10 +12,10 @@
 (defun vsom (g-data length alpha radius alpha-type randomize)
   (declare (optimize (speed 3)))
   (let ((params (make-instance 'teach-params))
-	(fixed 0)
-	(weights 0)
-	(data)
-	(codes))
+        (fixed 0)
+        (weights 0)
+        (data)
+        (codes))
 
     (setf (teach-params-length params) length)
     (setf (teach-params-alpha params) alpha)
@@ -53,7 +53,7 @@
     (init-random randomize)
     (when randomize
       (setf (entries-entries data)
-	(randomize-entry-order (entries-entries data)))
+        (randomize-entry-order (entries-entries data)))
       (setf (slot-value (entries-entries_flags data) 'random-order) t))
 
     (unless alpha-type
@@ -62,10 +62,10 @@
     (let ((type-id (get-type-by-str *alpha-list* alpha-type)))
       (declare (type fixnum type-id))
       (unless (or type-id (= type-id (the fixnum +alpha-unknown+)))
-	(error "Unknown alpha type~a~%" alpha-type))
+        (error "Unknown alpha type~a~%" alpha-type))
       (setf (teach-params-alpha-type params) type-id)
       (setf (teach-params-alpha-func params)
-	(get-alpha-function type-id)))
+        (get-alpha-function type-id)))
 
     (som-training params)
 

@@ -26,22 +26,22 @@
 
 ;; return sammon file path
 (defun do-som-by-filename (
-			   in-data-file ;; input data
-			   s-topol ;; topology type (hexa/rect)
-			   s-neigh ;; neighborhood type (bubble/gaussian)
-			   xdim ;; x-dimension of output map
-			   ydim ;; y-dimension of output map
-			   randomize ;; random seed for initialization
-			   ;; training parameters
-			   length ;; how many times train for path1
-			   ialpha ;; learning rate for path1 x100
-			   iradius ;; learning radius for path1 x100
-			   ;; visualization parameters
-			   num-labels ;; number of labels on same map point
-			   ;; output ps directory
-			   directory
-			   &key (debug nil)
-			   )
+                           in-data-file ;; input data
+                           s-topol ;; topology type (hexa/rect)
+                           s-neigh ;; neighborhood type (bubble/gaussian)
+                           xdim ;; x-dimension of output map
+                           ydim ;; y-dimension of output map
+                           randomize ;; random seed for initialization
+                           ;; training parameters
+                           length ;; how many times train for path1
+                           ialpha ;; learning rate for path1 x100
+                           iradius ;; learning radius for path1 x100
+                           ;; visualization parameters
+                           num-labels ;; number of labels on same map point
+                           ;; output ps directory
+                           directory
+                           &key (debug nil)
+                           )
 
 
   (let ((alpha (/ ialpha 100.0d0))
@@ -50,7 +50,7 @@
         (g-data)
         (out-pathname)
         (sammon-pathname)
-		(gif-label-pos-list))
+                (gif-label-pos-list))
     (format t "~%in-data-file [~s]~%" in-data-file)
     (format t "s-topol[~a] s-neigh[~a] xdim[~d] ydim[~d] nrand[~d]~%"
             s-topol s-neigh xdim ydim randomize)

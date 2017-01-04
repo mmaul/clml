@@ -6,34 +6,34 @@
 (in-package :f2cl-lib)
 
 ;; macros:
-;;	rexpt
-;;	fexport
-;;	fproclaim
-;;	fuse-package
-;;	fin-package
-;;	map-defvar
-;;	do1
-;;	do!
-;;	double-cdr
-;;	putproperty
-;;	defprop
-;;	array-cl
-;;	store-cl
-;;	apply!
+;;      rexpt
+;;      fexport
+;;      fproclaim
+;;      fuse-package
+;;      fin-package
+;;      map-defvar
+;;      do1
+;;      do!
+;;      double-cdr
+;;      putproperty
+;;      defprop
+;;      array-cl
+;;      store-cl
+;;      apply!
 
-;;	rfref
-;;	rfset
-;;	fref
-;;	fset
+;;      rfref
+;;      rfset
+;;      fref
+;;      fset
 
-;;	while
+;;      while
 ;;       fdo
-;;	reset-vble - a defun
+;;      reset-vble - a defun
 ;;       arithmetic-if
-;;	computed-goto
-;;	assigned-goto
-;;	eqv
-;;	constant-list
+;;      computed-goto
+;;      assigned-goto
+;;      eqv
+;;      constant-list
 ;;----------------------------------------------------------------------------
 
 (eval-when (compile load eval) (proclaim '(special *verbose*)))
@@ -106,43 +106,43 @@ is not included")
 ;; the upper and lower bounds for each dimension.
 (defun col-major-index (indices dims)
   (flet ((get-offset (n bound)
-	   (let ((lo (first bound)))
-	     (if (and (numberp lo) (zerop lo))
-		 n
-		 `(the fixnum (- (the fixnum ,n) (the fixnum ,lo))))))
-	 (get-size (bound)
-	   (destructuring-bind (lo hi)
-	       bound
-	     (cond ((numberp lo)
-		    (cond ((numberp hi)
-			   (1+ (- hi lo)))
-			  ((= lo 1)
-			   hi)
-			  (t
-			   `(- ,hi ,(- lo 1)))))
-		   (t
-		    `(the fixnum (- ,hi (the fixnum (- (the fixnum ,lo) 1)))))))))
+           (let ((lo (first bound)))
+             (if (and (numberp lo) (zerop lo))
+                 n
+                 `(the fixnum (- (the fixnum ,n) (the fixnum ,lo))))))
+         (get-size (bound)
+           (destructuring-bind (lo hi)
+               bound
+             (cond ((numberp lo)
+                    (cond ((numberp hi)
+                           (1+ (- hi lo)))
+                          ((= lo 1)
+                           hi)
+                          (t
+                           `(- ,hi ,(- lo 1)))))
+                   (t
+                    `(the fixnum (- ,hi (the fixnum (- (the fixnum ,lo) 1)))))))))
     (let* ((rev-idx (reverse indices))
-	   (rev-dim (reverse dims))
-	   (idx (get-offset (first rev-idx) (first rev-dim))))
+           (rev-dim (reverse dims))
+           (idx (get-offset (first rev-idx) (first rev-dim))))
       (do ((d (rest rev-dim) (rest d))
-	   (n (rest rev-idx) (rest n)))
-	  ((endp d)
-	   idx)
-	(setf idx `(the fixnum (+ ,(get-offset (first n) (first d))
-				  (the fixnum (* ,(get-size (first d)) ,idx)))))))))
+           (n (rest rev-idx) (rest n)))
+          ((endp d)
+           idx)
+        (setf idx `(the fixnum (+ ,(get-offset (first n) (first d))
+                                  (the fixnum (* ,(get-size (first d)) ,idx)))))))))
 
 (defun check-array-bounds (indices bounds)
   `(and ,@(mapcar #'(lambda (idx dim)
-		      `(<= ,(first dim) ,idx ,(second dim)))
-		  indices bounds)))
+                      `(<= ,(first dim) ,idx ,(second dim)))
+                  indices bounds)))
 
 (defmacro fref (arr indices bounds &optional offset)
   (if *check-array-bounds*
       `(aref ,arr (if ,(check-array-bounds indices bounds)
-		      (the fixnum (+ (the fixnum ,(or offset 0)) ,(col-major-index indices bounds)))
-		      (error "Out of bounds index for array ~S"
-			     ',arr)))
+                      (the fixnum (+ (the fixnum ,(or offset 0)) ,(col-major-index indices bounds)))
+                      (error "Out of bounds index for array ~S"
+                             ',arr)))
       `(aref ,arr (the fixnum (+ (the fixnum ,(or offset 0)) ,(col-major-index indices bounds))))))
 
 (defmacro fset (a b)
@@ -165,14 +165,14 @@ is not included")
   (declare (type (array * (*)) array))
   (let ((offset 0))
     (declare (type fixnum offset)
-	     (optimize (speed 3) (safety 0)))
+             (optimize (speed 3) (safety 0)))
     (loop
        (multiple-value-bind (displaced-to index-offset)
-	   (array-displacement array)
-	 (when (null displaced-to)
-	   (return-from find-array-data (values array offset)))
-	 (incf offset index-offset)
-	 (setf array displaced-to)))))
+           (array-displacement array)
+         (when (null displaced-to)
+           (return-from find-array-data (values array offset)))
+         (incf offset index-offset)
+         (setf array displaced-to)))))
 
 (defmacro with-array-data ((data-var offset-var array) &rest body)
   `(multiple-value-bind (,data-var ,offset-var)
@@ -183,14 +183,14 @@ is not included")
   (let ((results body))
     (dolist (a (reverse array-info))
       (destructuring-bind (array a-type var-name offset-var)
-	  a
-	(setf results
-	      `((multiple-value-bind (,var-name ,offset-var)
-		    (find-array-data ,array)
-		  (declare (ignorable ,offset-var ,var-name)
-			   (type f2cl-lib:integer4 ,offset-var)
-			   (type (simple-array ,a-type (*)) ,var-name))
-		  ,@results)))))
+          a
+        (setf results
+              `((multiple-value-bind (,var-name ,offset-var)
+                    (find-array-data ,array)
+                  (declare (ignorable ,offset-var ,var-name)
+                           (type f2cl-lib:integer4 ,offset-var)
+                           (type (simple-array ,a-type (*)) ,var-name))
+                  ,@results)))))
     (first results)))
 
 (defmacro with-multi-array-data (array-info &rest body)
@@ -205,15 +205,15 @@ is not included")
 #+nil
 (defmacro array-slice (vname type indices bounds)
   (let ((dims `(* ,@(mapcar #'(lambda (idx bnd)
-				(if (and (numberp idx)
-					 (numberp (second bnd)))
-				    (+ (- (second bnd) idx) 1)
-				    `(+ (- ,(second bnd) ,idx) 1)))
-			    indices bounds))))
+                                (if (and (numberp idx)
+                                         (numberp (second bnd)))
+                                    (+ (- (second bnd) idx) 1)
+                                    `(+ (- ,(second bnd) ,idx) 1)))
+                            indices bounds))))
     `(make-array ,dims
-		 :element-type ',type
-		 :displaced-to ,vname
-		 :displaced-index-offset ,(col-major-index indices bounds))))
+                 :element-type ',type
+                 :displaced-to ,vname
+                 :displaced-index-offset ,(col-major-index indices bounds))))
 
 (defmacro array-slice (vname type indices bounds)
   ;; To figure the size of the sliced array, use ARRAY-TOTAL-SIZE
@@ -238,9 +238,9 @@ is not included")
   ;; This seems somewhat reasonable, so let's do that for array
   ;; slices.
   `(make-array (max 0 (- (array-total-size ,vname) ,(col-major-index indices bounds)))
-	       :element-type ',type
-	       :displaced-to ,vname
-	       :displaced-index-offset (min (array-total-size ,vname) ,(col-major-index indices bounds))))
+               :element-type ',type
+               :displaced-to ,vname
+               :displaced-index-offset (min (array-total-size ,vname) ,(col-major-index indices bounds))))
 
 #+nil
 (defmacro array-slice (vname type indices bounds)
@@ -252,24 +252,24 @@ is not included")
 ;; DIMS.
 (defmacro array-initialize (type dims data)
   (let ((data-list (gensym))
-	(data-len (length data))
-	(total-length (gensym)))
+        (data-len (length data))
+        (total-length (gensym)))
     `(let* ((,data-list ',data)
-	    (,total-length (reduce #'* (list ,@dims))))
+            (,total-length (reduce #'* (list ,@dims))))
        (cond ((< ,data-len ,total-length)
-	      ;; Need to append some data.
-	      (append ,data-list (make-list (- ,total-length ,data-len)
-					    :initial-element (coerce 0 ',type))))
-	     ((> ,data-len ,total-length)
-	      ;; Need to truncate some data
-	      (subseq ,data-list 0 ,total-length))
-	     (t
-	      ,data-list)))))
+              ;; Need to append some data.
+              (append ,data-list (make-list (- ,total-length ,data-len)
+                                            :initial-element (coerce 0 ',type))))
+             ((> ,data-len ,total-length)
+              ;; Need to truncate some data
+              (subseq ,data-list 0 ,total-length))
+             (t
+              ,data-list)))))
 
 ;;----------------------------------------------------------------------------
 
 #-aclpc (defmacro while (con &rest body)
-	  `(loop (if (not ,con) (return t)) ,@body))
+          `(loop (if (not ,con) (return t)) ,@body))
 ;;------------------------------------------------------------------
 
 (defmacro fortran_comment (&rest args)
@@ -280,31 +280,31 @@ is not included")
 
 (defmacro fdo (do_vble_clause predicate_clause &rest body)
   (let ((step (gensym (symbol-name '#:step-)))
-	(iteration_count (gensym (symbol-name '#:cnt-)))
-	(loop-var (first do_vble_clause)))
+        (iteration_count (gensym (symbol-name '#:cnt-)))
+        (loop-var (first do_vble_clause)))
     `(prog* ((,step ,(third (third do_vble_clause)))
-	     (,iteration_count
-	      (max 0 (the integer4
-		       (truncate (the integer4
-				   (+ (the integer4 (- ,(third (first predicate_clause))
-						       ,(second do_vble_clause)))
-				      ,step))
-				 ,step))
-		   )))
-	(declare (type integer4 ,step ,iteration_count))
-	;; initialise loop variable
-	(setq ,loop-var ,(second do_vble_clause))
-	loop
-	(return
-	  (cond				; all iterations done
-	    ((zerop ,iteration_count) nil)
-	    ;; execute loop, in/de-crement loop vble and decrement cntr
-	    ,(cons 't
-		   (append
-		    (append body
-			    `((setq ,loop-var (the integer4 ,(third do_vble_clause))
-				    ,iteration_count (the integer4 (1- ,iteration_count)))))
-		    '((go loop)))))))))
+             (,iteration_count
+              (max 0 (the integer4
+                       (truncate (the integer4
+                                   (+ (the integer4 (- ,(third (first predicate_clause))
+                                                       ,(second do_vble_clause)))
+                                      ,step))
+                                 ,step))
+                   )))
+        (declare (type integer4 ,step ,iteration_count))
+        ;; initialise loop variable
+        (setq ,loop-var ,(second do_vble_clause))
+        loop
+        (return
+          (cond                         ; all iterations done
+            ((zerop ,iteration_count) nil)
+            ;; execute loop, in/de-crement loop vble and decrement cntr
+            ,(cons 't
+                   (append
+                    (append body
+                            `((setq ,loop-var (the integer4 ,(third do_vble_clause))
+                                    ,iteration_count (the integer4 (1- ,iteration_count)))))
+                    '((go loop)))))))))
 
 ;;(defmacro fdo (do-vbles predicate-clause &rest body)
 ;;   `(prog nil
@@ -343,20 +343,20 @@ is not included")
 
 (defmacro f2cl/ (x y)
   (let ((top (gensym))
-	(bot (gensym)))
+        (bot (gensym)))
     `(let ((,top ,x)
-	   (,bot ,y))
+           (,bot ,y))
        (if (and (typep ,top 'integer)
-		(typep ,bot 'integer))
-	   (values (the integer4 (truncate ,top ,bot)))
-	   (/ ,top ,bot)))))
+                (typep ,bot 'integer))
+           (values (the integer4 (truncate ,top ,bot)))
+           (/ ,top ,bot)))))
 
 (defmacro int-add (arg &rest more-args)
   (if (null more-args)
       arg
       (if (> (length more-args) 1)
-	  `(the integer4 (+ ,arg (int-add ,@more-args)))
-	  `(the integer4 (+ ,arg ,@more-args)))))
+          `(the integer4 (+ ,arg (int-add ,@more-args)))
+          `(the integer4 (+ ,arg ,@more-args)))))
 
 (defun convert-int-sub (args)
   (let ((nargs (length args)))
@@ -367,9 +367,9 @@ is not included")
        `(the integer4 (- ,(first args) ,(second args))))
       (t
        (let ((result `(the integer4 (- ,(first args) ,(second args)))))
-	 (dolist (arg (rest (rest args)))
-	   (setf result `(the integer4 (- ,result ,arg))))
-	 result)))))
+         (dolist (arg (rest (rest args)))
+           (setf result `(the integer4 (- ,result ,arg))))
+         result)))))
 
 (defmacro int-sub (&rest args)
   (convert-int-sub args))
@@ -378,8 +378,8 @@ is not included")
   (if (null more-args)
       arg
       (if (> (length more-args) 1)
-	  `(the integer4 (* ,arg (int-mul ,@more-args)))
-	  `(the integer4 (* ,arg ,@more-args)))))
+          `(the integer4 (* ,arg (int-mul ,@more-args)))
+          `(the integer4 (* ,arg ,@more-args)))))
 
 
 ;; macro for a lisp equivalent of Fortran arithmetic IFs
@@ -387,13 +387,13 @@ is not included")
   (let ((tst (gensym)))
     `(let ((,tst ,pred))
        (cond ((< ,tst 0) ,s1)
-	     ((= ,tst 0) ,s2)
-	     (t ,s3)))))
+             ((= ,tst 0) ,s2)
+             (t ,s3)))))
 
 ;; macro for a lisp equivalent of Fortran computed GOTOs
 (defun computed-goto-aux (tags)
   (let ((idx 0)
-	(result '()))
+        (result '()))
     (dolist (tag tags (nreverse result))
       (incf idx)
       (push `(,idx (go ,tag)) result))))
@@ -407,8 +407,8 @@ is not included")
 (defmacro assigned-goto (i &optional tag-lst)
   `(if ,tag-lst
        (if (member ,i ,tag-lst)
-	   (go ,i)
-	   (error "bad statement number in assigned goto"))
+           (go ,i)
+           (error "bad statement number in assigned goto"))
        (go ,i)))
 
 
@@ -420,8 +420,8 @@ is not included")
   (defun assigned-goto-aux (tag-list)
     (let ((cases nil))
       (dolist (tag tag-list)
-	(push `(,tag (go ,(f2cl-lib::make-label tag)))
-	      cases))
+        (push `(,tag (go ,(f2cl-lib::make-label tag)))
+              cases))
       (push `(t (error "Unknown label for assigned goto")) cases)
       (nreverse cases)))
   )
@@ -452,12 +452,12 @@ is not included")
      (the integer4 x))
     (single-float
      (truncate (the (single-float #.(float most-negative-fixnum)
-				  #.(float most-positive-fixnum))
-		 x)))
+                                  #.(float most-positive-fixnum))
+                 x)))
     (double-float
      (truncate (the (double-float #.(float most-negative-fixnum 1d0)
-				  #.(float most-positive-fixnum 1d0))
-		 x)))))
+                                  #.(float most-positive-fixnum 1d0))
+                 x)))))
 
 #+(or cmu scl)
 (defun int (x)
@@ -471,13 +471,13 @@ is not included")
     (single-float
      (the integer4
        (truncate (the (single-float #.(float (- (ash 1 31)))
-				    #.(float (1- (ash 1 31))))
-		   x))))
+                                    #.(float (1- (ash 1 31))))
+                   x))))
     (double-float
      (the integer4
        (truncate (the (double-float #.(float (- (ash 1 31)) 1d0)
-				    #.(float (1- (ash 1 31)) 1d0))
-		   x))))))
+                                    #.(float (1- (ash 1 31)) 1d0))
+                   x))))))
 
 
 (defun ifix (x)
@@ -532,13 +532,13 @@ is not included")
     (single-float
      (let ((const (scale-float 1f0 24)))
        (if (>= x 0)
-	   (+ (- (- x 0.5f0) const) const)
-	   (- (+ (+ x 0.5f0) const) const))))
+           (+ (- (- x 0.5f0) const) const)
+           (- (+ (+ x 0.5f0) const) const))))
     (double-float
      (let ((const (scale-float 1d0 53)))
        (if (>= x 0)
-	   (+ (- (- x 0.5d0) const) const)
-	   (- (+ (+ x 0.5d0) const) const))))))
+           (+ (- (- x 0.5d0) const) const)
+           (- (+ (+ x 0.5d0) const) const))))))
 
 #+(and cmu x86)
 (let ((junks (make-array 1 :element-type 'single-float))
@@ -548,22 +548,22 @@ is not included")
     (etypecase x
       (single-float
        (let ((const (scale-float 1f0 24)))
-	 (if (>= x 0)
-	     (progn
-	       (setf (aref junks 0) (- x 0.5f0))
-	       (+ (- (aref junks 0) const) const))
-	     (progn
-	       (setf (aref junks 0) (+ x 0.5f0))
-	       (- (+ (aref junks 0) const) const)))))
+         (if (>= x 0)
+             (progn
+               (setf (aref junks 0) (- x 0.5f0))
+               (+ (- (aref junks 0) const) const))
+             (progn
+               (setf (aref junks 0) (+ x 0.5f0))
+               (- (+ (aref junks 0) const) const)))))
       (double-float
        (let ((const (scale-float 1d0 53)))
-	 (if (>= x 0)
-	     (progn
-	       (setf (aref junkd 0) (- x 0.5d0))
-	       (+ (- (aref junkd 0) const) const))
-	     (progn
-	       (setf (aref junkd 0) (+ x 0.5d0))
-	       (- (+ (aref junkd 0) const) const))))))))
+         (if (>= x 0)
+             (progn
+               (setf (aref junkd 0) (- x 0.5d0))
+               (+ (- (aref junkd 0) const) const))
+             (progn
+               (setf (aref junkd 0) (+ x 0.5d0))
+               (- (+ (aref junkd 0) const) const))))))))
 
 #-cmu
 (defun aint (x)
@@ -571,11 +571,11 @@ is not included")
   (etypecase x
     (single-float
      (locally
-	 (declare (optimize (space 0) (speed 3)))
+         (declare (optimize (space 0) (speed 3)))
        (values (ftruncate (the single-float x)))))
     (double-float
      (locally
-	 (declare (optimize (space 0) (speed 3)))
+         (declare (optimize (space 0) (speed 3)))
        (values (ftruncate (the double-float x)))))))
 
 (defun dint (x)
@@ -617,7 +617,7 @@ is not included")
   (if (stringp c)
       (char-int (aref c 0))
       (char-int c)))
-(defun fchar (i)			;intrinsic function char
+(defun fchar (i)                        ;intrinsic function char
   (code-char i))
 
 (declaim (inline iabs dabs cabs cdabs amod dmod))
@@ -868,13 +868,13 @@ is not included")
      (log (the (or (double-float (0.0d0)) (member 0d0)) x) 10d0))
     (t
      (/ (log x)
-	(typecase x
-	  ((complex double-float)
-	   10d0)
-	  ((complex single-float)
-	   10f0)
-	  (t
-	   (coerce 10 (type-of (realpart x)))))))))
+        (typecase x
+          ((complex double-float)
+           10d0)
+          ((complex single-float)
+           10f0)
+          (t
+           (coerce 10 (type-of (realpart x)))))))))
 
 (declaim (inline dexp cexp))
 (defun dexp (x)
@@ -939,41 +939,41 @@ is not included")
 #+nil
 (defun process-implied-do (ido low-bnds init)
   (let* ((implied-do (remove '|,| ido))
-	 (array (first implied-do))
-	 (do-var (elt implied-do (1- (position '= implied-do))))
-	 (limits (rest (member '= implied-do)))
-	 (start (first limits))
-	 (end (second limits))
-	 (step (if (>= (length limits) 3)
-		   (third limits)
-		   1)))
+         (array (first implied-do))
+         (do-var (elt implied-do (1- (position '= implied-do))))
+         (limits (rest (member '= implied-do)))
+         (start (first limits))
+         (end (second limits))
+         (step (if (>= (length limits) 3)
+                   (third limits)
+                   1)))
     (cond ((atom array)
-	   `(do ((,do-var ,start (+ ,do-var ,step)))
-		((> ,do-var ,end))
-	      (declare (type integer4 ,do-var))
-	      (fset (fref ,array ,(remove '|,| (second implied-do)) ,low-bnds) (pop ,init))))
-	  (t
-	   `(do ((,do-var ,start (+ ,do-var ,step)))
-		((> ,do-var ,end))
-	      (declare (type integer4 ,do-var))
-	      ,(process-implied-do (remove '|,| array) low-bnds init))))))
+           `(do ((,do-var ,start (+ ,do-var ,step)))
+                ((> ,do-var ,end))
+              (declare (type integer4 ,do-var))
+              (fset (fref ,array ,(remove '|,| (second implied-do)) ,low-bnds) (pop ,init))))
+          (t
+           `(do ((,do-var ,start (+ ,do-var ,step)))
+                ((> ,do-var ,end))
+              (declare (type integer4 ,do-var))
+              ,(process-implied-do (remove '|,| array) low-bnds init))))))
 
 (defun process-implied-do (ido low-bnds var-types init)
   (destructuring-bind (data-vars (index-var start end &optional step))
       ido
     (labels
-	((convert-type (type)
-	   (if (eq type 'integer4)
-	       `(truncate (pop ,init))
-	       `(coerce (pop ,init) ',type)))
-	 (map-vars (v)
-	   (mapcar #'(lambda (x b vt)
-		       `(fset (fref ,(first x) ,(second x) ((,b)))
-			      ,(convert-type vt)))
-		   v low-bnds var-types)))
+        ((convert-type (type)
+           (if (eq type 'integer4)
+               `(truncate (pop ,init))
+               `(coerce (pop ,init) ',type)))
+         (map-vars (v)
+           (mapcar #'(lambda (x b vt)
+                       `(fset (fref ,(first x) ,(second x) ((,b)))
+                              ,(convert-type vt)))
+                   v low-bnds var-types)))
       `(do ((,index-var ,start (+ ,index-var ,(or step 1))))
-	   ((> ,index-var ,end))
-	 ,@(map-vars data-vars))
+           ((> ,index-var ,end))
+         ,@(map-vars data-vars))
       )))
 
 
@@ -1007,27 +1007,27 @@ is not included")
 (defun lun->stream (lun)
   (let ((stream (gethash lun *lun-hash*)))
     (if stream
-	stream
-	(setf (gethash lun *lun-hash*)
-	      (open (format nil "fort~d.dat" lun)
-		    :direction :output
-		    :if-exists :rename)))))
+        stream
+        (setf (gethash lun *lun-hash*)
+              (open (format nil "fort~d.dat" lun)
+                    :direction :output
+                    :if-exists :rename)))))
 
 (defun lun->stream (lun &optional readp)
   (let ((stream (gethash lun *lun-hash*)))
     (if stream
-	stream
-	(cond ((integerp lun)
-	       (setf (gethash lun *lun-hash*)
-		     (open (format nil "fort~d.dat" lun)
-			   :direction :io
-			   :if-exists :rename)))
-	      ((stringp lun)
-	       (setf (gethash lun *lun-hash*)
-		     (if readp
-			 (make-string-input-stream lun)
-			 (make-string-output-stream))))
-	      ))))
+        stream
+        (cond ((integerp lun)
+               (setf (gethash lun *lun-hash*)
+                     (open (format nil "fort~d.dat" lun)
+                           :direction :io
+                           :if-exists :rename)))
+              ((stringp lun)
+               (setf (gethash lun *lun-hash*)
+                     (if readp
+                         (make-string-input-stream lun)
+                         (make-string-output-stream))))
+              ))))
 
 (defun init-fortran-io ()
   "Initialize the F2CL Fortran I/O subsystem to sensible defaults"
@@ -1040,10 +1040,10 @@ is not included")
   "Close all F2CL Fortran units (except for standard output and input)
 causing all pending operations to be flushed"
   (maphash #'(lambda (key val)
-	       (when (and (streamp val) (not (member key '(5 6 t))))
-		 (format t "Closing unit ~A: ~A~%" key val)
-		 (close val)))
-	   *lun-hash*))
+               (when (and (streamp val) (not (member key '(5 6 t))))
+                 (format t "Closing unit ~A: ~A~%" key val)
+                 (close val)))
+           *lun-hash*))
 
 (defun %open-file (&key unit file status access form recl blank)
   ;; We should also check for values of access, form that we don't support.
@@ -1052,29 +1052,29 @@ causing all pending operations to be flushed"
   (when blank
     (error "F2CL-LIB does not support any BLANK mode for files"))
   (when (and access (not (string-equal "sequential"
-				       (string-right-trim " " access))))
+                                       (string-right-trim " " access))))
     (error "F2CL-LIB does not support ACCESS mode ~S" access))
   (let ((s (and status (string-right-trim " " status))))
     (finish-output)
     (cond ((or (null s) (string-equal s "unknown"))
-	   (open file :direction :io :if-exists :append
-		 :if-does-not-exist :create))
-	  ((string-equal s "old")
-	   (open file :direction :io :if-does-not-exist nil))
-	  ((string-equal s "new")
-	   (open file :direction :io :if-exists nil))
-	  (t
-	   (error "F2CL-LIB does not support this mode for OPEN: ~S~%"
-		  s)))))
+           (open file :direction :io :if-exists :append
+                 :if-does-not-exist :create))
+          ((string-equal s "old")
+           (open file :direction :io :if-does-not-exist nil))
+          ((string-equal s "new")
+           (open file :direction :io :if-exists nil))
+          (t
+           (error "F2CL-LIB does not support this mode for OPEN: ~S~%"
+                  s)))))
 
 (defmacro open-file (&key unit iostat err file status access form recl blank)
   (let ((result (gensym)))
     `(prog ((,result (%open-file :unit ,unit :file ,file :status ,status
-				 :access ,access :form ,form :recl ,recl :blank ,blank)))
-	(when ,result
-	  (setf (gethash ,unit *lun-hash*) ,result))
-	,(if err `(unless ,result (go ,(f2cl-lib::make-label err))))
-	,(if iostat `(setf ,iostat (if ,result 0 1))))))
+                                 :access ,access :form ,form :recl ,recl :blank ,blank)))
+        (when ,result
+          (setf (gethash ,unit *lun-hash*) ,result))
+        ,(if err `(unless ,result (go ,(f2cl-lib::make-label err))))
+        ,(if iostat `(setf ,iostat (if ,result 0 1))))))
 
 (defun %rewind (unit)
   (file-position (lun->stream unit) :start))
@@ -1082,8 +1082,8 @@ causing all pending operations to be flushed"
 (defmacro rewind (&key unit iostat err)
   (let ((result (gensym)))
     `(prog ((,result (%rewind ,unit)))
-	,(if err `(unless ,result (go ,(f2cl-lib::make-label err))))
-	,(if iostat `(setf ,iostat (if ,result 0 1))))))
+        ,(if err `(unless ,result (go ,(f2cl-lib::make-label err))))
+        ,(if iostat `(setf ,iostat (if ,result 0 1))))))
 
 
 (defun %close (&key unit status)
@@ -1092,8 +1092,8 @@ causing all pending operations to be flushed"
 (defmacro close$ (&key unit iostat err status)
   (let ((result (gensym)))
     `(prog ((,result (%close :unit ,unit  :status ,status)))
-	,(if err `(unless ,result (go ,(f2cl-lib::make-label err))))
-	,(if iostat `(setf ,iostat (if ,result 0 1))))))
+        ,(if err `(unless ,result (go ,(f2cl-lib::make-label err))))
+        ,(if iostat `(setf ,iostat (if ,result 0 1))))))
 
 #-gcl
 (declaim (ftype (function (t) stream) lun->stream))
@@ -1103,20 +1103,20 @@ causing all pending operations to be flushed"
     `(let ((,stream (lun->stream ,dest-lun)))
        (execute-format-main ,stream ',format-cilist ,@args)
        ,@(unless (or (eq t dest-lun) (numberp dest-lun))
-		 `((when (stringp ,dest-lun)
-		     (replace ,dest-lun (get-output-stream-string ,stream))))))))
+                 `((when (stringp ,dest-lun)
+                     (replace ,dest-lun (get-output-stream-string ,stream))))))))
 
 (defun execute-format (top stream format arg-list)
   (do ((formats format (if (and top (null formats))
-			   format
-			   (rest formats))))
+                           format
+                           (rest formats))))
       ((or (null arg-list)
-	   (and (not top)
-		(null formats)))
+           (and (not top)
+                (null formats)))
        ;;(format t "~&formats = ~S~%" formats)
        (do ((more formats (rest more)))
-	   ((not (stringp (first more))))
-	 (format stream (first more)))
+           ((not (stringp (first more))))
+         (format stream (first more)))
        arg-list)
     (when (null formats)
       (setf formats format))
@@ -1124,37 +1124,37 @@ causing all pending operations to be flushed"
     (let ((*print-circle* t))
       (format t "~&formats = ~S~%" formats))
     (cond ((listp (first formats))
-	   (format stream (caar formats) (pop arg-list)))
-	  ((numberp (first formats))
-	   ;; Repeat a group some fixed number of times
-	   (dotimes (k (first formats))
-	     ;;(format t "k = ~A, format = ~S~%" k (second formats))
-	     (setf arg-list
-		   (execute-format nil stream (second formats) arg-list)))
-	   (setf formats (rest formats))
-	   ;;(format t "  cont with format = ~S~%" formats)
-	   )
-	  ((eq (first formats) t)
-	   ;; Repeat "forever" (until we run out of data)
-	   (loop while arg-list do
-		(setf arg-list
-		      (execute-format nil stream (second formats) arg-list))
-	      ;; Output a newline after the repeat (I think Fortran says this)
-		(format stream "~%")))
-	  (t
-	   (format stream (car formats))))))
+           (format stream (caar formats) (pop arg-list)))
+          ((numberp (first formats))
+           ;; Repeat a group some fixed number of times
+           (dotimes (k (first formats))
+             ;;(format t "k = ~A, format = ~S~%" k (second formats))
+             (setf arg-list
+                   (execute-format nil stream (second formats) arg-list)))
+           (setf formats (rest formats))
+           ;;(format t "  cont with format = ~S~%" formats)
+           )
+          ((eq (first formats) t)
+           ;; Repeat "forever" (until we run out of data)
+           (loop while arg-list do
+                (setf arg-list
+                      (execute-format nil stream (second formats) arg-list))
+              ;; Output a newline after the repeat (I think Fortran says this)
+                (format stream "~%")))
+          (t
+           (format stream (car formats))))))
 
 
 (defun execute-format-main (stream format &rest args)
   (let ((format-list (copy-tree format))
-	(arg-list (apply #'append (map 'list #'(lambda (x)
-						 (cond ((numberp x)
-							(list x))
-						       ((stringp x)
-							(list x))
-						       (t
-							(coerce x 'list))))
-				       args))))
+        (arg-list (apply #'append (map 'list #'(lambda (x)
+                                                 (cond ((numberp x)
+                                                        (list x))
+                                                       ((stringp x)
+                                                        (list x))
+                                                       (t
+                                                        (coerce x 'list))))
+                                       args))))
     (execute-format t stream format-list arg-list)))
 
 
@@ -1163,38 +1163,38 @@ causing all pending operations to be flushed"
   (let ((val (gensym)))
     `(let ((,val ,arg))
        (cond ((and (arrayp ,val)
-		   (not (stringp ,val)))
-	      (dotimes (k (array-total-size ,val))
-		(format ,dest ,directive (row-major-aref ,val k))
-		(terpri ,dest)))
-	     ((listp ,val)
-	      (dolist (item ,val)
-		(format ,dest ,directive item)
-		(terpri ,dest)))
-	     (t
-	      (format ,dest ,directive ,val))))))
+                   (not (stringp ,val)))
+              (dotimes (k (array-total-size ,val))
+                (format ,dest ,directive (row-major-aref ,val k))
+                (terpri ,dest)))
+             ((listp ,val)
+              (dolist (item ,val)
+                (format ,dest ,directive item)
+                (terpri ,dest)))
+             (t
+              (format ,dest ,directive ,val))))))
 
 (defun expand-format (dest cilist args)
   (if (equal cilist '("~A~%"))
       (append (mapcar #'(lambda (arg) `(fformat1 ,dest "~A " ,arg)) args)
-	      `((format ,dest "~%")))
+              `((format ,dest "~%")))
 
-					;loop through directives, consume arguments
+                                        ;loop through directives, consume arguments
       (do ((res '())
-	   (directives cilist (cdr directives))
-	   (arglist args arglist))
-	  ((null directives)
-	   (nreverse res))
-	(cond ((stringp (first directives))
-	       ;;(format t "~a~%" (first directives))
-	       (push `(format ,dest ,(first directives))
-		     res))
-	      (t
-	       (push `(fformat1 ,dest
-				,(car (first directives))
-				,(first arglist))
-		     res)
-	       (setq arglist (cdr arglist)))))))
+           (directives cilist (cdr directives))
+           (arglist args arglist))
+          ((null directives)
+           (nreverse res))
+        (cond ((stringp (first directives))
+               ;;(format t "~a~%" (first directives))
+               (push `(format ,dest ,(first directives))
+                     res))
+              (t
+               (push `(fformat1 ,dest
+                                ,(car (first directives))
+                                ,(first arglist))
+                     res)
+               (setq arglist (cdr arglist)))))))
 ||#
 
 ;; Initialize a multi-dimensional array of character strings. I think
@@ -1208,20 +1208,20 @@ causing all pending operations to be flushed"
 ;; that's what Fortran initializes it to.
 (defmacro f2cl-init-string (dims len &optional inits)
   (let ((init (gensym (symbol-name '#:array-)))
-	(k (gensym (symbol-name '#:idx-))))
+        (k (gensym (symbol-name '#:idx-))))
     `(let ((,init (make-array (* ,@dims)
-			      :element-type `(simple-array character (,',@len))
-			      :initial-element (make-string ,@len))))
+                              :element-type `(simple-array character (,',@len))
+                              :initial-element (make-string ,@len))))
        (dotimes (,k (array-total-size ,init))
-	 (setf (aref ,init ,k)
-	       (make-string ,@len :initial-element #\Space)))
+         (setf (aref ,init ,k)
+               (make-string ,@len :initial-element #\Space)))
        ,@(when inits
-	       (let ((k 0)
-		     (forms nil))
-		 (dolist (val inits)
-		   (push `(replace (aref ,init ,k) ,(car val)) forms)
-		   (incf k))
-		 (nreverse forms)))
+               (let ((k 0)
+                     (forms nil))
+                 (dolist (val inits)
+                   (push `(replace (aref ,init ,k) ,(car val)) forms)
+                   (incf k))
+                 (nreverse forms)))
 
        ,init)))
 
@@ -1248,15 +1248,15 @@ causing all pending operations to be flushed"
   ;; or truncating the string.
   (let ((slen (length string)))
     (cond ((= slen len)
-	   ;; Need to make a copy of the string, so we don't have
-	   ;; duplicated structure.
-	   (copy-seq string))
-	  ((> slen len)
-	   ;; Truncate the string
-	   (subseq string 0 len))
-	  (t
-	   ;; String is too short, so append some spaces
-	   (concatenate 'string string (make-string (- len slen) :initial-element #\Space))))))
+           ;; Need to make a copy of the string, so we don't have
+           ;; duplicated structure.
+           (copy-seq string))
+          ((> slen len)
+           ;; Truncate the string
+           (subseq string 0 len))
+          (t
+           ;; String is too short, so append some spaces
+           (concatenate 'string string (make-string (- len slen) :initial-element #\Space))))))
 
 
 ;;; Strictly speaking, this is not part of Fortran, but so many
@@ -1386,24 +1386,24 @@ causing all pending operations to be flushed"
     (11 (float-digits 1f0))
     ;; Smallest exponent
     (12 (multiple-value-bind (frac exp sign)
-	    (decode-float least-positive-normalized-single-float)
-	  (declare (ignore frac sign))
-	  (+ exp 1)))
+            (decode-float least-positive-normalized-single-float)
+          (declare (ignore frac sign))
+          (+ exp 1)))
     ;; Largest exponent
     (13 (multiple-value-bind (frac exp sign)
-	    (decode-float most-positive-single-float)
-	  (declare (ignore frac sign))
-	  (- exp 1)))
+            (decode-float most-positive-single-float)
+          (declare (ignore frac sign))
+          (- exp 1)))
     ;; Same for double-precision
     (14 (float-digits 1d0))
     (15 (multiple-value-bind (frac exp sign)
-	    (decode-float least-positive-normalized-double-float)
-	  (declare (ignore frac sign))
-	  (+ exp 1)))
+            (decode-float least-positive-normalized-double-float)
+          (declare (ignore frac sign))
+          (+ exp 1)))
     (16 (multiple-value-bind (frac exp sign)
-	    (decode-float most-positive-double-float)
-	  (declare (ignore frac sign))
-	  (- exp 1)))
+            (decode-float most-positive-double-float)
+          (declare (ignore frac sign))
+          (- exp 1)))
     ))
 
 (defun stop (&optional arg)

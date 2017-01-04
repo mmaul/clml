@@ -17,7 +17,7 @@ speed         3.9324     0.4155   9.464 1.49e-12 ***
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 15.38 on 48 degrees of freedom
-Multiple R-squared: 0.6511,	Adjusted R-squared: 0.6438
+Multiple R-squared: 0.6511,     Adjusted R-squared: 0.6438
 F-statistic: 89.57 on 1 and 48 DF,  p-value: 1.490e-12
 |#
 
@@ -101,43 +101,43 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
 Residual standard error: 21.18 on 107 degrees of freedom
   (42 observations deleted due to missingness)
-Multiple R-squared: 0.6059,	Adjusted R-squared: 0.5948
+Multiple R-squared: 0.6059,     Adjusted R-squared: 0.5948
 F-statistic: 54.83 on 3 and 107 DF,  p-value: < 2.2e-16
 |#
 
 (define-test multi-linear-regression-case
     (let* ((air (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/airquality.csv")
-				     :type :csv
-				     :csv-type-spec '(integer double-float double-float double-float double-float integer integer)))
-	   (air (pick-and-specialize-data air :range '(0 1 2 3 4)
-					  :data-types '(:numeric :numeric :numeric :numeric :numeric)))
+                                     :type :csv
+                                     :csv-type-spec '(integer double-float double-float double-float double-float integer integer)))
+           (air (pick-and-specialize-data air :range '(0 1 2 3 4)
+                                          :data-types '(:numeric :numeric :numeric :numeric :numeric)))
            (epsilon 0.001))
       ;(f (v) (map '(SIMPLE-ARRAY FIXNUM (*))  (lambda (x) (coerce (nth-value 0 (floor x))'fixnum)) v))
       (assert-true (< (abs (- (aref (mlr air '(2 3 4 1)) 0) -64.34208))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (mlr air '(2 3 4 1)) 1) 0.05982))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (mlr air '(2 3 4 1)) 2) -3.33359))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (mlr air '(2 3 4 1)) 3) 1.65209))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (std-err-vector air '(2 3 4 1)) 0) 23.05472))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (std-err-vector air '(2 3 4 1)) 1) 0.02319))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (std-err-vector air '(2 3 4 1)) 2) 0.65441))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (std-err-vector air '(2 3 4 1)) 3) 0.25353))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (t-value-vector air '(2 3 4 1)) 0) -2.791))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (t-value-vector air '(2 3 4 1)) 1) 2.580))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (t-value-vector air '(2 3 4 1)) 2) -5.094))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (aref (t-value-vector air '(2 3 4 1)) 3) 6.516))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (R^2 air '(2 3 4 1)) 0.6059))
-		      epsilon))
+                      epsilon))
       (assert-true (< (abs (- (adjusted-R^2 air '(2 3 4 1)) 0.5948))
-		      epsilon))))
+                      epsilon))))

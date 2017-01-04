@@ -27,9 +27,9 @@
   (let ((result 0.0d0))
     #-ccl (declare (type (double-float 0.0) result))
     (do-vecs ((ex x :type double-float)
-	      (ey y :type double-float))
+              (ey y :type double-float))
       (let ((diff (- ex ey)))
-	(incf result (* diff diff))))
+        (incf result (* diff diff))))
     result))
 
 
@@ -65,7 +65,7 @@
 (defdoublefunc d-func (dvec dvec))
 (defun-speedy d-func (x y)
   (declare (optimize speed (safety 0) (debug 0))
-	   (type (simple-array double-float) x y))
+           (type (simple-array double-float) x y))
   (d x y))
 
 
@@ -76,8 +76,8 @@
   (let ((xn (p-id x)) (yn (p-id y)))
     (when (> xn yn)
       (let ((tmp xn))
-	(setf xn yn
-	      yn tmp)))
+        (setf xn yn
+              yn tmp)))
     (p-internal-d (+ (* yn (length (pw-points *workspace*))) xn))))
 
 (defun-speedy p-d (x y)
@@ -96,28 +96,28 @@
 (defmacro do-memo-update (table params gen-value)
   (with-unique-names (key)
     `(let ((,key
-	    ,(cond ((not (cdr params))
-		    (first params))
-		   ((not (cddr params))
-		    `(cons ,(first params) ,(second params)))
-		   (t `(make-array ,(length params))))))
+            ,(cond ((not (cdr params))
+                    (first params))
+                   ((not (cddr params))
+                    `(cons ,(first params) ,(second params)))
+                   (t `(make-array ,(length params))))))
        (declare (dynamic-extent ,key))
        ,(when (cddr params)
-	      `(setf ,@(loop for p in params
-			     for i from 0
-			     collect `(aref ,key ,i)
-			     collect p)))
+              `(setf ,@(loop for p in params
+                             for i from 0
+                             collect `(aref ,key ,i)
+                             collect p)))
        (gethash-or-set ,key ,table ,gen-value))))
 
 (defmacro defmemo (defun name lambda-list &body body)
   (let ((table-name (memo-table-symbol name))
-	(internal (symbolicate '% name '%-calculate))
-	(args lambda-list))
+        (internal (symbolicate '% name '%-calculate))
+        (args lambda-list))
     `(progn
        (defvar ,table-name)
        (,defun ,internal ,lambda-list ,@body)
        (,defun ,name ,lambda-list
-	 (do-memo-update ,table-name ,args (,internal ,@args))))))
+         (do-memo-update ,table-name ,args (,internal ,@args))))))
 
 (defmacro with-memo ((&rest memos) &body body)
   `(let ,(loop for m in memos collect `(,(memo-table-symbol m) (make-hash-table :test 'equal)))
@@ -130,27 +130,27 @@
 (defun-speedy d-taxi (x y)
   "Manhattan distance, taxicab metric, L1 distance or rectilinear distance"
   (loop for a across x
-	for b across y
-	summing (abs (- a b))))
+        for b across y
+        summing (abs (- a b))))
 
 (defun-speedy d-euclid (x y)
   "Euclidean distance, straight line distance"
   (sqrt
    (loop for a across x
-	 for b across y
-	 summing (^2 (- a b)))))
+         for b across y
+         summing (^2 (- a b)))))
 
 
 (defun-speedy d-chebyshev (x y)
   (loop for a across x
-	for b across y
-	maximizing (abs (- a b))))
+        for b across y
+        maximizing (abs (- a b))))
 
 (defmemo defun-speedy p-internal-d (coded-points)
   (multiple-value-bind (yn xn)
       (floor coded-points (length (pw-points *workspace*)))
     (let ((x (elt (pw-points *workspace*) xn))
-	  (y (elt (pw-points *workspace*) yn)))
+          (y (elt (pw-points *workspace*) yn)))
       (d (p-pos x) (p-pos y)))))
 
 
@@ -176,7 +176,7 @@
       (vml::|%cffi-foreign-function/CBLAS_DNRM2| n tmp 1))))
 
 
-	
+        
 
 
 
@@ -244,12 +244,12 @@
 
 (defun intracluster-centroid-diameter (c)
   (let* ((points (c-points c))
-	 (n (length points))
-	 (centroid (c-centroid c)))
+         (n (length points))
+         (centroid (c-centroid c)))
     (* 2
        (/ (loop for p in points
               summing (d (p-pos p) centroid))
-	  n))))
+          n))))
 
 
 (defun intercluster-single-linkage (c0 c1)
@@ -270,9 +270,9 @@
 
 (defun intercluster-average-linkage (c0 c1)
   (let ((c0-points (c-points c0))
-	(c1-points (c-points c1)))
+        (c1-points (c-points c1)))
     (let ((c0-n (length c0-points))
-	  (c1-n (length c1-points)))
+          (c1-n (length c1-points)))
       (/
        (loop for x in c0-points
            summing
@@ -300,12 +300,12 @@
 
 (defun intercluster-hausdorff-linkage (c0 c1)
   (let ((c0-points (c-points c0))
-	(c1-points (c-points c1)))
+        (c1-points (c-points c1)))
     (flet ((max-min-d (xps yps)
       (iter (for x in-sequence xps)
-	    (maximizing
-	     (iter (for y in-sequence yps)
-		   (minimizing (p-d x y)))))))
+            (maximizing
+             (iter (for y in-sequence yps)
+                   (minimizing (p-d x y)))))))
       (max (max-min-d c0-points c1-points) (max-min-d c1-points c0-points)))))
 
 
@@ -328,22 +328,22 @@
 
 (defun ssw ()
   (iter (for c in-sequence (pw-clusters *workspace*))
-	(let ((mu (c-center c)))
-	  (summing
-	   (loop
+        (let ((mu (c-center c)))
+          (summing
+           (loop
                for p in (c-points c)
                summing (v-diff-sum^2 (p-pos p) mu))))))
 
 (defun ssb ()
   (let ((mu (centroid)))
     (iter (for c in-sequence (pw-clusters *workspace*))
-	  (summing (* (c-size c) (v-diff-sum^2 (c-center c) mu))))))
+          (summing (* (c-size c) (v-diff-sum^2 (c-center c) mu))))))
 (defun sst ()
   (let ((mu (centroid)))
     (iter (for p in-sequence (pw-points *workspace*))
-	  (summing (v-diff-sum^2 (p-pos p) mu)))))
+          (summing (v-diff-sum^2 (p-pos p) mu)))))
 
-	
+        
 
 
 (defun make-zero-dvec ()
@@ -355,7 +355,7 @@
 (defun calinski (&optional (*workspace* *workspace*))
   "- return: <number> cluster validity index"
   (let ((n (length (pw-points *workspace*)))
-	(k (length (pw-clusters *workspace*))))
+        (k (length (pw-clusters *workspace*))))
     (/ (* (ssb)  (- (1- n) k)) (* (ssw) (1- k)))))
 
 (defun hartigan (&optional (*workspace* *workspace*))

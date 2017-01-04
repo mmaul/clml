@@ -40,7 +40,7 @@
 (defpackage :clml.classifiers.nbayes
 
   (:use :cl
-	:clml.hjs.read-data)
+        :clml.hjs.read-data)
   (:export
    :mbnb-learn
    :make-mbnb-learner

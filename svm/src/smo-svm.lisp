@@ -11,13 +11,13 @@
 
 (defparameter *training-vector* #())
 (defparameter *kernel-function* (constantly 0))
-(defparameter *c* 0.0d0)		;slack variable
+(defparameter *c* 0.0d0)                ;slack variable
 (defparameter *training-size* 0)
 (defparameter *label-index* 0)
-(defparameter *epsilon* 0.001d0)	;torelance of KKT-condition check
-(defparameter *alpha-array* (make-dvec 0))	;solution of QP problem induced by SVM
-(defparameter *error-array* (make-dvec 0))	;see Platt's paper
-(defparameter *b* 0.0d0)		;threshold
+(defparameter *epsilon* 0.001d0)        ;torelance of KKT-condition check
+(defparameter *alpha-array* (make-dvec 0))      ;solution of QP problem induced by SVM
+(defparameter *error-array* (make-dvec 0))      ;see Platt's paper
+(defparameter *b* 0.0d0)                ;threshold
 (defparameter *kernel-function-result* (make-array 1 :element-type 'double-float :initial-element 0d0))
 (defparameter *kernel-function-result-cache* (make-array (list *training-size* *training-size*)
                                                          :element-type 'double-float
@@ -115,8 +115,8 @@ updated)."
 
     (let ((number-changed 0)
           (examine-all t)
-	  (upper-bound (- c epsilon)))
-	
+          (upper-bound (- c epsilon)))
+        
       (declare (type fixnum number-changed)
                (type double-float upper-bound))
 
@@ -149,7 +149,7 @@ updated)."
            (y2 (aref (the dvec point2) label-index))
            (alpha2 (aref alpha-array i2))
            (e2 (aref error-array i2))
-	   (upper-bound (- c epsilon))
+           (upper-bound (- c epsilon))
            (r2 (* (the double-float e2) (the double-float y2))))
       (declare (type dvec point2)
                (type double-float y2 alpha2 e2 r2 upper-bound))
@@ -167,13 +167,13 @@ updated)."
           (when (loop for alpha of-type double-float across alpha-array
                       thereis (< epsilon alpha upper-bound))
             (loop
-		for i of-type array-index below training-size
-		as delta-error of-type double-float = (abs (- (aref error-array i) e2))
-		if (< epsilon (aref alpha-array i) upper-bound)
+                for i of-type array-index below training-size
+                as delta-error of-type double-float = (abs (- (aref error-array i) e2))
+                if (< epsilon (aref alpha-array i) upper-bound)
                 do (when (>= delta-error max)
                      (setf max delta-error)
                      (setf i1 i)))
-	
+        
             (when (take-step i1 i2)
               (return-from examine-example 1))
 
@@ -210,7 +210,7 @@ updated)."
 ;; #+allegro
 ;; (eval-when (:compile-toplevel :load-toplevel :execute)
 ;;   (setf (get 'f-old 'sys::immed-args-call)
-;; 	'((:lisp :lisp :lisp :lisp :lisp) double-float)))
+;;      '((:lisp :lisp :lisp :lisp :lisp) double-float)))
 (declaim (inline f-old))
 (defun f-old (training-vector kernel-function alpha-array b index)
   (declare (type dvec alpha-array)
@@ -234,7 +234,7 @@ updated)."
 #+allegro
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (setf (get 'compute-v 'sys::immed-args-call)
-	'((:lisp :lisp :lisp :lisp :lisp :lisp :lisp) double-float)))
+        '((:lisp :lisp :lisp :lisp :lisp :lisp :lisp) double-float)))
 (declaim (inline compute-v))
 (defun compute-v (training-vector kernel-function alpha-array label-index i1 i2 index)
   (declare (type simple-vector training-vector)
@@ -255,7 +255,7 @@ updated)."
 #+allegro
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (setf (get 'compute-w-const 'sys::immed-args-call)
-	'((:lisp :lisp :lisp :lisp :lisp) double-float)))
+        '((:lisp :lisp :lisp :lisp :lisp) double-float)))
 (declaim (inline compute-w-const))
 (defun compute-w-const (training-vector alpha-array label-index i1 i2)
   (declare (type dvec alpha-array)
@@ -294,14 +294,14 @@ updated)."
 #+allegro
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (setf (get 'compute-obj-fun 'sys::immed-args-call)
-	`(,(make-list 12 :initial-element 'double-float) double-float)))
+        `(,(make-list 12 :initial-element 'double-float) double-float)))
 (declaim (inline compute-obj-fun))
 (defun compute-obj-fun (alpha1-old alpha2-old y1 y2 s  k11 k12 k22 v1 v2 w-const alpha)
   (declare (type double-float alpha1-old alpha2-old y1 y2 s  k11 k12 k22 v1 v2 w-const alpha))
   (let ((r 0.0d0))
     (declare (type double-float r))
     (if (= y1 y2)
-	(setf r (+ alpha1-old alpha2-old))
+        (setf r (+ alpha1-old alpha2-old))
         (setf r (- alpha1-old alpha2-old)))
 
     (- r
@@ -368,7 +368,7 @@ updated)."
                 (setf clipped t)))
 
             ;;eta:not negative case
-            (let* ((v1 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i1))	
+            (let* ((v1 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i1))    
                    (v2 (compute-v training-vector kernel-function alpha-array label-index i1 i2 i2)))
               (declare (type double-float v1 v2))
               (let ((w-const (compute-w-const training-vector alpha-array label-index i1 i2)))
@@ -496,15 +496,15 @@ updated)."
       ;;          (the double-float (call-kernel-function kernel-function (svref training-vector i) point))))
       ;; So we need to use ugly LET
       (- (let ((result 0d0))
-	   (declare (type double-float result))
-	   (loop
-	       for i of-type array-index below (length alpha-array)
-	       do (incf result
-			(* (aref alpha-array i)
-			   (aref (the dvec (svref training-vector i)) label-index)
-			   (the double-float (call-kernel-function-with-vectors kernel-function (svref training-vector i) point)))))
-	   result)
-	 b))))
+           (declare (type double-float result))
+           (loop
+               for i of-type array-index below (length alpha-array)
+               do (incf result
+                        (* (aref alpha-array i)
+                           (aref (the dvec (svref training-vector i)) label-index)
+                           (the double-float (call-kernel-function-with-vectors kernel-function (svref training-vector i) point)))))
+           result)
+         b))))
 
 
 (defun sign (x)
@@ -587,10 +587,10 @@ updated)."
 (defun make-svm-learner2 (training-vector kernel-function c &key (file-name "./ml/svm-dump.sexp"))
   (multiple-value-bind (alpha-array b) (smo-solver training-vector kernel-function c)
     (with-open-file (out file-name
-		     :external-format :utf-8
-		     :direction :output
-		     :if-exists :supersede
-		     :if-does-not-exist :create)
+                     :external-format :utf-8
+                     :direction :output
+                     :if-exists :supersede
+                     :if-does-not-exist :create)
       (write (list training-vector alpha-array b) :stream out))
     (svm-output training-vector kernel-function alpha-array b)))
 
@@ -606,7 +606,7 @@ updated)."
   (check-type test-vector simple-vector)
   (check-type (aref test-vector 0) dvec)
   (let ((n (length test-vector))
-	(label-index (1- (length (svref test-vector 0)))))
+        (label-index (1- (length (svref test-vector 0)))))
     (declare (type fixnum n)
              (type array-index label-index))
     (sum-up (loop for i of-type array-index below n
@@ -621,14 +621,14 @@ updated)."
  - kernel-function :<Closure>, used kernel function to make the SVM
  - external-format : character code"
   (let* ((material-list
-	  (with-open-file (in file-name :external-format :utf-8 :direction :input)
-	    (read in)))
-	 (training-vector (first material-list))
-	 (alpha-array (specialize-vec (second material-list)))
-	 (b (third material-list)))
+          (with-open-file (in file-name :external-format :utf-8 :direction :input)
+            (read in)))
+         (training-vector (first material-list))
+         (alpha-array (specialize-vec (second material-list)))
+         (b (third material-list)))
 
     (loop
-	for i below (length training-vector)
-	do (setf (aref training-vector i) (specialize-vec (aref training-vector i))))
+        for i below (length training-vector)
+        do (setf (aref training-vector i) (specialize-vec (aref training-vector i))))
 
     (svm-output training-vector kernel-function alpha-array b)))

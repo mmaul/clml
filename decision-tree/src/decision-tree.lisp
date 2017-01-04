@@ -1,29 +1,29 @@
 ;;;
 
-	
+        
 (in-package :clml.decision-tree.decision-tree)
 
 (defun make-variable-index-hash (unspecialized-dataset)
   (let ((dim-vector (dataset-dimensions unspecialized-dataset)))
     (loop with variable-index-hash = (make-hash-table :test #'equal)
-	for i below (length dim-vector)
-	do (setf (gethash (dimension-name (svref dim-vector i)) variable-index-hash) i)
-	finally (return variable-index-hash))))
+        for i below (length dim-vector)
+        do (setf (gethash (dimension-name (svref dim-vector i)) variable-index-hash) i)
+        finally (return variable-index-hash))))
 
 (defun sum-up (lst)
   (loop with alist
       for obj in lst
       as sub-alist = (assoc obj alist :test #'equal)
       do (if sub-alist
-	     (incf (cdr sub-alist))
-	   (push (cons obj 1) alist))
+             (incf (cdr sub-alist))
+           (push (cons obj 1) alist))
       finally (return alist)))
 
 (defun column-name->column-number (variable-index-hash column-name)
       (multiple-value-bind (column-number flag)
       (gethash column-name variable-index-hash)
     (if (null flag)
-	(error "such column-name does not exist.")
+        (error "such column-name does not exist.")
       column-number)))
 
 (defun total (sum-up-results-list)
@@ -59,31 +59,31 @@
   (let ((p (total sum-up-results-list)))
     (- 1.0d0
        (loop
-	   for obj in sum-up-results-list
-	   sum (expt (/ (cdr obj) p) 2)))))
+           for obj in sum-up-results-list
+           sum (expt (/ (cdr obj) p) 2)))))
 
 (defun entropy (sum-up-results-list)
   (let ((p (total sum-up-results-list)))
     (- (loop
-	   for obj in sum-up-results-list
-	   sum (* (/ (cdr obj) p) (log (/ (cdr obj) p) 2))))))
+           for obj in sum-up-results-list
+           sum (* (/ (cdr obj) p) (log (/ (cdr obj) p) 2))))))
 
 (defun mean (sum-up-results-list)
   "for regression tree, objective variable is numeric data."
   (let ((p (total sum-up-results-list)))
     (/ (loop
-	   for obj in sum-up-results-list
-	   sum (* (car obj) (cdr obj)))
+           for obj in sum-up-results-list
+           sum (* (car obj) (cdr obj)))
        p)))
 
 (defun variance (sum-up-results-list)
   "for regression tree, objective variable is numeric data."
   (let ((p (total sum-up-results-list))
-	(m (mean sum-up-results-list)))
+        (m (mean sum-up-results-list)))
 
     (/ (loop
-	   for obj in sum-up-results-list
-	   sum (* (expt (- (car obj) m) 2) (cdr obj)))
+           for obj in sum-up-results-list
+           sum (* (expt (- (car obj) m) 2) (cdr obj)))
        p)))
 
 (defun whole-row-numbers-list (data-vector)
@@ -94,31 +94,31 @@
   (let ((split-predicate (make-split-predicate attribute t))
                                         ; make-split-predicate returns optimized function
                                         ; if the second (optional) argument is T
-	(attribute-column-index
+        (attribute-column-index
          (column-name->column-number variable-index-hash attribute-column-name))
-	(true-list '())
-	(false-list '()))
+        (true-list '())
+        (false-list '()))
 
     (dolist (i list-of-row-numbers (values true-list false-list))
       (handler-case
-	  (if (funcall split-predicate #1=(svref (svref data-vector i) attribute-column-index))
-	      (push i true-list)
-	      (push i false-list))
-	(type-error () (unless (eql :NA #1#) (error "Don't know how to handle the value ~A. Expected something with type ~A." #1# (type-of attribute))))))))
+          (if (funcall split-predicate #1=(svref (svref data-vector i) attribute-column-index))
+              (push i true-list)
+              (push i false-list))
+        (type-error () (unless (eql :NA #1#) (error "Don't know how to handle the value ~A. Expected something with type ~A." #1# (type-of attribute))))))))
 
 (defun split (data-vector variable-index-hash list-of-row-numbers attribute-column-name attribute)
   (if (and (null attribute-column-name)
-  	   (null attribute))
+           (null attribute))
       list-of-row-numbers
     (aux-split data-vector variable-index-hash list-of-row-numbers attribute-column-name attribute)))
 
 (defun delta-gini (data-vector variable-index-hash list-of-row-numbers attribute-column-name
-		   attribute objective-column-index)
+                   attribute objective-column-index)
 
   (multiple-value-bind (true-list false-list)
       (aux-split data-vector variable-index-hash list-of-row-numbers attribute-column-name attribute)
     (if (or (null true-list) (null false-list))
-	0.0d0
+        0.0d0
       (- (gini-index (sum-up-results data-vector list-of-row-numbers objective-column-index))
          (* (/ (length true-list) (length list-of-row-numbers))
             (gini-index (sum-up-results data-vector true-list objective-column-index)))
@@ -126,11 +126,11 @@
             (gini-index (sum-up-results data-vector false-list objective-column-index)))))))
 
 (defun delta-entropy (data-vector variable-index-hash list-of-row-numbers attribute-column-name
-		      attribute objective-column-index)
+                      attribute objective-column-index)
   (multiple-value-bind (true-list false-list)
       (aux-split data-vector variable-index-hash list-of-row-numbers attribute-column-name attribute)
     (if (or (null true-list) (null false-list))
-	0.0d0
+        0.0d0
       (- (entropy (sum-up-results data-vector list-of-row-numbers objective-column-index))
          (* (/ (length true-list) (length list-of-row-numbers))
             (entropy (sum-up-results data-vector true-list objective-column-index)))
@@ -138,11 +138,11 @@
             (entropy (sum-up-results data-vector false-list objective-column-index)))))))
 
 (defun delta-variance (data-vector variable-index-hash list-of-row-numbers attribute-column-name
-		       attribute objective-column-index)
+                       attribute objective-column-index)
   (multiple-value-bind (true-list false-list)
       (aux-split data-vector variable-index-hash list-of-row-numbers attribute-column-name attribute)
     (if (or (null true-list) (null false-list))
-	0.0d0
+        0.0d0
       (- (variance (sum-up-results data-vector list-of-row-numbers objective-column-index))
          (* (/ (length true-list) (length list-of-row-numbers))
             (variance (sum-up-results data-vector true-list objective-column-index)))
@@ -165,16 +165,16 @@
       finally (return split-criterion-list)))
 
 (defun select-best-splitting-attribute (data-vector variable-index-hash
-					list-of-row-numbers split-criterion-list
-					objective-column-index &key (test #'delta-gini) (epsilon 0))
+                                        list-of-row-numbers split-criterion-list
+                                        objective-column-index &key (test #'delta-gini) (epsilon 0))
 
   (let* ((v (mapcar #'(lambda (x) (list x (funcall test data-vector variable-index-hash list-of-row-numbers (car x) (cdr x) objective-column-index)))
-		     split-criterion-list))
-	
-	 (w (reduce #'(lambda (x y) (if (<= (second x) (second y))
-					y
-				      x)) v)))
-				
+                     split-criterion-list))
+        
+         (w (reduce #'(lambda (x y) (if (<= (second x) (second y))
+                                        y
+                                      x)) v)))
+                                
     (if (<= (second w) epsilon)
         (values nil '())
     (values (car w) (remove (car w) split-criterion-list))))) ;:test #'equal)))))
@@ -184,37 +184,37 @@
   (let ((initial-row-numbers-list (whole-row-numbers-list data-vector)))
 
     (multiple-value-bind (best-split-criterion split-criterion-list)
-	(select-best-splitting-attribute
-	 data-vector variable-index-hash initial-row-numbers-list
-	 (make-split-criterion-list data-vector variable-index-hash objective-column-index) objective-column-index :test test :epsilon epsilon)
+        (select-best-splitting-attribute
+         data-vector variable-index-hash initial-row-numbers-list
+         (make-split-criterion-list data-vector variable-index-hash objective-column-index) objective-column-index :test test :epsilon epsilon)
       (let ((result-ratio (sum-up-results data-vector initial-row-numbers-list objective-column-index)))
-	(multiple-value-bind (right left)
+        (multiple-value-bind (right left)
             (split data-vector variable-index-hash initial-row-numbers-list
                    (car best-split-criterion) (cdr best-split-criterion))
-	  (list (list best-split-criterion split-criterion-list)
-		result-ratio
-		(list right left)))))))
+          (list (list best-split-criterion split-criterion-list)
+                result-ratio
+                (list right left)))))))
 
 (defun make-new-right-node (data-vector variable-index-hash objective-column-index tree-node
-			    &key (test #'delta-gini) (epsilon 0))
+                            &key (test #'delta-gini) (epsilon 0))
   (if (null (caar tree-node))
       '()
     (let ((right-low-numbers-list (first (third tree-node))))
 
       (multiple-value-bind (best-split-criterion split-criterion-list)
-	  (select-best-splitting-attribute
-	   data-vector variable-index-hash right-low-numbers-list
-	   (make-split-criterion-list data-vector variable-index-hash objective-column-index)
-	   objective-column-index :test test :epsilon epsilon)
+          (select-best-splitting-attribute
+           data-vector variable-index-hash right-low-numbers-list
+           (make-split-criterion-list data-vector variable-index-hash objective-column-index)
+           objective-column-index :test test :epsilon epsilon)
 
-	(let ((result-ratio (sum-up-results data-vector right-low-numbers-list objective-column-index)))
-	  (multiple-value-bind (right left)
+        (let ((result-ratio (sum-up-results data-vector right-low-numbers-list objective-column-index)))
+          (multiple-value-bind (right left)
               (split data-vector variable-index-hash right-low-numbers-list
                      (car best-split-criterion) (cdr best-split-criterion))
-	    (list (list best-split-criterion split-criterion-list)
+            (list (list best-split-criterion split-criterion-list)
                   result-ratio
                   (list right left))))))))
-	 	
+                
 (defun make-new-left-node (data-vector variable-index-hash objective-column-index tree-node
                            &key (test #'delta-gini) (epsilon 0))
   (if (null (caar tree-node))
@@ -222,16 +222,16 @@
     (let ((left-low-numbers-list (second (third tree-node))))
 
       (multiple-value-bind (best-split-criterion split-criterion-list)
-	  (select-best-splitting-attribute
-	   data-vector variable-index-hash left-low-numbers-list
-	   (make-split-criterion-list data-vector variable-index-hash objective-column-index)
-	   objective-column-index :test test :epsilon epsilon)
-	(let ((result-ratio (sum-up-results data-vector left-low-numbers-list objective-column-index)))
-	  (multiple-value-bind (right left)
+          (select-best-splitting-attribute
+           data-vector variable-index-hash left-low-numbers-list
+           (make-split-criterion-list data-vector variable-index-hash objective-column-index)
+           objective-column-index :test test :epsilon epsilon)
+        (let ((result-ratio (sum-up-results data-vector left-low-numbers-list objective-column-index)))
+          (multiple-value-bind (right left)
               (split data-vector variable-index-hash left-low-numbers-list
                      (car best-split-criterion) (cdr best-split-criterion))
-	
-	    (list (list best-split-criterion split-criterion-list)
+        
+            (list (list best-split-criterion split-criterion-list)
                   result-ratio
                   (list right left))))))))
 
@@ -250,7 +250,7 @@
                      :test test :epsilon epsilon))))
 
 (defun make-decision-tree (unspecialized-dataset objective-column-name
-			   &key (test #'delta-gini) (epsilon 0))
+                           &key (test #'delta-gini) (epsilon 0))
   "- make decision tree based on CART algorithm
 - return: CONS, decision tree
 - arguments:
@@ -261,14 +261,14 @@
 - comments : when split, we treat string data as nominal scale and numerical data as ordinal scale.
 - reference : Toby Segaran. \"Programming Collective Intelligence\" ,O'REILLY"
   (let* ((data-vector (dataset-points unspecialized-dataset))
-	 (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
+         (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
 
     (let* ((objective-column-index
             (column-name->column-number variable-index-hash objective-column-name))
            (root (make-root-node data-vector variable-index-hash objective-column-index
                                  :test test :epsilon epsilon)))
       (make-tree data-vector variable-index-hash objective-column-index root
-		 :test test :epsilon epsilon))))
+                 :test test :epsilon epsilon))))
 
 (defun print-decision-tree-node (tree-node &optional stream)
   (if (numberp (cdaar tree-node))
@@ -277,16 +277,16 @@
 
 (defun print-decision-tree (decision-tree &optional (stream t) (indent 0))
   (let ((indent (+ 3 indent)))
-    (if (= (length decision-tree) 2)	;leaf or not leaf
-	(format stream "~A~%" (car decision-tree))
+    (if (= (length decision-tree) 2)    ;leaf or not leaf
+        (format stream "~A~%" (car decision-tree))
       (progn
-	(print-decision-tree-node (first decision-tree) stream)
-	(dotimes (i indent) (format stream " "))
-	(format stream "Yes->")
-	(print-decision-tree (second decision-tree) stream indent)
-	(dotimes (i indent) (format stream " "))
-	(format stream "No->")
-	(print-decision-tree (third decision-tree) stream indent)))))
+        (print-decision-tree-node (first decision-tree) stream)
+        (dotimes (i indent) (format stream " "))
+        (format stream "Yes->")
+        (print-decision-tree (second decision-tree) stream indent)
+        (dotimes (i indent) (format stream " "))
+        (format stream "No->")
+        (print-decision-tree (third decision-tree) stream indent)))))
 
 (defun make-regression-tree (unspecialized-dataset objective-column-name
                              &key (test #'delta-variance) (epsilon 0))
@@ -297,7 +297,7 @@
   - epsilon : pre-pruning parameter, default is 0
 - comments : we use variance difference as a split criterion."
   (let* ((data-vector (dataset-points unspecialized-dataset))
-	 (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
+         (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
 
     (let* ((objective-column-index
             (column-name->column-number variable-index-hash objective-column-name))
@@ -305,7 +305,7 @@
                                  :test test :epsilon epsilon)))
       (make-tree data-vector variable-index-hash objective-column-index root
                  :test test :epsilon epsilon))))
-    	
+        
 (defun print-regression-tree-node (tree-node &optional stream)
   "- return: NIL
 - arguments:
@@ -313,9 +313,9 @@
  - stream : default is T"
   (if (numberp (cdaar tree-node))
       (format stream "[~A <= ~A?] (smean = ~,2F, n = ~A)~%"
-	      (cdaar tree-node) (caaar tree-node) (mean (second tree-node)) (total (second tree-node)))
+              (cdaar tree-node) (caaar tree-node) (mean (second tree-node)) (total (second tree-node)))
     (format stream "[~A:~A?] (mean = ~,2F, n = ~A)~%"
-	    (caaar tree-node) (cdaar tree-node) (mean (second tree-node)) (total (second tree-node)))))
+            (caaar tree-node) (cdaar tree-node) (mean (second tree-node)) (total (second tree-node)))))
 
 (defun print-regression-tree (regression-tree &optional (stream t) (indent 0))
   "- return: NIL
@@ -323,16 +323,16 @@
  - decision-tree
  - stream : default is T"
   (let ((indent (+ 3 indent)))
-    (if (= (length regression-tree) 2)	;leaf or not leaf
-	(format stream "(mean = ~,2F, n = ~A)~%" (mean (first regression-tree)) (total (first regression-tree)))
+    (if (= (length regression-tree) 2)  ;leaf or not leaf
+        (format stream "(mean = ~,2F, n = ~A)~%" (mean (first regression-tree)) (total (first regression-tree)))
       (progn
-	(print-regression-tree-node (first regression-tree) stream)
-	(dotimes (i indent) (format stream " "))
-	(format stream "Yes->")
-	(print-regression-tree (second regression-tree) stream indent)
-	(dotimes (i indent) (format stream " "))
-	(format stream "No->")
-	(print-regression-tree (third regression-tree) stream indent)))))
+        (print-regression-tree-node (first regression-tree) stream)
+        (dotimes (i indent) (format stream " "))
+        (format stream "Yes->")
+        (print-regression-tree (second regression-tree) stream indent)
+        (dotimes (i indent) (format stream " "))
+        (format stream "No->")
+        (print-regression-tree (third regression-tree) stream indent)))))
 
 (defun predict-decision-tree (query-vector unspecialized-dataset tree &optional (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
   "- return: string, prediction
@@ -344,23 +344,23 @@
 
 *** sample usage
 #+INCLUDE: \"../sample/predict-decision-tree.org\" example lisp"
-  (if (= (length tree) 2)		;leaf or not leaf
+  (if (= (length tree) 2)               ;leaf or not leaf
       (car (reduce #'(lambda (x y) (if (<= (cdr x) (cdr y))
-				       y
-				       x)) (first tree)))
+                                       y
+                                       x)) (first tree)))
       (progn
-	(let ((i (column-name->column-number variable-index-hash (caaaar tree))))
-	  (cond ((realp (cdaaar tree))
-		 (if (handler-case (<= (cdaaar tree) #1=(svref query-vector i)) (type-error () (if (eql :NA #1#) (if (= 2 (length (third tree))) t (if (= 2 (length (second tree))) nil (if (<= (cadaar (second tree)) (cadaar (third tree))) nil t))) (error "Don't know how to handle the value ~A. Expected something of type real." #1#))))
-		     (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
-		     (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
-		
-		((or (stringp (cdaaar tree)) (symbolp (cdaaar tree)))
-		 (if (equal (cdaaar tree) (svref query-vector i))
-		     (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
-		     (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
-		
-		(t (error "invalid dataset.")))))))
+        (let ((i (column-name->column-number variable-index-hash (caaaar tree))))
+          (cond ((realp (cdaaar tree))
+                 (if (handler-case (<= (cdaaar tree) #1=(svref query-vector i)) (type-error () (if (eql :NA #1#) (if (= 2 (length (third tree))) t (if (= 2 (length (second tree))) nil (if (<= (cadaar (second tree)) (cadaar (third tree))) nil t))) (error "Don't know how to handle the value ~A. Expected something of type real." #1#))))
+                     (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
+                     (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
+                
+                ((or (stringp (cdaaar tree)) (symbolp (cdaaar tree)))
+                 (if (equal (cdaaar tree) (svref query-vector i))
+                     (predict-decision-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
+                     (predict-decision-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
+                
+                (t (error "invalid dataset.")))))))
 
 (defun decision-tree-validation (validation-dataset objective-column-name decision-tree)
   "- return: CONS, validation result
@@ -374,13 +374,13 @@
 #+INCLUDE: \"../sample/decision-tree-validation.org\" example lisp
 "
   (let* ((variable-index-hash (make-variable-index-hash validation-dataset))
-	 (k (column-name->column-number variable-index-hash objective-column-name))
-	 (validation-data-vector (dataset-points validation-dataset)))
+         (k (column-name->column-number variable-index-hash objective-column-name))
+         (validation-data-vector (dataset-points validation-dataset)))
 
     (sum-up (loop
-		for i below (length validation-data-vector)
-		collect (cons (predict-decision-tree (svref validation-data-vector i) validation-dataset decision-tree)
-			      (svref (svref validation-data-vector i) k))))))
+                for i below (length validation-data-vector)
+                collect (cons (predict-decision-tree (svref validation-data-vector i) validation-dataset decision-tree)
+                              (svref (svref validation-data-vector i) k))))))
 
 (defun predict-regression-tree (query-vector unspecialized-dataset tree &optional (variable-index-hash (make-variable-index-hash unspecialized-dataset)))
   "- return: real, predictive value
@@ -392,22 +392,22 @@
 *** sample usage
 #+INCLUDE: \"../sample/predict-regression-tree.org\" example lisp
 "
-  (if (= (length tree) 2)		;leaf or not leaf
+  (if (= (length tree) 2)               ;leaf or not leaf
       (mean (first tree))
       (progn
-	(let ((i (column-name->column-number variable-index-hash (caaaar tree))))
-	  (cond ((realp (cdaaar tree))
-		 (if (handler-case (<= (cdaaar tree) #1=(svref query-vector i)) (type-error () (if (eql :NA #1#) (if (= 2 (length (third tree))) t (if (= 2 (length (second tree))) nil (if (<= (cadaar (second tree)) (cadaar (third tree))) nil t))) (error "Don't know how to handle the value ~A. Expected something of type real." #1#))))
-		     (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
-		     (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
-		
-		;;((stringp (cdaaar tree))
-		((or (stringp (cdaaar tree)) (symbolp (cdaaar tree)))
-		 (if (equal (cdaaar tree) (svref query-vector i))
-		     (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
-		     (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
-		
-		(t (error "invalid dataset.")))))))
+        (let ((i (column-name->column-number variable-index-hash (caaaar tree))))
+          (cond ((realp (cdaaar tree))
+                 (if (handler-case (<= (cdaaar tree) #1=(svref query-vector i)) (type-error () (if (eql :NA #1#) (if (= 2 (length (third tree))) t (if (= 2 (length (second tree))) nil (if (<= (cadaar (second tree)) (cadaar (third tree))) nil t))) (error "Don't know how to handle the value ~A. Expected something of type real." #1#))))
+                     (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
+                     (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
+                
+                ;;((stringp (cdaaar tree))
+                ((or (stringp (cdaaar tree)) (symbolp (cdaaar tree)))
+                 (if (equal (cdaaar tree) (svref query-vector i))
+                     (predict-regression-tree query-vector unspecialized-dataset (second tree) variable-index-hash)
+                     (predict-regression-tree query-vector unspecialized-dataset (third tree) variable-index-hash)))
+                
+                (t (error "invalid dataset.")))))))
 
 (defun regression-tree-validation (validation-dataset objective-column-name regression-tree)
   "- return: MSE (Mean Squared Error)
@@ -419,14 +419,14 @@
 #+INCLUDE: \"../sample/regression-tree-validation.org\" example lisp
 "
   (let* ((variable-name-index (make-variable-index-hash validation-dataset))
-	 (k (column-name->column-number variable-name-index objective-column-name))
-	 (validation-data-vector (dataset-points validation-dataset))
-	 (n (length validation-data-vector)))
+         (k (column-name->column-number variable-name-index objective-column-name))
+         (validation-data-vector (dataset-points validation-dataset))
+         (n (length validation-data-vector)))
 
     (loop
-	for i below n
-	sum (expt (- (predict-regression-tree (svref validation-data-vector i) validation-dataset regression-tree)
-		     (svref (svref validation-data-vector i) k))
-		  2) into s
-	finally (return (/ s n)))))
+        for i below n
+        sum (expt (- (predict-regression-tree (svref validation-data-vector i) validation-dataset regression-tree)
+                     (svref (svref validation-data-vector i) k))
+                  2) into s
+        finally (return (/ s n)))))
 

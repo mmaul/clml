@@ -4,8 +4,8 @@
 ;;Numerical Recipies in Fortran Copyright (c) Numerical Recipies 1986, 1989;;;;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; functions:
-;	four1: fourier transform (FFT) in one dimension
-;	realft: fourier transform of a real functions
+;       four1: fourier transform (FFT) in one dimension
+;       realft: fourier transform of a real functions
 ;------------------------------------------------------------------------------
 
 

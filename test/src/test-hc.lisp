@@ -1,12 +1,12 @@
-		
+                
 (in-package :clml.test)
 
 (define-test test-hc
     (let (seiseki d-matrix cophenetic-matrix merge-matrix)
       (setf seiseki (pick-and-specialize-data
-		     (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/seiseki.csv") :type :csv :csv-type-spec
-					  '(string double-float double-float double-float double-float double-float))
-		     :range '(1 2 3 4 5) :data-types '(:numeric :numeric :numeric :numeric :numeric)))
+                     (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/seiseki.csv") :type :csv :csv-type-spec
+                                          '(string double-float double-float double-float double-float double-float))
+                     :range '(1 2 3 4 5) :data-types '(:numeric :numeric :numeric :numeric :numeric)))
       (setf d-matrix (distance-matrix (numeric-matrix seiseki)))
       (assert-eql 68.65857557508748d0 (aref d-matrix 0 1))
       ;;average

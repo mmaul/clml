@@ -28,38 +28,38 @@ A nice and clear explanation of SVMs can be found in
 (defpackage :clml.svm.wss3
 
   (:use :cl
-	:clml.hjs.meta
-	:clml.hjs.vector
-	:clml.hjs.read-data
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.read-data
     :clml.hjs.matrix)
   (:import-from :clml.decision-tree.decision-tree
-		#:sum-up)
+                #:sum-up)
   (:export #:make-svm-learner
-	   #:load-svm-learner
-	   #:make-linear-kernel
-	   #:make-rbf-kernel
-	   #:make-polynomial-kernel
-	   #:make-one-class-svm-kernel
-	   #:svm-validation
+           #:load-svm-learner
+           #:make-linear-kernel
+           #:make-rbf-kernel
+           #:make-polynomial-kernel
+           #:make-one-class-svm-kernel
+           #:svm-validation
        #:sign
        #:call-kernel-function-uncached
        #:call-kernel-function
        #:define-kernel-function
-	   ))
+           ))
 
 
 (defpackage :clml.svm.one-class
   (:use :cl
-	:clml.svm.wss3
-	:clml.hjs.meta
-	:clml.hjs.vector
-	:clml.hjs.read-data
+        :clml.svm.wss3
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.read-data
     :clml.hjs.matrix)
 
   (:import-from :clml.svm.wss3
-		#:sign
-		#:call-kernel-function-uncached
-		#:call-kernel-function)
+                #:sign
+                #:call-kernel-function-uncached
+                #:call-kernel-function)
   (:export #:one-class-svm
            #:qp-solver
            )
@@ -76,24 +76,24 @@ Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"))
           :clml.hjs.read-data
           :clml.hjs.matrix)
   (:import-from :clml.decision-tree.decision-tree
-		#:sum-up)
+                #:sum-up)
   (:export #:make-svm-learner
-	   #:load-svm-learner
-	   #:make-linear-kernel
-	   #:make-rbf-kernel
-	   #:make-polynomial-kernel
-	   #:make-one-class-svm-kernel
-	   #:svm-validation
-	   ))
+           #:load-svm-learner
+           #:make-linear-kernel
+           #:make-rbf-kernel
+           #:make-polynomial-kernel
+           #:make-one-class-svm-kernel
+           #:svm-validation
+           ))
 
 (defpackage :clml.svm.smo
   (:use :cl
-	:clml.hjs.read-data
+        :clml.hjs.read-data
         :clml.hjs.vector
         :clml.hjs.matrix
         :clml.hjs.meta)
   (:import-from :clml.decision-tree.decision-tree
-		#:sum-up)
+                #:sum-up)
   (:export
    #:linear-kernel
    #:make-rbf-kernel
@@ -113,19 +113,19 @@ Reference: Jhon C. Platt. "Fast Training of Support Vector Machines using Sequen
 (defpackage :clml.svm.svr
 
   (:use :cl
-	:clml.svm.wss3
-	:clml.hjs.meta
-	:clml.hjs.vector
-	:clml.hjs.read-data
+        :clml.svm.wss3
+        :clml.hjs.meta
+        :clml.hjs.vector
+        :clml.hjs.read-data
         :clml.hjs.matrix)
   (:import-from :clml.svm.wss3
-		#:call-kernel-function-uncached
-		#:call-kernel-function
-		#:define-kernel-function)
+                #:call-kernel-function-uncached
+                #:call-kernel-function
+                #:define-kernel-function)
   (:export #:make-svr-learner
-	   #:load-svr-learner
-	   #:svr-validation
-	   )
+           #:load-svr-learner
+           #:svr-validation
+           )
   (:documentation "Support-Vector-Regression
 
 Support Vector Regression Package using SMO-type algorithm

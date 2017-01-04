@@ -61,9 +61,9 @@
 (defmethod initialize-instance :after ((d dimension) &key &allow-other-keys)
   (when (not (find (dimension-type d) +known-data-type+))
     (error 'dimension-unknown-type-error
-	   :format-control "Type of dimension(~s) is unknown, it must be one of ~s"
-	   :format-arguments (list (dimension-type d) +known-data-type+)
-	   :dimension d)))
+           :format-control "Type of dimension(~s) is unknown, it must be one of ~s"
+           :format-arguments (list (dimension-type d) +known-data-type+)
+           :dimension d)))
 
 (defun make-dimension (name type index &key metadata)
   (check-type name string)
@@ -71,10 +71,10 @@
   (check-type index fixnum)
   (check-type metadata list)
   (make-instance 'dimension
-		 :name name
-		 :type type
-		 :index index
-		 :metadata metadata))
+                 :name name
+                 :type type
+                 :index index
+                 :metadata metadata))
 
 (defgeneric copy-dimension (dimension))
 (defmethod copy-dimension ((dimension dimension))
@@ -85,11 +85,11 @@
 
 (defmethod print-object ((d dimension) stream)
   (with-accessors ((name dimension-name)
-		   (type dimension-type)
-		   (index dimension-index)) d
+                   (type dimension-type)
+                   (index dimension-index)) d
     (print-unreadable-object (d stream :type t :identity nil)
       (format stream "NAME: ~A, TYPE: ~A, INDEX: ~A."
-	      name type index))))
+              name type index))))
 
 (defclass dataset ()
   ((dimensions
@@ -272,7 +272,7 @@
   (assert (> (length specialized-data) 0))
   (assert (> (length all-column-names) 0))
   (assert (= (length all-column-names)
-	     (length (aref specialized-data 0))))
+             (length (aref specialized-data 0))))
   (check-type specialized-data simple-vector)
   (check-type (aref specialized-data 0) simple-array)
   (let ((dimensions (make-array (length all-column-names))))
@@ -281,24 +281,24 @@
        for i from 0
        for table = (make-hash-table :test 'equal #+allegro :values #+allegro nil)
        for d = (make-dimension n :category i
-			       :metadata `((:table . ,table)))
+                               :metadata `((:table . ,table)))
        do (setf (aref dimensions i) d))
     ;; compact category values
     (loop
        for d across dimensions
        do (loop
-	     with i = (dimension-index d)
-	     with table = (cdr (assoc :table (dimension-metadata d)))
-	     for p across specialized-data
-	     for c = (aref p i)
-	     do (multiple-value-bind (val exist-p)
-		    (gethash c table)
-		  (if exist-p
-		      (setf (aref p i) val)
-		      (setf (gethash c table) #+allegro t #-allegro c)))))
+             with i = (dimension-index d)
+             with table = (cdr (assoc :table (dimension-metadata d)))
+             for p across specialized-data
+             for c = (aref p i)
+             do (multiple-value-bind (val exist-p)
+                    (gethash c table)
+                  (if exist-p
+                      (setf (aref p i) val)
+                      (setf (gethash c table) #+allegro t #-allegro c)))))
     (make-instance 'category-dataset
-		   :dimensions dimensions
-		   :category-points specialized-data)))
+                   :dimensions dimensions
+                   :category-points specialized-data)))
 
 (defclass numeric-and-category-dataset (numeric-dataset category-dataset)
   ()
@@ -1480,8 +1480,8 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
 (defmethod write-dataset ((dataset clml.hjs.read-data::dataset) filename &key (external-format clml.utility.csv::*csv-default-external-format*))
   " Write dataset to csv formated file"
   (with-open-file (f filename :direction :output
-		     :if-does-not-exist :create
-		     :if-exists :supersede
-		     :external-format external-format)
+                     :if-does-not-exist :create
+                     :if-exists :supersede
+                     :external-format external-format)
     (clml.utility.csv:write-csv-stream f (vector (map '(vector string) #'dimension-name (dataset-dimensions dataset))))
     (clml.utility.csv:write-csv-stream f (dataset-points dataset))))

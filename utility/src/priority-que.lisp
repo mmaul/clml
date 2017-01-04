@@ -27,15 +27,15 @@
 
 (defun make-que ()
   (let ((que (_make-que))
-	(root (list nil)))
+        (root (list nil)))
     (setf (que-list que) root
-	  (que-last que) root)
+          (que-last que) root)
     que))
 
 (defun append-que (que x)
   (setf (que-last que)
-	(setf (cdr (que-last que))
-	      (list x)))
+        (setf (cdr (que-last que))
+              (list x)))
   x)
 
 (defun append-que-list (que x)
@@ -51,8 +51,8 @@
 (defun pop-que (que)
   (if (cdr (que-list que))
       (prog1
-	  (cadr (que-list que))
-	(setf (cdr (que-list que))
+          (cadr (que-list que))
+        (setf (cdr (que-list que))
           (cddr (que-list que)))
         ;; !!!!!
         (unless (cdr (que-list que))
@@ -62,7 +62,7 @@
 (defun insert-que-before-last (que x)
   (assert (not (eq (que-list que) (que-last que))))
   (let ((last (que-last que))
-	(last1 (que-list que)))
+        (last1 (que-list que)))
     (iterate (while (not (eq (cdr last1) last)))
              (setq last1 (cdr last1)))
     (setf (cdr last1) (cons x last))
@@ -130,14 +130,14 @@
 
 (defun link2-dque (d1 d2)
   (setf (dque-next d1) d2
-	(dque-prev d2) d1)
+        (dque-prev d2) d1)
   nil)
 
 (defun link3-dque (d1 d2 d3)
   (setf (dque-next d1) d2
-	(dque-next d2) d3
-	(dque-prev d3) d2
-	(dque-prev d2) d1)
+        (dque-next d2) d3
+        (dque-prev d3) d2
+        (dque-prev d2) d1)
   nil)
 
 (defun append-dque (d1 d2)

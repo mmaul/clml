@@ -27,22 +27,22 @@ If record is nil, nothing will be printed.
 If stream is nil (default case), it will return a string, otherwise it will return nil.
 For efficiency reason, no intermediate string will be constructed. "
   (let ((result
-	 (with-output-to-string (s)
-	   (let ((*standard-output* s)
-		 (record-size (length record)))
-	     (iter (for e in-sequence record)
-		   (for i from 0)
-		   (typecase e
-		     (string (progn
-			       (if *csv-print-quote-p*
-				   (progn
-				     (write-char *csv-quote*)
-				     (write-string e)
-				     (write-char *csv-quote*))
-				   (write-string e))))
-		     (t (princ e)))
-		   (when (< i (1- record-size))
-		     (write-char *csv-separator*)))))))
+         (with-output-to-string (s)
+           (let ((*standard-output* s)
+                 (record-size (length record)))
+             (iter (for e in-sequence record)
+                   (for i from 0)
+                   (typecase e
+                     (string (progn
+                               (if *csv-print-quote-p*
+                                   (progn
+                                     (write-char *csv-quote*)
+                                     (write-string e)
+                                     (write-char *csv-quote*))
+                                   (write-string e))))
+                     (t (princ e)))
+                   (when (< i (1- record-size))
+                     (write-char *csv-separator*)))))))
     (format stream "~&~a" result)))
 
 (defun write-csv-stream (stream table)
@@ -51,7 +51,7 @@ For efficiency reason, no intermediate string will be constructed. "
 A table is a sequence of lines. A line is a sequence of elements.
 Elements can be any types"
   (iter (for l in-sequence table)
-	(write-csv-line l :stream stream))
+        (write-csv-line l :stream stream))
   (write-char #\newline stream)
   '(ok))
 
@@ -61,9 +61,9 @@ Elements can be any types"
 A table is a sequence of lines. A line is a sequence of elements.
 Elements can be any types"
   (with-open-file (f filename :direction :output
-		     :if-does-not-exist :create
-		     :if-exists :supersede
-		     :external-format external-format)
+                     :if-does-not-exist :create
+                     :if-exists :supersede
+                     :external-format external-format)
     (write-csv-stream f table)))
 
 (defun parse-csv-string (str) ;; refer RFC4180
@@ -224,7 +224,7 @@ If start or end is negative, it counts from the end. -1 is the last element.
                    header)))))
 
 (defun read-csv-file (filename &key (header t) type-spec map-fns (external-format *csv-default-external-format*)
-		      (os :anynl-dos) (start 0) end)
+                      (os :anynl-dos) (start 0) end)
   "Read from stream until eof and return a csv table.
 
 A csv table is a vector of csv records.
@@ -251,16 +251,16 @@ If start or end is negative, it counts from the end. -1 is the last element.
   (with-open-file (f filename :external-format external-format)
     #+allegro (setf (excl:eol-convention f) os)
     (read-csv-stream f :type-spec type-spec :map-fns map-fns
-		     :start start :end end
-		     :header header)))
+                     :start start :end end
+                     :header header)))
 
 
 (defun read-csv-file-and-sort (filename sort-order &key (header t) (order :ascend) type-spec map-fns (external-format *csv-default-external-format*))
   (let ((table (read-csv-file filename
-			      :header header
-			      :type-spec type-spec
-			      :map-fns map-fns
-			      :external-format external-format)))
+                              :header header
+                              :type-spec type-spec
+                              :map-fns map-fns
+                              :external-format external-format)))
     (loop for i in (reverse sort-order)
         do (setf table
              (stable-sort table (ecase order (:ascend #'string<=) (:descend #'string>=))

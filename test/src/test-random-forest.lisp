@@ -7,10 +7,10 @@
       (setf syobu (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/syobu.csv") :type :csv :csv-type-spec '(string integer integer integer integer)))
 
       (setf bc-train (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.train.csv") :type :csv
-					  :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
+                                          :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
 
       (setf bc-test (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc.test.csv") :type :csv
-					 :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
+                                         :csv-type-spec (append (loop for i below 9 collect 'double-float) '(string))))
 
       (setf cars (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/cars.csv") :type :csv :csv-type-spec '(double-float double-float)))
       (let ((lparallel:*kernel* (lparallel:make-kernel 4)))

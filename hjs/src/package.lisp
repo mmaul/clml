@@ -2,23 +2,23 @@
   (:use :cl)
 
   (:export #:with-unique-names
-	   #:once-only
+           #:once-only
        #:defun-speedy
        #:defdoublefunc
        #:gethash-or-set
        #:dmat
-	   #:dvec
-	   #:cvec
-	   #:make-dvec
+           #:dvec
+           #:cvec
+           #:make-dvec
        #:v2dvec
-	   #:array-index
+           #:array-index
        #:dfloat
-	   #:+fl
-	   #:-fl
-	   #:*fl
-	   #:/fl
+           #:+fl
+           #:-fl
+           #:*fl
+           #:/fl
        #:safe-/
-	   #:batch-elt
+           #:batch-elt
        #:split-seq-odd-even
        #:d-expt
        #:d-exp
@@ -27,7 +27,7 @@
        #:vecs2flatmat
        #:mat2vecs
        #:flatmat2vecs
-	   ))
+           ))
 (defpackage :clml.hjs.vars
   (:use :cl)
 
@@ -41,7 +41,7 @@
 
 (defpackage :clml.hjs.vector
   (:use :cl
-	:clml.hjs.meta)
+        :clml.hjs.meta)
 
   (:export #:make-dvec
            #:fill-vec
@@ -71,14 +71,14 @@
   (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.blas :clml.lapack)
 
   (:export #:sum-mat
-	   #:copy-mat
-	   #:nrow
-	   #:ncol
-	   #:transpose
-	   #:transposeV
+           #:copy-mat
+           #:nrow
+           #:ncol
+           #:transpose
+           #:transposeV
        #:trans
-	   #:dmat
-	   #:specialize-mat
+           #:dmat
+           #:specialize-mat
        #:diag
        #:vcv
        #:mcm
@@ -106,7 +106,7 @@
        #:c*mat
        #:array2mat
        #:mat2array
-	   ))
+           ))
 
 (defpackage :clml.hjs.missing-value
   (:use :cl :clml.hjs.meta :clml.hjs.vector :clml.statistics :clml.hjs.meta)
@@ -181,8 +181,8 @@
 
 (defpackage :clml.hjs.k-means
   (:use :cl :clml.hjs.vector :clml.hjs.meta :clml.hjs.read-data
-	:clml.statistics :clml.hjs.matrix :iterate
-	:clml.hjs.vars)
+        :clml.statistics :clml.hjs.matrix :iterate
+        :clml.hjs.vars)
 
   (:export
    #:k-means

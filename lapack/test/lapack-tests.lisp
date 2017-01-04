@@ -10,12 +10,12 @@
 (defun make-eigval (wr wi)
   (let ((e-val (make-array (length wr))))
     (map-into e-val #'(lambda (r i)
-		       ;; Do we really want to do this?  Should we
-		       ;; just make all of the eigenvalues complex?
-		       (if (zerop i)
-			   r
-			   (complex r i)))
-	      wr wi)
+                       ;; Do we really want to do this?  Should we
+                       ;; just make all of the eigenvalues complex?
+                       (if (zerop i)
+                           r
+                           (complex r i)))
+              wr wi)
     e-val))
 
 ;; Convert the eigenvalues returned by DGEEV into a more typical
@@ -23,23 +23,23 @@
 (defun make-eigvec (n vr wi)
   (let ((evec (make-array (list n n))))
     (do ((col 0 (incf col))
-	 (posn 0))
-	((>= col n))
+         (posn 0))
+        ((>= col n))
       (cond ((zerop (aref wi col))
-	     (dotimes (row n)
-	       (setf (aref evec row col) (aref vr posn))
-	       (incf posn)))
-	    (t
-	     (dotimes (row n)
-	       (let* ((next-posn (+ posn n))
-		      (val+ (complex (aref vr posn) (aref vr next-posn)))
-		      (val- (conjugate val+)))
-		 (setf (aref evec row col) val+)
-		 (setf (aref evec row (1+ col)) val-)
-		 (incf posn)))
-	     ;; Skip over the next column, which we've already used
-	     (incf col)
-	     (incf posn n))))
+             (dotimes (row n)
+               (setf (aref evec row col) (aref vr posn))
+               (incf posn)))
+            (t
+             (dotimes (row n)
+               (let* ((next-posn (+ posn n))
+                      (val+ (complex (aref vr posn) (aref vr next-posn)))
+                      (val- (conjugate val+)))
+                 (setf (aref evec row col) val+)
+                 (setf (aref evec row (1+ col)) val-)
+                 (incf posn)))
+             ;; Skip over the next column, which we've already used
+             (incf col)
+             (incf posn n))))
     evec))
 
 ;; Expected results from http://www.nag.co.uk/lapack-ex/examples/results/dgeev-ex.r
@@ -85,7 +85,7 @@
       (format t "Eigenvalue(~D) = ~A~%" k (aref e-val k))
       (format t "~%Eigenvector(~D)~%" k)
       (dotimes (row n)
-	(format t "~A~%" (aref e-vec row k)))
+        (format t "~A~%" (aref e-vec row k)))
       (terpri))))
 
 ;; DGEEV example based on the example from
@@ -100,28 +100,28 @@
   ;;
   ;; Recall that Fortran arrays are column-major order!
   (let* ((n 4)
-	 (a-mat (make-array (* n n) :element-type 'double-float
-			    :initial-contents '(0.35d0 0.09d0 -0.44d0 0.25d0
-						0.45d0 0.07d0 -0.33d0 -0.32d0
-						-0.14d0 -0.54d0 -0.03d0 -0.13d0
-						-0.17d0 0.35d0 0.17d0 0.11d0)))
-	 (wr (make-array n :element-type 'double-float))
-	 (wi (make-array n :element-type 'double-float))
-	 (vl (make-array 0 :element-type 'double-float))
-	 (vr (make-array (* n n) :element-type 'double-float))
-	 (lwork 660)
-	 (work (make-array lwork :element-type 'double-float)))
+         (a-mat (make-array (* n n) :element-type 'double-float
+                            :initial-contents '(0.35d0 0.09d0 -0.44d0 0.25d0
+                                                0.45d0 0.07d0 -0.33d0 -0.32d0
+                                                -0.14d0 -0.54d0 -0.03d0 -0.13d0
+                                                -0.17d0 0.35d0 0.17d0 0.11d0)))
+         (wr (make-array n :element-type 'double-float))
+         (wi (make-array n :element-type 'double-float))
+         (vl (make-array 0 :element-type 'double-float))
+         (vr (make-array (* n n) :element-type 'double-float))
+         (lwork 660)
+         (work (make-array lwork :element-type 'double-float)))
     (multiple-value-bind (z-jobvl z-jobvr z-n z-a z-lda z-wr z-wi z-vl z-ldvl z-vr
-					z-ldvr z-work z-lwork info)
-	(dgeev "N" "V" n a-mat n wr wi vl n vr n work lwork 0)
+                                        z-ldvr z-work z-lwork info)
+        (dgeev "N" "V" n a-mat n wr wi vl n vr n work lwork 0)
       (declare (ignore z-jobvl z-jobvr z-n z-a z-lda z-wr z-wi z-vl z-ldvl z-vr
-		       z-ldvr z-work z-lwork))
+                       z-ldvr z-work z-lwork))
       ;; Display solution
       (cond ((zerop info)
-	     (print-dgeev-results (make-eigval wr wi)
-				  (make-eigvec n vr wi)))
-	    (t
-	     (format t "Failure in DGEEV.  INFO = ~D~%" info)))
+             (print-dgeev-results (make-eigval wr wi)
+                                  (make-eigvec n vr wi)))
+            (t
+             (format t "Failure in DGEEV.  INFO = ~D~%" info)))
       ;; Display workspace info
       (format t "Optimum workspace required = ~D~%" (truncate (aref work 0)))
       (format t "Workspace provided = ~D~%" lwork))))
@@ -192,57 +192,57 @@
     (dotimes (k n)
       (format t "Eigenvalue(~D) = ~A~%" k (aref e-val k))
       (let ((rcnd (aref rconde k)))
-	(format t "Reciprocal condition number = ~A~%" rcnd)
-	(if (plusp rcnd)
-	    (format t "Error bound = ~A~%" (/ tol rcnd))
-	    (format t "Error bound is infinite~%")))
+        (format t "Reciprocal condition number = ~A~%" rcnd)
+        (if (plusp rcnd)
+            (format t "Error bound = ~A~%" (/ tol rcnd))
+            (format t "Error bound is infinite~%")))
 
       (format t "~%Eigenvector(~D)~%" k)
       (dotimes (row n)
-	(format t "~A~%" (aref e-vec row k)))
+        (format t "~A~%" (aref e-vec row k)))
       (let ((rcnd (aref rcondv k)))
-	(format t "Reciprocal condition number = ~A~%" rcnd)
-	(if (plusp rcnd)
-	    (format t "Error bound = ~A~%" (/ tol rcnd))
-	    (format t "Error bound is infinity~%")))
+        (format t "Reciprocal condition number = ~A~%" rcnd)
+        (if (plusp rcnd)
+            (format t "Error bound = ~A~%" (/ tol rcnd))
+            (format t "Error bound is infinity~%")))
       (terpri))))
 
 (defun test-dgeevx ()
   (let* ((n 4)
-	 (a-mat (make-array (* n n) :element-type 'double-float
-			    :initial-contents '(0.35d0 0.09d0 -0.44d0 0.25d0
-						0.45d0 0.07d0 -0.33d0 -0.32d0
-						-0.14d0 -0.54d0 -0.03d0 -0.13d0
-						-0.17d0 0.35d0 0.17d0 0.11d0)))
-	 (wr (make-array n :element-type 'double-float))
-	 (wi (make-array n :element-type 'double-float))
-	 (vl (make-array (* n n) :element-type 'double-float))
-	 (vr (make-array (* n n) :element-type 'double-float))
-	 (scale (make-array n :element-type 'double-float))
-	 (rconde (make-array n :element-type 'double-float))
-	 (rcondv (make-array n :element-type 'double-float))
-	 (lwork 660)
-	 (work (make-array lwork :element-type 'double-float))
-	 (iwork (make-array (- (* n 2) 2) :element-type 'f2cl-lib::integer4)))
+         (a-mat (make-array (* n n) :element-type 'double-float
+                            :initial-contents '(0.35d0 0.09d0 -0.44d0 0.25d0
+                                                0.45d0 0.07d0 -0.33d0 -0.32d0
+                                                -0.14d0 -0.54d0 -0.03d0 -0.13d0
+                                                -0.17d0 0.35d0 0.17d0 0.11d0)))
+         (wr (make-array n :element-type 'double-float))
+         (wi (make-array n :element-type 'double-float))
+         (vl (make-array (* n n) :element-type 'double-float))
+         (vr (make-array (* n n) :element-type 'double-float))
+         (scale (make-array n :element-type 'double-float))
+         (rconde (make-array n :element-type 'double-float))
+         (rcondv (make-array n :element-type 'double-float))
+         (lwork 660)
+         (work (make-array lwork :element-type 'double-float))
+         (iwork (make-array (- (* n 2) 2) :element-type 'f2cl-lib::integer4)))
     (multiple-value-bind (z-balanc z-jobvl z-jobvr z-sense z-n z-a z-lda z-wr z-wi z-vl z-ldvl z-vr
-				   z-ldvr ilo ihi z-scale abnrm z-rconde z-rcondv z-work z-lwork z-iwork
-				   info)
-	(dgeevx "Balance" "Vectors (left)" "Vectors (right)"
-		"Both reciprocal condition numbers"
-		n a-mat n wr wi vl n vr n 0 0 scale 0d0 rconde rcondv
-		work lwork iwork 0)
+                                   z-ldvr ilo ihi z-scale abnrm z-rconde z-rcondv z-work z-lwork z-iwork
+                                   info)
+        (dgeevx "Balance" "Vectors (left)" "Vectors (right)"
+                "Both reciprocal condition numbers"
+                n a-mat n wr wi vl n vr n 0 0 scale 0d0 rconde rcondv
+                work lwork iwork 0)
       (declare (ignore z-balanc z-jobvl z-jobvr z-sense z-n z-a z-lda z-wr z-wi z-vl z-ldvl z-vr
-				   z-ldvr z-scale z-rconde z-rcondv z-work z-lwork z-iwork))
+                                   z-ldvr z-scale z-rconde z-rcondv z-work z-lwork z-iwork))
       ;; Display solution
       (cond ((zerop info)
-	     (let* ((eps (dlamch "Eps"))
-		    (tol (* eps abnrm)))
-	       (print-dgeevx-results tol
-				     (make-eigval wr wi)
-				     (make-eigvec n vr wi)
-				     rconde rcondv)))
-	    (t
-	     (format t "Failure in DGEEV.  INFO = ~D~%" info)))
+             (let* ((eps (dlamch "Eps"))
+                    (tol (* eps abnrm)))
+               (print-dgeevx-results tol
+                                     (make-eigval wr wi)
+                                     (make-eigvec n vr wi)
+                                     rconde rcondv)))
+            (t
+             (format t "Failure in DGEEV.  INFO = ~D~%" info)))
       ;; Display workspace info
       (format t "Optimum workspace required = ~D~%" (truncate (aref work 0)))
       (format t "Workspace provided = ~D~%" lwork))))
@@ -287,22 +287,22 @@
   ;; RHS:
   ;; 9.52  24.35   0.77  -6.22
   (let* ((n 4)
-	 (a-mat (make-array (* n n) :element-type 'double-float
-			    :initial-contents '(1.80d0 5.25d0 1.58d0 -1.11d0
-						2.88d0 -2.95d0 -2.69d0 -0.66d0
-						2.05d0 -0.95d0 -2.90d0 -0.59d0
-						-0.89d0 -3.80d0 -1.04d0 0.8d0)))
-	 (b (make-array n :element-type 'double-float
-			:initial-contents '(9.52d0  24.35d0   0.77d0  -6.22d0)))
-	 (ipiv (make-array n :element-type 'f2cl-lib:integer4)))
+         (a-mat (make-array (* n n) :element-type 'double-float
+                            :initial-contents '(1.80d0 5.25d0 1.58d0 -1.11d0
+                                                2.88d0 -2.95d0 -2.69d0 -0.66d0
+                                                2.05d0 -0.95d0 -2.90d0 -0.59d0
+                                                -0.89d0 -3.80d0 -1.04d0 0.8d0)))
+         (b (make-array n :element-type 'double-float
+                        :initial-contents '(9.52d0  24.35d0   0.77d0  -6.22d0)))
+         (ipiv (make-array n :element-type 'f2cl-lib:integer4)))
     (multiple-value-bind (z-n z-nrhs z-a z-lda z-ipiv z-b z-ldb info)
-	(dgesv n 1 a-mat n ipiv b n 0)
+        (dgesv n 1 a-mat n ipiv b n 0)
       (declare (ignore z-n z-nrhs z-a z-lda z-ipiv z-b z-ldb))
       ;; Display solution
       (cond ((zerop info)
-	     (print-dgesv-results n a-mat b ipiv))
-	    (t
-	     (format t "The (~D, ~D) element of the factor U is zero~%" info info))))))
+             (print-dgesv-results n a-mat b ipiv))
+            (t
+             (format t "The (~D, ~D) element of the factor U is zero~%" info info))))))
 
 ;; Expected results (from )
 ;;
@@ -357,10 +357,10 @@
     (terpri))
   ;; Compute error estimates for the singular vectors
   (let ((serrbd (* (aref s 0) (dlamch "Eps")))
-	(rcondu (make-array m :element-type 'double-float))
-	(rcondv (make-array m :element-type 'double-float))
-	(uerrbd (make-array m :element-type 'double-float))
-	(verrbd (make-array m :element-type 'double-float)))
+        (rcondu (make-array m :element-type 'double-float))
+        (rcondv (make-array m :element-type 'double-float))
+        (uerrbd (make-array m :element-type 'double-float))
+        (verrbd (make-array m :element-type 'double-float)))
     (ddisna "Left" m n s rcondu 0)
     (ddisna "Right" m n s rcondv 0)
     (dotimes (k m)
@@ -380,29 +380,29 @@
   ;; -1.54  -1.67  -3.09   1.22   2.93  -7.39
   ;;  1.15   0.94   0.99   0.79  -1.45   1.03
   ;; -1.94  -0.78  -0.21   0.63   2.30  -2.57
-  (let* ((m 4)				; rows
-	 (n 6)				; cols
-	 (a-mat (make-array (* m n) :element-type 'double-float
-			    :initial-contents '(2.27d0 -1.54d0 1.15d0 -1.94d0
-						0.28d0 -1.67d0 0.94d0 -0.78d0
-						-0.48d0 -3.09d0 0.99d0 -0.21d0
-						1.07d0 1.22d0 0.79d0 0.63d0
-						-2.35d0 2.93d0 -1.45d0 2.30d0
-						0.62d0 -7.39d0 1.03d0 -2.57d0)))
-	 (s (make-array (min m n) :element-type 'double-float))
-	 (u (make-array (* m (min m n)):element-type 'double-float))
-	 (vt (make-array (* n n) :element-type 'double-float))
-	 (lwork 1000)
-	 (work (make-array lwork :element-type 'double-float))
-	 (iwork (make-array (* 8 (min m n)) :element-type 'f2cl-lib:integer4)))
+  (let* ((m 4)                          ; rows
+         (n 6)                          ; cols
+         (a-mat (make-array (* m n) :element-type 'double-float
+                            :initial-contents '(2.27d0 -1.54d0 1.15d0 -1.94d0
+                                                0.28d0 -1.67d0 0.94d0 -0.78d0
+                                                -0.48d0 -3.09d0 0.99d0 -0.21d0
+                                                1.07d0 1.22d0 0.79d0 0.63d0
+                                                -2.35d0 2.93d0 -1.45d0 2.30d0
+                                                0.62d0 -7.39d0 1.03d0 -2.57d0)))
+         (s (make-array (min m n) :element-type 'double-float))
+         (u (make-array (* m (min m n)):element-type 'double-float))
+         (vt (make-array (* n n) :element-type 'double-float))
+         (lwork 1000)
+         (work (make-array lwork :element-type 'double-float))
+         (iwork (make-array (* 8 (min m n)) :element-type 'f2cl-lib:integer4)))
     (multiple-value-bind (z-jobz z-m z-n z-a z-lda z-s z-u z-ldu z-vt z-ldvt z-work z-lwork z-iwork info)
-	(dgesdd "Overwrite A by transpose(V)" m n a-mat m s u m vt n work lwork iwork 0)
+        (dgesdd "Overwrite A by transpose(V)" m n a-mat m s u m vt n work lwork iwork 0)
       (declare (ignore z-jobz z-m z-n z-a z-lda z-s z-u z-ldu z-vt z-ldvt z-work z-lwork z-iwork ))
       ;; Display solution
       (cond ((zerop info)
-	     (print-dgesdd-results m n s u a-mat))
-	    (t
-	     (format t "Failure in DGESDD.  Info = ~D~%" info)))
+             (print-dgesdd-results m n s u a-mat))
+            (t
+             (format t "Failure in DGESDD.  Info = ~D~%" info)))
       (format t "Optimum workspace required = ~D~%" (truncate (aref work 0)))
       (format t "Workspace provided = ~D~%" lwork))))
 
@@ -453,10 +453,10 @@
     (terpri))
   ;; Compute error estimates for the singular vectors
   (let ((serrbd (* (aref s 0) (dlamch "Eps")))
-	(rcondu (make-array n :element-type 'double-float))
-	(rcondv (make-array n :element-type 'double-float))
-	(uerrbd (make-array n :element-type 'double-float))
-	(verrbd (make-array n :element-type 'double-float)))
+        (rcondu (make-array n :element-type 'double-float))
+        (rcondv (make-array n :element-type 'double-float))
+        (uerrbd (make-array n :element-type 'double-float))
+        (verrbd (make-array n :element-type 'double-float)))
     (ddisna "Left" m n s rcondu 0)
     (ddisna "Right" m n s rcondv 0)
     (dotimes (k n)
@@ -478,28 +478,28 @@
   ;;     1.07   1.22   0.79   0.63
   ;;    -2.35   2.93  -1.45   2.30
   ;;     0.62  -7.39   1.03  -2.57
-  (let* ((m 6)				; rows
-	 (n 4)				; cols
-	 (a-mat (make-array (* m n) :element-type 'double-float
-			    :initial-contents '(2.27d0 0.28d0 -0.48d0 1.07d0 -2.35d0 0.62d0
-						-1.54d0 -1.67d0 -3.09d0 1.22d0 2.93d0 -7.39d0
-						1.15d0 0.94d0 0.99d0 0.79d0 -1.45d0 1.03d0
-						-1.94d0 -0.78d0 -0.21d0 0.63d0 2.30d0 -2.57d0)))
-	 (s (make-array (min m n) :element-type 'double-float))
-	 (u (make-array (* m (min m n)):element-type 'double-float))
-	 (vt (make-array (* n n) :element-type 'double-float))
-	 (lwork (+ 10 (* 4 8)
-		   (* 64 (+ 10 8))))
-	 (work (make-array lwork :element-type 'double-float)))
+  (let* ((m 6)                          ; rows
+         (n 4)                          ; cols
+         (a-mat (make-array (* m n) :element-type 'double-float
+                            :initial-contents '(2.27d0 0.28d0 -0.48d0 1.07d0 -2.35d0 0.62d0
+                                                -1.54d0 -1.67d0 -3.09d0 1.22d0 2.93d0 -7.39d0
+                                                1.15d0 0.94d0 0.99d0 0.79d0 -1.45d0 1.03d0
+                                                -1.94d0 -0.78d0 -0.21d0 0.63d0 2.30d0 -2.57d0)))
+         (s (make-array (min m n) :element-type 'double-float))
+         (u (make-array (* m (min m n)):element-type 'double-float))
+         (vt (make-array (* n n) :element-type 'double-float))
+         (lwork (+ 10 (* 4 8)
+                   (* 64 (+ 10 8))))
+         (work (make-array lwork :element-type 'double-float)))
     (multiple-value-bind (z-jobz z-jobvt z-m z-n z-a z-lda z-s z-u z-ldu z-vt z-ldvt z-work z-lwork info)
-	(dgesvd "Overwrite A by U" "Singular vectors (V)"
-		m n a-mat m s u m vt n work lwork 0)
+        (dgesvd "Overwrite A by U" "Singular vectors (V)"
+                m n a-mat m s u m vt n work lwork 0)
       (declare (ignore z-jobz z-jobvt z-m z-n z-a z-lda z-s z-u z-ldu z-vt z-ldvt z-work z-lwork))
       ;; Display solution
       (cond ((zerop info)
-	     (print-dgesvd-results m n s vt a-mat))
-	    (t
-	     (format t "Failure in DGESDD.  Info = ~D~%" info)))
+             (print-dgesvd-results m n s vt a-mat))
+            (t
+             (format t "Failure in DGESDD.  Info = ~D~%" info)))
       (format t "Optimum workspace required = ~D~%" (truncate (aref work 0)))
       (format t "Workspace provided = ~D~%" lwork))))
 

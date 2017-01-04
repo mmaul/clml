@@ -245,10 +245,10 @@ CL-USER> (best-double-exp-parameters
 
 (defun simple-forecaster-quality (forecaster seq &key (measure 'mse))
   (funcall measure seq
-	   (lambda (time)
-	     (if (zerop time)
-		 (v seq time)
-		 (funcall forecaster (v seq (1- time)))))))
+           (lambda (time)
+             (if (zerop time)
+                 (v seq time)
+                 (funcall forecaster (v seq (1- time)))))))
 
 (defun brute-optimize-parameters (function parameters &key (step 1/10))
   (let ((parameters (copy-seq parameters)) (n (length parameters)))

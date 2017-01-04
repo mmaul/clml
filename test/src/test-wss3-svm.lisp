@@ -5,10 +5,10 @@
     (let (z-1 z-2 rbf-kernel poly-kernel)
 
       (setf z-1 (make-array 4 :element-type 'double-float
-			    :initial-contents #(-1.0d0 7.0d0 4.0d0 1.0d0))
-	
-	    z-2 (make-array 4 :element-type 'double-float
-			    :initial-contents #(2.0d0 5.0d0 3.0d0 -1.0d0)))
+                            :initial-contents #(-1.0d0 7.0d0 4.0d0 1.0d0))
+        
+            z-2 (make-array 4 :element-type 'double-float
+                            :initial-contents #(2.0d0 5.0d0 3.0d0 -1.0d0)))
 
       (assert-true (= 45.0d0 (clml.svm.wss3::call-kernel-function-uncached (clml.svm.wss3:make-linear-kernel) z-1 z-2)))
 
@@ -38,20 +38,20 @@
     (let (svm-bc-train svm-bc-test training-vector test-vector linear-svm rbf-kernel rbf-svm poly-svm)
 
       (setf svm-bc-train
-	(pick-and-specialize-data
-	 (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
-			      :type :csv
-			      :csv-type-spec
-			      (make-list 10 :initial-element 'double-float))
-	 :data-types (make-list 10 :initial-element :numeric)))
+        (pick-and-specialize-data
+         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
+                              :type :csv
+                              :csv-type-spec
+                              (make-list 10 :initial-element 'double-float))
+         :data-types (make-list 10 :initial-element :numeric)))
 
       (setf svm-bc-test
-	(pick-and-specialize-data
-	 (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
-			      :type :csv
-			      :csv-type-spec
-			      (make-list 10 :initial-element 'double-float))
-	 :data-types (make-list 10 :initial-element :numeric)))
+        (pick-and-specialize-data
+         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
+                              :type :csv
+                              :csv-type-spec
+                              (make-list 10 :initial-element 'double-float))
+         :data-types (make-list 10 :initial-element :numeric)))
 
       (setf training-vector (dataset-points svm-bc-train))
 

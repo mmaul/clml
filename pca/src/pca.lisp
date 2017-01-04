@@ -20,20 +20,20 @@ N), where M is the number of ponits and N is the dimension size.
   (:documentation "
 **** pca-result (the result of principle component analysis)
 - accessor:
- - components		:       <vector of datapoints>, principle components、score	
- - contributions	:       <vector of double-float>
- - loading-factors	:       <matrix>  (pay attention the representation of the matrix is row major)
- - pca-method		:       :covariance | :correlation")
+ - components           :       <vector of datapoints>, principle components、score     
+ - contributions        :       <vector of double-float>
+ - loading-factors      :       <matrix>  (pay attention the representation of the matrix is row major)
+ - pca-method           :       :covariance | :correlation")
   )
 
 (defun make-pca-result (components contributions loading-factors pca-method centroid orig-data-standard-deviations)
   (make-instance 'pca-result
-		 :components components
-		 :contributions contributions
-		 :loading-factors loading-factors
-		 :pca-method pca-method
-		 :centroid centroid
-		 :orig-data-standard-deviations orig-data-standard-deviations))
+                 :components components
+                 :contributions contributions
+                 :loading-factors loading-factors
+                 :pca-method pca-method
+                 :centroid centroid
+                 :orig-data-standard-deviations orig-data-standard-deviations))
 
 (defclass pca-model ()
   ((loading-factors :initarg :loading-factors :accessor loading-factors)
@@ -43,15 +43,15 @@ N), where M is the number of ponits and N is the dimension size.
   (:documentation "
 **** pca-model (for calculating score)
 - accessor:
- - loading-factors	:       <matrix>, (pay attention the representation of the matrix is row major)
- - pca-method		:       :covariance | :correlation"))
+ - loading-factors      :       <matrix>, (pay attention the representation of the matrix is row major)
+ - pca-method           :       :covariance | :correlation"))
 
 (defun make-pca-model (loading-factors pca-method centroid orig-data-standard-deviations)
   (make-instance 'pca-model
-		 :loading-factors loading-factors
-		 :pca-method pca-method
-		 :centroid centroid
-		 :orig-data-standard-deviations orig-data-standard-deviations))
+                 :loading-factors loading-factors
+                 :pca-method pca-method
+                 :centroid centroid
+                 :orig-data-standard-deviations orig-data-standard-deviations))
 
 (defgeneric make-cov-or-cor (dataset
                             &key method
@@ -175,8 +175,8 @@ N), where M is the number of ponits and N is the dimension size.
   (:documentation "*** princomp (dataset &key (method :correlation))
 - return: (values pca-result pca-model)
 - arugments:
-  - dataset		:	<numeric-dataset>
-  - method		:	:covariance | :correlation"))
+  - dataset             :       <numeric-dataset>
+  - method              :       :covariance | :correlation"))
 (defmethod princomp ((dataset numeric-dataset) &key (method :correlation))
   (assert (eq (type-of dataset) 'numeric-dataset))
   (assert (find method '(:covariance :correlation)))
@@ -242,8 +242,8 @@ N), where M is the number of ponits and N is the dimension size.
   (:documentation "*** princomp-projection (dataset pca-model)
 - return: score (vector of datapoints)
 - arguments:
-  - dataset		:	<numeric-dataset>
-  - pca-model		:	<pca-model>, model by P.C.A."))
+  - dataset             :       <numeric-dataset>
+  - pca-model           :       <pca-model>, model by P.C.A."))
 (defmethod princomp-projection ((dataset numeric-dataset) (pca-model pca-model))
   (assert (eq (type-of dataset) 'numeric-dataset))
   (let* ((points (map 'vector
@@ -289,8 +289,8 @@ N), where M is the number of ponits and N is the dimension size.
 *** sub-princomp (dataset &key (method :correlation) (dimension-thld 0.8d0))
 - return: (values pca-result pca-model)
 - arugments:
-  - dataset		:	<numeric-dataset>
-  - method		:	:covariance | :correlation
+  - dataset             :       <numeric-dataset>
+  - method              :       :covariance | :correlation
   - dimension-thld : 0 < <number> < 1 | 1 <= <integer>, threshold for deciding principal components
 - note:
   - When 0 < /dimension-thld/ < 1, it means the threshold for accumulated

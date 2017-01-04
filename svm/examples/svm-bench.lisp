@@ -41,14 +41,14 @@
 (defun data-converter (data-vector pathname)
   "for classification"
   (let ((label-index (1- (length (svref data-vector 0))))
-	(path (make-pathname :name pathname)))
+        (path (make-pathname :name pathname)))
     (with-open-file (stream path :direction :output
                             :if-exists :supersede)
       (loop
         for row across data-vector
         as label = (if (plusp (aref row label-index))
                        1
-		       -1)
+                       -1)
         do (progn (format stream "~@,0D " label)
                   (loop
                     for i below label-index

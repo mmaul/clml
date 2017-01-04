@@ -5,20 +5,20 @@
   (let (svm-bc-train svm-bc-test training-vector test-vector linear-svr
         rbf-kernel rbf-svr)
        (setf svm-bc-train
-	(pick-and-specialize-data
-	 (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
-			      :type :csv
-			      :csv-type-spec
-			      (make-list 10 :initial-element 'double-float))
-	 :data-types (make-list 10 :initial-element :numeric)))
+        (pick-and-specialize-data
+         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
+                              :type :csv
+                              :csv-type-spec
+                              (make-list 10 :initial-element 'double-float))
+         :data-types (make-list 10 :initial-element :numeric)))
 
       (setf svm-bc-test
-	(pick-and-specialize-data
-	 (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
-			      :type :csv
-			      :csv-type-spec
-			      (make-list 10 :initial-element 'double-float))
-	 :data-types (make-list 10 :initial-element :numeric)))
+        (pick-and-specialize-data
+         (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-test-for-svm.csv")
+                              :type :csv
+                              :csv-type-spec
+                              (make-list 10 :initial-element 'double-float))
+         :data-types (make-list 10 :initial-element :numeric)))
 
       (setf training-vector (dataset-points svm-bc-train))
 

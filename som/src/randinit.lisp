@@ -9,10 +9,10 @@
 
 (defun randinit (g-data s-topol s-neigh xdim ydim randomize)
   (let (topol
-	neigh
-	number-of-codes
-	data
-	codes)
+        neigh
+        number-of-codes
+        data
+        codes)
 
     ;; the topology type of the map
     (setq topol (topol-type s-topol))
@@ -48,4 +48,4 @@
     (setf (entries-parent-gdata codes) g-data)
 
     ))
-	
+        

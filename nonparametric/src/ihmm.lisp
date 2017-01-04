@@ -14,42 +14,42 @@
 (defmethod sampling-pi ((state ihmm-state) (dpm ihmm))
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (let ((spi (state-pi state))
-	(states (dpm-clusters dpm))
-	(L (hdp-hmm-L dpm))
-	(p (dpm-p dpm))
-	(alpha (dpm-hyper dpm))
-	(table (cluster-dist-table state))
-	(before (sorted-before state)))
+        (states (dpm-clusters dpm))
+        (L (hdp-hmm-L dpm))
+        (p (dpm-p dpm))
+        (alpha (dpm-hyper dpm))
+        (table (cluster-dist-table state))
+        (before (sorted-before state)))
     (declare (type hash-table table)
-	     (type fixnum L)
-	     (type double-float alpha)
-	     (type vector before)
-	     (type (vector double-float) p spi))
+             (type fixnum L)
+             (type double-float alpha)
+             (type vector before)
+             (type (vector double-float) p spi))
     (when (< (the fixnum (array-dimension before 0)) l)
       (adjust-array before l)
       (adjust-array spi l))
     (setf (fill-pointer before) l)
     (setf (fill-pointer spi) l)
     (loop for i fixnum from 0 below L
-	for s = (aref states i) do
-	  (setf (aref p i) (the double-float (+ (* alpha (the double-float (cluster-beta s)))
-						(the double-float
-						  (+
-						   (the double-float
-						     (if (eq state s)
-							 (sticky-kappa dpm)
-						       0d0))
-						   (the fixnum (gethash s table 0)))))))
-	  (setf (aref before i) s))
+        for s = (aref states i) do
+          (setf (aref p i) (the double-float (+ (* alpha (the double-float (cluster-beta s)))
+                                                (the double-float
+                                                  (+
+                                                   (the double-float
+                                                     (if (eq state s)
+                                                         (sticky-kappa dpm)
+                                                       0d0))
+                                                   (the fixnum (gethash s table 0)))))))
+          (setf (aref before i) s))
     (dirichlet-random p p)
     ;; copy
     (loop for i fixnum from 0 below L do
-	  (setf (aref spi i) (aref p i))
-	  ;; sort spi
-	finally (sort spi #'(lambda (x y) (declare (type double-float x y)) (> x y))))
+          (setf (aref spi i) (aref p i))
+          ;; sort spi
+        finally (sort spi #'(lambda (x y) (declare (type double-float x y)) (> x y))))
     ;; sort before
     (sort before #'(lambda (x y) (declare (type fixnum x y)) (< x y))
-	  :key #'(lambda (x) (position (aref p (position x states)) spi)))
+          :key #'(lambda (x) (position (aref p (position x states)) spi)))
       ))
 
 ;; exapmle
@@ -73,35 +73,35 @@
 ;; two type test
 (defun make-blocked-test (length states &optional (stds (map 'vector #'(lambda (x) (declare (ignore x)) 1d0) states)))
   (let ((trans (make-array length :element-type 'fixnum))
-	(ans (make-array length)))
+        (ans (make-array length)))
     (loop for i from 0 below length
-	for s = 0 then (case (random 100)
-			 (98 (ecase s
-			       (0 1)
-			       (1 2)
-			       (2 0)))
-			 (99 (ecase s
-			       (0 2)
-			       (1 0)
-			       (2 1)))
-			 (t s))
-	for d = (normal-random (aref states s) (aref stds s)) do
-	  (setf (aref trans i) s)
-	  (setf (aref ans   i) (make-instance 'seq-point :data d)))
+        for s = 0 then (case (random 100)
+                         (98 (ecase s
+                               (0 1)
+                               (1 2)
+                               (2 0)))
+                         (99 (ecase s
+                               (0 2)
+                               (1 0)
+                               (2 1)))
+                         (t s))
+        for d = (normal-random (aref states s) (aref stds s)) do
+          (setf (aref trans i) s)
+          (setf (aref ans   i) (make-instance 'seq-point :data d)))
     (values trans (make-instance 'point-sequence :seq ans))))
 
 (defun make-cyclic-test (length states &optional (stds (map 'vector #'(lambda (x) (declare (ignore x)) 1d0) states)))
   (let ((trans (make-array length :element-type 'fixnum))
-	(ans (make-array length)))
+        (ans (make-array length)))
     (loop for i from 0 below length
-	for s = 0 then (let ((r (random 100)))
-			 (if (> r 97)
-			     (let ((new (1+ s)))
-			       (if (= new (length states))
-				   0
-				 new))
-			   s))
-	for d = (normal-random (aref states s) (aref stds s)) do
-	  (setf (aref trans i) s)
-	  (setf (aref ans   i) (make-instance 'seq-point :data d)))
+        for s = 0 then (let ((r (random 100)))
+                         (if (> r 97)
+                             (let ((new (1+ s)))
+                               (if (= new (length states))
+                                   0
+                                 new))
+                           s))
+        for d = (normal-random (aref states s) (aref stds s)) do
+          (setf (aref trans i) s)
+          (setf (aref ans   i) (make-instance 'seq-point :data d)))
     (values trans (make-instance 'point-sequence :seq ans))))

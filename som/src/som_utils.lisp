@@ -5,13 +5,13 @@
 
 (defmacro orand ()
   `(let ((v *next*)
-	 (p *rnd-max*))
+         (p *rnd-max*))
      (declare (type (integer 0 *) v p))
      (setq v (* v 23))
      (rem
       (setq *next*
-	(rem v
-	     100000001))
+        (rem v
+             100000001))
       p
       )))
 

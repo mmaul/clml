@@ -87,7 +87,7 @@
   - csv-type-spec : <list symbol>, type conversion of each column when reading lines from CSV file, e.g. '(string integer double-float double-float)
   - distance : :manhattan | :euclid | :cosine
   - normalize : t | nil
-  - external-format	:	<acl-external-format>
+  - external-format     :       <acl-external-format>
 *** sample usage
 #+INCLUDE: \"../sample/optics.org\" example lisp
 "

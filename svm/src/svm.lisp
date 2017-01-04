@@ -47,7 +47,7 @@
   (let ((n (array-dimension m 0)))
     (loop for i from 0 below n
        collect (loop for j from 0 below n as x across v
-		  sum (* (aref m i j) x)))))
+                  sum (* (aref m i j) x)))))
 
 (defclass kernel () ((biasedp :initarg :biasedp :reader biasedp)))
 (defgeneric kernel (kernel x1 x2))
@@ -66,7 +66,7 @@
 (defmethod print-object ((obj polynomial-kernel) stream)
   (print-unreadable-object (obj stream :type t)
     (format stream ": D = ~a ~:[NON-~;~]HOMOGENEOUS"
-	    (dimension obj) (homogeneousp obj))))
+            (dimension obj) (homogeneousp obj))))
 
 (defmethod kernel ((kernel polynomial-kernel) x1 x2)
   (if (homogeneousp kernel)
@@ -75,7 +75,7 @@
 
 (defun polynomial-kernel (dimension homogeneousp)
   (make-instance 'polynomial-kernel
-		 :dimension dimension :homogeneousp homogeneousp))
+                 :dimension dimension :homogeneousp homogeneousp))
 
 (defparameter +linear-kernel+ (polynomial-kernel 1 t))
 
@@ -131,9 +131,9 @@
 (defun decision (kernel weighted-data bias)
   (lambda (z)
     (let ((value (+ (loop for weight-xi in weighted-data
-		       sum (* (first weight-xi)
-			      (kernel kernel (second weight-xi) z)))
-		    bias)))
+                       sum (* (first weight-xi)
+                              (kernel kernel (second weight-xi) z)))
+                    bias)))
       (values (>= value 0) value))))
 
 (defun svm-init (kernel positive-data negative-data)
@@ -170,7 +170,7 @@
     (values n np nm ap am)))
 
 (defun svm (kernel positive-data negative-data
-	    &key (iterations 100) (lagrange-iterations 20) (tolerance 1.0d-20))
+            &key (iterations 100) (lagrange-iterations 20) (tolerance 1.0d-20))
   "- return: <Closure>
   - return of <Closure>: two values, (result number)
     - result : t(positive) | nil(negative)
@@ -198,50 +198,50 @@ training data.
                       (type fixnum i)
                       (type double-float L)
                       (type dvec apalpha amalpha))
-	     (let ((signed-L (- (* (if (< i np) L  (- L))) 1.0d0)))
+             (let ((signed-L (- (* (if (< i np) L  (- L))) 1.0d0)))
                (declare (type double-float signed-L))
-	       (safe-/ (- (sqrt (+ (* signed-L signed-L)
-				   (* 4.0d0 (aref apalpha i) (aref amalpha i))))
-			  signed-L)
-		       (* 2.0d0 (aref apalpha i))))))
+               (safe-/ (- (sqrt (+ (* signed-L signed-L)
+                                   (* 4.0d0 (aref apalpha i) (aref amalpha i))))
+                          signed-L)
+                       (* 2.0d0 (aref apalpha i))))))
       (let ((alpha (make-array n :initial-element 1.0d0 :element-type 'double-float))
-	    (tmp (make-array n :element-type 'double-float)))
+            (tmp (make-array n :element-type 'double-float)))
         (declare (type dvec alpha tmp))
-	(loop repeat iterations
-	   for apalpha = (clml.hjs.matrix:m*v ap alpha)
-	   for amalpha = (clml.hjs.matrix:m*v am alpha)
-	   for R =
-	     (loop for i from 0 below n sum
-		  (safe-/ (aref alpha i) (aref apalpha i)))
-	   for L =
-	     (loop repeat lagrange-iterations with result = 0.0d0 do
-		  (incf result
-			(/ (- (loop for i from 0 below np
-				 sum (* (aref alpha i)
-					(res i result apalpha amalpha)))
-			      (loop for i from np below n
-				 sum (* (aref alpha i)
-					(res i result apalpha amalpha))))
-			   R))
-		  finally (return result))
-	   do
-	     (dotimes (i n)
-	       (setf (aref tmp i) (* (aref alpha i) (res i L apalpha amalpha))))
-	     (dotimes (i n) (setf (aref alpha i) (aref tmp i))))
-	(let ((all-data (append positive-data negative-data)))
-	  (decision kernel
-		    (loop for i upfrom 0 as a across alpha
-		       for x in all-data
-		       when (> a tolerance)
-		       collect (list (* a (if (< i np) 1 -1)) x))
-		    (if (biasedp kernel)
-			(/ (- np nm
-			      (loop for xj in all-data sum
-				   (- (loop for xi in positive-data
-					 for a across alpha
-					 sum (* a (kernel kernel xi xj)))
-				      (loop for xi in negative-data
-					 for a across (subseq alpha np)
-					 sum (* a (kernel kernel xi xj))))))
-			   n)
-			0.0d0)))))))
+        (loop repeat iterations
+           for apalpha = (clml.hjs.matrix:m*v ap alpha)
+           for amalpha = (clml.hjs.matrix:m*v am alpha)
+           for R =
+             (loop for i from 0 below n sum
+                  (safe-/ (aref alpha i) (aref apalpha i)))
+           for L =
+             (loop repeat lagrange-iterations with result = 0.0d0 do
+                  (incf result
+                        (/ (- (loop for i from 0 below np
+                                 sum (* (aref alpha i)
+                                        (res i result apalpha amalpha)))
+                              (loop for i from np below n
+                                 sum (* (aref alpha i)
+                                        (res i result apalpha amalpha))))
+                           R))
+                  finally (return result))
+           do
+             (dotimes (i n)
+               (setf (aref tmp i) (* (aref alpha i) (res i L apalpha amalpha))))
+             (dotimes (i n) (setf (aref alpha i) (aref tmp i))))
+        (let ((all-data (append positive-data negative-data)))
+          (decision kernel
+                    (loop for i upfrom 0 as a across alpha
+                       for x in all-data
+                       when (> a tolerance)
+                       collect (list (* a (if (< i np) 1 -1)) x))
+                    (if (biasedp kernel)
+                        (/ (- np nm
+                              (loop for xj in all-data sum
+                                   (- (loop for xi in positive-data
+                                         for a across alpha
+                                         sum (* a (kernel kernel xi xj)))
+                                      (loop for xi in negative-data
+                                         for a across (subseq alpha np)
+                                         sum (* a (kernel kernel xi xj))))))
+                           n)
+                        0.0d0)))))))

@@ -3,20 +3,20 @@
 (defpackage :clml.clustering.hc
 
   (:use :cl
-	:clml.hjs.read-data
-	:clml.hjs.vector
-	:clml.hjs.matrix
+        :clml.hjs.read-data
+        :clml.hjs.vector
+        :clml.hjs.matrix
         :clml.hjs.meta)
   (:export #:cophenetic-matrix
-	   #:cophenetic-cc
-	   #:distance-matrix
-	   #:hc-average
-	   #:hc-ward
-	   #:hc-single
-	   #:hc-complete
-	   #:hc-centroid
-	   #:hc-median
-	   #:cutree
+           #:cophenetic-cc
+           #:distance-matrix
+           #:hc-average
+           #:hc-ward
+           #:hc-single
+           #:hc-complete
+           #:hc-centroid
+           #:hc-median
+           #:cutree
        #:vector-sum
        #:vector-mean
        #:vector-shift
@@ -37,36 +37,36 @@
 (defpackage :clml.clustering.nmf
 
   (:use :cl
-	:clml.clustering.hc
-	:clml.blas
-	:clml.lapack
-	:clml.hjs.read-data
-	:clml.hjs.matrix
+        :clml.clustering.hc
+        :clml.blas
+        :clml.lapack
+        :clml.hjs.read-data
+        :clml.hjs.matrix
     :clml.hjs.meta)
   (:import-from :clml.clustering.hc
-		#:i-thvector
-		#:vector-sum
-		#:vector-mean
-		#:vector-shift
-		#:product-sum
-		#:square-sum
-		#:max-vector
-		#:min-vector
-		#:pick-up-row
-		#:pick-up-column
-		#:numeric-matrix)
+                #:i-thvector
+                #:vector-sum
+                #:vector-mean
+                #:vector-shift
+                #:product-sum
+                #:square-sum
+                #:max-vector
+                #:min-vector
+                #:pick-up-row
+                #:pick-up-column
+                #:numeric-matrix)
 
   (:export #:nmf
-	   #:nmf-clustering
-	   #:rho-k
-	   #:nmf-analysis
-	   #:nmf-corpus-analysis
-	   #:c^3m-cluster-number
-	   #:nmf-search
-	   #:nmf-corpus-search
-	   #:nmf-sc
-	   #:sparseness
-	   #:sample-matrix))
+           #:nmf-clustering
+           #:rho-k
+           #:nmf-analysis
+           #:nmf-corpus-analysis
+           #:c^3m-cluster-number
+           #:nmf-search
+           #:nmf-corpus-search
+           #:nmf-sc
+           #:sparseness
+           #:sample-matrix))
 
 (defpackage :clml.clustering.optics
 
@@ -150,7 +150,7 @@
 
            #:get-cluster-centroids
            #:get-cluster-points
-	   ))
+           ))
 #+sbcl
 (eval-when (:compile-toplevel :load-toplevel :execute)
   (sb-int::set-floating-point-modes

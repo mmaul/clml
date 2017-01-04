@@ -13,13 +13,13 @@
   (delete object (find-nearest-epsilon (nn-search input) object (epsilon input) (neighbors input))))
 
 (defun optics-speed (input-path epsilon min-pts r-epsilon
-		     target-cols &key (file-type :sexp)
-				      (csv-type-spec '(string double-float double-float))
-				      (distance :manhattan)
-				      (normalize nil)
-				      (external-format :default)
-				      (nns-type :naive)
-				      (nns-args nil))
+                     target-cols &key (file-type :sexp)
+                                      (csv-type-spec '(string double-float double-float))
+                                      (distance :manhattan)
+                                      (normalize nil)
+                                      (external-format :default)
+                                      (nns-type :naive)
+                                      (nns-args nil))
   (assert (plusp epsilon))
   (assert (plusp min-pts))
   (assert (and (plusp r-epsilon) (<= r-epsilon epsilon)))
@@ -42,7 +42,7 @@
                                 (make-list (length range)
                                            :initial-element :numeric)))
     (%optics-speed dataset epsilon min-pts r-epsilon
-		   :distance distance :normalize normalize :nns-type nns-type :nns-args nns-args)))
+                   :distance distance :normalize normalize :nns-type nns-type :nns-args nns-args)))
 
 (defun %optics-speed (numeric-dataset epsilon min-pts r-epsilon &key (distance :manhattan) normalize (nns-type :naive) nns-args)
   (when normalize
@@ -53,22 +53,22 @@
                         epsilon min-pts r-epsilon
                         :distance distance :normalize normalize))
          (optics-output (make-instance 'optics-output))
-	 (nns-class (case nns-type
-		      (:naive 'naive-nearest-search)
-		      (:kd-tree 'kd-tree-search)
-		      (:m-tree  'm-tree-search)
-		      (:lsh (ecase distance
-			      (:manhattan 'manhattan-locality-sensitive-hashing)
-			      (:euclid    'euclid-locality-sensitive-hashing)
-			      (:cosine    'cosine-locality-sensitive-hashing)))
-		      (otherwise
-		       (check-type nns-type symbol)
-		       nns-type)))
-	 (point-objs (point-objs optics-input)))
+         (nns-class (case nns-type
+                      (:naive 'naive-nearest-search)
+                      (:kd-tree 'kd-tree-search)
+                      (:m-tree  'm-tree-search)
+                      (:lsh (ecase distance
+                              (:manhattan 'manhattan-locality-sensitive-hashing)
+                              (:euclid    'euclid-locality-sensitive-hashing)
+                              (:cosine    'cosine-locality-sensitive-hashing)))
+                      (otherwise
+                       (check-type nns-type symbol)
+                       nns-type)))
+         (point-objs (point-objs optics-input)))
     (setf (nn-search optics-input)
       (apply #'make-instance nns-class :input-data point-objs :input-key #'point
-	     :distance (distance optics-input)
-	     nns-args))
+             :distance (distance optics-input)
+             nns-args))
     (optics-main optics-input optics-output)
     optics-output))
 
