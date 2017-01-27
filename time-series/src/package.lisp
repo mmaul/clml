@@ -169,15 +169,15 @@ Reference: 時系列解析入門 著:北川源四郎 岩波書店 9 章以降
   (:export :init-changefinder
            :update-changefinder)
   (:documentation "ChangeFinder
-Package for "ChangeFinder"
+Package for \"ChangeFinder\"
 
 **** Comments
 - A value of 0.01 has been added to the diagonal elements of the covariance matrix
   for the stability of the inverse matrix calculation.
   User can edit this value by the special variable named *stabilizer*.
 **** Reference
-- J. Takeuchi, K. Yamanishi\"A Unifying framework for detecting outliers and change points from time series\"
-- K. Yamanishi "データマイニングによる異常検知" p.45-58
+- J. Takeuchi, K. Yamanishi \"A Unifying framework for detecting outliers and change points from time series\"
+- K. Yamanishi \"データマイニングによる異常検知\" p.45-58
 ")
   )
 
@@ -270,7 +270,7 @@ Package for "ChangeFinder"
    (clml.utility.data:fetch \"https://mmaul.github.io/clml.data/sample/cs-atr.csv\")
    :type :csv :csv-type-spec '(string double-float double-float double-float double-float
                                double-float double-float double-float double-float)
-   :missing-values-list '("NA")))
+   :missing-values-list '(\NA\")))
 
 (defparameter cs-atr-ts (time-series-data cs-atr-csv :time-label 0 :range '(1 2 3)))
 (defparameter qqq-atr-ts (atr cs-atr-ts :high 0 :low 1 :close 2))

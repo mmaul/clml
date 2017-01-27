@@ -208,7 +208,8 @@
    #:get-cluster-points
    )
   (:documentation "*** sample usage
-#+INCLUDE: "../sample/k-means.org" example lisp"))
+#+INCLUDE:\"../sample/k-means.org\" example lisp")
+  )
 
 (defpackage :clml.hjs.eigensystems
   (:use :cl

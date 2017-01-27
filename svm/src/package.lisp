@@ -65,7 +65,7 @@ A nice and clear explanation of SVMs can be found in
            )
   (:documentation "Support Vector Regression Package using SMO-type algorithm
 
-Reference: "A Study on SMO-type Decomposition Methods for Support Vector Machines"
+Reference: \"A Study on SMO-type Decomposition Methods for Support Vector Machines\"
 Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"))
 
 (defpackage :clml.svm.pwss3
@@ -105,7 +105,7 @@ Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin"))
    #:call-kernel-function-with-vectors)
   (:documentation "Support-Vector-Machine (Soft Margin)
 Support Vector Machine Package using SMO algorithm
-Reference: Jhon C. Platt. "Fast Training of Support Vector Machines using Sequential Minimal Optimization"
+Reference: Jhon C. Platt. \"Fast Training of Support Vector Machines using Sequential Minimal Optimization\"
 ")
   )
 
@@ -129,6 +129,6 @@ Reference: Jhon C. Platt. "Fast Training of Support Vector Machines using Sequen
   (:documentation "Support-Vector-Regression
 
 Support Vector Regression Package using SMO-type algorithm
-Reference: "A Study on SMO-type Decomposition Methods for Support Vector Machines"
+Reference: \"A Study on SMO-type Decomposition Methods for Support Vector Machines\"
 Pai-Hsuen Chen, Rong-En Fan, and Chih-Jen Lin
 "))

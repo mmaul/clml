@@ -51,6 +51,6 @@
    Naive-Bayes package (Multivariate Bernoulli and Multinomial Naive Bayes)
 
 *** sample usage
-#+INCLUDE: "../sample/nbayes.org" example lisp
+#+INCLUDE: \"../sample/nbayes.org\" example lisp
 ")
   )

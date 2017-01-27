@@ -22,7 +22,7 @@
 package for self-organizing map
 
 *** sample usage
-#+INCLUDE: "../sample/som.org" example lisp
+#+INCLUDE: \"../sample/som.org\" example lisp
 ")
   )
 
