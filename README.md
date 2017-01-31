@@ -80,7 +80,7 @@ This repository contains is a authorized fork of the original CLML with the foll
 -   Platform: Posix compatibile platforms (Windows, Linux, BSD and derivatives)
 -   ASDF3 and optionally Quicklisp (This document assumes [Quicklisp](http://quicklisp.org))
 
-  Note: Default heapsize should be around 2560K for SBCL this can be
+  Note: Default heapsize should be around 2560K (On some systems it may need to be greater) for SBCL this can be
 done by set with the switch
   sbcl &#x2013;dynamic-space-size 2560
 
