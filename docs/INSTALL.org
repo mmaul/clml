@@ -7,10 +7,13 @@
 
   Note: Default heapsize should be around 2560K  (On some systems it may need to be greater) for SBCL this can be
 done by set with the switch
-    sbcl &#x2013;dynamic-space-size 2560
+#+BEGIN_SRC
+  sbcl &#x2013;dynamic-space-size 2560
+#+END_SRC    
 If using sbcl via roswell this can be done by
-    ros dynamic-space-size=2560
-
+#+BEGIN_SRC
+ros dynamic-space-size=2560 run
+#+END_SRC
 Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
     
 ** Installation Notes
