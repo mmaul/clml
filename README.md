@@ -82,8 +82,14 @@ This repository contains is a authorized fork of the original CLML with the foll
 
   Note: Default heapsize should be around 2560K (On some systems it may need to be greater) for SBCL this can be
 done by set with the switch
-  sbcl &#x2013;dynamic-space-size 2560
+```
+    sbcl --dynamic-space-size 2560
+```
 
+If running sbcl with roswell
+```
+    ros dynamic-space-size=2560 run
+```
 Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
 
 ## Installation Notes
