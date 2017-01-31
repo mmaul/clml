@@ -5,9 +5,11 @@
   + ASDF3 and optionally Quicklisp (This document assumes [[http://quicklisp.org][Quicklisp]])
 
 
-  Note: Default heapsize should be around 2560K for SBCL this can be
+  Note: Default heapsize should be around 2560K  (On some systems it may need to be greater) for SBCL this can be
 done by set with the switch
-  sbcl --dynamic-space-size 2560
+    sbcl &#x2013;dynamic-space-size 2560
+If using sbcl via roswell this can be done by
+    ros dynamic-space-size=2560
 
 Currently development is taking place mostly on SBCL. For the near future SBCL is most stable platform.    
     
