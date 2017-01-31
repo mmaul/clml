@@ -4,6 +4,9 @@
 (defpackage :clml.lapack-environment (:use :cl :asdf))
 (in-package :clml.lapack-environment)
 
+(define-condition dynamic-heap-space-too-small (error)
+  ((text :initarg :text :reader text)))
+
 (defun call-with-environment (fun)
   (let ((*read-default-float-format* 'double-float))
     #+sbcl (when  (< (sb-ext:dynamic-space-size) 2684354560)
