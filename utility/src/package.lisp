@@ -9,14 +9,14 @@
            #:write-csv-stream
            #:read-csv-file-and-sort
        #:parse-csv-string))
-
+;#+allegro
+;(:use :excl)
  (defpackage :clml.utility.priority-que
 
-   (:use :cl :iterate)
+   (:use :cl )
+   (:import-from :iterate :iter)
    (:import-from :alexandria #:define-constant)
-
-   #+allegro
-   (:use :excl)
+   
   (:export #:make-prique
            #:prique-empty-p
            #:prique-box-item

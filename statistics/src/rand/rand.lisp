@@ -1822,7 +1822,7 @@
 
 
 
-#- (or ccl sbcl)
+#- (or ccl sbcl allegro)
   (let ((u-mbit (random most-positive-fixnum))
         (sign -1d0)
         (ux 0d0))
