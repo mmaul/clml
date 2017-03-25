@@ -40,6 +40,6 @@
       (assert-eql 92.0d0 (predict-regression-tree query cars tree))
 
       (setf tree (make-regression-tree bc-train "Cell.size"))
-
-      (assert-eql 2.5736457326892106d0 (regression-tree-validation bc-test "Cell.size" tree))
+      
+      (assert-eql #- allegro 2.5736457326892106d0 #+ allegro 2.356254428341385d0 (regression-tree-validation bc-test "Cell.size" tree))
       ))

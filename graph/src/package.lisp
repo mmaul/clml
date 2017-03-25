@@ -111,10 +111,12 @@
         :clml.graph.read-graph
         :clml.graph.graph-centrality
         :clml.graph.shortest-path)
-  #-lispworks
+  #-(or lispworks allegro)
   (:import-from :cl-fad #:pathname-as-directory #:directory-exists-p)
   #+allegro
-  (:use :excl)
+   (:import-from :cl-fad #:directory-exists-p)
+  #+allegro
+    (:use :excl)
   ;(:shadow #:predict)
   (:export ))
 
