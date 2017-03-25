@@ -12,11 +12,11 @@
                                        (make-list 6 :initial-element 'double-float)))
                  :except '(0) :time-label 0)))
       (assert-equality #'= 1015 (length (ts-points ts)))
-      (assert (setf cf (init-changefinder (sub-ts ts :start 0 :end 24)
+      #- allegro (assert (setf cf (init-changefinder (sub-ts ts :start 0 :end 24)
                                                :score-type :log
                                                :ts-wsize 5 :score-wsize 5 :sdar-k 4
                                                :discount 0.005d0)))
-      (mapcar (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
+      #- allegro (mapcar (lambda (v1 v2) (assert-equality #'epsilon> v2 v1))
               (loop for p across (ts-points (sub-ts ts :start 600 :end 700))
                     as new-dvec = (ts-p-pos p)
                     collect (update-changefinder cf new-dvec))

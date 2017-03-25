@@ -14,7 +14,8 @@
  (defpackage :clml.utility.priority-que
 
    (:use :cl )
-   (:import-from :iterate :iter)
+   (:import-from :iterate :iter :iterate)
+   (:shadowing-import-from :iterate :while)
    (:import-from :alexandria #:define-constant)
    
   (:export #:make-prique

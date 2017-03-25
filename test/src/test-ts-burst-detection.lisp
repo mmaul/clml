@@ -41,7 +41,7 @@
          (with-output-to-string (s str)
            (print-burst-indices bi :stream s))
          str)
-       #+ (or allegro lispworks) "   0.0 |
+       #+  lispworks "   0.0 |
  410.0 |+
  450.0 |++
  565.0 |+++
@@ -51,7 +51,7 @@
  780.0 |
 1000.0 |
 "
-       #+ (not (or allegro lispworks))
+       #+ (not lispworks)
        "   0.0d0 |
  410.0d0 |+
  450.0d0 |++
