@@ -309,7 +309,7 @@ provide useful examples of usage of the CLML API.
 
 Compiling and running all unit tests can be ran as shown below.
 
-    (ql:quickload clml.test :verbose t)
+    (ql:quickload :clml.test :verbose t)
     (in-package :clml.test)
     (run-all-tests)
 
