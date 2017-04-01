@@ -8,7 +8,8 @@
          (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bc-train-for-svm.csv")
                               :type :csv
                               :csv-type-spec
-                              (make-list 10 :initial-element 'double-float))
+                              (make-list 10 :initial-element 'double-float)
+                              :external-format :utf-8)
          :data-types (make-list 10 :initial-element :numeric)))
 
        (setf data-vector (dataset-points svm-bc-train))

@@ -59,7 +59,7 @@ e.g.
                       #+allegro
                       (nth-value 2 (sys:variable-information vector env))
                       #+lispworks
-                      (nth-value 3 (cl::variable-information vector env))
+                      (nth-value 3 (hcl::variable-information vector env))
                                       ))
                               (when type
                                 `(simple-array ,type (*)))
@@ -157,7 +157,7 @@ e.g.
                        #+allegro
                        (nth-value 2 (sys:variable-information vector env))
                        #+lispworks
-                       (nth-value 3 (cl::variable-information vector env))
+                       (nth-value 3 (hcl::variable-information vector env))
                                            ))))
                               (when vector-type-decl
                                 `((type ,vector-type-decl ,vec-var)))))))

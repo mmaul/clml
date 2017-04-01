@@ -17,7 +17,7 @@
 (defparameter *csv-separator* #\,)
 (defparameter *csv-quote* #\")
 (defparameter *csv-print-quote-p* nil "print \" when the element is a string?")
-(defparameter *csv-default-external-format* #+allegro :932 #+ccl :Windows-31j #+sbcl :sjis) ;#+sbcl allegro :sjis
+(defparameter *csv-default-external-format* #+allegro :932 #+ccl :Windows-31j #+(or sbcl lispworks) :sjis) ;#+sbcl allegro :sjis
 
 (defun write-csv-line (record &key stream)
   "Accept a record and print it in one line as a csv record.

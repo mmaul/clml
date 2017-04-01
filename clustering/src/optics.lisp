@@ -1,4 +1,4 @@
-;;; -*- mode: lisp; syntax: common-lisp -*-
+;;; -*- mode: lisp; syntax: common-lisp coding: sjis -*-
 
 ;;; Clustering Method : OPTICS
 ;;; NAGANUMA Shigeta, 2009

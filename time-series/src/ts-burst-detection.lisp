@@ -1,4 +1,4 @@
-;;; -*- Mode: Lisp; Syntax: Common-Lisp; Coding:iso-2022-jp -*-
+;;; -*- Mode: Lisp; Syntax: Common-Lisp; Coding:sjis -*-
 ;;;
 ;;; References
 ;;; [D] http://www.w3.org/TR/NOTE-datetime

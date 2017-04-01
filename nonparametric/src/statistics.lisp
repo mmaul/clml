@@ -105,9 +105,9 @@
   (assert (> a 0d0))
   (/ (the double-float
        (cond ((< a 1d0)
-              (loop with b double-float = (/ (+ a #.(exp 1.0d0)) #.(exp 1.0d0))
-                  for u1 double-float = (unit-random) and u2 double-float = (unit-random)
-                  for y double-float = (* b u1)
+              (loop with b of-type double-float = (/ (+ a #.(exp 1.0d0)) #.(exp 1.0d0))
+                  for u1 of-type double-float = (unit-random) and u2 of-type double-float = (unit-random)
+                  for y of-type double-float = (* b u1)
                   do (if (<= y 1.0d0)
                          (let ((z (handler-case (expt y (/ 1d0 a))
                                     (floating-point-underflow () (return-from gamma-random
@@ -127,8 +127,8 @@
                        (c (/ 2d0 a1))
                        (d (+ c 2d0)))
                   (declare (type double-float a1 b c d))
-                  (loop for u1 double-float = (unit-random) and u2 double-float = (unit-random)
-                      for w double-float = (* b (/ u1 u2)) do
+                  (loop for u1 of-type double-float = (unit-random) and u2 of-type double-float = (unit-random)
+                      for w of-type double-float = (* b (/ u1 u2)) do
                         (when (or (<= (+ (* c u2) (- d) w (/ w)) 0d0)
                                   (< (+ (* c (the double-float (log u2))) (- (the double-float (log w))) w -1d0) 0d0))
                           (return (* a1 w))))))))
@@ -146,13 +146,13 @@
                                         (the double-float (- (the double-float (* 2.0d0 a b)) alpha)))))
                          (gamma (+ a (/ beta))))
                     (declare (type double-float alpha beta gamma))
-                    (loop for u1 double-float = (unit-random) and u2 double-float = (unit-random)
-                        for v double-float = (* beta (log (/ u1 (- 1.0d0 u1))))
-                        for w double-float = (* a (exp v))
-                        for z double-float = (* u1 u1 u2)
-                        for r double-float = (- (* gamma v) #.(log 4.0d0))
-                        for s double-float = (- (+ a r) w)
-                        for tt double-float = (log z)
+                    (loop for u1 of-type double-float = (unit-random) and u2 of-type double-float = (unit-random)
+                        for v of-type double-float = (* beta (log (/ u1 (- 1.0d0 u1))))
+                        for w of-type double-float = (* a (exp v))
+                        for z of-type double-float = (* u1 u1 u2)
+                        for r of-type double-float = (- (* gamma v) #.(log 4.0d0))
+                        for s of-type double-float = (- (+ a r) w)
+                        for tt of-type double-float = (log z)
                         while (and (< (+ s #.(+ 1.0d0 (log 5.0d0))) (* 5.0d0 z))
                                    (< s tt)
                                    (< (+ r (* alpha (log (/ alpha (+ b w))))) tt))
@@ -167,11 +167,11 @@
                                      most-positive-double-float
                                    (+ 0.25d0 (* (+ 0.5d0 (/ 0.25d0 delta)) b)))))
                     (declare (type double-float alpha beta delta kappa1 kappa2))
-                    (loop for u1 double-float = (unit-random) and u2 double-float = (unit-random)
-                        for v double-float = (* beta (log (/ u1 (- 1.0d0 u1))))
-                        for w double-float = (* a (exp v))
-                        for z double-float = (* u1 u1 u2)
-                        for status symbol =
+                    (loop for u1 of-type double-float = (unit-random) and u2 of-type double-float = (unit-random)
+                        for v of-type double-float = (* beta (log (/ u1 (- 1.0d0 u1))))
+                        for w of-type double-float = (* a (exp v))
+                        for z of-type double-float = (* u1 u1 u2)
+                        for status of-type symbol =
                                           (if (>= u1 0.5d0)
                                               (cond ((<= z 0.25d0) 'done)
                                                     ((< z kappa2) 'check)
@@ -206,8 +206,8 @@
                      (* (the double-float (unit-random)) sum-with-new-table)))))
     (declare (type double-float rand))
     (loop
-        for prob double-float across count-array
-        for i fixnum from 0 do
+        for prob of-type double-float across count-array
+        for i of-type fixnum from 0 do
           (decf rand prob)
           (when (<= rand 0d0)
             (return i))
@@ -226,8 +226,8 @@
                      (* (the double-float (unit-random)) sum-with-new-table)))))
     (declare (type double-float rand))
     (loop
-        for i fixnum from 0 upto end
-        for prob double-float = (aref count-array i) do
+        for i of-type fixnum from 0 upto end
+        for prob of-type double-float = (aref count-array i) do
           (decf rand prob)
           (when (<= rand 0d0)
             (return i))
@@ -241,8 +241,8 @@
   (let ((jack (- #.(/ (log most-positive-double-float) 2) p-max))
         (sum 0d0))
     (declare (type double-float jack sum))
-    (loop for i fixnum from 0 below index
-        for upp double-float = (if (zerop (aref logged-prob i))
+    (loop for i of-type fixnum from 0 below index
+        for upp of-type double-float = (if (zerop (aref logged-prob i))
                                    0d0
                                  (safe-exp (+ (aref logged-prob i) jack))) do
           (incf sum upp)
@@ -352,14 +352,14 @@
           (loop for j of-type array-index from 0 below i do
                 ;;; sym check
                 (setf (aref result i j)
-                  (/ (loop with a_ij double-float = (aref mat i j)
+                  (/ (loop with a_ij of-type double-float = (aref mat i j)
                          for k from 0 below j do
                            (decf a_ij (* (aref result i k)
                                          (aref result j k)))
                          finally (return a_ij))
                      (aref result j j)))
               finally (setf (aref result i i)
-                        (sqrt (loop with a_ii double-float = (aref mat i i)
+                        (sqrt (loop with a_ii of-type double-float = (aref mat i i)
                                   for k from 0 below i do
                                     (decf a_ii (expt (aref result i k) 2))
                                   finally (return a_ii))))))
@@ -372,7 +372,7 @@
   (declare (type dvec averages dvec)
            (type dmat inv-sqrt-sigma))
   ;; inv-sqrt-sigma is triagle matrix -- so determinant is just a product of diag
-  (let ((base (loop with ans double-float = 1d0
+  (let ((base (loop with ans of-type double-float = 1d0
                   for i of-type array-index from 0 below (array-dimension inv-sqrt-sigma 0) do
                     (setf ans (* ans (aref inv-sqrt-sigma i i)))
                   finally (return ans)))
@@ -399,7 +399,7 @@
   (declare (type dvec averages dvec)
            (type dmat inv-sqrt-sigma))
   ;; inv-sqrt-sigma is triagle matrix -- so determinant is just a product of diag
-  (let* ((base (loop with ans double-float = 0d0
+  (let* ((base (loop with ans of-type double-float = 0d0
                    for i of-type array-index from 0 below (array-dimension inv-sqrt-sigma 0) do
                      (incf ans (log (aref inv-sqrt-sigma i i)))
                    finally (return ans)))
@@ -484,12 +484,12 @@
     (declare (type double-float sum)
              (type (array double-float (*)) ans)
              (type fixnum l))
-    (loop for i fixnum from 0 below l
-        for rnd double-float = (gamma-random (aref vector i) 1d0) do
+    (loop for i of-type fixnum from 0 below l
+        for rnd of-type double-float = (gamma-random (aref vector i) 1d0) do
           (incf sum rnd)
           (setf (aref ans i) rnd))
-    (loop for i fixnum from 0 below l
-        for tmp double-float = (/ (aref ans i) sum) do
+    (loop for i of-type fixnum from 0 below l
+        for tmp of-type double-float = (/ (aref ans i) sum) do
           (setf (aref ans i) (if (< tmp least-positive-double-float) least-positive-double-float tmp))
         finally (return ans))))
 

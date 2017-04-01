@@ -109,9 +109,9 @@ Find out why tables is not an array of table"
 
         ;; calculate f_k(x_ij) into topic-p
         (loop
-           for s fixnum across sims
-           for occur fixnum across occurs
-           for i fixnum from 0
+           for s of-type fixnum across sims
+           for occur of-type fixnum across occurs
+           for i of-type fixnum from 0
            unless (zerop occur) do
              (setf (aref topic-p i)
                    (the double-float
@@ -119,15 +119,15 @@ Find out why tables is not an array of table"
                            (the double-float (+ occur base))))))
         (incf sum
               (the double-float
-                   (loop for tt fixnum across ttables
-                      for f-k double-float across topic-p
+                   (loop for tt of-type fixnum across ttables
+                      for f-k of-type double-float across topic-p
                       unless (minusp f-k)
-                      summing (the double-float (* f-k tt)) into ans double-float
+                      summing (the double-float (* f-k tt)) into ans of-type double-float
                       finally (return
                                 (/ (the double-float (+ ans (the double-float (* gamma (/ v)))))
                                    (the double-float (+ (the fixnum (hdp-lda-ntables hdp-lda)) gamma))))))))
       ;; calculate sliced pi(x) into p
-      (loop for i fixnum from 0 upto limit
+      (loop for i of-type fixnum from 0 upto limit
          for table across tables
          while table do
            (let* ((assign (table-dish table))
@@ -193,10 +193,10 @@ Find out why tables is not an array of table"
     (declare (type (array fixnum (*)) ttables)
              (type double-float gamma sum)
              (type fixnum zero-position))
-    (loop for count fixnum across ttables
-        for sim double-float across topic-p
-        for i fixnum from 0
-        for subp double-float = (* count sim) do
+    (loop for count of-type fixnum across ttables
+        for sim of-type double-float across topic-p
+        for i of-type fixnum from 0
+        for subp of-type double-float = (* count sim) do
           (when (zerop count)
             (setf zero-position i))
           (incf sum subp)
@@ -285,14 +285,14 @@ TODO:Optimize in SBCL"
       ;; calculate f_k(x_ij) into memoized arrays
 
       (loop for c across customers
-         for id fixnum = (word-id c)
+         for id of-type fixnum = (word-id c)
          for f-k-row = (aref f-k id)
          for encounts = (gethash id memo 0) do
            (when (zerop encounts)
               ;;; calculate f_k(x_ij) using flag!!
-             (loop for occur fixnum across occurs
-                for j fixnum from 0
-                for s fixnum = (aref (aref sims (word-id c)) j) do
+             (loop for occur of-type fixnum across occurs
+                for j of-type fixnum from 0
+                for s of-type fixnum = (aref (aref sims (word-id c)) j) do
                   (if (zerop occur)
                       (setf (aref f-k-row j) 0d0)
                       (setf (aref f-k-row j)
@@ -305,8 +305,8 @@ TODO:Optimize in SBCL"
 
       (loop
          for count across ttables
-         for occur fixnum across occurs
-         for i fixnum from 0 do
+         for occur of-type fixnum across occurs
+         for i of-type fixnum from 0 do
 
            (cond ((zerop count)
                   (setf zero-position i))
@@ -334,7 +334,7 @@ TODO:Optimize in SBCL"
         ;; jack-up!
         (setf sum
               (safe-exp (+ (* (log (dfloat (/ v))) (length customers)) max))))
-      (loop for i fixnum from 0 below (length topic-p)
+      (loop for i of-type fixnum from 0 below (length topic-p)
          for x = (aref topic-p i)
          unless (zerop x) do
            (let ((new (safe-exp (+ x max))))
@@ -412,9 +412,9 @@ TODO:Optimize in SBCL"
     (declare (type double-float ntables old-alpha old-gamma))
     (loop
         for doc across (hdp-lda-data hdp-lda)
-        for nj__ fixnum = (length (document-words doc))
-        summing (the double-float (log (beta-random (1+ old-alpha) (dfloat nj__)))) into wj double-float
-        summing (the double-float (bernoulli (/ nj__ (+ old-alpha nj__)))) into sj double-float
+        for nj__ of-type fixnum = (length (document-words doc))
+        summing (the double-float (log (beta-random (1+ old-alpha) (dfloat nj__)))) into wj of-type double-float
+        summing (the double-float (bernoulli (/ nj__ (+ old-alpha nj__)))) into sj of-type double-float
         finally (setf (hdp-lda-alpha hdp-lda)
                            (gamma-random (- (+ (the double-float *alpha-base-a*) ntables) sj)
                                          (- (the double-float *alpha-base-b*) wj))))

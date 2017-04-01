@@ -41,5 +41,5 @@
 
       (setf tree (make-regression-tree bc-train "Cell.size"))
       
-      (assert-eql #- allegro 2.5736457326892106d0 #+ allegro 2.356254428341385d0 (regression-tree-validation bc-test "Cell.size" tree))
+      (assert-eql #- (or lispworks allegro) 2.5736457326892106d0 #+ (or lispworks allegro) 2.356254428341385d0 (regression-tree-validation bc-test "Cell.size" tree))
       ))

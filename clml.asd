@@ -20,13 +20,13 @@
 (setq excl:*fasl-default-type* "fasl90")
 
 (eval-when (:compile-toplevel :load-toplevel :execute)
-#+lispworks
+#+lispworksx
 (progn
   (shadow 'concatenate-system)
   (shadowing-import'(defsys:defsystem defsys:load-system defsys:compile-system)))
-#+lispworks (use-package :defsys)
+#+lispworksx (use-package :defsys)
 
-#+lispworks
+#+lispworksx
 (defmacro concatenate-system (name destination)
   `(let* ((files (defsys::concatenate-system ,name ,destination))
           (system (eval `(lw:defsystem temp () :members ,files))))

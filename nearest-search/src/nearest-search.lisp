@@ -616,7 +616,7 @@
            (type double-float d-pivot tmp-d))
   (if (m-tree-leaf-p node)
       (loop for p across (m-tree-node-children node)
-          for d double-float = (funcall distance-fn (funcall key p) x)
+          for d of-type double-float = (funcall distance-fn (funcall key p) x)
           when (<= d tmp-d) do
             (setf tmp p tmp-d d)
           finally (return (values tmp tmp-d)))
@@ -708,7 +708,7 @@
            (type vector result tmp))
   (if (m-tree-leaf-p node)
       (loop for p across (m-tree-node-children node)
-          for d double-float = (funcall distance-fn (funcall key p) x) do
+          for d of-type double-float = (funcall distance-fn (funcall key p) x) do
             (let ((flag nil))
               (do-vecs ((_ tmp :setf-var td :type double-float)
                         (__ result :setf-var tp :type t))
@@ -757,14 +757,14 @@
            (type vector result))
   (if (m-tree-leaf-p node)
       (loop for p across (m-tree-node-children node)
-          for d double-float = (funcall distance-fn (funcall key p) x)
+          for d of-type double-float = (funcall distance-fn (funcall key p) x)
           when (<= d epsilon) do
             (vector-push-extend p result))
     (let ((children (m-tree-node-children node)))
       (loop for c across children
-          for d-parent double-float = (m-tree-node-d-parent c)
-          for r double-float = (m-tree-node-radius c)
-          for er double-float = (+ epsilon r)
+          for d-parent of-type double-float = (m-tree-node-d-parent c)
+          for r of-type double-float = (m-tree-node-radius c)
+          for er of-type double-float = (+ epsilon r)
           when (<= (abs (- d-pivot d-parent)) er) do
             (let ((dis (funcall distance-fn (m-tree-node-pivot c) x)))
               (declare (type double-float dis))

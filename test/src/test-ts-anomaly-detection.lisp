@@ -12,14 +12,16 @@
               (read-data-from-file
                (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv")
                :type :csv :csv-type-spec (cons 'string
-                                               (make-list 6 :initial-element 'double-float)))
+                                               (make-list 6 :initial-element 'double-float))
+               :external-format :utf-8)
               :frequency 12 :except '(0) :time-label 0)
              exchange
              (time-series-data
               (read-data-from-file
                (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/exchange.csv")
                :type :csv :csv-type-spec (cons 'string
-                                               (make-list 10 :initial-element 'double-float)))
+                                               (make-list 10 :initial-element 'double-float))
+               :external-format :utf-8)
               :except '(0) :time-label 0)))
   (assert-equality #'= 1015 (length (ts-points sample-ts)))
   (assert-equality #'= 753 (length (ts-points exchange)))
@@ -133,14 +135,16 @@
           (read-data-from-file
            (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv")
            :type :csv :csv-type-spec (cons 'string
-                                           (make-list 6 :initial-element 'double-float)))
+                                           (make-list 6 :initial-element 'double-float))
+           ):external-format :utf-8
           :frequency 12 :except '(0) :time-label 0)
          exchange
          (time-series-data
           (read-data-from-file
            (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/exchange.csv")
            :type :csv :csv-type-spec (cons 'string
-                                           (make-list 10 :initial-element 'double-float)))
+                                           (make-list 10 :initial-element 'double-float))
+           :external-format :utf-8)
           :except '(0) :time-label 0)))
       (assert-equality #'= 1015 (length (ts-points sample-ts)))
       (assert-equality #'= 753 (length (ts-points exchange)))

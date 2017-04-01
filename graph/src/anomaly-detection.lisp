@@ -887,10 +887,10 @@
     (flet ((almost= (a b) (<= (- b *epsilon*) a (+ b *epsilon*))))
       (loop for i below n
           do (loop for j to i
-                 as cij double-float = (aref cor i j)
-                 as aij double-float = (cond ((zerop cij) (kronecker-delta i j))
+                 as cij of-type double-float = (aref cor i j)
+                 as aij of-type double-float = (cond ((zerop cij) (kronecker-delta i j))
                                              (t cij))
-                 as d double-float = (cond
+                 as d of-type double-float = (cond
                                       ((and independent-pairs
                                             (or (find (cons i j) independent-index-pairs
                                                       :test #'equal)
@@ -1577,7 +1577,7 @@ Feature quantity calculation
                   do (loop for row below dim
                          for name2 in params
                          as pos2 = (cdr (assoc name2 name-pos-alist :test #'equal))
-                         as val double-float = (aref dist-mat pos1 pos2)
+                         as val of-type double-float = (aref dist-mat pos1 pos2)
                          do (setf (aref weight-mat col row)
                               (if (zerop val) 1d0 (/ val))))
                   finally (return weight-mat))))
@@ -1841,10 +1841,10 @@ Variance-covariance matrix calculation class of  matrix value data
       (flet ((noise-cut (val) (if (> *epsilon* (abs val)) 0d0 val)))
         (loop for i below n
             do (loop for j to i
-                   as cij double-float = (noise-cut (aref cov i j))
-                   as cii double-float = (noise-cut (aref cov i i))
-                   as cjj double-float = (noise-cut (aref cov j j))
-                   as aij double-float = (if (or (zerop cii) (zerop cjj)) (kronecker-delta i j)
+                   as cij of-type double-float = (noise-cut (aref cov i j))
+                   as cii of-type double-float = (noise-cut (aref cov i i))
+                   as cjj of-type double-float = (noise-cut (aref cov j j))
+                   as aij of-type double-float = (if (or (zerop cii) (zerop cjj)) (kronecker-delta i j)
                                            (/ (the double-float cij)
                                               (the double-float (sqrt (* cii cjj)))))
                    do (when absolute (setf aij (abs aij)))
@@ -1904,14 +1904,14 @@ Variance-covariance matrix calculation class of  matrix value data
              (noise-cut (- (the double-float (/ (the double-float xy) n-1))
                            (the double-float (/ (the double-float (* x y))
                                                 (the fixnum (* (+ 1 n-1) n-1))))))))
-    (loop with n-1 fixnum = -1
-        with v1-mom double-float = 0d0
-        with v2-mom double-float = 0d0
-        with v11-mom double-float = 0d0
-        with v22-mom double-float = 0d0
-        with v1v2-mom double-float = 0d0
-        for val1 double-float across v1
-        for val2 double-float across v2
+    (loop with n-1 of-type fixnum = -1
+        with v1-mom of-type double-float = 0d0
+        with v2-mom of-type double-float = 0d0
+        with v11-mom of-type double-float = 0d0
+        with v22-mom of-type double-float = 0d0
+        with v1v2-mom of-type double-float = 0d0
+        for val1 of-type double-float across v1
+        for val2 of-type double-float across v2
         unless (or (nan-p val1) (nan-p val2)) do
           (setf n-1 (+ n-1 1)
                 v1-mom (+ v1-mom val1)

@@ -56,12 +56,12 @@
              (type (vector fixnum) layers)
              (type vector clusters)
              (type double-float alpha beta_new))
-    (loop with limit fixnum = (1- (aref layers 0))
-        with sum double-float = 0d0
-        for i fixnum from 0 upto limit
+    (loop with limit of-type fixnum = (1- (aref layers 0))
+        with sum of-type double-float = 0d0
+        for i of-type fixnum from 0 upto limit
         for c = (aref clusters i)
-        for beta double-float = (cluster-beta c)
-        for den double-float = (* (+ (the fixnum (cluster-size c))
+        for beta of-type double-float = (cluster-beta c)
+        for den of-type double-float = (* (+ (the fixnum (cluster-size c))
                                      (* alpha beta))
                                   (the double-float (apply #'density-to-cluster dpm c data args)))
         do
@@ -102,12 +102,12 @@
     (declare (type double-float old-hyper)
              (type fixnum ntables))
     (loop
-        with limit fixnum  = (aref (dpm-cluster-layers dpm) 0)
-        for i fixnum from 0 below limit
+        with limit of-type fixnum  = (aref (dpm-cluster-layers dpm) 0)
+        for i of-type fixnum from 0 below limit
         for cluster = (aref clusters i)
         for nj__ fixnum = (cluster-size cluster)
-        summing (the double-float (log (beta-random (1+ old-hyper) (dfloat nj__)))) into wj double-float
-        summing (the double-float (bernoulli (/ nj__ (+ old-hyper nj__)))) into sj double-float
+        summing (the double-float (log (beta-random (1+ old-hyper) (dfloat nj__)))) into wj of-type double-float
+        summing (the double-float (bernoulli (/ nj__ (+ old-hyper nj__)))) into sj of-type double-float
         do (incf ntables (the fixnum (prog1 (cluster-latent-table cluster)
                                        (setf (cluster-latent-table cluster) 0)
                                        (clrhash (cluster-tmp-table cluster)))))
@@ -139,13 +139,13 @@
     (when (< (the fixnum (array-dimension tmp 0)) k1)
       (adjust-array tmp k1))
     (setf (fill-pointer tmp) k1)
-    (loop for i fixnum from 0 below k
+    (loop for i of-type fixnum from 0 below k
         for s = (aref clusters i) do
           (sample-cluster-parameters s dist dpm)
           (setf (aref tmp i) (dfloat (cluster-latent-table s))))
     (setf (aref tmp k) (the double-float (hdp-gamma dpm)))
     (dirichlet-random tmp tmp)
-    (loop for i fixnum from 0 below k do
+    (loop for i of-type fixnum from 0 below k do
           (setf (cluster-beta (aref clusters i)) (aref tmp i)))
     (setf (hdp-beta dpm) (aref tmp k)))
   (hdp-beta dpm))
@@ -164,16 +164,16 @@
          (beta_new (hdp-beta dpm)))
     (declare (type (array double-float (*)) p)
              (type vector clusters layers))
-    (loop with limit fixnum = ;(if (zerop lslice)
+    (loop with limit of-type fixnum = ;(if (zerop lslice)
                                   (1- (aref layers 0))
                                 ;(1- (aref layers (1- lslice))))
-        with sum double-float = 0d0
+        with sum of-type double-float = 0d0
         for i from 0 upto limit
         for c = (aref clusters i)
         for beta = (cluster-beta c)
         for fx = (+ (the fixnum (cluster-size c))
                     (* alpha beta))
-        for den double-float = (if (> fx slice)
+        for den of-type double-float = (if (> fx slice)
                                    (apply #'density-to-cluster dpm c data args)
                                  0d0)
         do
