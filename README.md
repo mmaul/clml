@@ -325,7 +325,7 @@ about the tests previously ran.
 Individual tests can be ran by the run-tests form. Individual test
 being dests defined with the form define-test. 
 
-    (run-tests '(matrix-vecs-conversion-test  matrix-transpose-test)
+    (run-tests '(matrix-vecs-conversion-test  matrix-transpose-test))
 
 Tests for CLML systes have been grouped in  tests/test-groups.lisp
 for convience.
