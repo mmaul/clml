@@ -5,7 +5,8 @@
     (let (model traffic pred std-err ukgas)
       (assert
        (setq ukgas
-           (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp"))
+             (time-series-data (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/UKgas.sexp")
+                                                    :external-format :utf-8)
                              :range '(1) :time-label 0
                              :start 1960 :frequency 4)))
       (assert (setq model (ar ukgas)))
@@ -79,6 +80,7 @@
 
       (assert
        (setq traffic (time-series-data
-                      (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/mawi-traffic/pointF-20090330-0402.sexp"))
+                      (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/mawi-traffic/pointF-20090330-0402.sexp")
+                                           :external-format :utf-8)
                       :except '(0) :time-label 0)))
       (assert-true (parcor-filtering traffic :ppm-fname "traffic.ppm"))))

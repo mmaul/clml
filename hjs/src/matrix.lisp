@@ -482,7 +482,7 @@
          (n (array-dimension A 0))
          (lda (max 1 m))
          (ipiv (make-array (min m n) :element-type
-                           #+ (or ccl sbcl) '(signed-byte 32)
+                           #+ (or ccl sbcl lispworks) '(signed-byte 32)
                            #+allegro 'fixnum
                            ))
          (lwork (* m n 2))
@@ -559,7 +559,7 @@
          (n (array-dimension mat 0))
          (lda (max 1 m))
          (ipiv (make-array (min m n) :element-type
-                           #+ (or ccl sbcl) '(signed-byte 32)
+                           #+ (or ccl sbcl lispworks) '(signed-byte 32)
                            #+allegro 'fixnum
                            ))
 

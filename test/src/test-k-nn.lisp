@@ -20,7 +20,9 @@
          (read-data-from-file
           (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/learn.csv")
           :type :csv
-          :csv-type-spec (cons 'string (make-list 105 :initial-element 'double-float)))))
+          :csv-type-spec (cons 'string (make-list 105 :initial-element 'double-float))
+          :external-format :utf-8
+          )))
 
 
       (assert
@@ -66,7 +68,9 @@
          (setf data-for-estimate
            (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/estimate.csv")
                                 :type :csv
-                                :csv-type-spec (make-list 105 :initial-element 'double-float))))
+                                :csv-type-spec (make-list 105 :initial-element 'double-float)
+                                :external-format :utf-8))
+         )
 
         (assert (setf result (clml.nearest-search.k-nn:k-nn-estimate estimator data-for-estimate)))
         (assert-true (set-equal

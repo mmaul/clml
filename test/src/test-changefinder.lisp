@@ -9,7 +9,8 @@
                   (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/traffic-balance.csv")
                   :type :csv
                   :csv-type-spec (cons 'string
-                                       (make-list 6 :initial-element 'double-float)))
+                                       (make-list 6 :initial-element 'double-float))
+                  :external-format :utf-8)
                  :except '(0) :time-label 0)))
       (assert-equality #'= 1015 (length (ts-points ts)))
       #- allegro (assert (setf cf (init-changefinder (sub-ts ts :start 0 :end 24)

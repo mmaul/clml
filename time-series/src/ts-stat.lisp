@@ -125,7 +125,7 @@
                      with max = most-negative-double-float
                      with x = 0d0
                      with x^2 = 0d0
-                     for val double-float across seq
+                     for val of-type double-float across seq
                      do (setf x (+fl x val) x^2 (+fl (d-expt val 2d0) x^2))
                      if (> val max) do (setf max val)
                      else if (< val min) do (setf min val)

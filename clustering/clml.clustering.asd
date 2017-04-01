@@ -26,6 +26,7 @@
   :license "LLGPL"
   :pathname "src/"
   :serial t
+  :defsystem-depends-on #+lispworks ("asdf-encodings") #-lispworks nil
   :around-compile call-with-environment
   :depends-on (:clml.hjs
                :clml.blas

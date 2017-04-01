@@ -124,7 +124,7 @@ Shortest distance
            (min-d (aref d-mat dest-i start-i)))
       (remove-duplicates
        (loop with %d-thld = (if d-thld d-thld min-d)
-           for val double-float across start-vec
+           for val of-type double-float across start-vec
            for i from 0
            as path = (aref path-mat i start-i)
            if (and path (not (zerop val)) (not (eql i dest-i)) (< val %d-thld))

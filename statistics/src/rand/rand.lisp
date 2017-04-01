@@ -1822,7 +1822,7 @@
 
 
 
-#- (or ccl sbcl allegro)
+#- (or ccl sbcl allegro lispworks)
   (let ((u-mbit (random most-positive-fixnum))
         (sign -1d0)
         (ux 0d0))
@@ -2240,7 +2240,7 @@
      (m (floor (* probability (+ size 1))))
      (d (* (the double-float (int-power (- 1d0 probability) size))
            (the double-float
-                (loop with ans double-float = 1d0
+                (loop with ans of-type double-float = 1d0
                    for i fixnum from 1 to m do
                      (setf ans (* ans (dfloat (/ (+ (- size i) 1) i)) s))
                    finally (return ans))))))
@@ -3341,8 +3341,8 @@
    (d (if (> successes 1d0)
           (* (the double-float (expt probability successes))
              (the double-float (expt q m))
-             (loop with ans double-float = 1d0
-                 for i fixnum from 1 upto m do
+             (loop with ans of-type double-float = 1d0
+                 for i of-type fixnum from 1 upto m do
                    (setf ans (* ans (/ (+ i tee) i)))
                  finally (return ans)))
         (expt probability successes))))
@@ -3397,8 +3397,8 @@
     (setf (aref pnbs m) (if (> successes 1d0)
                            (* (the double-float (expt probability successes))
                               (the double-float (expt s m))
-                              (loop with ans double-float = 1d0
-                                  for i fixnum from 1 upto m do
+                              (loop with ans of-type double-float = 1d0
+                                  for i of-type fixnum from 1 upto m do
                                     (setf ans (* ans (/ (+ i v) i)))
                                   finally (return ans)))
                          (expt probability successes)))

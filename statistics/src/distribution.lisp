@@ -299,8 +299,8 @@
 (defmethod update-distribution ((distribution normal-distribution))
   (with-slots (std variance mode) distribution
     #- (or ccl sbcl allegro)
-    (assert (realp (slot-value distribution 'average))
-      "AVERAGE should be a real number.")
+    (assert (realp (slot-value distribution 'average)) (r)
+      "AVERAGE ~a should be a real number." r)
     #- (or ccl sbcl allegro)
     (assert (and (realp std) (> std 0)) (std)
       "STD should be a positive real number.")

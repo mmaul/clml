@@ -3,10 +3,10 @@
 (define-test test-nbayes
   (let (
         (bow-train (dataset-points (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bow-train.csv")
-                                                             :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string))))
+                                                             :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string) :external-format :utf-8)))
 
         (bow-test (dataset-points (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/bow-test.csv")
-                                                            :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string)))))
+                                                            :type :csv :csv-type-spec `(,@(loop repeat 928 collect 'double-float) string) :external-format :utf-8 ))))
 
     (assert-eql 84 (length bow-train))
 

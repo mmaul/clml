@@ -161,40 +161,40 @@
     (declare (type (array double-float (*)) p)
              (type vector clusters layers)
              (type fixnum slice))
-    (loop with limit fixnum = (if (zerop slice)
-                                  (1- (aref layers 0))
-                                (1- (aref layers (1- slice))))
-        with sum double-float = 0d0
-        for i from 0 upto limit
-        for den double-float = (apply #'density-to-cluster dpm (aref clusters i) data args) do
-          (setf (aref p i) den)
-          (incf sum den)
-        finally
-          (when (>= (dpm-hyper dpm) slice)
-            (incf sum (the double-float (apply #'base-distribution dpm dist data args))))
-          (let ((ref (randomize-slice p sum limit)))
-            (declare (type fixnum ref))
-            (when (= ref -1) ;; new cluster
-              (incf (dpm-k dpm))
-              (setf ref (aref layers 0))
-              (let ((new-cluster (make-new-cluster dpm dist data (unless (= ref (length clusters))
-                                                               (aref clusters ref))))) ;; cluster recycling
-                (when (= ref (the fixnum (length clusters)))
-                  ;; extend array related to tables
-                  (vector-push-extend new-cluster clusters)
-                  (vector-push-extend 0d0 p))))
-            (let* ((cluster (aref clusters ref))
-                   (old (cluster-size cluster))
-                   (new-position (aref layers old)))
-              (apply #'add-to-cluster cluster data args)
-              (setf (point-cluster customer) (aref clusters ref))
+    (loop with limit of-type fixnum = (if (zerop slice)
+                                          (1- (aref layers 0))
+                                          (1- (aref layers (1- slice))))
+          with sum of-type double-float = 0d0
+          for i from 0 upto limit
+          for den of-type double-float = (apply #'density-to-cluster dpm (aref clusters i) data args) do
+            (setf (aref p i) den)
+            (incf sum den)
+          finally
+             (when (>= (dpm-hyper dpm) slice)
+               (incf sum (the double-float (apply #'base-distribution dpm dist data args))))
+             (let ((ref (randomize-slice p sum limit)))
+               (declare (type fixnum ref))
+               (when (= ref -1) ;; new cluster
+                 (incf (dpm-k dpm))
+                 (setf ref (aref layers 0))
+                 (let ((new-cluster (make-new-cluster dpm dist data (unless (= ref (length clusters))
+                                                                      (aref clusters ref))))) ;; cluster recycling
+                   (when (= ref (the fixnum (length clusters)))
+                     ;; extend array related to tables
+                     (vector-push-extend new-cluster clusters)
+                     (vector-push-extend 0d0 p))))
+               (let* ((cluster (aref clusters ref))
+                      (old (cluster-size cluster))
+                      (new-position (aref layers old)))
+                 (apply #'add-to-cluster cluster data args)
+                 (setf (point-cluster customer) (aref clusters ref))
               ;;; cluster rotation!!!
-              (rotatef (aref clusters ref)
-                       (aref clusters new-position))
-              (incf (aref layers old))
-              (when (= (length layers) (1+ old))
-                (vector-push-extend 0 layers))
-              (return cluster))))))
+                 (rotatef (aref clusters ref)
+                          (aref clusters new-position))
+                 (incf (aref layers old))
+                 (when (= (length layers) (1+ old))
+                   (vector-push-extend 0 layers))
+                 (return cluster))))))
 
 (defmethod add-customer ((dpm logged-dpm) customer old &rest args)
   (let ((p (dpm-p dpm))
@@ -206,12 +206,12 @@
     (declare (type (array double-float (*)) p)
              (type vector clusters layers)
              (type fixnum slice))
-    (loop with limit fixnum = (if (zerop slice)
+    (loop with limit of-type fixnum = (if (zerop slice)
                                   (1- (aref layers 0))
                                 (1- (aref layers (1- slice))))
-        with max double-float = most-negative-double-float
+        with max of-type double-float = most-negative-double-float
         for i from 0 upto limit
-        for den double-float = (apply #'density-to-cluster dpm (aref clusters i) data args) do
+        for den of-type double-float = (apply #'density-to-cluster dpm (aref clusters i) data args) do
           (setf (aref p i) den)
           (setf max (max max den))
         finally

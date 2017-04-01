@@ -519,6 +519,7 @@ However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the col
                                                  #+allegro :932
                                                  #+ccl :Windows-31j
                                                  #+sbcl :sjis
+                                                 #+lispworks :sjis
                                                  ))
        (make-unspecialized-dataset (coerce header 'list) data
 

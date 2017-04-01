@@ -682,9 +682,9 @@
               (val dvec :type double-float))
       (setf sf (+ (* 1-r m) (* r val))))
     (loop for i below dim
-        as bi-mi double-float = (- (aref dvec i) (aref mu i))
+        as bi-mi of-type double-float = (- (aref dvec i) (aref mu i))
         do (loop for j from i below dim
-               as bj-mj double-float = (- (aref dvec j) (aref mu j))
+               as bj-mj of-type double-float = (- (aref dvec j) (aref mu j))
                as vij = (aref cov i j)
                as val = (+fl (*fl 1-r vij) (*fl r bi-mi bj-mj))
                do (setf (aref cov i j) val (aref cov j i) val)))))
@@ -724,10 +724,10 @@
     (flet ((almost= (a b) (<= (- b *epsilon*) a (+ b *epsilon*))))
       (loop for i below n
           do (loop for j to i
-                 as cij double-float = (aref cor i j)
-                 as aij double-float = (cond ((zerop cij) (kronecker-delta i j))
-                                             (t cij))
-                 as d double-float =
+                 as cij of-type double-float = (aref cor i j)
+                 as aij of-type double-float = (cond ((zerop cij) (kronecker-delta i j))
+                                                     (t cij))
+                 as d of-type double-float =
                    (cond ((almost= aij 0d0) ++inf+)
                          ;; infinite dissimilarity
                          ((almost= aij 1d0) 0d0)
@@ -747,10 +747,10 @@
     (declare (type dmat cov a) (type fixnum n) (optimize speed))
     (loop for i below n
         do (loop for j to i
-               as cij double-float = (aref cov i j)
-               as cii double-float = (aref cov i i)
-               as cjj double-float = (aref cov j j)
-               as aij double-float =
+               as cij of-type double-float = (aref cov i j)
+               as cii of-type double-float = (aref cov i i)
+               as cjj of-type double-float = (aref cov j j)
+               as aij of-type double-float =
                  (if (or (zerop cii) (zerop cjj)) (kronecker-delta i j)
                    (/ (the double-float cij) (the double-float (sqrt (* cii cjj)))))
                do (when absolute (setf aij (abs aij)))

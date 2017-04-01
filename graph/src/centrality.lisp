@@ -127,7 +127,7 @@ The parameter for adjusting the weight, the weight decreases as large, the trans
          (row-sum-list (loop for row below n collect
                              (loop for col below n sum (aref adj-mat col row)))))
     (loop for row below n
-        for row-sum double-float in row-sum-list
+        for row-sum of-type double-float in row-sum-list
         unless (zerop row-sum)
         do (loop for col below n do
                  (setf (aref adj-mat col row) (/ (aref adj-mat col row) row-sum)))

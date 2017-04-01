@@ -137,12 +137,12 @@
                      (incf VYstar (* tpi tphi tphi (- 1d0 tpi)))))))
     (loop
         with limit = (1- (aref layers 0))
-        with sum double-float = 0d0
+        with sum of-type double-float = 0d0
         with EY = (+ EYstar EYdagger)
         with VY = (+ VYstar VYdagger)
-        for i fixnum from 0 upto limit
+        for i of-type fixnum from 0 upto limit
         for c = (aref clusters i)
-        for den double-float = (the double-float (apply #'density-to-cluster dpm c data
+        for den of-type double-float = (the double-float (apply #'density-to-cluster dpm c data
                                                         :X X :EY EY :VY VY args))
         do
           (setf (aref p i) den)
@@ -337,7 +337,7 @@
            (type fixnum k))
   (let ((gamma (safe-exp (aref xx k))))
     (declare (type double-float gamma))
-    (loop for i fixnum from 0 below k summing
+    (loop for i of-type fixnum from 0 below k summing
           (let* ((topic (aref clusters i))
                  (phi (safe-exp (aref xx i)))
                  (gammatop 0d0)
@@ -382,14 +382,14 @@
         (gamma (safe-exp (aref xx k))))
     (declare (type (array double-float (*)) gg)
              (type double-float gamma))
-    (loop for i fixnum from 0 below k do
+    (loop for i of-type fixnum from 0 below k do
           (setf (aref gg i) (the double-float (grad-phi gamma (safe-exp (aref xx i)) (aref clusters i)))))
     (setf (aref gg k)
       #+ignore
       ;; author version
       (* (- gamma) (loop for i fixnum from 0 below k summing (aref xx i)))
       ;; handwrite version
-      (- (the double-float (loop for i fixnum from 0 below k summing (aref xx i)))
+      (- (the double-float (loop for i of-type fixnum from 0 below k summing (aref xx i)))
          (* k (the double-float (digamma (aref gg k))))))
     gg))
 

@@ -73,7 +73,7 @@
         (apply #'density-to-cluster dpm states (point-data point) :slice (aref slice 0) :ans tmp args)
         (setf (point-cluster point) old-s))
       ;; forward-filtering
-      (loop for i fixnum from 1 below (1- (length data)) do
+      (loop for i of-type fixnum from 1 below (1- (length data)) do
             (let* ((point (aref data i))
                    (before (point-tmp-p (aref data (1- i))))
                    (before-sorted (sorted-before (old-state point)))
@@ -115,8 +115,8 @@
           (declare (type (vector double-float) tmp)
                    (type double-float max)
                    (type vector states))
-            (loop for j fixnum from 0 below L
-                for logp double-float across tmp do
+            (loop for j of-type fixnum from 0 below L
+                for logp of-type double-float across tmp do
                   (setf (aref p j) logp)
                   (setf max (max max logp)))
             (let* ((sum (jackup-logged-prob p max))
@@ -126,7 +126,7 @@
               (setf (point-cluster point) (aref states ref))
               ))
         ;; backward-sampling loop
-        (loop for i fixnum from (1- tail) downto 0 do
+        (loop for i of-type fixnum from (1- tail) downto 0 do
               (let* ((point (aref data i))
                      (after (aref data (1+ i)))
                      (slice-state (point-cluster point))
@@ -145,8 +145,8 @@
                     ;; quick slice sampler
                     (let ((spi (state-pi slice-state)))
                       (declare (type (vector double-float) spi))
-                      (loop for j fixnum from 0 below L
-                          for tp double-float = (aref spi j) do
+                      (loop for j of-type fixnum from 0 below L
+                          for tp of-type double-float = (aref spi j) do
                             (unless (<= slice tp)
                               (setf ref (the fixnum (randomize-slice p (jackup-logged-prob p max j) (1- j))))
                               (return))
@@ -158,9 +158,9 @@
                           finally
                             (setf ref (the fixnum (randomize-slice p (jackup-logged-prob p max j) (1- j))))))
                   ;; normal but sliced sampler
-                  (loop for j fixnum from 0 below L
+                  (loop for j of-type fixnum from 0 below L
                       for s = (aref states j)
-                      for tp double-float = (trans-prob s after-state) do
+                      for tp of-type double-float = (trans-prob s after-state) do
                         (if (<= slice tp)
                             (let ((logp (+ (the double-float (aref tmp j))
                                            (the double-float (log tp)))))
@@ -220,7 +220,7 @@
     (declare (type (simple-array double-float (*)) slice)
              (type vector data)
              )
-    (loop for i fixnum from 0 below (the fixnum (length data))
+    (loop for i of-type fixnum from 0 below (the fixnum (length data))
         for before = (hdp-hmm-eos dpm) then (point-cluster (aref data (1- i))) do
           (setf (aref slice i)
             (the double-float (random (apply #'remove-customer dpm (aref data i) :franchise before args)))))
@@ -247,7 +247,7 @@
        #+sbcl (ignorable args))
   (if before
       (loop
-          for j fixnum from 0 below (length states)
+          for j of-type fixnum from 0 below (length states)
           for cluster = (aref states j) do
             (let ((v (vocabulary dpm))
                   (states (sorted-before cluster))
@@ -259,9 +259,9 @@
                        (type double-float max)
                        (type (vector double-float) p spi))
               (block iter
-                (loop for i fixnum from 0 below L
+                (loop for i of-type fixnum from 0 below L
                     for s = (aref states i)
-                    for subpi double-float = (aref spi i) do
+                    for subpi of-type double-float = (aref spi i) do
                       (unless (<= slice subpi)
                         ;; break
                         (setf L i)
@@ -274,16 +274,16 @@
                     ;; no effective transition (over the slice) to this cluster
                     (setf (aref ans j) most-negative-double-float)
                   (loop
-                      with jack double-float = (- #.(/ +most-positive-exp-able-float+ 2) max)
-                      for i fixnum from 0 below L
-                      summing (the double-float (safe-exp (+ (aref p i) jack))) into tmp double-float
+                      with jack of-type double-float = (- #.(/ +most-positive-exp-able-float+ 2) max)
+                      for i of-type fixnum from 0 below L
+                      summing (the double-float (safe-exp (+ (aref p i) jack))) into tmp of-type double-float
                       finally (setf (aref ans j)
                                 (the double-float
                                   (- (the double-float
                                        (log (* tmp (the double-float (emission-prob cluster data :v v)))))
                                      jack))))))))
     (loop
-        for j fixnum from 0 below (length states)
+        for j of-type fixnum from 0 below (length states)
         for cluster = (aref states j) do
           (setf (aref ans j)
             (the double-float
@@ -357,7 +357,7 @@
         with beta = (dfloat (/ L))
         for i from 0 below L do
           (setf (cluster-beta (aref states i)) beta))
-    (loop for i fixnum from 0 below l
+    (loop for i of-type fixnum from 0 below l
         for s = (aref states i) do
           (sampling-pi s dpm))
     (let ((memo (make-hash-table :test #'equal)))
@@ -378,7 +378,7 @@
   (declare (optimize (speed 3) (safety 0) (debug 0)))
   (let ((data (dpm-data dpm)))
     (declare (type vector data))
-    (loop for i fixnum from 0 below (the fixnum (length data))
+    (loop for i of-type fixnum from 0 below (the fixnum (length data))
         for seq = (aref data i) do
           (add-customer dpm seq (remove-customer dpm seq)))))
 
@@ -403,17 +403,17 @@
         (when (< (the fixnum (array-dimension tmp 0)) new-l)
           (adjust-array tmp new-l))
         (setf (fill-pointer tmp) new-l)
-        (loop for i fixnum from l below new-l do
+        (loop for i of-type fixnum from l below new-l do
               (vector-push-extend (make-new-cluster dpm dist dummy) clusters))
         (setf l new-l)))
-    (loop for i fixnum from 0 below l
+    (loop for i of-type fixnum from 0 below l
         for s = (aref clusters i) do
           (sample-cluster-parameters s dist dpm)
           (setf (aref tmp i) (the double-float (+ gamma (the double-float (dfloat (cluster-latent-table s)))))))
     (dirichlet-random tmp tmp)
-    (loop for i fixnum from 0 below l do
+    (loop for i of-type fixnum from 0 below l do
           (setf (cluster-beta (aref clusters i)) (aref tmp i)))
-    (loop for i fixnum from 0 below l
+    (loop for i of-type fixnum from 0 below l
         for s = (aref clusters i) do
           (sampling-pi s dpm))
     l))
@@ -438,7 +438,7 @@
       (adjust-array spi l))
     (setf (fill-pointer before) l)
     (setf (fill-pointer spi) l)
-    (loop for i fixnum from 0 below L
+    (loop for i of-type fixnum from 0 below L
         for s = (aref states i) do
           (setf (aref p i) (max least-positive-double-float
                                 (the double-float (+ (* alpha (the double-float (cluster-beta s))) ;; this is prior
@@ -446,7 +446,7 @@
           (setf (aref before i) s))
     (dirichlet-random p p)
     ;; copy
-    (loop for i fixnum from 0 below L do
+    (loop for i of-type fixnum from 0 below L do
           (setf (aref spi i) (aref p i))
           ;; sort spi
         finally (sort spi #'(lambda (x y) (declare (type double-float x y)) (> x y))))
