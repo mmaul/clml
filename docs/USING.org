@@ -197,7 +197,7 @@ Here is a quick demonstration:
   Individual tests can be ran by the run-tests form. Individual test
   being dests defined with the form define-test. 
 #+BEGIN_SRC lisp
-  (run-tests '(matrix-vecs-conversion-test  matrix-transpose-test)
+  (run-tests '(matrix-vecs-conversion-test  matrix-transpose-test))
 #+END_SRC
   Tests for CLML systes have been grouped in  tests/test-groups.lisp
   for convience.
