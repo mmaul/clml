@@ -179,7 +179,7 @@ Here is a quick demonstration:
 
   Compiling and running all unit tests can be ran as shown below.
 #+BEGIN_SRC lisp
-(ql:quickload clml.test :verbose t)
+(ql:quickload :clml.test :verbose t)
 (in-package :clml.test)
 (run-all-tests)
 #+END_SRC
