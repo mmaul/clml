@@ -179,7 +179,7 @@ Here is a quick demonstration:
 
   Compiling and running all unit tests can be ran as shown below.
 #+BEGIN_SRC lisp
-(ql:quickload clml.test :verbose t)
+(ql:quickload :clml.test :verbose t)
 (in-package :clml.test)
 (run-all-tests)
 #+END_SRC
@@ -197,7 +197,7 @@ Here is a quick demonstration:
   Individual tests can be ran by the run-tests form. Individual test
   being dests defined with the form define-test. 
 #+BEGIN_SRC lisp
-  (run-tests '(matrix-vecs-conversion-test  matrix-transpose-test)
+  (run-tests '(matrix-vecs-conversion-test  matrix-transpose-test))
 #+END_SRC
   Tests for CLML systes have been grouped in  tests/test-groups.lisp
   for convience.
