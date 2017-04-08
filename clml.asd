@@ -70,6 +70,7 @@
                :clml.text
                :clml.time-series
                :clml.utility
+               :clml.data
                )
   :components ((:file "package")
                )))
