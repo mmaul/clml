@@ -138,7 +138,7 @@ Fortunately CLML is able to download sample datasets from remote sites
 via HTTP and HTTPS via the `clml.utility.data:fetch` function. Shown
 below is an example:
 
-    (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/datafile.csv")
+    (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/airquality.csv")
 
 The `clml.utility.data:fetch` function downloads the file to a cache
 location and returns the path to the downloaded file. Therefore
