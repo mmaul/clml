@@ -32,6 +32,7 @@
                :clml.blas
                :iterate
                :clml.nearest-search
+               #+lispworks :asdf-encodings
                )
   :components (
                (:file "package")
