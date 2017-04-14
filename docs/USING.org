@@ -5,7 +5,7 @@ via HTTP and HTTPS via the ~clml.utility.data:fetch~ function. Shown
 below is an example:
 
 #+BEGIN_SRC lisp
-(clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/datafile.csv")
+(clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/airquality.csv")
 #+END_SRC
 
 The ~clml.utility.data:fetch~ function downloads the file to a cache
