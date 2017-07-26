@@ -11,6 +11,7 @@
                 :serial t
                 :depends-on (
                              :cl-ppcre
+                             :drakma
                              :clml.hjs
                              :clml.utility
                              :clml.data.r-datasets-package
