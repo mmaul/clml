@@ -107,7 +107,7 @@
     (values (make-instance 'snn :names names :snn-k k :sigma-i sigma-i :graphs graphs)
             wmat)))
 
-(defgeneric e-scores (t r)
+(defgeneric e-scores (target reference)
   (:documentation "- return: alist (key:name-of-parameter, value:E-score)
 - arguments:
   - target-snn    : <snn>, target SNN
