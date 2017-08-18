@@ -42,107 +42,107 @@
 (defclass continuous-distribution (distribution)
   ((mean :initarg :mean :accessor mean :initform 0d0)))
 
-(DEFCLASS GAMMA-LIKE-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((SCALE :READER SCALE :WRITER SET-SCALE :INITARG :SCALE)
-                  (SHAPE :READER SHAPE :WRITER SET-SHAPE :INITARG :SHAPE)))
+(defclass gamma-like-distribution (continuous-distribution)
+                 ((scale :reader scale :writer set-scale :initarg :scale)
+                  (shape :reader shape :writer set-shape :initarg :shape)))
 
-(DEFCLASS LOG-NORMAL-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((AVERAGE :READER AVERAGE :WRITER SET-AVERAGE :INITARG
-                           :AVERAGE)
-                  (STD :READER STD :WRITER SET-STD :INITARG :STD)))
+(defclass log-normal-distribution (continuous-distribution)
+                 ((average :reader average :writer set-average :initarg
+                           :average)
+                  (std :reader std :writer set-std :initarg :std)))
 
-(DEFCLASS UNIFORM-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-  ((FROM :READER UNIFORM-FROM :WRITER SET-UNIFORM-FROM :INITARG
-         :FROM)
-   (TO :READER UNIFORM-TO :WRITER SET-UNIFORM-TO :INITARG :TO)
-   (WIDTH :READER UNIFORM-WIDTH)
-   (DENOMINATOR :READER UNIFORM-DENOM :WRITER SET-UNIFORM-DENOM)
-   (SKEWNESS :INITFORM 0.0) (KURTOSIS :INITFORM 1.8)))
-(DEFCLASS GAMMA-DISTRIBUTION (GAMMA-LIKE-DISTRIBUTION)
-                 ((GAMMA-FACTOR :READER GAMMA-FACTOR) (SHAPE-INV) (D) (C)))
-(DEFCLASS ERLANG-DISTRIBUTION (GAMMA-LIKE-DISTRIBUTION)
-                 ((INCLUDE-ZERO :READER INCLUDE-ZERO :WRITER SET-INCLUDE-ZERO
-                                :INITARG :INCLUDE-ZERO :INITFORM NIL)))
-(DEFCLASS EXPONENTIAL-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((HAZARD :READER HAZARD :WRITER SET-HAZARD :INITARG :HAZARD)
-                  (SCALE :READER SCALE)
-                  (INCLUDE-ZERO :READER INCLUDE-ZERO :WRITER SET-INCLUDE-ZERO
-                                :INITARG :INCLUDE-ZERO :INITFORM NIL)
-                  (SKEWNESS :INITFORM 2.0) (KURTOSIS :INITFORM 9.0)
-                  (MODE :INITFORM 0.0)))
-(DEFCLASS NORMAL-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((AVERAGE :READER AVERAGE :WRITER SET-AVERAGE :INITARG
-                           :AVERAGE :INITFORM 0.0)
-                  (MODE :INITFORM 0.0)
-                  (STD :READER STD :WRITER SET-STD :INITARG :STD :INITFORM 0.0)
-                  (SKEWNESS :INITFORM 0.0) (KURTOSIS :INITFORM 3.0)))
-(DEFCLASS CHI-SQUARE-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((FREEDOM :READER FREEDOM :WRITER SET-FREEDOM :INITARG
-                           :FREEDOM)
-                  (EQ-GAMMA :INITFORM
-                            (MAKE-INSTANCE 'GAMMA-DISTRIBUTION :SHAPE 2.0
-                                           :SCALE 2.0)
-                            :READER EQ-GAMMA)))
-(DEFCLASS T-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((FREEDOM :READER FREEDOM :WRITER SET-FREEDOM :INITARG
-                           :FREEDOM)
-                  (T-PRECALC :READER T-PRECALC :WRITER SET-T-PRECALC) (R) (B)
-                  (C) (A) (D) (K) (W) (S) (P) (Q) (T1) (T2) (V1) (V2)))
-(DEFCLASS BETA-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((SHAPE1 :READER SHAPE1 :WRITER SET-SHAPE1 :INITARG :SHAPE1)
-                  (SHAPE2 :READER SHAPE2 :WRITER SET-SHAPE2 :INITARG :SHAPE2)
-                  (ALPHA-GAMMA :INITFORM
-                   (MAKE-INSTANCE 'GAMMA-DISTRIBUTION :SHAPE 1.0 :SCALE 1.0))
-                  (BETA-GAMMA :INITFORM
-                   (MAKE-INSTANCE 'GAMMA-DISTRIBUTION :SHAPE 1.0 :SCALE
+(defclass uniform-distribution (continuous-distribution)
+  ((from :reader uniform-from :writer set-uniform-from :initarg
+         :from)
+   (to :reader uniform-to :writer set-uniform-to :initarg :to)
+   (width :reader uniform-width)
+   (denominator :reader uniform-denom :writer set-uniform-denom)
+   (skewness :initform 0.0) (kurtosis :initform 1.8)))
+(defclass gamma-distribution (gamma-like-distribution)
+                 ((gamma-factor :reader gamma-factor) (shape-inv) (d) (c)))
+(defclass erlang-distribution (gamma-like-distribution)
+                 ((include-zero :reader include-zero :writer set-include-zero
+                                :initarg :include-zero :initform nil)))
+(defclass exponential-distribution (continuous-distribution)
+                 ((hazard :reader hazard :writer set-hazard :initarg :hazard)
+                  (scale :reader scale)
+                  (include-zero :reader include-zero :writer set-include-zero
+                                :initarg :include-zero :initform nil)
+                  (skewness :initform 2.0) (kurtosis :initform 9.0)
+                  (mode :initform 0.0)))
+(defclass normal-distribution (continuous-distribution)
+                 ((average :reader average :writer set-average :initarg
+                           :average :initform 0.0)
+                  (mode :initform 0.0)
+                  (std :reader std :writer set-std :initarg :std :initform 0.0)
+                  (skewness :initform 0.0) (kurtosis :initform 3.0)))
+(defclass chi-square-distribution (continuous-distribution)
+                 ((freedom :reader freedom :writer set-freedom :initarg
+                           :freedom)
+                  (eq-gamma :initform
+                            (make-instance 'gamma-distribution :shape 2.0
+                                           :scale 2.0)
+                            :reader eq-gamma)))
+(defclass t-distribution (continuous-distribution)
+                 ((freedom :reader freedom :writer set-freedom :initarg
+                           :freedom)
+                  (t-precalc :reader t-precalc :writer set-t-precalc) (r) (b)
+                  (c) (a) (d) (k) (w) (s) (p) (q) (t1) (t2) (v1) (v2)))
+(defclass beta-distribution (continuous-distribution)
+                 ((shape1 :reader shape1 :writer set-shape1 :initarg :shape1)
+                  (shape2 :reader shape2 :writer set-shape2 :initarg :shape2)
+                  (alpha-gamma :initform
+                   (make-instance 'gamma-distribution :shape 1.0 :scale 1.0))
+                  (beta-gamma :initform
+                   (make-instance 'gamma-distribution :shape 1.0 :scale
                                   1.0))))
-(DEFCLASS F-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((FREEDOM1 :READER FREEDOM1 :WRITER SET-FREEDOM1 :INITARG
-                            :FREEDOM1)
-                  (FREEDOM2 :READER FREEDOM2 :WRITER SET-FREEDOM2 :INITARG
-                            :FREEDOM2)
-                  (CHI1 :INITFORM
-                   (MAKE-INSTANCE 'CHI-SQUARE-DISTRIBUTION :FREEDOM 1))
-                  (CHI2 :INITFORM
-                   (MAKE-INSTANCE 'CHI-SQUARE-DISTRIBUTION :FREEDOM 1))
-                  (F)))
-(DEFCLASS BERNOULLI-RELATED-DISTRIBUTION (DISCRETE-DISTRIBUTION)
-                 ((PROBABILITY :READER PROBABILITY :WRITER SET-PROBABILITY
-                               :INITARG :PROBABILITY)))
-(DEFCLASS BINOMIAL-DISTRIBUTION (BERNOULLI-RELATED-DISTRIBUTION)
-                 ((SIZE :READER SIZE :WRITER SET-SIZE :INITARG :SIZE) (TABLE)
-                  (KI) (VI) (B) (K) (W) (NSQ)))
-(DEFCLASS GEOMETRIC-DISTRIBUTION (BERNOULLI-RELATED-DISTRIBUTION)
-  ((TABLE) (KI) (VI) (B) (K) (W) (NSQ) (PSQ) (Q) (R) (C)))
-(DEFCLASS HYPERGEOMETRIC-DISTRIBUTION (DISCRETE-DISTRIBUTION)
-                 ((ELEMENTS :READER ELEMENTS :WRITER SET-ELEMENTS :INITARG
-                            :ELEMENTS)
-                  (SUCCESSES :READER SUCCESSES :WRITER SET-SUCCESSES :INITARG
-                             :SUCCESSES)
-                  (SAMPLES :READER SAMPLES :WRITER SET-SAMPLES :INITARG
-                           :SAMPLES)
-                  (TABLE) (KI) (VI) (B) (K) (W) (NSQ) (A1)))
-(DEFCLASS CAUCHY-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((LOCATION :READER LOCATION :WRITER SET-LOCATION :INITARG
-                            :LOCATION)
-                  (SCALE :READER SCALE :WRITER SET-SCALE :INITARG :SCALE)))
-(DEFCLASS LOGISTIC-DISTRIBUTION (CONTINUOUS-DISTRIBUTION)
-                 ((LOCATION :READER LOCATION :WRITER SET-LOCATION :INITARG
-                            :LOCATION)
-                  (SCALE :READER SCALE :WRITER SET-SCALE :INITARG :SCALE)
-                  (SKEWNESS :INITFORM 0.0) (KURTOSIS :INITFORM 4.2)))
-(DEFCLASS NEGATIVE-BINOMIAL-DISTRIBUTION
-                 (BERNOULLI-RELATED-DISTRIBUTION)
-                 ((SUCCESS-R :READER SUCCESS-R :WRITER SET-SUCCESS-R :INITARG
-                             :SUCCESS-R)
-                  (TABLE) (KI) (VI) (B) (K) (W) (NSQ) (PSQ) (Q) (R) (XL) (XU)
-                  (PL) (PU) (QUE) (S) (TEE)))
-(DEFCLASS POISSON-DISTRIBUTION (DISCRETE-DISTRIBUTION)
-                 ((RATE :READER RATE :WRITER SET-RATE :INITARG :RATE) (TABLE)
-                  (KI) (VI) (B) (K) (W) (NSQ) (PSQ) (Q) (R) (XL) (XU) (PL) (PU)
-                  (C)))
+(defclass f-distribution (continuous-distribution)
+                 ((freedom1 :reader freedom1 :writer set-freedom1 :initarg
+                            :freedom1)
+                  (freedom2 :reader freedom2 :writer set-freedom2 :initarg
+                            :freedom2)
+                  (chi1 :initform
+                   (make-instance 'chi-square-distribution :freedom 1))
+                  (chi2 :initform
+                   (make-instance 'chi-square-distribution :freedom 1))
+                  (f)))
+(defclass bernoulli-related-distribution (discrete-distribution)
+                 ((probability :reader probability :writer set-probability
+                               :initarg :probability)))
+(defclass binomial-distribution (bernoulli-related-distribution)
+                 ((size :reader size :writer set-size :initarg :size) (table)
+                  (ki) (vi) (b) (k) (w) (nsq)))
+(defclass geometric-distribution (bernoulli-related-distribution)
+  ((table) (ki) (vi) (b) (k) (w) (nsq) (psq) (q) (r) (c)))
+(defclass hypergeometric-distribution (discrete-distribution)
+                 ((elements :reader elements :writer set-elements :initarg
+                            :elements)
+                  (successes :reader successes :writer set-successes :initarg
+                             :successes)
+                  (samples :reader samples :writer set-samples :initarg
+                           :samples)
+                  (table) (ki) (vi) (b) (k) (w) (nsq) (a1)))
+(defclass cauchy-distribution (continuous-distribution)
+                 ((location :reader location :writer set-location :initarg
+                            :location)
+                  (scale :reader scale :writer set-scale :initarg :scale)))
+(defclass logistic-distribution (continuous-distribution)
+                 ((location :reader location :writer set-location :initarg
+                            :location)
+                  (scale :reader scale :writer set-scale :initarg :scale)
+                  (skewness :initform 0.0) (kurtosis :initform 4.2)))
+(defclass negative-binomial-distribution
+                 (bernoulli-related-distribution)
+                 ((success-r :reader success-r :writer set-success-r :initarg
+                             :success-r)
+                  (table) (ki) (vi) (b) (k) (w) (nsq) (psq) (q) (r) (xl) (xu)
+                  (pl) (pu) (que) (s) (tee)))
+(defclass poisson-distribution (discrete-distribution)
+                 ((rate :reader rate :writer set-rate :initarg :rate) (table)
+                  (ki) (vi) (b) (k) (w) (nsq) (psq) (q) (r) (xl) (xu) (pl) (pu)
+                  (c)))
 ;;; todo -- weibull dist is not gamma distribution; bad definition
-(DEFCLASS WEIBULL-DISTRIBUTION (GAMMA-LIKE-DISTRIBUTION)
-                 ((INCLUDE-ZERO :READER INCLUDE-ZERO :WRITER SET-INCLUDE-ZERO
-                                :INITARG :INCLUDE-ZERO :INITFORM NIL)
-                  (R-INV)))
+(defclass weibull-distribution (gamma-like-distribution)
+                 ((include-zero :reader include-zero :writer set-include-zero
+                                :initarg :include-zero :initform nil)
+                  (r-inv)))
