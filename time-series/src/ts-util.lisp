@@ -232,7 +232,7 @@
     (ts-to-sta ts stafile :external-format external-format)
     (let ((cmd (format nil "\"statvis/STATVIS\" -- \"~A\"" stafile)))
       #-lispworks
-      (UIOP/RUN-PROGRAM:RUN-PROGRAM cmd :output nil)
+      (uiop/run-program:run-program cmd :output nil)
       #+lispworks
       (let ((stream
              (run-shell-command
@@ -302,7 +302,7 @@
   #+ (and  unix lispworks)
   (run-shell-command (format nil "evince ~S" f-name) :wait nil)
   #-lispworks
-  (UIOP/RUN-PROGRAM:run-program (format nil "evince ~S" f-name)))
+  (uiop/run-program:run-program (format nil "evince ~S" f-name)))
 
 #+lispworks
 (defun draw-by-R (&rest ts-datasets)

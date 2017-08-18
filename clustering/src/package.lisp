@@ -99,8 +99,8 @@
     (:use :cl :clml.hjs.matrix :clml.hjs.meta :clml.hjs.eigensystems)
     (:export #:spectral-clustering-mcut
              #:*sample-w*)
-    (:import-from #+allegro "EXCL" #+sbcl "SB-INT" #+lispworks "LISPWORKS" #+ccl "CCL"
-                  "FIXNUMP")
+    (:import-from #+allegro :excl #+sbcl "SB-INT" #+lispworks "LISPWORKS" #+ccl "CCL"
+                  #:fixnump)
     (:documentation "   Package for undirected graph clustering"))
 
 (defpackage :clml.clustering.cluster-validation

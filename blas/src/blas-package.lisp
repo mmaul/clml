@@ -1,10 +1,10 @@
 (defpackage :clml.blas
 
-  (:use "COMMON-LISP")
-  (:export "DAXPY" "DCOPY" "DDOT" "DNRM2" "DSCAL" "IDAMAX" "DASUM"
-           "DCABS1" "DGBMV" "DGEMM" "DGEMV" "DGER" "DROT" "DROTG"
-           "DSBMV" "DSPMV" "DSPR" "DSPR2" "DSWAP" "DSYMM" "DSYMV"
-           "DSYR" "DSYR2" "DSYR2K" "DSYRK" "DTBMV" "DTBSV" "DTPMV"
-           "DTPSV" "DTRMM" "DTRMV" "DTRSM" "DTRSV" "DZASUM" "DZNRM2"
-           "ICAMAX" "ISAMAX" "IZAMAX" "LSAME" "XERBLA"))
+  (:use :common-lisp)
+  (:export #:daxpy #:dcopy #:ddot #:dnrm2 #:dscal #:idamax #:dasum
+           #:dcabs1 #:dgbmv #:dgemm #:dgemv #:dger #:drot #:drotg
+           #:dsbmv #:dspmv #:dspr #:dspr2 #:dswap #:dsymm #:dsymv
+           #:dsyr #:dsyr2 #:dsyr2k #:dsyrk #:dtbmv #:dtbsv #:dtpmv
+           #:dtpsv #:dtrmm #:dtrmv #:dtrsm #:dtrsv #:dzasum #:dznrm2
+           #:icamax #:isamax #:izamax #:lsame #:xerbla))
 

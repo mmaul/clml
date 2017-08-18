@@ -15,7 +15,7 @@
 
 (defmacro v2dvec (v)
   "Convert vector to dvec"
-  `(coerce ,v 'CLML.HJS.META:DVEC))
+  `(coerce ,v 'clml.hjs.meta:dvec))
 
 ;;Check that a number returned from a user function is a double-float
 (defun dfloat-check (x)

@@ -51,7 +51,7 @@ package for reading time series data
         :clml.hjs.matrix :clml.statistics
         :clml.time-series.read-data)
   #-lispworks
-  (:import-from :UIOP/RUN-PROGRAM #:RUN-PROGRAM)
+  (:import-from :uiop/run-program #:run-program)
   #+allegro
   (:use :excl)
 
