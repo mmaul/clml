@@ -34,7 +34,7 @@
 (defun make-split-predicate (attribute &optional optimize)
   ;; make-split-predicate returns optimized function
   ;; if the optional data type is double-float
-  (if (and optimize (floatp attribute))
+  (if (and optimize (typep attribute 'double-float))
       #'(lambda (x)
           (declare (optimize speed (safety 0) (debug 0))
                    (type double-float attribute x))
