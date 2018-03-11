@@ -51,8 +51,8 @@
     :accessor dimension-metadata
     :type list
     :initform '()
-    :documentation "An alist that stores some useful information, e.g. the hashtable (for equality) for a category dimension."
-    )))
+    :documentation "An alist that stores some useful information, e.g. the hashtable (for equality) for a category dimension.")))
+
 
 (define-condition dimension-unknown-type-error (simple-error)
   ((dimension :initarg :dimension)))
@@ -492,58 +492,64 @@
                                      (csv-delimiter #\,)
                                      (missing-value-check t)
                                      missing-values-list)
-  "Reads CSV data from file. The normal convention is first line is column name.
-However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the column names"
-  (assert (member type '(:sexp :csv)))
+  "Reads an unspecialized dataset from file.
+   - If TYPE is :SEXP or NIL (the default), a list is read from a s-expression
+file.  The first element is a list of column names and the rest of the elements
+are the  data.  EXTERNAL-FORMAT defaults to :DEFAULT for opening the file.
+   - If TYPE is :CSV, the data is read as csv. The normal convention is first
+line is column name.  However if CSV-HEADER-P is a list of strings then
+CSV-HEADER-P specifies the column names.  EXTERNAL-FORMAT defaults to shift-jis."
+  (when (and (not external-format-p)
+             (eql type :csv))
+    (setf external-format *csv-default-external-format*))
+  (with-open-file (stream filename :external-format external-format)
+    #+allegro (setf (excl:eol-convention f) :anynl-dos)
+    (read-data-from-stream stream
+                            :type type
+                            :csv-type-spec csv-type-spec
+                            :csv-header-p csv-header-p
+                            :csv-delimiter csv-delimiter
+                            :missing-value-check missing-value-check
+                            :missing-values-list missing-values-list)))
 
-  (ecase type
-    ((:sexp nil)
-     (let (tmp)
-       (with-open-file (f filename :external-format external-format)
-         (with-standard-io-syntax
-           (let ((*read-eval* nil)
-                 (*read-default-float-format* 'double-float))
-             (setf tmp (read f)))))
-
-       (make-unspecialized-dataset
-        (first tmp)
-        (map 'vector
-          (lambda (p)
-            (coerce p 'vector))
-          (rest tmp))
-        :missing-value-check missing-value-check
-        :missing-values-list missing-values-list)))
-    (:csv
-     (multiple-value-bind (data header)
-         (clml.utility.csv:read-csv-file filename :header csv-header-p :type-spec csv-type-spec :delimiter csv-delimiter
-                            :external-format (if external-format-p external-format
-                                                 #+allegro :932
-                                                 #+ccl :Windows-31j
-                                                 #+sbcl :sjis
-                                                 #+lispworks :sjis
-                                                 ))
-       (make-unspecialized-dataset (coerce header 'list) data
-
-                                     :missing-value-check missing-value-check
-                                     :missing-values-list missing-values-list)))))
 
 ;;;; read and process data
 ;;@ function-type: string -> unspecialized-dataset
 (defun read-data-from-stream (stream &key
+                                     (type :csv)
                                      csv-type-spec
                                      (csv-header-p t)
                                      (csv-delimiter #\,)
                                      (missing-value-check t)
                                      missing-values-list)
-  "Reads CSV data from a stream. The normal convention is first line is column name.
-However if CSV-HEADER-P is a list of strings then CSV-HEADER-P specifies the column names"
-  (multiple-value-bind (data header)
-         (clml.utility.csv:read-csv-stream stream :header csv-header-p :type-spec csv-type-spec :delimiter csv-delimiter)
-       (make-unspecialized-dataset (coerce header 'list) data
-
-                                     :missing-value-check missing-value-check
-                                     :missing-values-list missing-values-list))
-  )
+  "Reads an unspecialized dataset from file.
+   - If TYPE is :SEXP or NIL, a list is read from a s-expression file.
+The first element is a list of column names and the rest of the elements are the
+data.
+   - If TYPE is :CSV (the default), the data is read as csv. The normal convention is first
+line is column name.  However if CSV-HEADER-P is a list of strings then
+CSV-HEADER-P specifies the column names"
+  (assert (member type '(:sexp :csv)))
+  (ecase type
+    ((:sexp nil)
+     (let ((tmp (with-standard-io-syntax
+                  (let ((*read-eval* nil)
+                        (*read-default-float-format* 'double-float))
+                    (read stream)))))
+       (make-unspecialized-dataset
+         (first tmp)
+         (map 'vector
+           (lambda (p)
+             (coerce p 'vector))
+           (rest tmp))
+         :missing-value-check missing-value-check
+         :missing-values-list missing-values-list)))
+    (:csv
+      (multiple-value-bind (data header)
+        (clml.utility.csv:read-csv-stream stream :header csv-header-p :type-spec csv-type-spec :delimiter csv-delimiter)
+        (make-unspecialized-dataset (coerce header 'list) data
+                                    :missing-value-check missing-value-check
+                                    :missing-values-list missing-values-list)))))
 
 
 ;;; function-type: unspecialized-dataset -> specialized-dataset
