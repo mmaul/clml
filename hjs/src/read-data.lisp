@@ -521,15 +521,17 @@ CSV-HEADER-P specifies the column names.  EXTERNAL-FORMAT defaults to shift-jis.
                                      (csv-header-p t)
                                      (csv-delimiter #\,)
                                      (missing-value-check t)
-                                     missing-values-list)
+                                     (missing-values-list nil missing-values-list-p))
   "Reads an unspecialized dataset from file.
    - If TYPE is :SEXP or NIL, a list is read from a s-expression file.
 The first element is a list of column names and the rest of the elements are the
 data.
-   - If TYPE is :CSV (the default), the data is read as csv. The normal convention is first
-line is column name.  However if CSV-HEADER-P is a list of strings then
-CSV-HEADER-P specifies the column names"
-  (assert (member type '(:sexp :csv)))
+   - If TYPE is :CSV (the default), the data is read as csv. The normal
+convention is first line is column name.  However if CSV-HEADER-P is a list
+of strings then CSV-HEADER-P specifies the column names.
+   - If TYPE is :ARFF, the data is read as arff.  By default, NIL and \"?\"
+are used as missing values with arff format."
+  (assert (member type '(:sexp :csv :arff)))
   (ecase type
     ((:sexp nil)
      (let ((tmp (with-standard-io-syntax
@@ -549,8 +551,16 @@ CSV-HEADER-P specifies the column names"
         (clml.utility.csv:read-csv-stream stream :header csv-header-p :type-spec csv-type-spec :delimiter csv-delimiter)
         (make-unspecialized-dataset (coerce header 'list) data
                                     :missing-value-check missing-value-check
-                                    :missing-values-list missing-values-list)))))
-
+                                    :missing-values-list missing-values-list)))
+    (:arff
+      ;arff uses ? as a missing value symbol, so use that unless told otherwise
+      (unless missing-values-list-p
+        (setf missing-values-list '(nil "?")))
+      (multiple-value-bind (data header)
+                           (clml.utility.arff:read-arff-stream stream)
+                           (make-unspecialized-dataset (coerce header 'list) data
+                                                       :missing-value-check missing-value-check
+                                                       :missing-values-list missing-values-list)))))
 
 ;;; function-type: unspecialized-dataset -> specialized-dataset
 
