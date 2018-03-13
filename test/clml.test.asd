@@ -33,6 +33,7 @@
   :components ((:file "package")
                (:file "test-groups")
                (:file "test-utils")
+               (:file "test-arff")
                (:file "test-stat")
                (:file "test-decision-tree")
                (:file "test-random-forest")

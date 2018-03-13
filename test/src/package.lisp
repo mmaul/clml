@@ -44,6 +44,7 @@
    :clml.association-rule
    :clml.som
    :clml.pca
+   :clml.utility.arff
    )
   (:shadow :make-polynomial-kernel :make-svm-learner :make-rbf-kernel :make-svm-validation
            :svm-validation :load-svm-learner :make-svm-kernel :make-linear-kernel
@@ -88,4 +89,3 @@
            *pca-tests*
            *hjs-tests*)
   )
-
