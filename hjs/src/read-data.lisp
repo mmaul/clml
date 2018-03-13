@@ -501,7 +501,7 @@ line is column name.  However if CSV-HEADER-P is a list of strings then
 CSV-HEADER-P specifies the column names.  EXTERNAL-FORMAT defaults to shift-jis."
   (when (and (not external-format-p)
              (eql type :csv))
-    (setf external-format *csv-default-external-format*))
+    (setf external-format clml.utility.csv::*csv-default-external-format*))
   (with-open-file (stream filename :external-format external-format)
     #+allegro (setf (excl:eol-convention f) :anynl-dos)
     (read-data-from-stream stream

@@ -38,6 +38,7 @@
                )
   :components (
                (:file "package")
+               (:file "arff")
                (:file "csv")
                (:file "priority-que")
                (:file "fetch")

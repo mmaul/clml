@@ -1,5 +1,9 @@
 ;-*- coding: utf-8 -*-
 
+(defpackage :clml.utility.arff
+  (:use :common-lisp :iterate)
+  (:export #:read-arff-stream))
+
 (defpackage :clml.utility.csv
   (:use :common-lisp :iterate :parse-number)
 
@@ -17,7 +21,7 @@
    (:import-from :iterate :iter :iterate)
    (:shadowing-import-from :iterate :while)
    (:import-from :alexandria #:define-constant)
-   
+
   (:export #:make-prique
            #:prique-empty-p
            #:prique-box-item
@@ -32,4 +36,3 @@
   (:use :common-lisp)
   (:export
    #:fetch #:process-finance-header))
-
