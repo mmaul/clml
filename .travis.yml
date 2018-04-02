@@ -42,6 +42,8 @@ cache:
 script:
   - ros dynamic-space-size=2560 -e '(ql:quickload :clml.test)(in-package :clml.test)
          (let ((results (run-all-tests)))
+           (print-failures results)
+           (print-errors results)
            (when (or (lisp-unit:failed-tests results)
                      (lisp-unit:error-tests  results))
              (uiop:quit 1)))'
