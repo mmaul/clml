@@ -13,7 +13,7 @@ env:
     - PATH=$HOME/.roswell/bin:$PATH
     - ROSWELL_INSTALL_DIR=$HOME/.roswell
   matrix:
-#    - LISP="sbcl-bin  --dynamic-space-size 2560"
+    - LISP=sbcl-bin
     - LISP=ccl-bin
 #    allow_failures:
 #      - LISP=ccl-bin
@@ -40,6 +40,4 @@ cache:
     - $HOME/.config/common-lisp
 
 script:
-  - ros -s prove -e '(ql:quickload :clml.test)(in-package :clml.test)
-         (unless (run-all-tests)
-         (uiop:quit 1))'
+ros dynamic-space-size=2560 -e '(ql:quickload :clml.test)(in-package :clml.test)
