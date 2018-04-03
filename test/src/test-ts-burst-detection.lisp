@@ -35,7 +35,7 @@
          (:INDEX 2 :START 450.0 :END 570.0) (:INDEX 3 :START 565.0 :END 570.0)
          (:INDEX 1 :START 710.0 :END 780.0)))
       (assert-equality
-       #'equal
+       #'string-equal
        (let ((str (make-array 0 :element-type 'character
                               :adjustable t :fill-pointer t)))
          (with-output-to-string (s str)

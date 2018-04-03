@@ -48,11 +48,11 @@
         (assert-points-equal
          (map 'vector (lambda (pts) (map 'clml.hjs.meta:dvec
                                       (lambda (val m)
-                                        #+sbcl ; sbcl bug
+                                        #+(or sbcl ccl)
                                         (if (zerop m)
                                             0d0
                                             (/ val m))
-                                        #-sbcl
+                                        #-(or sbcl ccl)
                                         (handler-case (/ val m)
                                           (division-by-zero (c) (declare (ignore c)) 0d0)))
                                       (subseq pts 1)
@@ -78,5 +78,3 @@
                         "116" "80" "128" "188" "97" "167" "197" "196" "196" "196")
                       (map 'list (lambda (vec) (svref vec 0)) (dataset-points result))
                       :test #'string=)))))
-
-
