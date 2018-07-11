@@ -19,7 +19,7 @@
 (defparameter *csv-print-quote-p* nil "print \" when the element is a string?")
 (defparameter *csv-default-external-format* #+allegro :932 #+ccl :Windows-31j #+(or sbcl lispworks) :sjis) ;#+sbcl allegro :sjis
 
-(defun write-csv-line (record &key stream)
+(defun write-csv-line (record &key stream (delimiter *csv-separator*))
   "Accept a record and print it in one line as a csv record.
 
 A record is a sequence of element. A element can be of any type.
@@ -42,20 +42,20 @@ For efficiency reason, no intermediate string will be constructed. "
                                    (write-string e))))
                      (t (princ e)))
                    (when (< i (1- record-size))
-                     (write-char *csv-separator*)))))))
+                     (write-char delimiter)))))))
     (format stream "~&~a" result)))
 
-(defun write-csv-stream (stream table)
+(defun write-csv-stream (stream table &key (delimiter *csv-separator*))
   "Accept a stream and a table and output the table as csv form to the stream.
 
 A table is a sequence of lines. A line is a sequence of elements.
 Elements can be any types"
   (iter (for l in-sequence table)
-        (write-csv-line l :stream stream))
+        (write-csv-line l :stream stream :delimiter delimiter))
   (write-char #\newline stream)
   '(ok))
 
-(defun write-csv-file (filename table &key (external-format *csv-default-external-format*))
+(defun write-csv-file (filename table &key (external-format *csv-default-external-format*) (delimiter *csv-separator*))
   "Accept a filename and a table and output the table as csv form to the file.
 
 A table is a sequence of lines. A line is a sequence of elements.
@@ -64,13 +64,13 @@ Elements can be any types"
                      :if-does-not-exist :create
                      :if-exists :supersede
                      :external-format external-format)
-    (write-csv-stream f table)))
+    (write-csv-stream f table :delimiter delimiter)))
 
-(defun parse-csv-string (str) ;; refer RFC4180
+(defun parse-csv-string (str &key (delimiter *csv-separator*)) ;; refer RFC4180
   (coerce
    ;; (regexp:split-re "," str)
    (let ((q-count (count *csv-quote* str :test #'char-equal))
-         (sep-regex (cl-ppcre:parse-string (string *csv-separator*)))
+         (sep-regex (cl-ppcre:parse-string (string delimiter)))
         )
      (cond ((zerop q-count) (cl-ppcre:split sep-regex str) ;(regexp:split-re *csv-separator* str)
 
@@ -83,17 +83,17 @@ Elements can be any types"
                   do (cond ((eq state :at-first)
                             (setf field nil)
                             (cond ((char-equal chr *csv-quote*) (setf state :data-q))
-                                  ((char-equal chr *csv-separator*) (push "" fields))
+                                  ((char-equal chr delimiter) (push "" fields))
                                   (t (setf state :data-nq) (push chr field))))
                            ((eq state :data-nq)
                             (cond ((char-equal chr *csv-quote*) (setf state :q-in-nq))
-                                  ((char-equal chr *csv-separator*)
+                                  ((char-equal chr delimiter)
                                    (push-f field fields)
                                    (setf state :at-first))
                                   (t (push chr field))))
                            ((eq state :q-in-nq)
                             (cond ((char-equal chr *csv-quote*) (error "#\" inside the non quoted field"))
-                                  ((char-equal chr *csv-separator*)
+                                  ((char-equal chr delimiter)
                                    (push-f field fields)
                                    (setf state :at-first))
                                   (t (setf state :data-nq) (push chr field))))
@@ -102,7 +102,7 @@ Elements can be any types"
                               (push chr field)))
                            ((eq state :q-in-q)
                             (cond ((char-equal chr *csv-quote*) (push chr field) (setf state :data-q))
-                                  ((char-equal chr *csv-separator*)
+                                  ((char-equal chr delimiter)
                                    (push-f field fields)
                                    (setf state :at-first))
                                   (t (error "illegal value ( ~A ) after quotation" chr)))))
@@ -112,7 +112,7 @@ Elements can be any types"
    'vector))
 
 
-(defun read-csv-line (stream &key type-conv-fns map-fns (start 0) end)
+(defun read-csv-line (stream &key type-conv-fns map-fns (delimiter *csv-separator*) (start 0) end)
   "Read one line from stream and return a csv record.
 
 A CSV record is a vector of elements.
@@ -133,7 +133,7 @@ If start or end is negative, it counts from the end. -1 is the last element.
 
     (when rline
       (let* ((line (string-trim '(#\Space #\Tab #\Newline #\Return) rline))
-             (strs (parse-csv-string line))
+             (strs (parse-csv-string line :delimiter delimiter))
              (strs-size (length strs)))
         (when (< start 0)
           (setf start (+ start strs-size)))
@@ -158,7 +158,7 @@ If start or end is negative, it counts from the end. -1 is the last element.
               (map 'vector #'funcall map-fns result)))
           result)))))
 
-(defun read-csv-stream (stream &key (header t) type-spec map-fns (start 0) end)
+(defun read-csv-stream (stream &key (header t) type-spec map-fns (delimiter *csv-separator*) (start 0) end)
   "Read from stream until eof and return a csv table.
 
 A csv table is a vector of csv records.
@@ -213,8 +213,8 @@ If start or end is negative, it counts from the end. -1 is the last element.
          (etypecase header
              (cons (coerce header 'vector))
              (boolean (when header
-                        (read-csv-line stream))))))
-    (loop for rec = (read-csv-line stream :type-conv-fns type-conv-fns :map-fns map-fns
+                        (read-csv-line stream :delimiter delimiter))))))
+    (loop for rec = (read-csv-line stream :type-conv-fns type-conv-fns :map-fns map-fns :delimiter delimiter
                                    :start start :end end)
         while rec
         collect rec into result
@@ -223,7 +223,7 @@ If start or end is negative, it counts from the end. -1 is the last element.
                    (coerce result 'vector)
                    header)))))
 
-(defun read-csv-file (filename &key (header t) type-spec map-fns (external-format *csv-default-external-format*)
+(defun read-csv-file (filename &key (header t) type-spec map-fns (delimiter *csv-separator*) (external-format *csv-default-external-format*)
                       (os :anynl-dos) (start 0) end)
   "Read from stream until eof and return a csv table.
 
@@ -251,15 +251,17 @@ If start or end is negative, it counts from the end. -1 is the last element.
   (with-open-file (f filename :external-format external-format)
     #+allegro (setf (excl:eol-convention f) os)
     (read-csv-stream f :type-spec type-spec :map-fns map-fns
+                     :delimiter delimiter
                      :start start :end end
                      :header header)))
 
 
-(defun read-csv-file-and-sort (filename sort-order &key (header t) (order :ascend) type-spec map-fns (external-format *csv-default-external-format*))
+(defun read-csv-file-and-sort (filename sort-order &key (header t) (order :ascend) type-spec map-fns (delimiter *csv-separator*) (external-format *csv-default-external-format*))
   (let ((table (read-csv-file filename
                               :header header
                               :type-spec type-spec
                               :map-fns map-fns
+                              :delimiter delimiter
                               :external-format external-format)))
     (loop for i in (reverse sort-order)
         do (setf table
