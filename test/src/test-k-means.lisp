@@ -4,7 +4,7 @@
 (define-test test-sample-k-means
     (let (dataset centroids result)
       (assert
-       (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #+sbcl :sjis #+ccl :Windows-31 #+lispworks :sjisj)))
+       (setf dataset (read-data-from-file (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/pos.sexp") :external-format #+allegro :932 #+sbcl :sjis #+ccl :Windows-31j #+lispworks :sjisj)))
       (assert
        (setf dataset
          (pick-and-specialize-data dataset :range '(2 3) :data-types '(:numeric :numeric))))
@@ -20,4 +20,3 @@
           do (assert-eql (c-size cluster) (length pts))
              (loop for pt across pts
                  do (assert-true (find pt (mapcar #'p-pos (c-points cluster)) :test #'point-equal))))))
-

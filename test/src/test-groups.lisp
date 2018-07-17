@@ -75,6 +75,8 @@
                             ; test-spline error
                             ))
 
+(defparameter *util-tests* '(parse-arff))
+
 (defparameter *all-tests* (append *statistics-tests* *decision-tree-tests* *clustering-tests*
                                   *time-series-tests* *svm-tests* *classifiers-tests*
                                   ; *association-rule-tests* error result key is cons not string
@@ -82,7 +84,8 @@
                                   ; *pca-tests* takes too long
                                   *hjs-tests*
                                   *nonparametric-tests*
-                                  *nearest-search*))
+                                  *nearest-search*
+                                  *util-tests*))
 #| #'test-sample-assoc #'test-sample-cluster-validation
              #'test-decision-tree #'test-sample-expl-smthing
              #'test-hc #'test-sample-k-means
