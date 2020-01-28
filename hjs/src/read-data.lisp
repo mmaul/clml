@@ -6,7 +6,7 @@
   (lw:set-default-character-element-type 'lw:simple-char))
 #+sbcl
 (eval-when (:compile-toplevel :load-toplevel :execute)
-  (sb-int::set-floating-point-modes
+  (sb-int:set-floating-point-modes
    :traps
    (remove :invalid (getf (sb-int:get-floating-point-modes) :traps))))
 #+ccl
