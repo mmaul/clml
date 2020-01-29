@@ -14,7 +14,7 @@ env:
     - ROSWELL_INSTALL_DIR=$HOME/.roswell
   matrix:
     - LISP=sbcl-bin
-    - LISP=ccl-bin
+#    - LISP=ccl-bin
 #    allow_failures:
 #      - LISP=ccl-bin
 #    - LISP=abcl
