@@ -5,8 +5,8 @@ addons:
   apt:
     packages:
       - libc6-i386
-      - clisp
-      - openjdk-7-jre
+#      - clisp
+#      - openjdk-7-jre
 
 env:
   global:
