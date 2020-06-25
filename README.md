@@ -341,9 +341,9 @@ most easily in the [clod](http://quickdocs.org/clod/api) api documentation] at [
 
     (ql:quickload :clml.docs :verbose t)
     (in-package :clml.docs)
-    (generate-clml-api-docs)
+    (generate-api-docs)
 
-The generate-clml-api-docs form enerates Org API documentation in the **clml/docs/api** directory from loaded packages for
+The generate-api-docs form enerates Org API documentation in the **clml/docs/api** directory from loaded packages for
 CLML for packages matching the following prefix patterns:
 
     +^clml[.]
