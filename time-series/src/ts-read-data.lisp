@@ -5,7 +5,7 @@
   ((frequency :initarg :frequency
               :accessor ts-freq
               :initform nil
-              :type number)
+              :type (or null number))
    (start :initarg :start :accessor ts-start :initform nil)
    (end :initarg :end :accessor ts-end :initform nil)
    (ts-type :initarg :ts-type :accessor ts-type :initform nil)

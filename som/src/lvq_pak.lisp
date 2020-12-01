@@ -53,7 +53,7 @@
      (current :accessor entries-current :initarg :current :initform 0
               :documentation "index of current data-entry inside data-entries")
      (entries :accessor entries-entries :initarg :entries :initform nil
-              :type #-ccl cons #+ccl list
+              :type list
               :documentation "list of data-entries")
      (num-loaded :accessor entries-num-loaded :initarg :num-loaded :initform nil
                  :documentation "number of lines loaded in entries list")
