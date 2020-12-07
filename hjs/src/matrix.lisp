@@ -481,10 +481,12 @@
          (m (array-dimension A 1))
          (n (array-dimension A 0))
          (lda (max 1 m))
-         (ipiv (make-array (min m n) :element-type
+         (ipiv (let ((%ipiv (make-array (min m n) :element-type
                            #+ (or ccl sbcl lispworks) '(signed-byte 32)
                            #+allegro 'fixnum
-                           ))
+                           )))
+				 #+ccl (coerce %ipiv 'CCL::SIMPLE-FIXNUM-VECTOR)
+				 #-ccl %ipiv))
          (lwork (* m n 2))
          (work (make-array lwork :element-type 'double-float))
          (info 0))
