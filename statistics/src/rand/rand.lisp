@@ -154,7 +154,7 @@
        (xn (make-array (1+ n) :element-type 'double-float)))
   (declare (type double-float r v d)
            (type fixnum k n n-minus-1)
-           (type (vector double-float *) xn))
+           (type (simple-array double-float (*)) xn))
   ;; build xn
   (setf (aref xn n) (* v (exp (/ (* r r) 2))))
   (setf (aref xn (1- n)) r)
@@ -233,8 +233,8 @@
          (base (expt 2 (- +bit-operation-m+ k 1))))
     (declare (type double-float r v d)
              (type fixnum k n n-minus-1 base)
-             (type (vector double-float *) wn fn)
-             (type (vector fixnum *) kn))
+             (type (simple-array double-float (*)) wn fn)
+             (type (simple-array fixnum (*)) kn))
     ;; build arrays
     (setf (aref wn (- n 1)) (/ (* v (exp (/ (* r r) 2))) base))
     (setf (aref wn (- n 2)) (/ r base))
@@ -347,8 +347,8 @@
          (base (expt 2 (- +bit-operation-m+ k))))
     (declare (type double-float r v d)
              (type fixnum k n n-minus-1 base)
-             (type (vector double-float *) wn fn)
-             (type (vector fixnum *) kn))
+             (type (simple-array double-float (*)) wn fn)
+             (type (simple-array fixnum (*)) kn))
     ;; build arrays
     (setf (aref wn (- n 1)) (/ (* v (exp (/ (* r r) 2))) base))
     (setf (aref wn (- n 2)) (/ r base))
@@ -546,8 +546,8 @@
          (base (expt 2 (- +bit-operation-m+ k 1))))
     (declare (type double-float r v tr1 tr2)
              (type fixnum k n n-minus-1 base)
-             (type (vector double-float *) wn fn)
-             (type (vector fixnum *) kn))
+             (type (simple-array double-float (*)) wn fn)
+             (type (simple-array fixnum (*)) kn))
     ;; build arrays
     (setf (aref wn (- n 1)) (/ (* v (+ 1 (* r r))) base))
     (setf (aref wn (- n 2)) (/ r base))
@@ -663,8 +663,8 @@
        (base (expt 2 (- +bit-operation-m+ k))))
   (declare (type double-float r v)
            (type fixnum k n n-minus-1 base)
-           (type (vector double-float *) wn fn)
-           (type (vector fixnum *) kn))
+           (type (simple-array double-float (*)) wn fn)
+           (type (simple-array fixnum (*)) kn))
   ;; build arrays
   (setf (aref wn (- n 1)) (/ (* v (exp r)) base))
   (setf (aref wn (- n 2)) (/ r base))
@@ -804,8 +804,8 @@
          (base (expt 2 (- +bit-operation-m+ k 1))))
     (declare (type double-float r v)
              (type fixnum k n n-minus-1 base)
-             (type (vector double-float *) wn fn)
-             (type (vector fixnum *) kn))
+             (type (simple-array double-float (*)) wn fn)
+             (type (simple-array fixnum (*)) kn))
     ;; build arrays
     (setf (aref wn (- n 1)) (/ (* v (exp r)) base))
     (setf (aref wn (- n 2)) (/ r base))
@@ -2083,8 +2083,8 @@
        (base (expt 2 (- +bit-operation-m+ k 1))))
   (declare (type double-float r v tr)
            (type fixnum k n n-minus-1 base)
-           (type (vector double-float *) wn fn)
-           (type (vector fixnum *) kn))
+           (type (simple-array double-float (*)) wn fn)
+           (type (simple-array fixnum (*)) kn))
   ;; build arrays
   (setf (aref wn (- n 1)) (/ (* (expt (+ 1d0 tr) 2) v) tr base))
   (setf (aref wn (- n 2)) (/ r base))
@@ -2383,7 +2383,7 @@
                ans)))
     (declare (type double-float s a d)
              (type vector tix)
-             (type (vector fixnum *) si))
+             (type (simple-array fixnum (*)) si))
     (values tix si)))
 
 (defun binomial-table-lookup (tix si)
@@ -2415,7 +2415,7 @@
          (b (expt 2 k)))
     (declare (type double-float s a)
              (type fixnum nsq k b)
-             (type (vector double-float *) pbins))
+             (type (simple-array double-float (*)) pbins))
     ;; build pbins
     (setf (aref pbins 0) (int-power (- 1d0 probability) size))
     (loop for i from 1 to size do
@@ -2438,7 +2438,7 @@
                                do (incf j tx)) :initial-element -1 :element-type 'fixnum))
           (thetan 0d0))
       (declare (type double-float w thetan)
-               (type (vector fixnum *) table))
+               (type (simple-array fixnum (*)) table))
       (loop with j = 0
             for x from 0
             for pbin across pbins
@@ -2454,8 +2454,8 @@
             (vi (make-array nsq :element-type 'double-float
                             :initial-contents (loop for i from 0 to size collect (dfloat (/ (+ i 1) nsq)))))
             (c (dfloat (/ nsq))))
-        (declare (type (vector fixnum *) ki)
-                 (type (vector double-float *) vi)
+        (declare (type (simple-array fixnum (*)) ki)
+                 (type (simple-array double-float (*)) vi)
                  (type double-float c))
         (loop repeat size do
               (let ((maxp 0)
@@ -2658,7 +2658,7 @@
           (thetan 0d0)
           (sum 0d0))
       (declare (type double-float w thetan sum)
-               (type (vector fixnum *) table))
+               (type (simple-array fixnum (*)) table))
       (loop with j = 0
           for x from 0
           for pgeo across pgeos
@@ -2675,8 +2675,8 @@
             (vi (make-array nsq :element-type 'double-float
                             :initial-contents (loop for i from 0 below nsq collect (dfloat (/ (+ i 1) nsq)))))
             (c (dfloat (/ nsq))))
-        (declare (type (vector fixnum *) ki)
-                 (type (vector double-float *) vi)
+        (declare (type (simple-array fixnum (*)) ki)
+                 (type (simple-array double-float (*)) vi)
                  (type double-float c))
         (loop repeat (1- nsq) do
               (let ((maxp 0)
@@ -2911,7 +2911,7 @@
            (sum 0d0))
       (declare (type double-float w thetan sum pl pu)
                (type fixnum nsq d)
-               (type (vector fixnum *) table))
+               (type (simple-array fixnum (*)) table))
       (unless (= xl 0)
         (setf pps (subseq pps xl)))
       (loop with j = 0
@@ -2930,8 +2930,8 @@
             (vi (make-array nsq :element-type 'double-float
                             :initial-contents (loop for i from 0 below nsq collect (dfloat (/ (+ i 1) nsq)))))
             (c (dfloat (/ nsq))))
-        (declare (type (vector fixnum *) ki)
-                 (type (vector double-float *) vi)
+        (declare (type (simple-array fixnum (*)) ki)
+                 (type (simple-array double-float (*)) vi)
                  (type double-float c))
         (loop repeat (1- nsq) do
               (let ((maxp 0)
@@ -3174,7 +3174,7 @@
          (k 7)
          (b (expt 2 k)))
     (declare (type fixnum a1 a2 nsq k b)
-             (type (vector double-float *) phs))
+             (type (simple-array double-float (*)) phs))
     ;; build phs
     (setf (aref phs 0)
       (/ (dfloat (the fixnum (* (combination successes a1) (combination (- elements successes) (- samples a1)))))
@@ -3200,7 +3200,7 @@
           (table (make-array b :initial-element -1 :element-type 'fixnum))
           (thetan 0d0))
       (declare (type double-float w thetan)
-               (type (vector fixnum *) table))
+               (type (simple-array fixnum (*)) table))
       (loop with j = 0
           for x from a1
           for i from 0
@@ -3217,8 +3217,8 @@
             (vi (make-array nsq :element-type 'double-float
                             :initial-contents (loop for i from 0 below nsq collect (dfloat (/ (+ i 1) nsq)))))
             (c (dfloat (/ nsq))))
-        (declare (type (vector fixnum *) ki)
-                 (type (vector double-float *) vi)
+        (declare (type (simple-array fixnum (*)) ki)
+                 (type (simple-array double-float (*)) vi)
                  (type double-float c))
         (loop repeat (1- nsq) do
               (let ((maxp 0)
@@ -3442,7 +3442,7 @@
            (sum 0d0))
       (declare (type double-float w thetan sum pl pu)
                (type fixnum nsq d)
-               (type (vector fixnum *) table))
+               (type (simple-array fixnum (*)) table))
       (unless (= xl 0)
         (setf pnbs (subseq pnbs xl)))
       (loop with j = 0
@@ -3461,8 +3461,8 @@
             (vi (make-array nsq :element-type 'double-float
                             :initial-contents (loop for i from 0 below nsq collect (dfloat (/ (+ i 1) nsq)))))
             (c (dfloat (/ nsq))))
-        (declare (type (vector fixnum *) ki)
-                 (type (vector double-float *) vi)
+        (declare (type (simple-array fixnum (*)) ki)
+                 (type (simple-array double-float (*)) vi)
                  (type double-float c))
         (loop repeat (1- nsq) do
               (let ((maxp 0)

@@ -348,8 +348,8 @@
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (eval-when (:execute :compile-toplevel :load-toplevel)
  (defclass trend-model (gaussian-stsp-model)
-   ((diff-k :initarg :diff-k :initform nil :type integer :accessor diff-k)
-    (tau^2 :initarg :tau^2 :initform nil :type number :accessor tau^2)
+   ((diff-k :initarg :diff-k :initform nil :type (or null integer) :accessor diff-k)
+    (tau^2 :initarg :tau^2 :initform nil :type (or null number) :accessor tau^2)
     (aic :initarg :aic :initform +nan+ :type number))
    (:documentation "- parent: gaussian-stsp-model
 - accessors:
@@ -492,9 +492,9 @@
 ; seasonal model ;
 ;;;;;;;;;;;;;;;;;;
 (defclass seasonal-model (gaussian-stsp-model)
-  ((s-deg  :initarg :s-deg :initform nil :type fixnum :accessor s-deg)
-   (s-freq  :initarg :s-freq :initform nil :type fixnum :accessor s-freq)
-   (tau^2 :initarg :tau^2 :initform nil :type number :accessor tau^2))
+  ((s-deg  :initarg :s-deg :initform nil :type (or null fixnum) :accessor s-deg)
+   (s-freq  :initarg :s-freq :initform nil :type (or null fixnum) :accessor s-freq)
+   (tau^2 :initarg :tau^2 :initform nil :type (or null number) :accessor tau^2))
   (:documentation "- parent: gaussian-stsp-model
 - accessors
   - s-deg  : Degree for seasonal model
@@ -593,8 +593,8 @@
 ; seasonal-adjustment-model ;
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 (defclass seasonal-adjustment-model (gaussian-stsp-model)
-  ((trend :initarg :trend :initform nil :type trend-model :accessor trend-model)
-   (seasonal :initarg :seasonal :initform nil :type seasonal-model :accessor seasonal-model))
+  ((trend :initarg :trend :initform nil :type (or null trend-model) :accessor trend-model)
+   (seasonal :initarg :seasonal :initform nil :type (or null seasonal-model) :accessor seasonal-model))
   (:documentation "Standard seasonal adjustment model ( Trend + Seasonal )
 - parent: gaussian-stsp-model
 - accessors
