@@ -9,7 +9,9 @@
 (time (k-means 20 dataset
                :distance-fn #'manhattan-distance
                :max-iteration 100
-               :random-state (k-means::make-random-state-with-seed 3)
+               :random-state
+               #+lispworks *random-state*
+	       #-lispworks (clml.hjs.k-means:make-random-state-with-seed 0)
                :standardization t))
 
 

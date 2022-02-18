@@ -18,7 +18,8 @@
      (do-som-by-filename (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/som/animal.dat") "hexa" "gaussian"
                          24 16 123 10000 5 2400 10
        '(:absolute #+unix "tmp" #+mswindows "temp")))
-  #+ (or sbcl ccl allegro)
+  ;; #+ (or sbcl ccl allegro)
+  #+ (or sbcl ccl allegro lispworks)
   (assert-true (string= (concatenate 'string
                            (format nil "~%in-data-file [~s]~%" (clml.utility.data:fetch "https://mmaul.github.io/clml.data/sample/som/animal.dat"))
                            (format nil "s-topol[hexa] s-neigh[gaussian] xdim[24] ydim[16] nrand[123]~%")

@@ -25,11 +25,11 @@
       (assert-equalp #2A((-5 -1) (-4 -2) (2 0) (-6 1) (-3 3) (4 5)) merge-matrix)
       ;;complete
       (multiple-value-setq (cophenetic-matrix merge-matrix) (cophenetic-matrix d-matrix #'hc-complete))
-      (assert-eql 91.53141537199127d0 (aref cophenetic-matrix 0 1))
+      (assert-eql #+lispworks 91.53141537199125D0 #-lispworks 91.53141537199127d0 (aref cophenetic-matrix 0 1))
       (assert-equalp #2A((-5 -1) (-4 -2) (2 0) (-6 1) (-3 3) (4 5)) merge-matrix)
       ;;centroid
       (multiple-value-setq (cophenetic-matrix merge-matrix) (cophenetic-matrix d-matrix #'hc-centroid))
-      (assert-eql 44.02758328256393d0 (aref cophenetic-matrix 0 1))
+      (assert-eql #+lispworks 44.02758328256392D0 #-lispworks 44.02758328256393d0 (aref cophenetic-matrix 0 1))
       (assert-equalp #2A((-5 -1) (-4 -2) (2 0) (-6 1) (-3 3) (4 5)) merge-matrix)
       ;;median
       (multiple-value-setq (cophenetic-matrix merge-matrix) (cophenetic-matrix d-matrix #'hc-median))
