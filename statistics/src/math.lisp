@@ -562,9 +562,9 @@ Series \(not very large B):
                 (+ (log bx) +euler-gamma+)))
          (tolerance (* double-float-epsilon 5.0d0 (abs (+ c tt)))))
     (loop
-       for tt = tt then (* tt (/ (- x bx) j))
+       for ttt = tt then (* ttt (/ (- x bx) j))
        for j upfrom 1
-       for change = (/ tt j)
+       for change = (/ ttt j)
        sum change into s
        while (> (abs change) tolerance)
        finally (return (* (- a) (+ c s))))))
